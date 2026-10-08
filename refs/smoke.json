@@ -1,0 +1,29 @@
+{
+  "tools": {
+    "sonar": {
+      "fixtures": [
+        {
+          "name": "smoke",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sonar",
+            "tool_seed": 4242,
+            "palette": ["#000000", "#ffffff"],
+            "params": { "level": 0.5, "grid": 200, "modes": "Tide", "grainTog": true }
+          }
+        },
+        {
+          "name": "smoke-mid",
+          "frame": 6,
+          "recipe": {
+            "tirage": 0,
+            "tool": "sonar",
+            "tool_seed": 4242,
+            "palette": ["#000000", "#ffffff"],
+            "params": { "level": 0.5, "grid": 200, "modes": "Tide", "grainTog": true }
+          }
+        }
+      ]
+    }
+  }
+}

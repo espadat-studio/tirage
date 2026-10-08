@@ -4,6 +4,8 @@ lockfile = true
 
 [tools]
 "aqua:apple/pkl" = "0.32.1"
+"aqua:oxc-project/oxc/oxlint" = "1.84.0"
+bun = "1.4.2"
 "aqua:dprint/dprint" = "0.61.1"
 "aqua:jdx/hk" = "2.5.0"
 "aqua:nextest-rs/nextest/cargo-nextest" = "0.9.148"
@@ -21,13 +23,15 @@ run = "hk fix --all"
 
 [tasks.lint]
 alias = "l"
-description = "Check rustfmt, dprint, clippy and zizmor"
+description = "Check rustfmt, dprint, clippy, zizmor, oxlint and tsc"
+depends = ["refs:install"]
 run = "hk check --all"
 
 [tasks.test]
 alias = "t"
 description = "Run all tests"
-run = "cargo nextest run --locked --no-tests=pass"
+depends = ["refs:install"]
+run = ["cargo nextest run --locked --no-tests=pass", "bun test --cwd refs"]
 
 [tasks.wasm]
 alias = "w"
@@ -38,3 +42,32 @@ run = "cargo build --locked --lib --target wasm32-unknown-unknown"
 alias = "c"
 description = "Lint, test and build wasm, as CI does"
 depends = ["lint", "test", "wasm"]
+
+[tasks."refs:install"]
+description = "Install the refs script's locked dependencies"
+dir = "refs"
+run = "bun install --frozen-lockfile --silent"
+
+[tasks."refs:typecheck"]
+description = "Typecheck the refs script"
+depends = ["refs:install"]
+dir = "refs"
+run = "bun x tsc -p ."
+
+[tasks."refs:setup"]
+description = "Install playwright-core's pinned Chromium"
+depends = ["refs:install"]
+dir = "refs"
+run = "bun x playwright-core install chromium"
+
+[tasks.refs]
+description = "Export Reference exports from the live site: refs [--update] [tool...]. Never in CI"
+depends = ["refs:setup"]
+dir = "refs"
+run = "bun export.ts"
+
+[tasks."refs:smoke"]
+description = "Export the smoke fixtures twice into a temp dir and check the bytes match"
+depends = ["refs:setup"]
+dir = "refs"
+run = 'dir=$(mktemp -d) && cp smoke.json "$dir/manifest.json" && bun export.ts --manifest "$dir/manifest.json"'

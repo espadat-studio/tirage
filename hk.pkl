@@ -3,7 +3,7 @@ import "package://github.com/jdx/hk/releases/download/v2.5.0/hk@2.5.0#/Builtins.
 
 local linters = new Mapping<String, Step> {
   ["dprint"] = (Builtins.dprint) {
-    glob = List("**/*.{md,json,jsonc,toml,yaml,yml}")
+    glob = List("**/*.{md,json,jsonc,toml,yaml,yml,ts}")
   }
   ["rustfmt"] = Builtins.rustfmt
   ["clippy"] {
@@ -12,6 +12,11 @@ local linters = new Mapping<String, Step> {
     fix = "cargo clippy --all-targets --fix --allow-dirty --allow-staged --quiet -- -D warnings"
   }
   ["zizmor"] = Builtins.zizmor
+  ["oxlint"] = Builtins.ox_lint
+  ["tsc"] {
+    glob = "refs/**/*.ts"
+    check = "mise run refs:typecheck"
+  }
 }
 
 hooks {
