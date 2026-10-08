@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tool Shortlist Sheet</title>
+<style>
+  :root { --board: #0d0d0d; --stock: #f7f7f2; --dim: rgba(247,247,242,.6); --stat: #ffd400; --rank: #d0101c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--board); color: var(--stock); font: 14px/1.4 system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; background: var(--board); border-bottom: 1px solid #333; padding: 12px 16px; display: grid; gap: 8px; }
+  h1 { margin: 0; font-size: 16px; }
+  .banner { color: var(--dim); font-size: 12px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button { font: inherit; background: #222; color: var(--stock); border: 1px solid #444; border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+  button[aria-pressed="true"] { background: var(--stock); color: var(--board); }
+  #out { flex: 1 1 320px; font: 12px ui-monospace, monospace; background: #181818; color: var(--stat); border: 1px solid #333; padding: 6px; border-radius: 4px; }
+  main { padding: 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  h2 { grid-column: 1 / -1; margin: 8px 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+  .tool { background: #171717; border: 2px solid #262626; border-radius: 6px; padding: 8px; cursor: pointer; }
+  .tool.picked { border-color: var(--stat); }
+  .tool[hidden] { display: none; }
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .shots img { width: 100%; aspect-ratio: 9 / 16; display: block; border-radius: 2px; background: #000; }
+  .head { display: flex; justify-content: space-between; gap: 6px; margin-top: 6px; font-weight: 700; }
+  .desc { color: var(--dim); font-size: 12px; margin: 2px 0 4px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; font-size: 11px; }
+  .tag { padding: 1px 6px; border-radius: 3px; background: #2a2a2a; }
+  .tag.ship { background: var(--stat); color: var(--board); }
+  .tag.proto { background: #444; }
+  .tag.warn { background: var(--rank); }
+  .legend { color: var(--dim); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tool shortlist for recordreel: contact sheet</h1>
+  <div class="banner">PROTOTYPE, throwaway. 52 Tools x seeds 1/2/3 at 9:16, rendered from playgrnd.tools by <code>pg.ts</code>. Columns use recordreel palettes: 1 Sealed Release, 2 Variant Press, 3 Wheatpaste Wall. Click a Tool to toggle it into the shortlist. Shipped-design Tools start picked.</div>
+  <div class="bar">
+    <button data-filter="all" aria-pressed="true">All 52</button>
+    <button data-filter="picked" aria-pressed="false">Picked</button>
+    <button data-filter="ship" aria-pressed="false">Used by a shipped design</button>
+    <button data-filter="svg" aria-pressed="false">Has SVG</button>
+    <input id="out" readonly>
+    <button id="copy">Copy</button>
+  </div>
+</header>
+<main id="grid"></main>
+<script>
+const TOOLS = [
+  {
+    "slug": "oddgrid",
+    "cat": "Patterns",
+    "desc": "generative pixel compositions",
+    "svg": true,
+    "loop": true,
+    "sliders": 22,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "terrain",
+    "cat": "Backgrounds",
+    "desc": "layered contour landscapes",
+    "svg": false,
+    "loop": true,
+    "sliders": 18,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "filament",
+    "cat": "Backgrounds",
+    "desc": "flowing thread fields",
+    "svg": true,
+    "loop": true,
+    "sliders": 31,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "zig",
+    "cat": "Patterns",
+    "desc": "rounded zigzag patterns",
+    "svg": true,
+    "loop": true,
+    "sliders": 15,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "quilt",
+    "cat": "Patterns",
+    "desc": "pixel blanket patterns",
+    "svg": true,
+    "loop": true,
+    "sliders": 13,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "aura",
+    "cat": "Backgrounds",
+    "desc": "soft vibrant gradients",
+    "svg": false,
+    "loop": true,
+    "sliders": 14,
+    "palette": true,
+    "ship": "Variant Press, Photocard Binder",
+    "proto": null
+  },
+  {
+    "slug": "warp",
+    "cat": "Patterns",
+    "desc": "warped op-art patterns",
+    "svg": true,
+    "loop": true,
+    "sliders": 13,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "specimen",
+    "cat": "Posters",
+    "desc": "type specimen posters",
+    "svg": true,
+    "loop": true,
+    "sliders": 30,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "tokens",
+    "cat": "Badges",
+    "desc": "geometric badge sets",
+    "svg": true,
+    "loop": true,
+    "sliders": 32,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "vee",
+    "cat": "Patterns",
+    "desc": "mirrored chevron stripes",
+    "svg": true,
+    "loop": true,
+    "sliders": 15,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "fete",
+    "cat": "Posters",
+    "desc": "festival patch posters",
+    "svg": true,
+    "loop": true,
+    "sliders": 15,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "parcel",
+    "cat": "Posters",
+    "desc": "pixel parcel posters",
+    "svg": true,
+    "loop": true,
+    "sliders": 15,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "weave",
+    "cat": "Patterns",
+    "desc": "striped ribbon bands",
+    "svg": true,
+    "loop": true,
+    "sliders": 13,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "stipple",
+    "cat": "Textures",
+    "desc": "halftone dot portraits of light",
+    "svg": true,
+    "loop": true,
+    "sliders": 24,
+    "palette": true,
+    "ship": null,
+    "proto": "06 Tour Tee"
+  },
+  {
+    "slug": "modular",
+    "cat": "Posters",
+    "desc": "rounded modular grid posters",
+    "svg": true,
+    "loop": true,
+    "sliders": 24,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "static",
+    "cat": "Posters",
+    "desc": "glitch pixel posters",
+    "svg": true,
+    "loop": true,
+    "sliders": 14,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "optic",
+    "cat": "Posters",
+    "desc": "striped counterchange posters",
+    "svg": true,
+    "loop": true,
+    "sliders": 15,
+    "palette": true,
+    "ship": null,
+    "proto": "cover stand-in"
+  },
+  {
+    "slug": "rise",
+    "cat": "Backgrounds",
+    "desc": "radial stripe arcs",
+    "svg": true,
+    "loop": true,
+    "sliders": 15,
+    "palette": true,
+    "ship": null,
+    "proto": "cover stand-in"
+  },
+  {
+    "slug": "prism",
+    "cat": "Backgrounds",
+    "desc": "pixel aurora backdrops",
+    "svg": true,
+    "loop": true,
+    "sliders": 16,
+    "palette": false,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "riso",
+    "cat": "Posters",
+    "desc": "torn paper collage",
+    "svg": true,
+    "loop": true,
+    "sliders": 16,
+    "palette": true,
+    "ship": "Wheatpaste Wall",
+    "proto": null
+  },
+  {
+    "slug": "delta",
+    "cat": "Backgrounds",
+    "desc": "corrupted satellite mosaics",
+    "svg": false,
+    "loop": true,
+    "sliders": 22,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "mist",
+    "cat": "Backgrounds",
+    "desc": "sprayed neon washes",
+    "svg": false,
+    "loop": true,
+    "sliders": 16,
+    "palette": true,
+    "ship": "Variant Press",
+    "proto": null
+  },
+  {
+    "slug": "totem",
+    "cat": "Posters",
+    "desc": "mirrored pixel banners",
+    "svg": true,
+    "loop": true,
+    "sliders": 21,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "atlas",
+    "cat": "Textures",
+    "desc": "text-mode terrain maps",
+    "svg": true,
+    "loop": true,
+    "sliders": 18,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "sampler",
+    "cat": "Patterns",
+    "desc": "modular tile samplers",
+    "svg": true,
+    "loop": true,
+    "sliders": 17,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "relief",
+    "cat": "Patterns",
+    "desc": "isometric block lattices",
+    "svg": true,
+    "loop": true,
+    "sliders": 17,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "kiosk",
+    "cat": "Posters",
+    "desc": "typographic fly-posters",
+    "svg": true,
+    "loop": true,
+    "sliders": 20,
+    "palette": true,
+    "ship": "Wheatpaste Wall",
+    "proto": null
+  },
+  {
+    "slug": "mosh",
+    "cat": "Textures",
+    "desc": "corrupted signal",
+    "svg": true,
+    "loop": true,
+    "sliders": 17,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "pane",
+    "cat": "Backgrounds",
+    "desc": "gradient panels",
+    "svg": true,
+    "loop": true,
+    "sliders": 17,
+    "palette": true,
+    "ship": null,
+    "proto": "09 HiFi Faceplate"
+  },
+  {
+    "slug": "sonar",
+    "cat": "Backgrounds",
+    "desc": "dithered landmasses",
+    "svg": true,
+    "loop": true,
+    "sliders": 18,
+    "palette": true,
+    "ship": "One-bit Crate",
+    "proto": null
+  },
+  {
+    "slug": "bloom",
+    "cat": "Backgrounds",
+    "desc": "symmetrical pixel fields",
+    "svg": true,
+    "loop": true,
+    "sliders": 17,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "sear",
+    "cat": "Backgrounds",
+    "desc": "smeared thermal fields",
+    "svg": false,
+    "loop": true,
+    "sliders": 19,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "carve",
+    "cat": "Backgrounds",
+    "desc": "carved panel collages",
+    "svg": true,
+    "loop": true,
+    "sliders": 18,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "culture",
+    "cat": "Backgrounds",
+    "desc": "grainy colony fields",
+    "svg": false,
+    "loop": true,
+    "sliders": 19,
+    "palette": true,
+    "ship": null,
+    "proto": "10 Select Rail"
+  },
+  {
+    "slug": "husk",
+    "cat": "Backgrounds",
+    "desc": "eaten husk scatters",
+    "svg": false,
+    "loop": true,
+    "sliders": 18,
+    "palette": true,
+    "ship": "Test Pressing",
+    "proto": null
+  },
+  {
+    "slug": "strand",
+    "cat": "Backgrounds",
+    "desc": "branching rod chains",
+    "svg": false,
+    "loop": true,
+    "sliders": 23,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "chaff",
+    "cat": "Backgrounds",
+    "desc": "thrown blade scatters",
+    "svg": false,
+    "loop": true,
+    "sliders": 21,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "splice",
+    "cat": "Backgrounds",
+    "desc": "cut-up riso collages",
+    "svg": false,
+    "loop": true,
+    "sliders": 22,
+    "palette": true,
+    "ship": "Wheatpaste Wall",
+    "proto": null
+  },
+  {
+    "slug": "whorl",
+    "cat": "Patterns",
+    "desc": "warped op-art stripes",
+    "svg": false,
+    "loop": true,
+    "sliders": 18,
+    "palette": true,
+    "ship": null,
+    "proto": "04 Ticket Stub"
+  },
+  {
+    "slug": "sprig",
+    "cat": "Patterns",
+    "desc": "drawn botanical repeats",
+    "svg": false,
+    "loop": true,
+    "sliders": 19,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "frond",
+    "cat": "Backgrounds",
+    "desc": "degraded still life",
+    "svg": false,
+    "loop": true,
+    "sliders": 22,
+    "palette": true,
+    "ship": "Paste-up Tropical",
+    "proto": null
+  },
+  {
+    "slug": "pith",
+    "cat": "Textures",
+    "desc": "dithered cell tissue",
+    "svg": false,
+    "loop": true,
+    "sliders": 21,
+    "palette": true,
+    "ship": null,
+    "proto": "06 Tour Tee"
+  },
+  {
+    "slug": "hiss",
+    "cat": "Backgrounds",
+    "desc": "television-snow posters",
+    "svg": false,
+    "loop": true,
+    "sliders": 25,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "benday",
+    "cat": "Backgrounds",
+    "desc": "dot-screened thermal fields",
+    "svg": false,
+    "loop": true,
+    "sliders": 22,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "stitch",
+    "cat": "Backgrounds",
+    "desc": "glitched pixel grids",
+    "svg": false,
+    "loop": true,
+    "sliders": 22,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "fold",
+    "cat": "Patterns",
+    "desc": "kaleidoscope pixel art",
+    "svg": false,
+    "loop": true,
+    "sliders": 20,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "coral",
+    "cat": "Backgrounds",
+    "desc": "sea-fan textile",
+    "svg": false,
+    "loop": true,
+    "sliders": 22,
+    "palette": true,
+    "ship": "Paste-up Tropical",
+    "proto": null
+  },
+  {
+    "slug": "dahlia",
+    "cat": "Posters",
+    "desc": "chrysanthemum burst posters",
+    "svg": false,
+    "loop": true,
+    "sliders": 21,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "cipher",
+    "cat": "Patterns",
+    "desc": "glyph-grid fields",
+    "svg": false,
+    "loop": true,
+    "sliders": 21,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "motley",
+    "cat": "Patterns",
+    "desc": "glyph patchwork",
+    "svg": false,
+    "loop": true,
+    "sliders": 20,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  },
+  {
+    "slug": "vein",
+    "cat": "Backgrounds",
+    "desc": "cut-paper marbling, in vector",
+    "svg": true,
+    "loop": true,
+    "sliders": 19,
+    "palette": true,
+    "ship": "Variant Press",
+    "proto": null
+  },
+  {
+    "slug": "crowd",
+    "cat": "Backgrounds",
+    "desc": "blurred crowd",
+    "svg": false,
+    "loop": true,
+    "sliders": 19,
+    "palette": true,
+    "ship": null,
+    "proto": null
+  }
+];
+const picked = new Set(TOOLS.filter(t => t.ship).map(t => t.slug));
+const grid = document.getElementById("grid");
+const out = document.getElementById("out");
+let filter = "all";
+
+const cats = [...new Set(TOOLS.map(t => t.cat))];
+for (const cat of cats) {
+  const h = document.createElement("h2");
+  h.textContent = cat;
+  h.dataset.cat = cat;
+  grid.append(h);
+  for (const t of TOOLS.filter(t => t.cat === cat)) {
+    const el = document.createElement("article");
+    el.className = "tool";
+    el.dataset.slug = t.slug;
+    const tags = [
+      t.ship && `<span class="tag ship">ships in ${t.ship}</span>`,
+      t.proto && `<span class="tag proto">tried in ${t.proto}</span>`,
+      !t.palette && `<span class="tag warn">fixed palette, ignores inks</span>`,
+      `<span class="tag">${t.svg ? "SVG + PNG" : "PNG only"}</span>`,
+      `<span class="tag">${t.sliders} sliders</span>`,
+    ].filter(Boolean).join("");
+    el.innerHTML = `
+      <div class="shots">${[1, 2, 3].map(s => `<img loading="lazy" src="img/${t.slug}-${s}-9x16.webp" alt="${t.slug} seed ${s}">`).join("")}</div>
+      <div class="head"><span>${t.slug}</span><span class="mark"></span></div>
+      <div class="desc">${t.desc}</div>
+      <div class="tags">${tags}</div>`;
+    el.addEventListener("click", () => {
+      picked.has(t.slug) ? picked.delete(t.slug) : picked.add(t.slug);
+      render();
+    });
+    grid.append(el);
+  }
+}
+
+function visible(t) {
+  if (filter === "picked") return picked.has(t.slug);
+  if (filter === "ship") return !!t.ship;
+  if (filter === "svg") return t.svg;
+  return true;
+}
+
+function render() {
+  for (const el of grid.querySelectorAll(".tool")) {
+    const t = TOOLS.find(x => x.slug === el.dataset.slug);
+    const on = picked.has(t.slug);
+    el.classList.toggle("picked", on);
+    el.querySelector(".mark").textContent = on ? "PICKED" : "";
+    el.hidden = !visible(t);
+  }
+  for (const h of grid.querySelectorAll("h2")) {
+    h.hidden = !TOOLS.some(t => t.cat === h.dataset.cat && visible(t));
+  }
+  out.value = `${picked.size}: ${[...picked].sort().join(" ")}`;
+}
+
+for (const b of document.querySelectorAll("[data-filter]")) {
+  b.addEventListener("click", () => {
+    filter = b.dataset.filter;
+    for (const o of document.querySelectorAll("[data-filter]")) o.setAttribute("aria-pressed", o === b);
+    render();
+  });
+}
+document.getElementById("copy").addEventListener("click", () => navigator.clipboard.writeText(out.value));
+render();
+</script>
+</body>
+</html>
