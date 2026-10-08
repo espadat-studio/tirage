@@ -23,7 +23,7 @@ describe("parseManifest", () => {
           page_sha256: "a".repeat(64),
           chromium: "153.0.8010.12",
           font_sha256: "b".repeat(64),
-          threshold: { max: 0.02, reason: "grain specks land on different pixels" },
+          threshold: { max: 0.01, reason: "grain specks land on different pixels" },
           fixtures: [{ name: "seed-7", recipe: recipe() }, { name: "seed-7-mid", frame: 12, recipe: recipe() }],
         },
       },
@@ -52,8 +52,17 @@ describe("parseManifest", () => {
     [{ frame: -1 }, {}, "tools.sonar.fixtures[0].frame: expected an integer >= 0"],
     [{ name: "Seed 7" }, {}, "tools.sonar.fixtures[0].name: expected kebab-case"],
     [{ colour: 1 }, {}, "tools.sonar.fixtures[0]: unknown key colour"],
-    [{}, { threshold: { max: 0.02 } }, "tools.sonar.threshold.reason: expected a non-empty string"],
-    [{}, { threshold: { max: 1.5, reason: "x" } }, "tools.sonar.threshold.max: expected a share in (0, 1)"],
+    [{}, { threshold: { max: 0.01 } }, "tools.sonar.threshold.reason: expected a non-empty string"],
+    [
+      {},
+      { threshold: { max: 0.016, reason: "x" } },
+      "tools.sonar.threshold.max: expected a share in (0, 0.016), an override may only tighten the ceiling",
+    ],
+    [
+      {},
+      { threshold: { max: 0, reason: "x" } },
+      "tools.sonar.threshold.max: expected a share in (0, 0.016), an override may only tighten the ceiling",
+    ],
   ])("rejects %j %j", (fixture, tool, message) => {
     expect(() => parseManifest(manifest(fixture, tool))).toThrow(message);
   });

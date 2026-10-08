@@ -1,6 +1,6 @@
 # Reference exports
 
-Test fixtures only. Each PNG here was exported from the live page of one Tool on playgrnd.tools (`https://www.playgrnd.tools/<tool>/`), for a Recipe of our own. tirage reproduces the look of playgrnd.tools generators and is not affiliated with it.
+Test fixtures only. tirage reproduces the look of playgrnd.tools generators and is not affiliated with it. Each PNG here was exported from one Tool's live page, `https://www.playgrnd.tools/<tool>/`, for a Recipe of our own.
 
 ## Provenance
 
@@ -15,7 +15,7 @@ Test fixtures only. Each PNG here was exported from the live page of one Tool on
 
 ## Rights
 
-The site's only rights line is "Exports are yours." ([homepage](https://www.playgrnd.tools/)). These files are outputs of our own Recipes, which is what that line covers ([ADR 0005](../../meta/adr/0005-public-repo-with-reference-exports.md)).
+The site's only rights line is "Exports are yours.", on its [homepage](https://www.playgrnd.tools/). These files are outputs of our own Recipes, which is what that line covers ([ADR 0005](../../meta/adr/0005-public-repo-with-reference-exports.md)).
 
 They are not covered by any licence tirage grants, now or later. They will be removed on request from the site's author.
 
@@ -25,4 +25,4 @@ They are not covered by any licence tirage grants, now or later. They will be re
 
 A fixture without `frame` is exported with motion off. A fixture with `frame` is exported with motion on and the timeline pinned to that frame, so a Loop Tool's Still is `frame: 0`.
 
-A Tool may set `"threshold": {"max": <share>, "reason": "<why>"}` to override the fidelity ceiling. The reason is required.
+A Tool may set `"threshold": {"max": <share>, "reason": "<why>"}` to tighten the 1.6% fidelity ceiling. It can never loosen it, and the reason is required.
