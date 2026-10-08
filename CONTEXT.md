@@ -43,7 +43,7 @@ What a Recipe renders: a Still or a Loop.
 A single-frame Visual.
 
 **Loop**:
-An animated Visual that ends where it starts.
+An animated Visual that ends where it starts. Its first frame is the Still of the same Recipe.
 _Avoid_: GIF, clip
 
 **Reference export**:
