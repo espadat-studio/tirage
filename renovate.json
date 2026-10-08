@@ -8,9 +8,8 @@
   "semanticCommits": "enabled",
   "packageRules": [
     {
-      "description": "The hk binary (mise.toml, native mise manager) and its pkl schema (hk.pkl, the customManager below) are one version in two files. Grouped so a bump cannot land half-applied: hk 2.x cannot evaluate a 1.x schema.",
+      "description": "The hk binary (.mise/config.toml, aqua backend) and its pkl schema (hk.pkl, the customManager below) are one version in two files. Grouped so a bump cannot land half-applied: hk 2.x cannot evaluate a 1.x schema.",
       "matchDepNames": [
-        "hk",
         "jdx/hk"
       ],
       "groupName": "hk"

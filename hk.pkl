@@ -37,7 +37,7 @@ hooks {
   ["pre-push"] {
     steps {
       ["nextest"] {
-        check = "cargo nextest run --no-tests=pass"
+        check = "mise run test"
       }
     }
   }
