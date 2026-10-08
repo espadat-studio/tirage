@@ -2,8 +2,12 @@
 
 ### Issue tracker
 
-GitHub Issues on `espadat-studio/tirage` via `gh`. See `docs/agents/issue-tracker.md`.
+GitHub Issues at `espadat-studio/tirage` via the `gh` CLI. See `meta/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five canonical labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `meta/agents/triage-labels.md`.
 
 ### Domain docs
 
-Single-context: root `CONTEXT.md` + `docs/adr/`.
+Single-context. `CONTEXT.md` at repo root, ADRs in `meta/adr/`. See `meta/agents/domain.md`.
