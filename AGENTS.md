@@ -2,7 +2,7 @@
 
 ### Issue tracker
 
-GitHub Issues on `espadat-studio/visuals` via `gh`. See `docs/agents/issue-tracker.md`.
+GitHub Issues on `espadat-studio/tirage` via `gh`. See `docs/agents/issue-tracker.md`.
 
 ### Domain docs
 

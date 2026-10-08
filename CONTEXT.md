@@ -1,4 +1,4 @@
-# visuals
+# tirage
 
 Original generative artwork and animations that reproduce the look of the playgrnd.tools generators, rendered from code.
 
