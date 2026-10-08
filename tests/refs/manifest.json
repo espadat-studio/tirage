@@ -1,3 +1,86 @@
 {
-  "tools": {}
+  "tools": {
+    "sonar": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sonar",
+            "tool_seed": 9611518,
+            "palette": [
+              "#0a0f1c",
+              "#3ddc97",
+              "#4361ee",
+              "#ffd166",
+              "#ef476f",
+              "#f1faee"
+            ],
+            "params": {
+              "level": 0.46,
+              "scale": 7.3,
+              "warp": 0.61,
+              "grid": 238,
+              "depth": 0.16,
+              "fringe": 0.04,
+              "spark": 0.1
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sonar",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#0a0f1c",
+              "#3ddc97",
+              "#4361ee",
+              "#ffd166",
+              "#ef476f",
+              "#f1faee"
+            ],
+            "params": {
+              "level": 0.46,
+              "scale": 4.3,
+              "warp": 0.2,
+              "grid": 270,
+              "depth": 0.98,
+              "fringe": 0.58,
+              "spark": 0.85
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sonar",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#0a0f1c",
+              "#3ddc97",
+              "#4361ee",
+              "#ffd166",
+              "#ef476f",
+              "#f1faee"
+            ],
+            "params": {
+              "level": 0.4,
+              "scale": 5.7,
+              "warp": 0.93,
+              "grid": 174,
+              "depth": 0.67,
+              "fringe": 0.62,
+              "spark": 0.39
+            }
+          }
+        }
+      ],
+      "page_sha256": "0fe55b634ea769541e0a0dd2aca0b6d32bfaafc9a9c2f5a94a3c0e9e733250dc",
+      "chromium": "153.0.8010.12",
+      "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+    }
+  }
 }
