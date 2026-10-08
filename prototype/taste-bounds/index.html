@@ -75,6 +75,8 @@ function result() {
       inks: ink.inks,
       bounds: Object.fromEntries(Object.entries(b).map(([k, v]) => [k, v && v.map(fmt).map(Number)])),
       randomInBounds: rnd.filter(x => inBounds(t, x, b)).length,
+      round2Bounds: (window.BOUNDS || {})[t.tool],
+      round2Bad: tiles(t.tool, "check").filter(x => s.bad.has(x.id)).map(x => ({ seed: x.seed, values: Object.fromEntries(t.params.map(([id]) => [id, Number(fmt(x.values[id]))])) })),
       randomInBoundsMarkedBad: rnd.filter(x => inBounds(t, x, b) && s.bad.has(x.id)).map(x => ({ seed: x.seed, values: Object.fromEntries(t.params.map(([id]) => [id, Number(fmt(x.values[id]))])) })),
     };
   }
@@ -107,6 +109,18 @@ function render() {
   const main = document.getElementById("main");
   main.innerHTML = "";
   const toggle = id => { s.bad.has(id) ? s.bad.delete(id) : s.bad.add(id); render(); };
+
+  const chk = tiles(t.tool, "check");
+  if (chk.length) {
+    const h0 = document.createElement("h2"); h0.textContent = `Round 2: ${chk.length} draws inside the bounds below (click = would not ship)`; main.append(h0);
+    const lb = document.createElement("div"); lb.className = "label";
+    lb.textContent = Object.entries(BOUNDS[t.tool]).map(([k, v]) => `${k} ${v.join("..")}`).join("   ");
+    main.append(lb);
+    const g = document.createElement("div"); g.className = "grid";
+    for (const x of chk) g.append(figure(x, `seed ${x.seed}<br>${t.params.map(([id]) => `${id}=${fmt(x.values[id])}`).join(" ")}`, () => toggle(x.id), s.bad.has(x.id) ? "bad" : ""));
+    main.append(g);
+    const hr = document.createElement("h2"); hr.textContent = "Round 1 (done, for reference)"; main.append(hr);
+  }
 
   const h1 = document.createElement("h2"); h1.textContent = `Calibration: ${t.tool}-${t.seed} at ${t.ratio}`; main.append(h1);
   const inks = [...tiles(t.tool, "calib"), ...tiles(t.tool, "ink")];

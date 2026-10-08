@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "fs";
+import { mkdirSync, readFileSync, writeFileSync } from "fs";
 import { execFileSync } from "child_process";
 
 import { chromium, type Browser } from "playwright-core";
@@ -34,7 +34,7 @@ const TOOLS: ToolSpec[] = [
     params: [["masses", 0, 6, 3], ["size", 0, 1, 0.62], ["round", 0, 1, 0.55], ["growth", 0, 1, 0.55], ["detail", 0, 1, 0.5], ["coarse", 0, 1, 0.42], ["breakup", 0, 1, 0.35], ["noise", 0, 1, 0.45], ["patch", 0, 1, 0.5], ["circles", 0, 1, 0.5], ["rules", 0, 1, 0.45]] },
 ];
 
-type Job = { id: string; tool: string; kind: "calib" | "ink" | "sweep" | "random"; seed: number; inks: string[]; sets: Record<string, number>; param?: string };
+type Job = { id: string; tool: string; kind: "calib" | "ink" | "sweep" | "random" | "check"; seed: number; inks: string[]; sets: Record<string, number>; param?: string };
 
 function mulberry32(a: number) {
   return () => {
@@ -102,7 +102,25 @@ async function render(browser: Browser, job: Job, ratio: string) {
   }
 }
 
-const jobs = plan();
+const CHECK = process.argv[2] === "check";
+const BOUNDS: Record<string, Record<string, [number, number]>> = CHECK ? JSON.parse(readFileSync(`${DIR}bounds.json`, "utf8")) : {};
+
+function planCheck(): Job[] {
+  const rand = mulberry32(16);
+  return TOOLS.flatMap(t => Array.from({ length: RANDOM_PER_TOOL }, (_, i) => {
+    const sets: Record<string, number> = {};
+    for (const [id] of t.params) { const [lo, hi] = BOUNDS[t.tool][id]; sets[id] = lo + (hi - lo) * rand(); }
+    return { id: `${t.tool}-chk-${i}`, tool: t.tool, kind: "check" as const, seed: 1 + Math.floor(rand() * 99998), inks: t.inks, sets };
+  }));
+}
+
+const previous: (Job & { values: Record<string, number> })[] = [];
+if (CHECK) {
+  const w: { TILES?: typeof previous } = {};
+  new Function("window", readFileSync(`${DIR}data.js`, "utf8"))(w);
+  previous.push(...w.TILES!.filter(x => x.kind !== "check"));
+}
+const jobs = CHECK ? planCheck() : plan();
 mkdirSync(`${DIR}img`, { recursive: true });
 const browser = await chromium.launch({ executablePath: process.env.PG_CHROMIUM ?? "/usr/bin/chromium", headless: true });
 const results: (Job & { values: Record<string, number> })[] = [];
@@ -118,4 +136,4 @@ await Promise.all(Array.from({ length: WORKERS }, async () => {
 }));
 await browser.close();
 results.sort((a, b) => jobs.indexOf(jobs.find(j => j.id === a.id)!) - jobs.indexOf(jobs.find(j => j.id === b.id)!));
-writeFileSync(`${DIR}data.js`, `window.TOOLS=${JSON.stringify(TOOLS)};\nwindow.TILES=${JSON.stringify(results)};\n`);
+writeFileSync(`${DIR}data.js`, `window.TOOLS=${JSON.stringify(TOOLS)};\nwindow.BOUNDS=${JSON.stringify(BOUNDS)};\nwindow.TILES=${JSON.stringify([...previous, ...results])};\n`);
