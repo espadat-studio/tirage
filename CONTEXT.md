@@ -40,7 +40,7 @@ _Avoid_: Limits, constraints
 What a Recipe renders: a Still or a Loop.
 
 **Still**:
-A single-frame Visual (PNG or SVG).
+A single-frame Visual.
 
 **Loop**:
 An animated Visual that ends where it starts.
