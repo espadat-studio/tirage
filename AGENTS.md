@@ -2,8 +2,8 @@
 
 ### Issue tracker
 
-GitHub Issues on `espadat-studio/tirage` via `gh`. See `docs/agents/issue-tracker.md`.
+GitHub Issues on `espadat-studio/tirage` via `gh`. See `meta/agents/issue-tracker.md`.
 
 ### Domain docs
 
-Single-context: root `CONTEXT.md` + `docs/adr/`.
+Single-context: root `CONTEXT.md` + `meta/adr/`.
