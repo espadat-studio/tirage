@@ -3,9 +3,11 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
-import { type Browser, chromium, type Page } from "playwright-core";
+import { chromium } from "playwright-core";
+import type { Browser, Page } from "playwright-core";
 
-import { checkPage, type Fixture, type ParamValue, parseManifest } from "./manifest";
+import { checkPage, parseManifest } from "./manifest";
+import type { Fixture, ParamValue } from "./manifest";
 
 const BASE = "https://www.playgrnd.tools";
 const RATIO = "9:16";

@@ -24,6 +24,7 @@ run = "hk fix --all"
 [tasks.lint]
 alias = "l"
 description = "Check rustfmt, dprint, clippy, zizmor, oxlint and tsc"
+depends = ["refs:install"]
 run = "hk check --all"
 
 [tasks.test]
@@ -66,7 +67,7 @@ dir = "refs"
 run = "bun export.ts"
 
 [tasks."refs:smoke"]
-description = "Export the smoke Recipe twice into a temp dir and check the bytes match"
+description = "Export the smoke fixtures twice into a temp dir and check the bytes match"
 depends = ["refs:setup"]
 dir = "refs"
 run = 'dir=$(mktemp -d) && cp smoke.json "$dir/manifest.json" && bun export.ts --manifest "$dir/manifest.json"'
