@@ -1,0 +1,40 @@
+[settings]
+idiomatic_version_file_enable_tools = ["rust"]
+lockfile = true
+
+[tools]
+"aqua:apple/pkl" = "0.32.1"
+"aqua:dprint/dprint" = "0.61.1"
+"aqua:jdx/hk" = "2.5.0"
+"aqua:nextest-rs/nextest/cargo-nextest" = "0.9.148"
+"aqua:zizmorcore/zizmor" = "1.30.1"
+
+[tasks.build]
+alias = "b"
+description = "Build the crate"
+run = "cargo build --locked"
+
+[tasks.fmt]
+alias = "f"
+description = "Format Rust and config files"
+run = "hk fix --all"
+
+[tasks.lint]
+alias = "l"
+description = "Check rustfmt, dprint, clippy and zizmor"
+run = "hk check --all"
+
+[tasks.test]
+alias = "t"
+description = "Run all tests"
+run = "cargo nextest run --locked --no-tests=pass"
+
+[tasks.wasm]
+alias = "w"
+description = "Build the core for wasm32-unknown-unknown"
+run = "cargo build --locked --lib --target wasm32-unknown-unknown"
+
+[tasks.check]
+alias = "c"
+description = "Lint, test and build wasm, as CI does"
+depends = ["lint", "test", "wasm"]

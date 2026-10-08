@@ -1,0 +1,44 @@
+amends "package://github.com/jdx/hk/releases/download/v2.5.0/hk@2.5.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.5.0/hk@2.5.0#/Builtins.pkl"
+
+local linters = new Mapping<String, Step> {
+  ["dprint"] = (Builtins.dprint) {
+    glob = List("**/*.{md,json,jsonc,toml,yaml,yml}")
+  }
+  ["rustfmt"] = Builtins.rustfmt
+  ["clippy"] {
+    glob = "**/*.rs"
+    check = "cargo clippy --all-targets --quiet -- -D warnings"
+    fix = "cargo clippy --all-targets --fix --allow-dirty --allow-staged --quiet -- -D warnings"
+  }
+  ["zizmor"] = Builtins.zizmor
+}
+
+hooks {
+  ["check"] {
+    steps = linters
+  }
+  ["fix"] {
+    fix = true
+    steps = linters
+  }
+  ["pre-commit"] {
+    fix = true
+    stash = "git"
+    steps = linters
+  }
+  ["commit-msg"] {
+    steps {
+      ["convco"] {
+        check = "convco check --from-stdin --strip < {{commit_msg_file}}"
+      }
+    }
+  }
+  ["pre-push"] {
+    steps {
+      ["nextest"] {
+        check = "mise run test"
+      }
+    }
+  }
+}

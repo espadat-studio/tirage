@@ -1,0 +1,6 @@
+[pre-start]
+hooks = "hk install"
+deps = "wt step copy-ignored"
+
+[post-start]
+build = "mise run build"
