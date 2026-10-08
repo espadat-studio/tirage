@@ -1,0 +1,11 @@
+[package]
+name = "vc"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vello_cpu = { version = "=0.3.0", default-features = false, features = ["std", "u8_pipeline"] }
+wasm-bindgen = "=0.2.129"

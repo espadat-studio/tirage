@@ -1,0 +1,22 @@
+[workspace]
+resolver = "3"
+members = ["ts", "vc"]
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.speed]
+inherits = "release"
+opt-level = 3
+
+[profile.o2]
+inherits = "release"
+opt-level = 2
+
+[profile.os]
+inherits = "release"
+opt-level = "s"
