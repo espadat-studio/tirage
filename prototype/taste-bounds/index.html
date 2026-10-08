@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taste Bounds Sheet</title>
+<style>
+  :root { --board: #0d0d0d; --stock: #f7f7f2; --dim: rgba(247,247,242,.6); --stat: #ffd400; --bad: #e8202a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--board); color: var(--stock); font: 14px/1.4 system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; background: var(--board); border-bottom: 1px solid #333; padding: 10px 16px; display: grid; gap: 8px; }
+  h1 { margin: 0; font-size: 16px; }
+  .banner { color: var(--dim); font-size: 12px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  button { font: inherit; background: #222; color: var(--stock); border: 1px solid #444; border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+  button[aria-pressed="true"] { background: var(--stock); color: var(--board); }
+  main { padding: 16px; display: grid; gap: 20px; }
+  h2 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+  .row { display: grid; grid-template-columns: 110px repeat(var(--n), minmax(0, 1fr)); gap: 6px; align-items: start; }
+  .label { font: 12px ui-monospace, monospace; color: var(--dim); padding-top: 4px; }
+  .label b { display: block; color: var(--stat); font-weight: 400; }
+  figure { margin: 0; position: relative; cursor: pointer; }
+  figure img { width: 100%; display: block; border-radius: 2px; background: #000; border: 2px solid transparent; }
+  figure.bad img { border-color: var(--bad); opacity: .35; }
+  figure.bad::after { content: "X"; position: absolute; top: 4px; right: 8px; color: var(--bad); font-weight: 900; font-size: 20px; }
+  figure.picked img { border-color: var(--stat); }
+  figure.out img { opacity: .2; }
+  figcaption { font: 11px ui-monospace, monospace; color: var(--dim); margin-top: 2px; overflow-wrap: anywhere; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
+  .swatches { display: flex; gap: 2px; margin-top: 2px; }
+  .swatches i { width: 12px; height: 12px; border: 1px solid #555; }
+  pre { margin: 0; font: 12px ui-monospace, monospace; background: #181818; color: var(--stat); border: 1px solid #333; padding: 8px; border-radius: 4px; max-height: 30vh; overflow: auto; white-space: pre-wrap; }
+  @media (max-width: 700px) { .row { grid-template-columns: 70px repeat(var(--n), minmax(0, 1fr)); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Taste bounds sheet</h1>
+  <div class="banner">PROTOTYPE, throwaway. Rendered from playgrnd.tools by <code>render.ts</code> in each recordreel design's inks (inks guessed from DESIGN.md). Calibration: pick the ink order closest to the shipped raster. Sweeps: one Parameter min to max at the shipped seed, others at default; click a tile to mark it bad. Random check: 24 Seeds across full ranges; tiles outside the current bounds are dimmed. Click a random tile to mark it bad even though it is in bounds.</div>
+  <div class="bar" id="tabs"></div>
+  <div class="bar"><button id="copy">Copy bounds JSON</button><span class="banner" id="copied"></span></div>
+</header>
+<main id="main"></main>
+<script src="data.js"></script>
+<script>
+const state = {};
+for (const t of TOOLS) state[t.tool] = { ink: `${t.tool}-calib`, bad: new Set() };
+let current = TOOLS[0].tool;
+
+const fmt = v => Number.isInteger(v) ? String(v) : v.toFixed(2);
+const tiles = (tool, kind) => TILES.filter(x => x.tool === tool && x.kind === kind);
+
+function bounds(t) {
+  const out = {};
+  for (const [id, min, max] of t.params) {
+    const good = tiles(t.tool, "sweep").filter(x => x.param === id && !state[t.tool].bad.has(x.id)).map(x => x.values[id]);
+    out[id] = good.length ? [Math.min(...good), Math.max(...good)] : null;
+  }
+  return out;
+}
+
+function inBounds(t, tile, b) {
+  return t.params.every(([id]) => b[id] && tile.values[id] >= b[id][0] - 1e-9 && tile.values[id] <= b[id][1] + 1e-9);
+}
+
+function result() {
+  const out = {};
+  for (const t of TOOLS) {
+    const s = state[t.tool];
+    const ink = TILES.find(x => x.id === s.ink);
+    const b = bounds(t);
+    const rnd = tiles(t.tool, "random");
+    out[t.tool] = {
+      design: t.design,
+      inks: ink.inks,
+      bounds: Object.fromEntries(Object.entries(b).map(([k, v]) => [k, v && v.map(fmt).map(Number)])),
+      randomInBounds: rnd.filter(x => inBounds(t, x, b)).length,
+      randomInBoundsMarkedBad: rnd.filter(x => inBounds(t, x, b) && s.bad.has(x.id)).map(x => ({ seed: x.seed, values: Object.fromEntries(t.params.map(([id]) => [id, Number(fmt(x.values[id]))])) })),
+    };
+  }
+  return out;
+}
+
+function figure(tile, caption, onClick, cls = "") {
+  const f = document.createElement("figure");
+  f.className = cls;
+  f.innerHTML = `<img loading="lazy" src="${tile ? `img/${tile.id}.webp` : ""}" alt=""><figcaption>${caption}</figcaption>`;
+  if (onClick) f.onclick = onClick;
+  return f;
+}
+
+function swatches(inks) {
+  return `<div class="swatches">${inks.map(c => `<i style="background:${c}"></i>`).join("")}</div>`;
+}
+
+function render() {
+  document.getElementById("tabs").innerHTML = "";
+  for (const t of TOOLS) {
+    const b = document.createElement("button");
+    b.textContent = `${t.tool} · ${t.design}`;
+    b.setAttribute("aria-pressed", t.tool === current);
+    b.onclick = () => { current = t.tool; render(); };
+    document.getElementById("tabs").append(b);
+  }
+  const t = TOOLS.find(x => x.tool === current);
+  const s = state[t.tool];
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+  const toggle = id => { s.bad.has(id) ? s.bad.delete(id) : s.bad.add(id); render(); };
+
+  const h1 = document.createElement("h2"); h1.textContent = `Calibration: ${t.tool}-${t.seed} at ${t.ratio}`; main.append(h1);
+  const inks = [...tiles(t.tool, "calib"), ...tiles(t.tool, "ink")];
+  const cal = document.createElement("div"); cal.className = "row"; cal.style.setProperty("--n", inks.length + 1);
+  cal.innerHTML = `<div class="label">shipped vs inks</div>`;
+  const shipped = document.createElement("figure"); shipped.innerHTML = `<img src="img/shipped/${t.tool}.webp" alt=""><figcaption>shipped ${t.shipped.split("/")[1]}</figcaption>`; cal.append(shipped);
+  for (const x of inks) cal.append(figure(x, `${x.kind === "calib" ? "guess" : x.id.split("-").pop()}${swatches(x.inks)}`, () => { s.ink = x.id; render(); }, s.ink === x.id ? "picked" : ""));
+  main.append(cal);
+
+  const h2 = document.createElement("h2"); h2.textContent = "Sweeps (click = bad)"; main.append(h2);
+  const b = bounds(t);
+  for (const [id, min, max, def] of t.params) {
+    const sw = tiles(t.tool, "sweep").filter(x => x.param === id);
+    const row = document.createElement("div"); row.className = "row"; row.style.setProperty("--n", sw.length);
+    row.innerHTML = `<div class="label">${id}<br>${fmt(min)}..${fmt(max)} d=${fmt(def)}<b>${b[id] ? b[id].map(fmt).join("..") : "none"}</b></div>`;
+    for (const x of sw) row.append(figure(x, fmt(x.values[id]), () => toggle(x.id), s.bad.has(x.id) ? "bad" : ""));
+    main.append(row);
+  }
+
+  const rnd = tiles(t.tool, "random");
+  const inside = rnd.filter(x => inBounds(t, x, b));
+  const h3 = document.createElement("h2"); h3.textContent = `Random check: ${inside.length}/${rnd.length} in bounds`; main.append(h3);
+  const grid = document.createElement("div"); grid.className = "grid";
+  for (const x of rnd) {
+    const cls = [s.bad.has(x.id) && "bad", !inBounds(t, x, b) && "out"].filter(Boolean).join(" ");
+    grid.append(figure(x, `seed ${x.seed}<br>${t.params.map(([id]) => `${id}=${fmt(x.values[id])}`).join(" ")}`, () => toggle(x.id), cls));
+  }
+  main.append(grid);
+
+  const h4 = document.createElement("h2"); h4.textContent = "Output"; main.append(h4);
+  const pre = document.createElement("pre"); pre.textContent = JSON.stringify(result()[t.tool], null, 1); main.append(pre);
+}
+
+document.getElementById("copy").onclick = async () => {
+  await navigator.clipboard.writeText(JSON.stringify(result(), null, 1));
+  document.getElementById("copied").textContent = "copied; paste it back into the session";
+};
+render();
+</script>
+</body>
+</html>
