@@ -13,3 +13,6 @@ unsafe_code = "forbid"
 
 [lints.clippy]
 all = { level = "deny", priority = -1 }
+
+[dev-dependencies]
+image = { version = "0.25", default-features = false, features = ["png"] }
