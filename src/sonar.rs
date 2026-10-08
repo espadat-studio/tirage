@@ -77,8 +77,7 @@ const DEPTH: Param = Param::unit("depth", (0, 100));
 const FRINGE: Param = Param::unit("fringe", (0, 100));
 const SPARK: Param = Param::unit("spark", (0, 100));
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct SonarParams {
     level: f64,
     scale: f64,
@@ -167,18 +166,31 @@ impl SonarParams {
         self.spark = SPARK.check(spark)?;
         Ok(())
     }
+}
 
-    pub(crate) fn validated(self) -> Result<Self, Error> {
-        let mut params = Self::default();
-        params.set_level(self.level)?;
-        params.set_scale(self.scale)?;
-        params.set_warp(self.warp)?;
-        params.set_grid(self.grid)?;
-        params.set_depth(self.depth)?;
-        params.set_fringe(self.fringe)?;
-        params.set_spark(self.spark)?;
-        Ok(params)
-    }
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Unchecked {
+    level: f64,
+    scale: f64,
+    warp: f64,
+    grid: u32,
+    depth: f64,
+    fringe: f64,
+    spark: f64,
+}
+
+pub(crate) fn from_json(params: serde_json::Value) -> Result<SonarParams, Error> {
+    let raw = Unchecked::deserialize(params).map_err(|e| Error::Json(format!("params: {e}")))?;
+    let mut params = SonarParams::default();
+    params.set_level(raw.level)?;
+    params.set_scale(raw.scale)?;
+    params.set_warp(raw.warp)?;
+    params.set_grid(raw.grid)?;
+    params.set_depth(raw.depth)?;
+    params.set_fringe(raw.fringe)?;
+    params.set_spark(raw.spark)?;
+    Ok(params)
 }
 
 pub(crate) fn palette() -> Palette {
@@ -203,7 +215,12 @@ const LAND: usize = 1;
 const SPECK_A: usize = 2;
 const SPECK_B: usize = 3;
 
-pub(crate) fn paint(surface: &mut Surface, params: &SonarParams, palette: &Palette, seed: u32) {
+pub(crate) fn paint(
+    surface: &mut Surface,
+    params: &SonarParams,
+    palette: &Palette,
+    tool_seed: u32,
+) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let cols = params.grid.max(12);
     let cell_width = width / f64::from(cols);
@@ -220,12 +237,12 @@ pub(crate) fn paint(surface: &mut Surface, params: &SonarParams, palette: &Palet
             let u = (f64::from(col) + 0.5) / f64::from(cols);
             let v = (f64::from(row) + 0.5) / f64::from(rows);
             let (x, y) = (u * scale * aspect, v * scale);
-            let push_x = fbm(x * 0.6 + 11.3, y * 0.6 + 3.7, seed.wrapping_add(7), 3) - 0.5;
-            let push_y = fbm(x * 0.6 + 5.1, y * 0.6 + 19.9, seed.wrapping_add(13), 3) - 0.5;
+            let push_x = fbm(x * 0.6 + 11.3, y * 0.6 + 3.7, tool_seed.wrapping_add(7), 3) - 0.5;
+            let push_y = fbm(x * 0.6 + 5.1, y * 0.6 + 19.9, tool_seed.wrapping_add(13), 3) - 0.5;
             let field = fbm(
                 x + push_x * params.warp * 2.4,
                 y + push_y * params.warp * 2.4,
-                seed,
+                tool_seed,
                 4,
             );
             let above = field - level;
@@ -248,8 +265,10 @@ pub(crate) fn paint(surface: &mut Surface, params: &SonarParams, palette: &Palet
                 dot(surface, cell_width * (0.3 + 0.68 * inland), LAND);
             } else if above > -band {
                 let near = 1.0 - above.abs() / band;
-                if hash(col_i, row_i, seed.wrapping_add(53)) < near * near * params.spark * 1.35 {
-                    let ink = if hash(col_i, row_i, seed.wrapping_add(59)) < 0.5 {
+                if hash(col_i, row_i, tool_seed.wrapping_add(53))
+                    < near * near * params.spark * 1.35
+                {
+                    let ink = if hash(col_i, row_i, tool_seed.wrapping_add(59)) < 0.5 {
                         SPECK_A
                     } else {
                         SPECK_B

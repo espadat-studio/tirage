@@ -132,11 +132,7 @@ impl Recipe {
         }
         let wire: WireIn = serde_json::from_str(json).map_err(json_error)?;
         let params = match Tool::from_slug(&wire.tool)? {
-            Tool::Sonar => Params::Sonar(
-                SonarParams::deserialize(wire.params)
-                    .map_err(|e| Error::Json(format!("params: {e}")))?
-                    .validated()?,
-            ),
+            Tool::Sonar => Params::Sonar(sonar::from_json(wire.params)?),
         };
         Ok(Self {
             tool_seed: wire.tool_seed,

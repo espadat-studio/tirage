@@ -29,9 +29,8 @@ impl Surface {
         height: u32,
         [r, g, b]: [u8; 3],
     ) {
-        let Some(rect) = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32) else {
-            return;
-        };
+        let rect = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32)
+            .expect("rect sides are at least 1 px");
         let mut paint = Paint::default();
         paint.set_color_rgba8(r, g, b, 255);
         paint.anti_alias = false;
