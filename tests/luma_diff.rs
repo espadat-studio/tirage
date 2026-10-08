@@ -1,6 +1,6 @@
 mod fidelity;
 
-use std::panic;
+use std::{fs, panic};
 
 use image::{Rgba, RgbaImage};
 
@@ -51,6 +51,9 @@ fn diff_ignores_alpha() {
 #[test]
 fn failing_fidelity_writes_heatmap_and_our_render() {
     let name = "luma-diff-self-test";
+    for suffix in ["heatmap", "ours"] {
+        let _ = fs::remove_file(out_dir().join(format!("{name}-{suffix}.png")));
+    }
     let result =
         panic::catch_unwind(|| assert_fidelity(name, &with_region(255, 10, 20), &black(), 0.016));
     let message = *result.unwrap_err().downcast::<String>().unwrap();
@@ -64,4 +67,5 @@ fn passing_fidelity_writes_nothing() {
     let name = "luma-diff-self-test-pass";
     assert_fidelity(name, &with_region(255, 10, 10), &black(), 0.016);
     assert!(!out_dir().join(format!("{name}-heatmap.png")).exists());
+    assert!(!out_dir().join(format!("{name}-ours.png")).exists());
 }
