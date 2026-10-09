@@ -199,7 +199,7 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(text(&out.stderr).contains(
-        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist"#
+        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral"#
     ));
 }
 
@@ -395,10 +395,24 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"blot","kind":"range","min":0.2,"max":1.0,"step":0.01},"#,
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
+    let coral = concat!(
+        r#"{"slug":"coral","frames":1,"params":["#,
+        r#"{"id":"branches","kind":"range","min":2.0,"max":12.0,"step":1.0},"#,
+        r#"{"id":"spacing","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"spread","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"width","kind":"range","min":0.1,"max":1.0,"step":0.01},"#,
+        r#"{"id":"wobble","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"cover","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"beneath","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"ribs","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"dots","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"shadow","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }
@@ -414,6 +428,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
     for line in [
         "  grid        40..=320  step 2\n",
         "  grnVignette 0..=1     step 0.05\n",

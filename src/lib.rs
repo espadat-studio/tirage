@@ -25,6 +25,7 @@ registry::tools! {
     Pith: pith::{PithParams},
     Mosh: mosh::{MoshParams},
     Mist: mist::{MistParams},
+    Coral: coral::{CoralParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
