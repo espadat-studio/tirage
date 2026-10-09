@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/espadat-studio/tirage/compare/v0.1.0...v0.1.1) - 2026-10-09
+
+### Added
+
+- *(docs)* add concepts pages ([#78](https://github.com/espadat-studio/tirage/pull/78))
+
+### Other
+
+- *(index)* link concepts from the landing page
+- license under agpl-3.0-or-later ([#80](https://github.com/espadat-studio/tirage/pull/80))
+- *(cli)* add a reference page per command ([#75](https://github.com/espadat-studio/tirage/pull/75))
+
 ## [0.1.0](https://github.com/espadat-studio/tirage/releases/tag/v0.1.0) - 2026-10-09
 
 ### Added
