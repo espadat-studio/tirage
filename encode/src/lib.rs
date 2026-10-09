@@ -4,7 +4,9 @@ use std::io::Cursor;
 use bytes::Bytes;
 use mp4::{AvcConfig, FourCC, MediaConfig, Mp4Config, Mp4Sample, Mp4Writer, TrackConfig};
 use openh264::OpenH264API;
-use openh264::encoder::{BitRate, Encoder, EncoderConfig, FrameRate, FrameType, RateControlMode};
+use openh264::encoder::{
+    BitRate, Encoder, EncoderConfig, FrameRate, FrameType, QpRange, RateControlMode,
+};
 use openh264::formats::{RgbaSliceU8, YUVBuffer};
 use tirage::{Frame, Recipe, render};
 
@@ -14,14 +16,17 @@ pub const HEIGHT: u32 = 1280;
 pub const OPENH264: &str = "0.9.8";
 
 const BUDGET: u32 = 1_200_000;
+const QP: (u8, u8) = (12, 51);
 
 const SPS: u8 = 7;
 const PPS: u8 = 8;
 
 pub fn settings() -> String {
     format!(
-        "tirage-encode {} openh264 {OPENH264} h264 {WIDTH}x{HEIGHT} rc budget {BUDGET} bytes per Loop no-skip",
-        env!("CARGO_PKG_VERSION")
+        "tirage-encode {} openh264 {OPENH264} h264 {WIDTH}x{HEIGHT} rc budget {BUDGET} bytes per Loop qp {}..={} no-skip",
+        env!("CARGO_PKG_VERSION"),
+        QP.0,
+        QP.1
     )
 }
 
@@ -60,6 +65,7 @@ pub fn encode(recipe: &Recipe) -> Result<Vec<u8>, Error> {
     let bitrate = u64::from(BUDGET) * 8 * u64::from(fps) / u64::from(tool.frames());
     let config = EncoderConfig::new()
         .bitrate(BitRate::from_bps(bitrate as u32))
+        .qp(QpRange::new(QP.0, QP.1))
         .max_frame_rate(FrameRate::from_hz(fps as f32))
         .rate_control_mode(RateControlMode::Bitrate)
         .skip_frames(false);
