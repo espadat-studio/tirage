@@ -26,6 +26,7 @@ const EXAMPLES: &str = "Examples:
   tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
   tirage derive --seed 42 --tool sonar > recipe.json
   tirage render recipe.json --size 540x960 -o - > still.png
+  tirage roll
   tirage tools";
 
 const CONCISE: &str = "tirage: Seed to PNG, rendered from code
@@ -132,6 +133,11 @@ enum Command {
         )]
         output: Option<PathBuf>,
     },
+    #[command(
+        about = "Roll a random Seed and write its Visual to <tool>-<seed>.png or .mp4",
+        before_help = "Examples:\n  tirage roll\n  tirage roll 2>> rolls.log"
+    )]
+    Roll,
     #[cfg(feature = "encode")]
     #[command(
         visible_alias = "e",
@@ -471,9 +477,46 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             if output == stdio && io::stdout().is_terminal() {
                 return Err(refuse_terminal("encode", "an MP4"));
             }
-            let mp4 = tirage_encode::encode(&recipe)
-                .map_err(|e| Failure::Runtime(e.to_string(), hint::for_encode_error(&e)))?;
-            write_output(&output, &mp4)
+            write_output(&output, &encode_loop(&recipe)?)
+        }
+        Command::Roll => {
+            let mut seed = roll_seed();
+            let recipe = loop {
+                let recipe = derive(seed, ToolPin::Any);
+                if cfg!(feature = "encode") || recipe.tool().frames() == 1 {
+                    break recipe;
+                }
+                seed = random_seed();
+            };
+            let tool = recipe.tool();
+            let still = tool.frames() == 1;
+            let output = PathBuf::from(format!(
+                "{}-{seed}.{}",
+                tool.slug(),
+                if still { "png" } else { "mp4" }
+            ));
+            let (command, bytes) = if still {
+                let frame = Frame::new(&recipe, 1080, 1920, 0).map_err(|e| Failure::runtime(&e))?;
+                ("render --size 1080x1920", render(&recipe, &frame).to_png())
+            } else {
+                ("encode", encode_loop(&recipe)?)
+            };
+            fs::File::create_new(&output)
+                .and_then(|mut file| file.write_all(&bytes))
+                .map_err(|e| match e.kind() {
+                    io::ErrorKind::AlreadyExists => Failure::Runtime(
+                        format!("{} exists", output.display()),
+                        Some(
+                            "move it away, or run 'tirage roll' again for another Seed".to_owned(),
+                        ),
+                    ),
+                    _ => Failure::Runtime(format!("cannot write {}: {e}", output.display()), None),
+                })?;
+            echo(&format!(
+                "tirage derive --seed {seed} | tirage {command} -o {}",
+                output.display()
+            ));
+            Ok(())
         }
         Command::Tools { json } => {
             if json {
@@ -613,6 +656,17 @@ fn write_output(output: &Path, bytes: &[u8]) -> Result<(), Failure> {
         .map_err(|e| Failure::Runtime(format!("cannot write {}: {e}", output.display()), None))
 }
 
+#[cfg(feature = "encode")]
+fn encode_loop(recipe: &Recipe) -> Result<Vec<u8>, Failure> {
+    tirage_encode::encode(recipe)
+        .map_err(|e| Failure::Runtime(e.to_string(), hint::for_encode_error(&e)))
+}
+
+#[cfg(not(feature = "encode"))]
+fn encode_loop(_: &Recipe) -> Result<Vec<u8>, Failure> {
+    unreachable!("roll deals only Stills without the encode feature")
+}
+
 fn frames_label(tool: Tool) -> String {
     let frames = tool.frames();
     let unit = if frames == 1 { "frame" } else { "frames" };
@@ -621,6 +675,13 @@ fn frames_label(tool: Tool) -> String {
 
 fn random_seed() -> u64 {
     RandomState::new().hash_one(std::time::SystemTime::now())
+}
+
+fn roll_seed() -> u64 {
+    std::env::var("TIRAGE_ROLL_SEED").map_or_else(
+        |_| random_seed(),
+        |seed| seed.parse().expect("TIRAGE_ROLL_SEED is a Seed"),
+    )
 }
 
 fn rerun() -> String {

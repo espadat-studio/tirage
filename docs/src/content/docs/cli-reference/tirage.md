@@ -7,13 +7,14 @@ description: "Commands, global options, prompts, colour and exit codes shared by
 tirage [OPTIONS] <COMMAND>
 ```
 
-One binary, four commands, and a fifth in a build with the `encode` feature. A run usually pipes the first into the second.
+One binary, five commands, and a sixth in a build with the `encode` feature. A run usually pipes the first into the second.
 
 | Command                                    | Alias     | Does                                                     |
 | ------------------------------------------ | --------- | -------------------------------------------------------- |
 | [derive](/cli-reference/derive/)           | `d`       | Derive a Recipe from a Seed and print it as JSON         |
 | [render](/cli-reference/render/)           | `r`       | Render a Recipe to a PNG                                 |
 | [encode](/cli-reference/encode/)           | `e`       | Encode a Loop to an H.264 MP4, with the `encode` feature |
+| [roll](/cli-reference/roll/)               |           | Roll a random Seed and write its Visual to a file        |
 | [tools](/cli-reference/tools/)             | `t`, `ls` | List Tools with their frame counts and Parameters        |
 | [completions](/cli-reference/completions/) |           | Print a shell completion script                          |
 
