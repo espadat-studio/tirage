@@ -2308,6 +2308,145 @@
       "page_sha256": "ee2bf08ba50a89a34b900b8c9ce8c3711c547ba909ca116e2881e3934dd930eb",
       "chromium": "153.0.8010.12",
       "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+    },
+    "whorl": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "whorl",
+            "tool_seed": 9611518,
+            "palette": [
+              "#003049",
+              "#f77f00"
+            ],
+            "params": {
+              "centres": 13,
+              "pull": 0.76,
+              "push": 0.21,
+              "stripes": 26,
+              "weight": 0.75,
+              "dirs": "Smooth",
+              "warp": 0.33,
+              "detail": 0.03,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "whorl",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#003049",
+              "#f77f00"
+            ],
+            "params": {
+              "centres": 2,
+              "pull": 0.63,
+              "push": 0.86,
+              "stripes": 23,
+              "weight": 0.45,
+              "dirs": "Ripple",
+              "warp": 0.65,
+              "detail": 0.84,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "whorl",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#003049",
+              "#f77f00"
+            ],
+            "params": {
+              "centres": 5,
+              "pull": 0.06,
+              "push": 0.15,
+              "stripes": 26,
+              "weight": 0.79,
+              "dirs": "Ripple",
+              "warp": 0.74,
+              "detail": 0.38,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-1-turbulent",
+          "recipe": {
+            "tirage": 0,
+            "tool": "whorl",
+            "tool_seed": 9611518,
+            "palette": [
+              "#003049",
+              "#f77f00"
+            ],
+            "params": {
+              "centres": 13,
+              "pull": 0.76,
+              "push": 0.21,
+              "stripes": 26,
+              "weight": 0.75,
+              "dirs": "Turbulent",
+              "warp": 0.33,
+              "detail": 0.03,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "cf250f2c9df28ae8b71ba47c4ef54b69ce340c66ab9ec0e5fa2a4dabecc58050",
+      "chromium": "153.0.8010.12",
+      "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
     }
   }
 }
