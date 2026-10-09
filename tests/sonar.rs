@@ -213,7 +213,7 @@ fn frame_zero_is_byte_identical_to_the_still_reference_export() {
         .iter()
         .filter(|fixture| fixture.get("frame").is_none())
         .collect();
-    assert_eq!(stills.len(), 3);
+    assert_eq!(stills.len(), 7);
     for fixture in stills {
         let name = fixture["name"].as_str().unwrap();
         let recipe = Recipe::from_json(&fixture["recipe"].to_string()).unwrap();
