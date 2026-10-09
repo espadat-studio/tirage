@@ -3,7 +3,9 @@ use tirage::{Palette, Params, Recipe, Taste, Tool, ToolPin, derive};
 const SONAR: ToolPin = ToolPin::Tool(Tool::Sonar);
 
 fn level(recipe: &Recipe) -> f64 {
-    let Params::Sonar(params) = recipe.params();
+    let Params::Sonar(params) = recipe.params() else {
+        panic!("not a sonar Recipe");
+    };
     params.level()
 }
 
@@ -73,7 +75,9 @@ fn a_taste_override_moves_only_its_own_parameter() {
         let dealt = derive(seed, SONAR);
         let mut tasted = derive(seed, ToolPin::Taste(taste.clone()));
         assert!((0.9..=1.0).contains(&level(&tasted)), "seed {seed}");
-        let Params::Sonar(params) = tasted.params_mut();
+        let Params::Sonar(params) = tasted.params_mut() else {
+            panic!("not a sonar Recipe");
+        };
         params.set_level(level(&dealt)).unwrap();
         assert_eq!(tasted, dealt, "seed {seed}");
     }
@@ -126,7 +130,9 @@ fn taste_json_overrides_named_parameters_only() {
         .unwrap()
     );
     let recipe = derive(3, ToolPin::Taste(taste));
-    let Params::Sonar(params) = recipe.params();
+    let Params::Sonar(params) = recipe.params() else {
+        panic!("not a sonar Recipe");
+    };
     assert_eq!((params.level(), params.grid()), (0.5, 40));
 }
 
@@ -139,7 +145,7 @@ fn taste_json_errors_are_human() {
         ),
         (
             r#"{"tool":"vien"}"#,
-            r#"unknown tool "vien", expected one of sonar"#,
+            r#"unknown tool "vien", expected one of sonar, husk"#,
         ),
         (
             r#"{"tool":"sonar","level":[0,1.4]}"#,

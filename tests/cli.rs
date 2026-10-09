@@ -163,7 +163,7 @@ fn usage_errors_exit_2() {
         );
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
-    assert!(text(&out.stderr).contains(r#"unknown tool "vien", expected one of sonar"#));
+    assert!(text(&out.stderr).contains(r#"unknown tool "vien", expected one of sonar, husk"#));
 }
 
 #[test]
@@ -221,7 +221,14 @@ fn tools_json_has_a_stable_shape() {
             r#"{"id":"grid","min":40.0,"max":320.0,"step":2.0},"#,
             r#"{"id":"depth","min":0.0,"max":1.0,"step":0.01},"#,
             r#"{"id":"fringe","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"spark","min":0.0,"max":1.0,"step":0.01}]}]"#,
+            r#"{"id":"spark","min":0.0,"max":1.0,"step":0.01}]},"#,
+            r#"{"slug":"husk","frames":1,"params":["#,
+            r#"{"id":"count","min":1.0,"max":70.0,"step":1.0},"#,
+            r#"{"id":"size","min":0.0,"max":1.0,"step":0.01},"#,
+            r#"{"id":"vary","min":0.0,"max":1.0,"step":0.01},"#,
+            r#"{"id":"lump","min":0.0,"max":1.0,"step":0.01},"#,
+            r#"{"id":"eat","min":0.0,"max":1.0,"step":0.01},"#,
+            r#"{"id":"tex","min":0.0,"max":1.0,"step":0.01}]}]"#,
             "\n"
         )
     );
@@ -233,6 +240,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert_eq!(out.status.code(), Some(0));
     let listing = text(&out.stdout);
     assert!(listing.starts_with("sonar  24 frames\n"), "{listing}");
+    assert!(listing.contains("\nhusk  1 frame\n"), "{listing}");
     assert!(
         listing.contains("  grid    40..=320  step 2\n"),
         "{listing}"

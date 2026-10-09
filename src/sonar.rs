@@ -134,11 +134,11 @@ impl SonarParams {
         &mut self.dither
     }
 
-    pub fn grain(&self) -> &Grain {
+    pub fn grain_pass(&self) -> &Grain {
         &self.grain
     }
 
-    pub fn grain_mut(&mut self) -> &mut Grain {
+    pub fn grain_pass_mut(&mut self) -> &mut Grain {
         &mut self.grain
     }
 }
@@ -193,7 +193,7 @@ pub(crate) fn from_json(params: serde_json::Value) -> Result<SonarParams, Error>
     dither.set_size(raw.dither_size)?;
     dither.set_levels(raw.dither_levels)?;
     dither.set_amount(raw.dither_amount)?;
-    let grain = params.grain_mut();
+    let grain = params.grain_pass_mut();
     grain.set_on(raw.grain_on);
     grain.set_blend(raw.grain_blend);
     grain.set_amount(raw.grain_amount)?;

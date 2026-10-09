@@ -33,7 +33,7 @@ pub(crate) fn round_half_up(value: f64) -> f64 {
     }
 }
 
-fn store(value: f64) -> u8 {
+pub(crate) fn store(value: f64) -> u8 {
     value.clamp(0.0, 255.0).round_ties_even() as u8
 }
 

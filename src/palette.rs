@@ -21,6 +21,10 @@ impl Palette {
             .collect()
     }
 
+    pub(crate) fn len(&self) -> usize {
+        self.0.len()
+    }
+
     pub(crate) fn ink(&self, slot: usize) -> [u8; 3] {
         self.0[slot % self.0.len()]
     }
