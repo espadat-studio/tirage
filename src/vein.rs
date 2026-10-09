@@ -251,7 +251,9 @@ pub(crate) fn palette() -> Palette {
 
 pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> VeinParams {
     let pick = |param: &Param| param.deal(taste.bounds(param), draw(param.id));
+    const FLOWS: [Flow; 3] = [Flow::Marble, Flow::Swirl, Flow::Ripple];
     VeinParams {
+        flow: FLOWS[(draw("flows") % 3) as usize],
         scale: pick(&SCALE),
         curve: pick(&CURVE),
         levels: pick(&LEVELS) as u32,

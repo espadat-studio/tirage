@@ -28,11 +28,11 @@ fn derive_gives_golden_recipes() {
         ),
         (
             2,
-            r##"{"tirage":0,"tool":"vein","tool_seed":3724278653,"palette":["#0e1a2b","#2e63b8","#7fa8e0","#e9dcc3","#f2892b","#e0362f","#2fa39a","#8b5a2b"],"params":{"flows":"Marble","scale":0.33,"curve":0.09,"levels":9,"tiger":0.49,"edges":0.71,"stars":0.69,"tints":0.11,"runs":0.66,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":true,"grnBlends":"Overlay","grnAmount":0.4,"grnSize":1.0,"grnSpecks":0.4,"grnVignette":0.25}}"##,
+            r##"{"tirage":0,"tool":"vein","tool_seed":3724278653,"palette":["#0e1a2b","#2e63b8","#7fa8e0","#e9dcc3","#f2892b","#e0362f","#2fa39a","#8b5a2b"],"params":{"flows":"Swirl","scale":0.33,"curve":0.09,"levels":9,"tiger":0.49,"edges":0.71,"stars":0.69,"tints":0.11,"runs":0.66,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":true,"grnBlends":"Overlay","grnAmount":0.4,"grnSize":1.0,"grnSpecks":0.4,"grnVignette":0.25}}"##,
         ),
         (
             u64::MAX,
-            r##"{"tirage":0,"tool":"vein","tool_seed":3565986084,"palette":["#0e1a2b","#2e63b8","#7fa8e0","#e9dcc3","#f2892b","#e0362f","#2fa39a","#8b5a2b"],"params":{"flows":"Marble","scale":0.58,"curve":0.31,"levels":9,"tiger":0.06,"edges":0.69,"stars":0.85,"tints":0.63,"runs":0.6,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":true,"grnBlends":"Overlay","grnAmount":0.4,"grnSize":1.0,"grnSpecks":0.4,"grnVignette":0.25}}"##,
+            r##"{"tirage":0,"tool":"vein","tool_seed":3565986084,"palette":["#0e1a2b","#2e63b8","#7fa8e0","#e9dcc3","#f2892b","#e0362f","#2fa39a","#8b5a2b"],"params":{"flows":"Ripple","scale":0.58,"curve":0.31,"levels":9,"tiger":0.06,"edges":0.69,"stars":0.85,"tints":0.63,"runs":0.6,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":true,"grnBlends":"Overlay","grnAmount":0.4,"grnSize":1.0,"grnSpecks":0.4,"grnVignette":0.25}}"##,
         ),
     ];
     for (seed, json) in golden {
@@ -42,6 +42,7 @@ fn derive_gives_golden_recipes() {
 
 #[test]
 fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
+    let mut flows = std::collections::BTreeSet::new();
     for seed in 0..2000 {
         let recipe = derive(seed, VEIN);
         let p = vein(&recipe);
@@ -49,7 +50,7 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
             recipe.palette(),
             &Palette::from_hex(&DEFAULT_PALETTE).unwrap()
         );
-        assert_eq!(p.flow(), Flow::Marble, "seed {seed}");
+        flows.insert(format!("{:?}", p.flow()));
         for (value, min, max) in [
             (p.scale(), 0.25, 0.75),
             (p.curve(), 0.0, 1.0),
@@ -72,6 +73,10 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
             p.levels()
         );
     }
+    assert_eq!(
+        flows.into_iter().collect::<Vec<_>>(),
+        ["Marble", "Ripple", "Swirl"]
+    );
 }
 
 #[test]

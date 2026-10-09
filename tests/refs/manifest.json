@@ -572,7 +572,7 @@
               "#8b5a2b"
             ],
             "params": {
-              "flows": "Marble",
+              "flows": "Swirl",
               "scale": 0.33,
               "curve": 0.09,
               "levels": 9,
@@ -612,7 +612,7 @@
               "#8b5a2b"
             ],
             "params": {
-              "flows": "Marble",
+              "flows": "Swirl",
               "scale": 0.29,
               "curve": 0.59,
               "levels": 11,
