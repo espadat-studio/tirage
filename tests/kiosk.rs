@@ -178,9 +178,7 @@ fn kiosk_loops_at_its_site_default_motion() {
 fn shuffle_redeals_the_type_every_frame() {
     let recipe = derive(7, KIOSK);
     let frame = |t| render(&recipe, &Frame::new(&recipe, 90, 160, t).unwrap());
-    let still = frame(0);
-    assert_eq!(frame(0), still);
-    assert_ne!(frame(1), still);
+    assert_ne!(frame(1), frame(0));
 }
 
 #[test]

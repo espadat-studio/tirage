@@ -395,15 +395,15 @@ pub(crate) fn paint(
     surface.fill_box(0.0, 0.0, width, height, roles.band(0));
     let cx = width * (-0.22 + at(1, 1, 11) * 0.30);
     let cy = height * (-0.06 + at(2, 2, 13) * 0.36);
-    let rings = params.rings.max(4);
+    let rings = params.rings;
     let reach = (cx.abs().max((width - cx).abs())).hypot(cy.abs().max((height - cy).abs())) * 1.02;
     let step = reach / f64::from(rings);
     for k in (1..=rings).rev() {
         surface.fill_circle(cx, cy, f64::from(k) * step, roles.band(k as usize));
     }
 
-    let split = round_half_up(width * params.split.clamp(0.15, 0.95));
-    let stripes = params.stripes.max(2) as i32;
+    let split = round_half_up(width * params.split);
+    let stripes = params.stripes as i32;
     let weights: Vec<f64> = (0..stripes).map(|i| 0.45 + at(i, 7, 31)).collect();
     let total: f64 = weights.iter().sum();
     let mut x = split;
@@ -454,7 +454,7 @@ pub(crate) fn paint(
     surface.fill_box(panel[0], panel[1], panel[2], panel[3], roles.dark);
 
     let text_seed = tool_seed.wrapping_add(t.wrapping_mul(SHUFFLE));
-    let cols = params.grid.max(4);
+    let cols = params.grid;
     let cell_width = width / f64::from(cols);
     let rows = round_half_up(height / cell_width).max(2.0) as u32;
     let cell_height = height / f64::from(rows);
