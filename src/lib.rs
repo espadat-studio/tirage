@@ -30,6 +30,7 @@ registry::tools! {
     Sear: sear::{SearParams},
     Culture: culture::{CultureParams, CultureTexture},
     Bloom: bloom::{BloomParams},
+    Weave: weave::{WeaveParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
