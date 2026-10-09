@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
@@ -940,4 +941,42 @@ fn short_help_stays_short_and_long_help_shows_shapes() {
     assert!(long.contains("1080x1350 portrait"), "{long}");
     let concise = text(&on_tty("tirage").stdout);
     assert!(concise.contains("prompt on a terminal"), "{concise}");
+}
+
+fn flags_in_help(help: &str) -> BTreeSet<String> {
+    help.lines()
+        .map(str::trim_start)
+        .filter(|line| line.starts_with('-'))
+        .filter_map(|line| line.split_whitespace().next())
+        .map(str::to_owned)
+        .collect()
+}
+
+fn flags_on_page(page: &str) -> BTreeSet<String> {
+    page.split("```")
+        .step_by(2)
+        .flat_map(|prose| prose.split('`').skip(1).step_by(2))
+        .filter_map(|span| span.split_whitespace().next())
+        .filter(|word| word.starts_with('-') && word.len() > 1)
+        .map(str::to_owned)
+        .collect()
+}
+
+#[test]
+fn docs_pages_list_every_flag_in_help_and_no_other() {
+    let pages = Path::new(env!("CARGO_MANIFEST_DIR")).join("docs/src/content/docs/cli-reference");
+    let commands: [(&str, &[&str]); 5] = [
+        ("tirage", &["--help"]),
+        ("derive", &["derive", "--help"]),
+        ("render", &["render", "--help"]),
+        ("tools", &["tools", "--help"]),
+        ("completions", &["completions", "--help"]),
+    ];
+    for (name, args) in commands {
+        let help = text(&tirage(args, b"").stdout);
+        let path = pages.join(format!("{name}.md"));
+        let page =
+            std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+        assert_eq!(flags_in_help(&help), flags_on_page(&page), "{name}");
+    }
 }
