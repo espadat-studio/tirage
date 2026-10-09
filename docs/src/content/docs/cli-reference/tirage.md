@@ -37,7 +37,7 @@ tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
 
 ## Prompts
 
-On a terminal, derive, render and encode ask for the values you leave out. derive asks for a Seed. render asks for a Seed and a Tool when nothing is piped in, then for a frame size and an output path. encode asks for a Seed and a Loop Tool, then for an output path. Every prompt has a default, so pressing Enter through all of them gives a random Visual as a 1080x1920 PNG.
+On a terminal, derive, render and encode ask for the values you leave out. derive asks for a Seed. render asks for a Seed and a Tool when nothing is piped in, then for a frame size and an output path. encode asks for a Seed and a Loop Tool, then for an output path. Every prompt has a default, so pressing Enter through all of them gives a random Visual as a 1080x1920 PNG, or a random Loop as an MP4.
 
 Once the prompts are answered, the command you could have typed instead is printed on stderr:
 
