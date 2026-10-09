@@ -164,7 +164,8 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(
-        text(&out.stderr).contains(r#"unknown tool "vien", expected one of sonar, husk, vein"#)
+        text(&out.stderr)
+            .contains(r#"unknown tool "vien", expected one of sonar, husk, vein, aura"#)
     );
 }
 
@@ -260,10 +261,17 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"tints","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"runs","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
+    let aura = concat!(
+        r#"{"slug":"aura","frames":1,"params":["#,
+        r#"{"id":"styles","kind":"choice","choices":["Auto","Clouds","Mesh","Sweep"]},"#,
+        r#"{"id":"scale","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
+        r#"{"id":"churn","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"punch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }
@@ -276,6 +284,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.starts_with("sonar  24 frames\n"), "{listing}");
     assert!(listing.contains("\nhusk  1 frame\n"), "{listing}");
     assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
+    assert!(listing.contains("\naura  1 frame\n"), "{listing}");
     for line in [
         "  grid        40..=320  step 2\n",
         "  grnVignette 0..=1     step 0.05\n",
@@ -284,6 +293,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
         "  dthKinds    Bayer 8, Bayer 4, Noise\n",
         "  levels      3..=14    step 1\n",
         "  flows       Marble, Swirl, Ripple\n",
+        "  styles      Auto, Clouds, Mesh, Sweep\n",
     ] {
         assert!(listing.contains(line), "{line:?} in\n{listing}");
     }

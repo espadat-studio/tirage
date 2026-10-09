@@ -8,12 +8,12 @@ Written from reading the site page to learn the algorithm. No site code is copie
 
 Site control ids, slider ranges and site defaults:
 
-| id      | range                     | step | default | role                                     |
-| ------- | ------------------------- | ---- | ------- | ---------------------------------------- |
-| `style` | Auto, Clouds, Mesh, Sweep |      | Clouds  | what shapes each ink's field             |
-| `scale` | 0.5..2                    | 0.05 | 2       | how much field fits across the frame     |
-| `churn` | 0..1                      | 0.01 | 1       | how hard a second field warps the first  |
-| `punch` | 0..1                      | 0.01 | 1       | how sharply the strongest ink takes over |
+| id       | range                     | step | default | role                                     |
+| -------- | ------------------------- | ---- | ------- | ---------------------------------------- |
+| `styles` | Auto, Clouds, Mesh, Sweep |      | Clouds  | what shapes each ink's field             |
+| `scale`  | 0.5..2                    | 0.05 | 2       | how much field fits across the frame     |
+| `churn`  | 0..1                      | 0.01 | 1       | how hard a second field warps the first  |
+| `punch`  | 0..1                      | 0.01 | 1       | how sharply the strongest ink takes over |
 
 Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. aura is a Still Tool: one frame, motion stays off and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. Default Palette: `#ff8a5b #ffc15e #f4a7d6 #8e7cff`.
 
@@ -82,5 +82,6 @@ Inks mix in squared space, so blends stay bright instead of muddy:
 ## Fidelity notes
 
 - At the 540x960 fixture size the buffer is the frame, so the fixtures check the field and the mix, not the upscale.
+- A one-off 1080x1920 export, upscaled from a 700x1244 buffer, was within 1 level per channel of a Mitchell bicubic (B = C = 1/3), as were Catmull-Rom and bilinear. The field is too smooth for the filter to matter. Mitchell had the lowest mean error, and it is what tiny-skia's bicubic does.
 - Mesh and Sweep call `exp`, `cos` and `sin`, and every style calls `pow`. Rust's and V8's results may differ in the last bit, which can flip a rare byte by one.
 - The site's "My colors" truncates a longer set to its 4 swatches. Reference exports therefore use a 4-ink Palette, so the site's swatches equal the Recipe's Palette.

@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::param::Param;
 use crate::{
-    DERIVATION_MAJOR, Error, HuskParams, Palette, SonarParams, VeinParams, husk, sonar, vein,
+    AuraParams, DERIVATION_MAJOR, Error, HuskParams, Palette, SonarParams, VeinParams, aura, husk,
+    sonar, vein,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -12,16 +13,18 @@ pub enum Tool {
     Sonar,
     Husk,
     Vein,
+    Aura,
 }
 
 impl Tool {
-    pub const ALL: &[Tool] = &[Tool::Sonar, Tool::Husk, Tool::Vein];
+    pub const ALL: &[Tool] = &[Tool::Sonar, Tool::Husk, Tool::Vein, Tool::Aura];
 
     pub fn slug(self) -> &'static str {
         match self {
             Self::Sonar => sonar::SLUG,
             Self::Husk => husk::SLUG,
             Self::Vein => vein::SLUG,
+            Self::Aura => aura::SLUG,
         }
     }
 
@@ -38,6 +41,7 @@ impl Tool {
             Self::Sonar => sonar::FRAMES,
             Self::Husk => husk::FRAMES,
             Self::Vein => vein::FRAMES,
+            Self::Aura => aura::FRAMES,
         }
     }
 
@@ -46,6 +50,7 @@ impl Tool {
             Self::Sonar => sonar::FPS,
             Self::Husk => husk::FPS,
             Self::Vein => vein::FPS,
+            Self::Aura => aura::FPS,
         }
     }
 
@@ -54,6 +59,7 @@ impl Tool {
             Self::Sonar => sonar::parameters(),
             Self::Husk => husk::parameters(),
             Self::Vein => vein::parameters(),
+            Self::Aura => aura::parameters(),
         }
     }
 
@@ -62,6 +68,7 @@ impl Tool {
             Self::Sonar => sonar::PARAMS,
             Self::Husk => husk::PARAMS,
             Self::Vein => vein::PARAMS,
+            Self::Aura => aura::PARAMS,
         }
     }
 }
@@ -104,6 +111,7 @@ pub enum Params {
     Sonar(SonarParams),
     Husk(HuskParams),
     Vein(VeinParams),
+    Aura(AuraParams),
 }
 
 impl Params {
@@ -112,6 +120,7 @@ impl Params {
             Self::Sonar(_) => Tool::Sonar,
             Self::Husk(_) => Tool::Husk,
             Self::Vein(_) => Tool::Vein,
+            Self::Aura(_) => Tool::Aura,
         }
     }
 }
@@ -206,6 +215,7 @@ impl Recipe {
             Tool::Sonar => Params::Sonar(sonar::from_json(wire.params)?),
             Tool::Husk => Params::Husk(husk::from_json(wire.params)?),
             Tool::Vein => Params::Vein(vein::from_json(wire.params)?),
+            Tool::Aura => Params::Aura(aura::from_json(wire.params)?),
         };
         Ok(Self {
             tool_seed: wire.tool_seed,

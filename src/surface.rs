@@ -1,5 +1,6 @@
 use tiny_skia::{
-    Color, ColorU8, FillRule, LineJoin, Paint, PathBuilder, Pixmap, Rect, Stroke, Transform,
+    Color, ColorU8, FillRule, FilterQuality, IntSize, LineJoin, Paint, PathBuilder, Pixmap,
+    PixmapPaint, Rect, Stroke, Transform,
 };
 
 use crate::Image;
@@ -105,6 +106,30 @@ impl Surface {
             Transform::identity(),
             None,
         );
+    }
+
+    pub(crate) fn draw_smooth(&mut self, rgba: &[u8], width: u32, height: u32) {
+        let premultiplied = rgba
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .flat_map(|&[r, g, b, a]| {
+                let c = ColorU8::from_rgba(r, g, b, a).premultiply();
+                [c.red(), c.green(), c.blue(), c.alpha()]
+            })
+            .collect();
+        let size = IntSize::from_wh(width, height).expect("buffer edges are at least 1 px");
+        let image = Pixmap::from_vec(premultiplied, size).expect("buffer holds width x height");
+        let scale = Transform::from_scale(
+            self.width() as f32 / width as f32,
+            self.height() as f32 / height as f32,
+        );
+        let paint = PixmapPaint {
+            quality: FilterQuality::Bicubic,
+            ..PixmapPaint::default()
+        };
+        self.0
+            .draw_pixmap(0, 0, image.as_ref(), &paint, scale, None);
     }
 
     pub(crate) fn edit_rgba(&mut self, edit: impl FnOnce(&mut [u8], u32, u32)) {
