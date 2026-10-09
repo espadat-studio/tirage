@@ -23,6 +23,7 @@ registry::tools! {
     Terrain: terrain::{TerrainParams},
     Stitch: stitch::{StitchParams},
     Pith: pith::{PithParams},
+    Mosh: mosh::{MoshParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

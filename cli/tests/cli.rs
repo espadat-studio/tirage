@@ -199,7 +199,7 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(text(&out.stderr).contains(
-        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith"#
+        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh"#
     ));
 }
 
@@ -378,10 +378,19 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"thick","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
+    let mosh = concat!(
+        r#"{"slug":"mosh","frames":1,"params":["#,
+        r#"{"id":"bands","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
+        r#"{"id":"cols","kind":"range","min":24.0,"max":420.0,"step":2.0},"#,
+        r#"{"id":"mix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"tears","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"runs","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"bright","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }
