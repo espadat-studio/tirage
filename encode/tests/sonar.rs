@@ -2,7 +2,7 @@ use std::io::Cursor;
 
 use mp4::{MediaType, Mp4Reader};
 use tirage::{Tool, ToolPin, derive};
-use tirage_encode::{HEIGHT, WIDTH, encode, settings};
+use tirage_encode::{HEIGHT, OPENH264, WIDTH, encode, settings};
 
 const MAX_BYTES: usize = 1_500_000;
 const SEEDS: [u64; 3] = [1, 2, 3];
@@ -36,7 +36,6 @@ fn every_fixed_sonar_seed_stays_under_the_cap() {
                 let bytes = encode(&derive(seed, ToolPin::Tool(Tool::Sonar)))
                     .unwrap()
                     .len();
-                println!("seed {seed}: {bytes} bytes");
                 assert!(bytes < MAX_BYTES, "seed {seed}: {bytes} bytes");
             });
         }
@@ -48,4 +47,15 @@ fn settings_name_the_encoder_and_frame_size() {
     let settings = settings();
     assert!(settings.contains("openh264"), "{settings}");
     assert!(settings.contains("720x1280"), "{settings}");
+}
+
+#[test]
+fn openh264_version_matches_the_lockfile() {
+    let lock = include_str!("../../Cargo.lock");
+    let entry = format!("name = \"openh264\"\nversion = \"{OPENH264}\"");
+    assert!(
+        lock.contains(&entry),
+        "Cargo.lock has no openh264 {OPENH264}"
+    );
+    assert!(settings().contains(OPENH264));
 }

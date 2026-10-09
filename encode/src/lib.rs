@@ -4,12 +4,14 @@ use std::io::Cursor;
 use bytes::Bytes;
 use mp4::{AvcConfig, FourCC, MediaConfig, Mp4Config, Mp4Sample, Mp4Writer, TrackConfig};
 use openh264::OpenH264API;
-use openh264::encoder::{BitRate, Encoder, EncoderConfig, FrameRate, RateControlMode};
+use openh264::encoder::{BitRate, Encoder, EncoderConfig, FrameRate, FrameType, RateControlMode};
 use openh264::formats::{RgbaSliceU8, YUVBuffer};
 use tirage::{Frame, Recipe, render};
 
 pub const WIDTH: u32 = 720;
 pub const HEIGHT: u32 = 1280;
+
+pub const OPENH264: &str = "0.9.8";
 
 const BITRATE: u32 = 4_000_000;
 
@@ -18,7 +20,7 @@ const PPS: u8 = 8;
 
 pub fn settings() -> String {
     format!(
-        "tirage-encode {} openh264 h264 {WIDTH}x{HEIGHT} bitrate {BITRATE}",
+        "tirage-encode {} openh264 {OPENH264} h264 {WIDTH}x{HEIGHT} rc bitrate {BITRATE} no-skip",
         env!("CARGO_PKG_VERSION")
     )
 }
@@ -71,6 +73,7 @@ pub fn encode(recipe: &Recipe) -> Result<Vec<u8>, Error> {
         let image = render(recipe, &frame);
         let rgba = RgbaSliceU8::new(image.rgba(), (WIDTH as usize, HEIGHT as usize));
         let stream = encoder.encode(&YUVBuffer::from_rgb_source(rgba))?;
+        let is_sync = matches!(stream.frame_type(), FrameType::IDR);
         let mut sample = Vec::new();
         for layer in (0..stream.num_layers()).filter_map(|i| stream.layer(i)) {
             for nal in (0..layer.nal_count()).filter_map(|j| layer.nal_unit(j)) {
@@ -89,7 +92,7 @@ pub fn encode(recipe: &Recipe) -> Result<Vec<u8>, Error> {
             start_time: u64::from(t),
             duration: 1,
             rendering_offset: 0,
-            is_sync: t == 0,
+            is_sync,
             bytes: Bytes::from(sample),
         });
     }
