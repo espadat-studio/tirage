@@ -37,6 +37,21 @@ impl Tool {
             Self::Sonar => sonar::FPS,
         }
     }
+
+    pub fn parameters(self) -> Vec<Parameter> {
+        match self {
+            Self::Sonar => sonar::parameters(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
+#[non_exhaustive]
+pub struct Parameter {
+    pub id: &'static str,
+    pub min: f64,
+    pub max: f64,
+    pub step: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]

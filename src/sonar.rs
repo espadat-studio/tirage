@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::surface::Surface;
-use crate::{Error, Palette};
+use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "sonar";
 pub(crate) const FRAMES: u32 = 24;
@@ -38,6 +38,16 @@ impl Param {
         let steps = u64::from((high - low) / self.step + 1);
         let ticks = low + (draw % steps) as u32 * self.step;
         f64::from(ticks) / f64::from(self.unit)
+    }
+
+    fn parameter(&self) -> Parameter {
+        let unit = f64::from(self.unit);
+        Parameter {
+            id: self.id,
+            min: f64::from(self.min) / unit,
+            max: f64::from(self.max) / unit,
+            step: f64::from(self.step) / unit,
+        }
     }
 
     fn check(&self, value: f64) -> Result<f64, Error> {
@@ -194,6 +204,13 @@ pub(crate) fn from_json(params: serde_json::Value) -> Result<SonarParams, Error>
     params.set_fringe(raw.fringe)?;
     params.set_spark(raw.spark)?;
     Ok(params)
+}
+
+pub(crate) fn parameters() -> Vec<Parameter> {
+    [LEVEL, SCALE, WARP, GRID, DEPTH, FRINGE, SPARK]
+        .iter()
+        .map(Param::parameter)
+        .collect()
 }
 
 pub(crate) fn palette() -> Palette {
