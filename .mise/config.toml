@@ -66,6 +66,12 @@ depends = ["refs:setup"]
 dir = "refs"
 run = "bun export.ts"
 
+[tasks.taste]
+description = "Render a Taste triage sheet from the live site: taste <slug> [--bounds FILE]. Never in CI"
+depends = ["refs:setup"]
+dir = "refs"
+run = "bun taste.ts"
+
 [tasks."refs:smoke"]
 description = "Export the smoke fixtures twice into a temp dir and check the bytes match"
 depends = ["refs:setup"]

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
@@ -10,17 +11,15 @@ import {
   downloadPng,
   launch,
   openTool,
-  pngSize,
+  RATIO,
   setParam,
   setRange,
   setRatio,
   setSize,
   setToggle,
-  sha256,
   sizeControl,
 } from "./page";
 
-const RATIO = "9:16";
 const WIDTH = 540;
 const HEIGHT = 960;
 const FONT = join(import.meta.dir, "../fonts/DejaVuSansMono-Bold.ttf");
@@ -41,10 +40,7 @@ async function exportPng(
     for (const [id, value] of Object.entries(recipe.params)) await setParam(page, id, value);
     if (frame !== undefined) await setRange(page, "scrub", frame);
 
-    const png = await downloadPng(page);
-    const [w, h] = pngSize(png);
-    if (w !== WIDTH || h !== HEIGHT) throw new Error(`${slug} exported ${w}x${h}, expected ${WIDTH}x${HEIGHT}`);
-    return { png, pageSha };
+    return { png: await downloadPng(page, WIDTH, HEIGHT), pageSha };
   } finally {
     await context.close();
   }
@@ -65,7 +61,7 @@ const manifest = parseManifest(JSON.parse(readFileSync(manifestPath, "utf8")));
 const slugs = positionals.length ? positionals : Object.keys(manifest.tools);
 for (const slug of slugs) if (!manifest.tools[slug]) throw new Error(`${slug} has no entry in ${manifestPath}`);
 
-const fontSha = sha256(readFileSync(FONT));
+const fontSha = createHash("sha256").update(readFileSync(FONT)).digest("hex");
 const browser = await launch();
 try {
   for (const slug of slugs) {

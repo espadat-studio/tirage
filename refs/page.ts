@@ -8,9 +8,10 @@ import type { Browser, BrowserContext, Page } from "playwright-core";
 import type { ParamValue } from "./manifest";
 
 export const BASE = "https://www.playgrnd.tools";
+export const RATIO = "9:16";
 const FONTCONFIG_FILE = join(import.meta.dir, "fonts.conf");
 
-export const sha256 = (bytes: Uint8Array): string => createHash("sha256").update(bytes).digest("hex");
+const sha256 = (bytes: Uint8Array): string => createHash("sha256").update(bytes).digest("hex");
 
 export function launch(): Promise<Browser> {
   return chromium.launch({ channel: "chromium", env: { ...process.env, FONTCONFIG_FILE } });
@@ -19,7 +20,7 @@ export function launch(): Promise<Browser> {
 export async function openTool(
   browser: Browser,
   slug: string,
-  seed: number,
+  toolSeed: number,
   palette?: string[],
 ): Promise<{ context: BrowserContext; page: Page; pageSha: string }> {
   const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1600, height: 1000 } });
@@ -31,10 +32,12 @@ export async function openTool(
       );
     }
     const page = await context.newPage();
-    const response = await page.goto(`${BASE}/${slug}/?seed=${seed}`, { waitUntil: "networkidle" });
+    const response = await page.goto(`${BASE}/${slug}/?seed=${toolSeed}`, { waitUntil: "networkidle" });
     if (!response?.ok()) throw new Error(`GET ${BASE}/${slug}/ -> ${response?.status()}`);
     const pageSha = sha256(await response.body());
-    if ((await page.inputValue("#seed")) !== String(seed)) throw new Error(`${slug} did not apply seed ${seed}`);
+    if ((await page.inputValue("#seed")) !== String(toolSeed)) {
+      throw new Error(`${slug} did not apply tool seed ${toolSeed}`);
+    }
     if (palette && (await page.getAttribute("#mycTog", "aria-pressed")) !== "true") {
       throw new Error(`${slug} did not apply the Palette`);
     }
@@ -105,12 +108,11 @@ export async function setParam(page: Page, id: string, value: ParamValue): Promi
   return setPick(page, id, value);
 }
 
-export async function downloadPng(page: Page): Promise<Buffer> {
+export async function downloadPng(page: Page, width: number, height: number): Promise<Buffer> {
   await page.click("#exportTog", { force: true });
   const [download] = await Promise.all([page.waitForEvent("download"), page.click("#expPng", { force: true })]);
-  return readFileSync(await download.path());
-}
-
-export function pngSize(png: Buffer): [number, number] {
-  return [png.readUInt32BE(16), png.readUInt32BE(20)];
+  const png = readFileSync(await download.path());
+  const [w, h] = [png.readUInt32BE(16), png.readUInt32BE(20)];
+  if (w !== width || h !== height) throw new Error(`${page.url()} exported ${w}x${h}, expected ${width}x${height}`);
+  return png;
 }
