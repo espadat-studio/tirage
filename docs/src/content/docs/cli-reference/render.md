@@ -42,7 +42,7 @@ Any size from 1x1 to 8192x8192 pixels. The prompt offers the four common social 
 
 ## Frame
 
-`--frame` picks one frame of a Loop, from 0 to one less than the Tool's frame count. Frame 0 is the Still. A frame past the end exits 1, and the hint names the last valid frame. To turn every frame into an MP4, see the [encode](https://github.com/espadat-studio/tirage/tree/master/encode) crate.
+`--frame` picks one frame of a Loop, from 0 to one less than the Tool's frame count. Frame 0 is the Still. A frame past the end exits 1, and the hint names the last valid frame. To turn every frame into an MP4, see [encode](/cli-reference/encode/).
 
 ## Output
 

@@ -970,7 +970,12 @@ fn docs_pages_list_every_flag_in_help_and_no_other() {
         ("tools", &["tools", "--help"]),
         ("completions", &["completions", "--help"]),
     ];
-    for (name, args) in commands {
+    let encode: &[(&str, &[&str])] = if cfg!(feature = "encode") {
+        &[("encode", &["encode", "--help"])]
+    } else {
+        &[]
+    };
+    for (name, args) in commands.iter().chain(encode) {
         let help = text(&tirage(args, b"").stdout);
         let path = pages.join(format!("{name}.md"));
         let page =
@@ -1030,4 +1035,176 @@ fn shell_blocks(markdown: &str) -> Vec<&str> {
         }
     }
     lines
+}
+
+#[cfg(feature = "encode")]
+mod encode {
+    use super::*;
+
+    fn sonar_mp4() -> Vec<u8> {
+        tirage_encode::encode(&tirage::derive(
+            42,
+            tirage::ToolPin::Tool(tirage::Tool::Sonar),
+        ))
+        .unwrap()
+    }
+
+    #[test]
+    fn derive_pipes_into_encode_as_the_mp4_the_library_encodes() {
+        let dir = scratch("encode-pipe");
+        let mut derive = Command::new(BIN)
+            .args(["derive", "--seed", "42", "--tool", "sonar"])
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap();
+        let out = Command::new(BIN)
+            .args(["encode", "-o", "out.mp4"])
+            .current_dir(&dir)
+            .stdin(derive.stdout.take().unwrap())
+            .output()
+            .unwrap();
+        assert_eq!(derive.wait().unwrap().code(), Some(0));
+        assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+        assert!(out.stdout.is_empty());
+        assert_eq!(std::fs::read(dir.join("out.mp4")).unwrap(), sonar_mp4());
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn encode_reads_a_recipe_file_and_streams_the_mp4_to_stdout() {
+        let dir = scratch("encode-file");
+        let input = dir.join("recipe.json");
+        std::fs::write(&input, recipe()).unwrap();
+        let out = tirage(&["encode", input.to_str().unwrap(), "-o", "-"], b"");
+        assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+        assert_eq!(out.stdout, sonar_mp4());
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn encode_refuses_mp4_bytes_on_a_terminal() {
+        let out = on_tty("tirage derive --seed 42 --tool sonar | tirage encode -o -");
+        assert_eq!(out.status.code(), Some(2));
+        assert!(
+            text(&out.stdout).contains("refusing to write an MP4 to a terminal"),
+            "{}",
+            text(&out.stdout)
+        );
+        assert!(
+            text(&out.stdout).contains("Usage: tirage encode"),
+            "{}",
+            text(&out.stdout)
+        );
+    }
+
+    #[test]
+    fn encode_prompts_for_a_seed_a_loop_tool_and_an_output_path() {
+        let dir = scratch("encode-prompts");
+        let out = on_tty_typing("tirage encode", "42\rso\r\r", &dir);
+        assert_eq!(out.status.code(), Some(0), "{}", text(&out.stdout));
+        assert_eq!(
+            std::fs::read(dir.join("sonar-42.mp4")).unwrap(),
+            sonar_mp4()
+        );
+        let screen = text(&out.stdout);
+        assert!(
+            screen
+                .contains("→ tirage derive --seed 42 --tool sonar | tirage encode -o sonar-42.mp4"),
+            "{screen}"
+        );
+        for still in ["husk", "vein", "aura", "deal from Seed"] {
+            assert!(!screen.contains(still), "{still} offered in\n{screen}");
+        }
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn encode_refuses_a_still_with_a_hint_to_render_it() {
+        let husk = tirage(&["derive", "--seed", "42", "--tool", "husk"], b"").stdout;
+        let out = tirage(&["encode", "-o", "-"], &husk);
+        assert_eq!(out.status.code(), Some(1));
+        assert_eq!(
+            text(&out.stderr),
+            "error: husk draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
+        );
+        assert!(out.stdout.is_empty());
+    }
+
+    #[test]
+    fn a_loop_over_the_cap_fails_with_the_cap_in_the_message() {
+        let dir = scratch("encode-cap");
+        let mut recipe = tirage::derive(1, tirage::ToolPin::Tool(tirage::Tool::Frond));
+        let tirage::Params::Frond(p) = recipe.params_mut() else {
+            unreachable!()
+        };
+        p.set_plant(tirage::Plant::Bouquet);
+        p.set_masses(6).unwrap();
+        p.set_growth(0.75).unwrap();
+        p.set_detail(1.0).unwrap();
+        p.set_noise(1.0).unwrap();
+        p.set_patch(1.0).unwrap();
+        p.set_coarse(0.25).unwrap();
+        p.set_breakup(0.5).unwrap();
+        p.set_circles(1.0).unwrap();
+        p.set_rules(1.0).unwrap();
+        let output = dir.join("out.mp4");
+        let out = tirage(
+            &["encode", "-o", output.to_str().unwrap()],
+            recipe.to_json().as_bytes(),
+        );
+        assert_eq!(out.status.code(), Some(1), "{}", text(&out.stderr));
+        assert!(
+            text(&out.stderr).contains("over the 1500000 byte cap"),
+            "{}",
+            text(&out.stderr)
+        );
+        assert!(!output.exists());
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn encode_prompts_are_off_without_a_full_terminal() {
+        let out = tirage(&["encode"], &recipe());
+        assert_eq!(out.status.code(), Some(2));
+        assert!(
+            text(&out.stderr).contains("no output path given, pass -o FILE, or -o - for stdout"),
+            "{}",
+            text(&out.stderr)
+        );
+        let out = on_tty("tirage encode -o out.mp4 --no-input");
+        assert_eq!(out.status.code(), Some(2));
+        assert!(
+            text(&out.stdout).contains("no Recipe on stdin"),
+            "{}",
+            text(&out.stdout)
+        );
+    }
+
+    #[test]
+    fn encode_shows_in_help_and_completions() {
+        let help = text(&tirage(&["--help"], b"").stdout);
+        assert!(
+            help.contains("encode") && help.contains("[alias: e]"),
+            "{help}"
+        );
+        let script = text(&tirage(&["completions", "bash"], b"").stdout);
+        assert!(script.contains("encode"), "{script}");
+        let out = tirage(&["e", "-o", "-"], &recipe());
+        assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+        assert_eq!(out.stdout, sonar_mp4());
+    }
+}
+
+#[cfg(not(feature = "encode"))]
+#[test]
+fn encode_is_absent_without_the_feature() {
+    let out = tirage(&["encode", "-o", "out.mp4"], &recipe());
+    assert_eq!(out.status.code(), Some(2));
+    assert!(
+        text(&out.stderr).contains("unrecognized subcommand 'encode'"),
+        "{}",
+        text(&out.stderr)
+    );
+    let help = text(&tirage(&["--help"], b"").stdout);
+    assert!(!help.contains("encode"), "{help}");
 }

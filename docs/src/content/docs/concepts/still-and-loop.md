@@ -20,6 +20,6 @@ Because the Still is frame 0, a page can show it while the video loads, or in pl
 
 ## Loops are pre-rendered video
 
-tirage does not animate in the browser. Drawing a 1080x1920 frame takes about 97 ms on a desktop CPU, which is 2 to 3 frames per second on a mid-range phone. Instead, tirage renders every frame of a Loop once and encodes them into an H.264 MP4. Any video element plays that with hardware decoding, and it caches as a file. The `tirage-encode` crate in the repository's `encode/` directory does the encoding: it takes a Recipe and returns the MP4 bytes.
+tirage does not animate in the browser. Drawing a 1080x1920 frame takes about 97 ms on a desktop CPU, which is 2 to 3 frames per second on a mid-range phone. Instead, tirage renders every frame of a Loop once and encodes them into an H.264 MP4. Any video element plays that with hardware decoding, and it caches as a file. The `tirage-encode` crate in the repository's `encode/` directory does the encoding: it takes a Recipe and returns the MP4 bytes. `tirage encode` does the same from the command line, in a CLI built with the `encode` feature.
 
 A Loop is encoded at 720x1280 with the Tool's own frame count and frame rate: sonar is 24 frames at 10 fps, kiosk 24 at 6 fps, frond 36 at 12 fps. You render the Still at any size up to 8192 pixels an edge. Every Loop has to stay under 1.5 MB. The tests encode fixed Seeds of each Loop Tool and fail when one goes over.

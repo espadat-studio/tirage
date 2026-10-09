@@ -40,6 +40,16 @@ pub fn for_error(error: &Error) -> Option<String> {
     Some(hint)
 }
 
+#[cfg(feature = "encode")]
+pub fn for_encode_error(error: &tirage_encode::Error) -> Option<String> {
+    match error {
+        tirage_encode::Error::OverCap { .. } => {
+            Some("try another Seed, or a simpler Recipe".to_owned())
+        }
+        _ => None,
+    }
+}
+
 fn closest<'a>(word: &str, candidates: impl Iterator<Item = &'a str>) -> Option<&'a str> {
     candidates
         .map(|candidate| (distance(word, candidate), candidate))

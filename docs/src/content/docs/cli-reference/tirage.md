@@ -7,14 +7,15 @@ description: "Commands, global options, prompts, colour and exit codes shared by
 tirage [OPTIONS] <COMMAND>
 ```
 
-One binary, four commands. A run usually pipes the first into the second.
+One binary, four commands, and a fifth in a build with the `encode` feature. A run usually pipes the first into the second.
 
-| Command                                    | Alias     | Does                                              |
-| ------------------------------------------ | --------- | ------------------------------------------------- |
-| [derive](/cli-reference/derive/)           | `d`       | Derive a Recipe from a Seed and print it as JSON  |
-| [render](/cli-reference/render/)           | `r`       | Render a Recipe to a PNG                          |
-| [tools](/cli-reference/tools/)             | `t`, `ls` | List Tools with their frame counts and Parameters |
-| [completions](/cli-reference/completions/) |           | Print a shell completion script                   |
+| Command                                    | Alias     | Does                                                     |
+| ------------------------------------------ | --------- | -------------------------------------------------------- |
+| [derive](/cli-reference/derive/)           | `d`       | Derive a Recipe from a Seed and print it as JSON         |
+| [render](/cli-reference/render/)           | `r`       | Render a Recipe to a PNG                                 |
+| [encode](/cli-reference/encode/)           | `e`       | Encode a Loop to an H.264 MP4, with the `encode` feature |
+| [tools](/cli-reference/tools/)             | `t`, `ls` | List Tools with their frame counts and Parameters        |
+| [completions](/cli-reference/completions/) |           | Print a shell completion script                          |
 
 ```sh
 tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
@@ -36,7 +37,7 @@ tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
 
 ## Prompts
 
-On a terminal, derive and render ask for the values you leave out. derive asks for a Seed. render asks for a Seed and a Tool when nothing is piped in, then for a frame size and an output path. Every prompt has a default, so pressing Enter through all of them gives a random Visual as a 1080x1920 PNG.
+On a terminal, derive, render and encode ask for the values you leave out. derive asks for a Seed. render asks for a Seed and a Tool when nothing is piped in, then for a frame size and an output path. encode asks for a Seed and a Loop Tool, then for an output path. Every prompt has a default, so pressing Enter through all of them gives a random Visual as a 1080x1920 PNG, or a random Loop as an MP4.
 
 Once the prompts are answered, the command you could have typed instead is printed on stderr:
 
@@ -65,7 +66,7 @@ The derivation major is the version of the Seed to Recipe mapping. A Recipe reco
 | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `0`   | Done                                                                                                                                                                   |
 | `1`   | Something failed at run time: a file could not be read or written, the Recipe JSON is invalid or from another major, or the frame size or frame number is out of range |
-| `2`   | The command line is wrong: an unknown command or option, a bad value, a value missing with prompts off, a PNG aimed at the terminal, or no arguments at all            |
+| `2`   | The command line is wrong: an unknown command or option, a bad value, a value missing with prompts off, a PNG or MP4 aimed at the terminal, or no arguments at all     |
 | `130` | A prompt was cancelled with Esc or Ctrl-C                                                                                                                              |
 
 Errors go to stderr as `error: <message>`. Most are followed by a `hint:` line with the fix, like the closest Tool slug after a typo.

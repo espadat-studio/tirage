@@ -9,6 +9,9 @@ publish = false
 name = "tirage"
 path = "src/main.rs"
 
+[features]
+encode = ["dep:tirage-encode"]
+
 [dependencies]
 clap = { version = "4", default-features = false, features = ["std", "derive", "help", "usage", "error-context", "suggestions", "string", "color"] }
 clap_complete = "4"
@@ -16,6 +19,7 @@ dialoguer = { version = "0.12", default-features = false, features = ["fuzzy-sel
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tirage = { path = ".." }
+tirage-encode = { path = "../encode", optional = true }
 
 [dev-dependencies]
 image = { version = "0.25", default-features = false, features = ["png"] }

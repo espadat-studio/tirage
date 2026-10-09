@@ -54,6 +54,7 @@ export default defineConfig({
             { slug: "cli-reference/tirage" },
             { slug: "cli-reference/derive" },
             { slug: "cli-reference/render" },
+            { slug: "cli-reference/encode" },
             { slug: "cli-reference/tools" },
             { slug: "cli-reference/completions" },
           ],
