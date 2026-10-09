@@ -1,4 +1,6 @@
+use std::fs;
 use std::num::NonZeroU32;
+use std::path::Path;
 
 use tirage::{Frame, Palette, Params, Recipe, SonarParams, Tool, ToolPin, derive, render};
 
@@ -170,10 +172,41 @@ fn frame_checks_edges_and_time() {
         "frame 540x8193 is outside 1..=8192 per edge"
     );
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 24)),
+        "frame 24 is outside 0..24"
     );
-    assert!(Frame::new(&recipe, 8192, 1, 0).is_ok());
+    assert!(Frame::new(&recipe, 8192, 1, 23).is_ok());
+}
+
+#[test]
+fn sonar_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Sonar.frames(), Tool::Sonar.fps()), (24, 10));
+}
+
+#[test]
+fn frame_zero_is_byte_identical_to_the_still_reference_export() {
+    let refs = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/refs");
+    let manifest: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(refs.join("manifest.json")).unwrap()).unwrap();
+    let stills: Vec<_> = manifest["tools"]["sonar"]["fixtures"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|fixture| fixture.get("frame").is_none())
+        .collect();
+    assert_eq!(stills.len(), 3);
+    for fixture in stills {
+        let name = fixture["name"].as_str().unwrap();
+        let recipe = Recipe::from_json(&fixture["recipe"].to_string()).unwrap();
+        let image = render(&recipe, &Frame::new(&recipe, 540, 960, 0).unwrap());
+        let still = image::open(refs.join(format!("sonar/{name}.png")))
+            .unwrap()
+            .to_rgba8();
+        assert!(
+            image.rgba() == still.as_raw(),
+            "{name}: frame 0 is not the Still"
+        );
+    }
 }
 
 #[test]
