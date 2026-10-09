@@ -1,3 +1,4 @@
+use std::error::Error as _;
 use std::fs;
 use std::io::{self, IsTerminal, Write};
 use std::path::{Path, PathBuf};
@@ -6,9 +7,11 @@ use std::process::ExitCode;
 use clap::builder::styling::{AnsiColor, Styles};
 use clap::builder::{PossibleValue, TypedValueParser};
 use clap::error::ErrorKind;
-use clap::{ArgAction, CommandFactory, FromArgMatches, Parser, Subcommand};
+use clap::{ArgAction, ColorChoice, CommandFactory, FromArgMatches, Parser, Subcommand};
 use clap_complete::Shell;
 use serde::Serialize;
+
+mod hint;
 
 use tirage::{
     DERIVATION_MAJOR, Frame, Palette, Parameter, ParameterKind, Recipe, Taste, Tool, ToolPin,
@@ -50,6 +53,12 @@ struct Cli {
     help: Option<bool>,
     #[arg(long, action = ArgAction::Version, help = "Print version and derivation major")]
     version: Option<bool>,
+    #[arg(
+        long,
+        global = true,
+        help = "Turn off colour, also NO_COLOR or TERM=dumb"
+    )]
+    no_color: bool,
 }
 
 #[derive(Subcommand)]
@@ -147,23 +156,88 @@ struct ToolListing {
     params: Vec<Parameter>,
 }
 
+enum Failure {
+    Usage(&'static str, String, Option<String>),
+    Runtime(String, Option<String>),
+}
+
+impl Failure {
+    fn usage(subcommand: &'static str, error: &tirage::Error) -> Self {
+        Self::Usage(subcommand, error.to_string(), hint::for_error(error))
+    }
+
+    fn runtime(error: &tirage::Error) -> Self {
+        Self::Runtime(error.to_string(), hint::for_error(error))
+    }
+
+    fn unreadable(path: &Path, error: &io::Error) -> Self {
+        let cause = match error.kind() {
+            io::ErrorKind::NotFound => "no such file".to_owned(),
+            io::ErrorKind::PermissionDenied => "permission denied".to_owned(),
+            _ => error.to_string(),
+        };
+        Self::Runtime(format!("cannot read {}: {cause}", path.display()), None)
+    }
+}
+
 fn main() -> ExitCode {
     if std::env::args_os().len() == 1 {
         eprintln!("{CONCISE}");
         return ExitCode::from(2);
     }
-    let matches = command().get_matches();
+    let matches = command().try_get_matches().unwrap_or_else(|error| {
+        let Some(hint) = error
+            .source()
+            .and_then(|source| source.downcast_ref::<tirage::Error>())
+            .and_then(hint::for_error)
+        else {
+            error.exit()
+        };
+        let _ = error.print();
+        print_hint(&hint);
+        std::process::exit(2)
+    });
     let cli = Cli::from_arg_matches(&matches).unwrap_or_else(|error| error.exit());
     match run(cli.command) {
         Ok(()) => ExitCode::SUCCESS,
-        Err(message) => {
-            eprintln!("error: {message}");
+        Err(Failure::Usage(subcommand, message, hint)) => {
+            let mut command = command();
+            command.build();
+            let _ = command
+                .find_subcommand_mut(subcommand)
+                .expect("usage names a subcommand")
+                .error(ErrorKind::InvalidValue, message)
+                .print();
+            hint.inspect(|hint| print_hint(hint));
+            ExitCode::from(2)
+        }
+        Err(Failure::Runtime(message, hint)) => {
+            eprintln!("{} {message}", paint("1;31", "error:"));
+            hint.inspect(|hint| print_hint(hint));
             ExitCode::FAILURE
         }
     }
 }
 
-fn run(command: Command) -> Result<(), String> {
+fn print_hint(hint: &str) {
+    eprintln!("{}", paint("2", &format!("hint: {hint}")));
+}
+
+fn colour_allowed() -> bool {
+    !std::env::args_os().any(|arg| arg == "--no-color")
+        && std::env::var_os("NO_COLOR").is_none_or(|value| value.is_empty())
+        && std::env::var_os("TERM").is_none_or(|term| term != "dumb")
+}
+
+fn paint(style: &str, text: &str) -> String {
+    if colour_allowed() && io::stderr().is_terminal() {
+        format!("\x1b[{style}m{text}\x1b[0m")
+    } else {
+        text.to_owned()
+    }
+}
+
+fn run(command: Command) -> Result<(), Failure> {
     match command {
         Command::Derive {
             seed,
@@ -174,10 +248,10 @@ fn run(command: Command) -> Result<(), String> {
             let pin = match (tool, taste) {
                 (Some(tool), _) => ToolPin::Tool(tool),
                 (_, Some(path)) => {
-                    let json = fs::read_to_string(&path)
-                        .map_err(|e| format!("cannot read {}: {e}", path.display()))?;
+                    let json =
+                        fs::read_to_string(&path).map_err(|e| Failure::unreadable(&path, &e))?;
                     ToolPin::Taste(
-                        Taste::from_json(&json).unwrap_or_else(|e| usage("derive", &e.to_string())),
+                        Taste::from_json(&json).map_err(|e| Failure::usage("derive", &e))?,
                     )
                 }
                 (None, None) => ToolPin::Any,
@@ -186,7 +260,7 @@ fn run(command: Command) -> Result<(), String> {
             if let Some(palette) = palette {
                 recipe
                     .set_palette(palette)
-                    .unwrap_or_else(|e| usage("derive", &e.to_string()));
+                    .map_err(|e| Failure::usage("derive", &e))?;
             }
             emit(format!("{}\n", recipe.to_json()).as_bytes())
         }
@@ -198,31 +272,32 @@ fn run(command: Command) -> Result<(), String> {
         } => {
             let stdio = Path::new("-");
             if output == stdio && io::stdout().is_terminal() {
-                usage(
+                return Err(usage(
                     "render",
                     "refusing to write a PNG to a terminal, pass -o FILE or pipe stdout",
-                );
+                ));
             }
             if input == stdio && io::stdin().is_terminal() {
-                usage(
+                return Err(usage(
                     "render",
                     "no Recipe on stdin, pass a FILE or pipe 'tirage derive' into it",
-                );
+                ));
             }
             let json = if input == stdio {
-                io::read_to_string(io::stdin()).map_err(|e| format!("cannot read stdin: {e}"))?
+                io::read_to_string(io::stdin()).map_err(|e| Failure::unreadable(stdio, &e))?
             } else {
-                fs::read_to_string(&input)
-                    .map_err(|e| format!("cannot read {}: {e}", input.display()))?
+                fs::read_to_string(&input).map_err(|e| Failure::unreadable(&input, &e))?
             };
-            let recipe = Recipe::from_json(&json).map_err(|e| e.to_string())?;
-            let frame = Frame::new(&recipe, width, height, frame).map_err(|e| e.to_string())?;
+            let recipe = Recipe::from_json(&json).map_err(|e| Failure::runtime(&e))?;
+            let frame =
+                Frame::new(&recipe, width, height, frame).map_err(|e| Failure::runtime(&e))?;
             let png = render(&recipe, &frame).to_png();
             if output == stdio {
                 emit(&png)
             } else {
-                fs::write(&output, png)
-                    .map_err(|e| format!("cannot write {}: {e}", output.display()))
+                fs::write(&output, png).map_err(|e| {
+                    Failure::Runtime(format!("cannot write {}: {e}", output.display()), None)
+                })
             }
         }
         Command::Tools { json } => {
@@ -271,24 +346,26 @@ fn run(command: Command) -> Result<(), String> {
 }
 
 fn command() -> clap::Command {
+    let color = if colour_allowed() {
+        ColorChoice::Auto
+    } else {
+        ColorChoice::Never
+    };
     Cli::command()
+        .color(color)
         .version(format!("{VERSION} (derivation major {DERIVATION_MAJOR})"))
         .styles(Styles::plain().error(AnsiColor::Red.on_default().bold()))
 }
 
-fn usage(subcommand: &str, message: &str) -> ! {
-    let mut command = command();
-    command.build();
-    command
-        .find_subcommand_mut(subcommand)
-        .expect("usage names a subcommand")
-        .error(ErrorKind::InvalidValue, message)
-        .exit()
+fn usage(subcommand: &'static str, message: &str) -> Failure {
+    Failure::Usage(subcommand, message.to_owned(), None)
 }
 
-fn emit(bytes: &[u8]) -> Result<(), String> {
+fn emit(bytes: &[u8]) -> Result<(), Failure> {
     match io::stdout().lock().write_all(bytes) {
-        Err(e) if e.kind() != io::ErrorKind::BrokenPipe => Err(format!("cannot write stdout: {e}")),
+        Err(e) if e.kind() != io::ErrorKind::BrokenPipe => {
+            Err(Failure::Runtime(format!("cannot write stdout: {e}"), None))
+        }
         _ => Ok(()),
     }
 }
@@ -299,6 +376,6 @@ fn parse_size(size: &str) -> Result<(u32, u32), String> {
         .ok_or_else(|| "expected <W>x<H> in pixels, like 1080x1920".to_owned())
 }
 
-fn parse_palette(inks: &str) -> Result<Palette, String> {
-    Palette::from_hex(&inks.split(',').collect::<Vec<_>>()).map_err(|e| e.to_string())
+fn parse_palette(inks: &str) -> Result<Palette, tirage::Error> {
+    Palette::from_hex(&inks.split(',').collect::<Vec<_>>())
 }

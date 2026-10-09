@@ -116,27 +116,27 @@ fn runtime_errors_exit_1_with_a_human_message() {
         (
             &["render", "--size", "9x16", "-o", "-"],
             b"{",
-            "error: Recipe JSON: EOF while parsing an object at line 1 column 1\n",
+            "error: Recipe JSON: EOF while parsing an object at line 1 column 1\nhint: pass a Recipe printed by 'tirage derive'\n",
         ),
         (
             &["render", "--size", "9x16", "-o", "-"],
             repeated.as_bytes(),
-            "error: Recipe JSON: params: duplicate field `level` at line 1 column 156\n",
+            "error: Recipe JSON: params: duplicate field `level` at line 1 column 156\nhint: pass a Recipe printed by 'tirage derive'\n",
         ),
         (
             &["render", "--size", "0x16", "-o", "-"],
             &recipe(),
-            "error: frame 0x16 is outside 1..=8192 per edge\n",
+            "error: frame 0x16 is outside 1..=8192 per edge\nhint: pass --size <W>x<H> with each edge in 1..=8192, like 1080x1920\n",
         ),
         (
             &["render", "--size", "9x16", "--frame", "24", "-o", "-"],
             &recipe(),
-            "error: frame 24 is outside 0..24\n",
+            "error: frame 24 is outside 0..24\nhint: pass --frame from 0 to 23, or leave it out for frame 0\n",
         ),
         (
             &["render", "missing.json", "--size", "9x16", "-o", "-"],
             b"",
-            "error: cannot read missing.json: No such file or directory (os error 2)\n",
+            "error: cannot read missing.json: no such file\n",
         ),
     ];
     for (args, stdin, message) in cases {
@@ -477,10 +477,7 @@ fn derive_reads_taste_bounds_from_a_file() {
     let out = tirage(&["derive", "--seed", "1", "--taste", "missing.json"], b"");
     assert_eq!(
         (out.status.code(), text(&out.stderr).as_str()),
-        (
-            Some(1),
-            "error: cannot read missing.json: No such file or directory (os error 2)\n"
-        )
+        (Some(1), "error: cannot read missing.json: no such file\n")
     );
     std::fs::remove_dir_all(dir).unwrap();
 }
@@ -582,5 +579,140 @@ fn help_links_to_the_readme_and_issues() {
         help.trim_end()
             .ends_with("https://github.com/espadat-studio/tirage/issues"),
         "{help}"
+    );
+}
+
+fn last_line(bytes: &[u8]) -> String {
+    text(bytes)
+        .trim_end()
+        .lines()
+        .last()
+        .unwrap_or_default()
+        .to_owned()
+}
+
+#[test]
+fn errors_end_with_a_hint() {
+    let major = text(&recipe()).replacen(r#""tirage":0"#, r#""tirage":9"#, 1);
+    let out_of_range = text(&recipe()).replacen(r#""level":0.64"#, r#""level":1.4"#, 1);
+    let cases: [(&[&str], &[u8], &str); 6] = [
+        (
+            &["render", "--size", "9x16", "-o", "-"],
+            major.as_bytes(),
+            "hint: derive it again from its Seed with this build: tirage derive --seed <N>",
+        ),
+        (
+            &["render", "--size", "9x16", "-o", "-"],
+            out_of_range.as_bytes(),
+            "hint: run 'tirage tools' to see each Parameter's range and step",
+        ),
+        (
+            &["derive", "--seed", "1", "--tool", "sonr"],
+            b"",
+            "hint: did you mean 'sonar'?",
+        ),
+        (
+            &["derive", "--seed", "1", "--tool", "zzzzzz"],
+            b"",
+            "hint: run 'tirage tools' to list Tools",
+        ),
+        (
+            &["derive", "--seed", "1", "--palette", "#000000,#fff"],
+            b"",
+            "hint: pass at least 2 comma-separated #rrggbb inks, like '#000000,#ffffff'",
+        ),
+        (
+            &[
+                "derive",
+                "--seed",
+                "1",
+                "--tool",
+                "aura",
+                "--palette",
+                "#000000,#111111,#222222,#333333,#444444",
+            ],
+            b"",
+            "hint: pass at most 4 inks for aura",
+        ),
+    ];
+    for (args, stdin, hint) in cases {
+        let out = tirage(args, stdin);
+        assert_eq!(
+            last_line(&out.stderr),
+            hint,
+            "{args:?}: {}",
+            text(&out.stderr)
+        );
+    }
+}
+
+#[test]
+fn taste_errors_hint_at_parameters() {
+    let dir = std::env::temp_dir().join(format!("tirage-hint-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let cases = [
+        (
+            r#"{"tool":"sonar","levle":[0,1]}"#,
+            "hint: did you mean 'level'?",
+        ),
+        (
+            r#"{"tool":"sonar","level":[0,1.4]}"#,
+            "hint: run 'tirage tools' to see each Parameter's range and step",
+        ),
+        (
+            r#"{"tool":"sonar","#,
+            "hint: Taste bounds are a JSON object of a tool and [min, max] per Parameter id",
+        ),
+    ];
+    for (json, hint) in cases {
+        let path = dir.join("taste.json");
+        std::fs::write(&path, json).unwrap();
+        let out = tirage(
+            &["derive", "--seed", "1", "--taste", path.to_str().unwrap()],
+            b"",
+        );
+        assert_eq!(out.status.code(), Some(2), "{json}");
+        assert_eq!(
+            last_line(&out.stderr),
+            hint,
+            "{json}: {}",
+            text(&out.stderr)
+        );
+    }
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn errors_are_red_on_a_colour_terminal_only() {
+    let failing = "tirage render missing.json --size 9x16 -o x.png";
+    let out = on_tty(failing);
+    assert!(
+        text(&out.stdout).contains("\x1b[1;31merror:\x1b[0m"),
+        "{:?}",
+        text(&out.stdout)
+    );
+    for script in [
+        format!("NO_COLOR=1 {failing}"),
+        format!("TERM=dumb {failing}"),
+        format!("{failing} --no-color"),
+        "tirage --no-color derive --seed 1 --tool sonr".to_owned(),
+    ] {
+        let out = on_tty(&script);
+        assert!(text(&out.stdout).contains("error:"), "{script}");
+        assert!(
+            !text(&out.stdout).contains('\x1b'),
+            "{script}: {:?}",
+            text(&out.stdout)
+        );
+    }
+    assert!(
+        !text(
+            &tirage(
+                &["render", "missing.json", "--size", "9x16", "-o", "x.png"],
+                b""
+            )
+            .stderr
+        )
+        .contains('\x1b')
     );
 }
