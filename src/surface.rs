@@ -1,4 +1,4 @@
-use tiny_skia::{Color, Paint, Pixmap, Rect, Transform};
+use tiny_skia::{Color, ColorU8, Paint, Pixmap, Rect, Transform};
 
 use crate::Image;
 
@@ -37,20 +37,46 @@ impl Surface {
         self.0.fill_rect(rect, &paint, Transform::identity(), None);
     }
 
-    pub(crate) fn into_image(self) -> Image {
-        let rgba = self
-            .0
+    pub(crate) fn edit_rgba(&mut self, edit: impl FnOnce(&mut [u8], u32, u32)) {
+        let mut rgba = self.rgba();
+        edit(&mut rgba, self.width(), self.height());
+        for (pixel, &[r, g, b, a]) in self.0.pixels_mut().iter_mut().zip(rgba.as_chunks::<4>().0) {
+            *pixel = ColorU8::from_rgba(r, g, b, a).premultiply();
+        }
+    }
+
+    fn rgba(&self) -> Vec<u8> {
+        self.0
             .pixels()
             .iter()
             .flat_map(|pixel| {
                 let c = pixel.demultiply();
                 [c.red(), c.green(), c.blue(), c.alpha()]
             })
-            .collect();
+            .collect()
+    }
+
+    pub(crate) fn into_image(self) -> Image {
         Image {
-            width: self.0.width(),
-            height: self.0.height(),
-            rgba,
+            width: self.width(),
+            height: self.height(),
+            rgba: self.rgba(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Surface;
+
+    #[test]
+    fn edit_rgba_hands_out_and_takes_back_straight_alpha() {
+        let mut surface = Surface::new(1, 1);
+        surface.edit_rgba(|rgba, _, _| rgba.copy_from_slice(&[200, 100, 50, 128]));
+        let rgba = surface.into_image().rgba().to_vec();
+        assert_eq!(rgba[3], 128);
+        for (ours, straight) in rgba[..3].iter().zip([200, 100, 50]) {
+            assert!(ours.abs_diff(straight) <= 1, "{rgba:?}");
         }
     }
 }

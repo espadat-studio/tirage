@@ -1,5 +1,5 @@
 use crate::surface::Surface;
-use crate::{Error, Image, Params, Recipe, sonar};
+use crate::{Error, Image, Params, Recipe, chassis, sonar};
 
 pub const MAX_EDGE: u32 = 8192;
 
@@ -39,13 +39,16 @@ impl Frame {
 pub fn render(recipe: &Recipe, frame: &Frame) -> Image {
     let mut surface = Surface::new(frame.width, frame.height);
     match recipe.params() {
-        Params::Sonar(params) => sonar::paint(
-            &mut surface,
-            params,
-            recipe.palette(),
-            recipe.tool_seed().get(),
-            frame.t,
-        ),
+        Params::Sonar(params) => {
+            sonar::paint(
+                &mut surface,
+                params,
+                recipe.palette(),
+                recipe.tool_seed().get(),
+                frame.t,
+            );
+            chassis::finish(&mut surface, params.grain(), params.dither());
+        }
     }
     surface.into_image()
 }

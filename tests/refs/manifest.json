@@ -23,7 +23,18 @@
               "grid": 238,
               "depth": 0.16,
               "fringe": 0.04,
-              "spark": 0.1
+              "spark": 0.1,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
             }
           }
         },
@@ -48,7 +59,18 @@
               "grid": 270,
               "depth": 0.98,
               "fringe": 0.58,
-              "spark": 0.85
+              "spark": 0.85,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
             }
           }
         },
@@ -73,7 +95,18 @@
               "grid": 174,
               "depth": 0.67,
               "fringe": 0.62,
-              "spark": 0.39
+              "spark": 0.39,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
             }
           }
         },
@@ -98,7 +131,18 @@
               "grid": 238,
               "depth": 0.16,
               "fringe": 0.04,
-              "spark": 0.1
+              "spark": 0.1,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
             }
           },
           "frame": 6
@@ -124,7 +168,18 @@
               "grid": 270,
               "depth": 0.98,
               "fringe": 0.58,
-              "spark": 0.85
+              "spark": 0.85,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
             }
           },
           "frame": 18
@@ -150,10 +205,165 @@
               "grid": 174,
               "depth": 0.67,
               "fringe": 0.62,
-              "spark": 0.39
+              "spark": 0.39,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
             }
           },
           "frame": 9
+        },
+        {
+          "name": "grain",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sonar",
+            "tool_seed": 9611518,
+            "palette": [
+              "#0a0f1c",
+              "#3ddc97",
+              "#4361ee",
+              "#ffd166",
+              "#ef476f",
+              "#f1faee"
+            ],
+            "params": {
+              "level": 0.46,
+              "scale": 7.3,
+              "warp": 0.61,
+              "grid": 238,
+              "depth": 0.16,
+              "fringe": 0.04,
+              "spark": 0.1,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": true,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "dither-bayer-8",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sonar",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#0a0f1c",
+              "#3ddc97",
+              "#4361ee",
+              "#ffd166",
+              "#ef476f",
+              "#f1faee"
+            ],
+            "params": {
+              "level": 0.46,
+              "scale": 4.3,
+              "warp": 0.2,
+              "grid": 270,
+              "depth": 0.98,
+              "fringe": 0.58,
+              "spark": 0.85,
+              "ditherTog": true,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "dither-bayer-4",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sonar",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#0a0f1c",
+              "#3ddc97",
+              "#4361ee",
+              "#ffd166",
+              "#ef476f",
+              "#f1faee"
+            ],
+            "params": {
+              "level": 0.4,
+              "scale": 5.7,
+              "warp": 0.93,
+              "grid": 174,
+              "depth": 0.67,
+              "fringe": 0.62,
+              "spark": 0.39,
+              "ditherTog": true,
+              "dthKinds": "Bayer 4",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "dither-noise",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sonar",
+            "tool_seed": 9611518,
+            "palette": [
+              "#0a0f1c",
+              "#3ddc97",
+              "#4361ee",
+              "#ffd166",
+              "#ef476f",
+              "#f1faee"
+            ],
+            "params": {
+              "level": 0.46,
+              "scale": 7.3,
+              "warp": 0.61,
+              "grid": 238,
+              "depth": 0.16,
+              "fringe": 0.04,
+              "spark": 0.1,
+              "ditherTog": true,
+              "dthKinds": "Noise",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
         }
       ],
       "page_sha256": "0fe55b634ea769541e0a0dd2aca0b6d32bfaafc9a9c2f5a94a3c0e9e733250dc",

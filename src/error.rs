@@ -6,7 +6,7 @@ use crate::{DERIVATION_MAJOR, MAX_EDGE, Tool};
 #[non_exhaustive]
 pub enum Error {
     OutOfRange {
-        tool: &'static str,
+        scope: &'static str,
         param: &'static str,
         value: f64,
         min: f64,
@@ -31,12 +31,12 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::OutOfRange {
-                tool,
+                scope,
                 param,
                 value,
                 min,
                 max,
-            } => write!(f, "{tool}: {param} {value} is outside {min}..={max}"),
+            } => write!(f, "{scope}: {param} {value} is outside {min}..={max}"),
             Self::FrameSize { width, height } => {
                 write!(
                     f,
