@@ -1715,6 +1715,133 @@
       "page_sha256": "eb5ca702eb35265f4aeebaff6dac8c25d00ec39102bf7d9518ff809c08581ffd",
       "chromium": "153.0.8010.12",
       "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+    },
+    "stitch": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "stitch",
+            "tool_seed": 9611518,
+            "palette": [
+              "#111111",
+              "#f6f23a",
+              "#f01fd0",
+              "#62f19e",
+              "#f5532b",
+              "#ded7eb"
+            ],
+            "params": {
+              "cols": 67,
+              "gutter": 0.06,
+              "streak": 0.52,
+              "scale": 0.24,
+              "slip": 0.96,
+              "band": 12,
+              "blobs": 0.89,
+              "blobsize": 0.66,
+              "steps": 7,
+              "ground": 0.5,
+              "stray": 0.58,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "stitch",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#111111",
+              "#f6f23a",
+              "#f01fd0",
+              "#62f19e",
+              "#f5532b",
+              "#ded7eb"
+            ],
+            "params": {
+              "cols": 35,
+              "gutter": 0.15,
+              "streak": 0.99,
+              "scale": 0.17,
+              "slip": 0.15,
+              "band": 2,
+              "blobs": 0.39,
+              "blobsize": 0.94,
+              "steps": 5,
+              "ground": 0.25,
+              "stray": 0.17,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "stitch",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#111111",
+              "#f6f23a",
+              "#f01fd0",
+              "#62f19e",
+              "#f5532b",
+              "#ded7eb"
+            ],
+            "params": {
+              "cols": 57,
+              "gutter": 0.32,
+              "streak": 0.98,
+              "scale": 0.52,
+              "slip": 0.86,
+              "band": 2,
+              "blobs": 0.58,
+              "blobsize": 0.38,
+              "steps": 11,
+              "ground": 0.47,
+              "stray": 0.82,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "04d7559d1e1468c6fa7e3e324e11e6b9e8d5c81385a2a91ec160020855ea8840",
+      "chromium": "153.0.8010.12",
+      "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
     }
   }
 }
