@@ -31,6 +31,7 @@ registry::tools! {
     Culture: culture::{CultureParams, CultureTexture},
     Bloom: bloom::{BloomParams},
     Weave: weave::{WeaveParams},
+    Warp: warp::{WarpParams, WarpStyle},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
