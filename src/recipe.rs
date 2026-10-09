@@ -3,19 +3,21 @@ use std::num::NonZeroU32;
 use serde::{Deserialize, Serialize};
 
 use crate::param::Param;
-use crate::{DERIVATION_MAJOR, Error, Palette, SonarParams, sonar};
+use crate::{DERIVATION_MAJOR, Error, HuskParams, Palette, SonarParams, husk, sonar};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Tool {
     Sonar,
+    Husk,
 }
 
 impl Tool {
-    pub const ALL: &[Tool] = &[Tool::Sonar];
+    pub const ALL: &[Tool] = &[Tool::Sonar, Tool::Husk];
 
     pub fn slug(self) -> &'static str {
         match self {
             Self::Sonar => sonar::SLUG,
+            Self::Husk => husk::SLUG,
         }
     }
 
@@ -30,12 +32,14 @@ impl Tool {
     pub fn frames(self) -> u32 {
         match self {
             Self::Sonar => sonar::FRAMES,
+            Self::Husk => husk::FRAMES,
         }
     }
 
     pub fn fps(self) -> u32 {
         match self {
             Self::Sonar => sonar::FPS,
+            Self::Husk => husk::FPS,
         }
     }
 
@@ -46,6 +50,7 @@ impl Tool {
     pub(crate) fn params(self) -> &'static [Param] {
         match self {
             Self::Sonar => sonar::PARAMS,
+            Self::Husk => husk::PARAMS,
         }
     }
 }
@@ -63,12 +68,14 @@ pub struct Parameter {
 #[serde(untagged)]
 pub enum Params {
     Sonar(SonarParams),
+    Husk(HuskParams),
 }
 
 impl Params {
     pub fn tool(&self) -> Tool {
         match self {
             Self::Sonar(_) => Tool::Sonar,
+            Self::Husk(_) => Tool::Husk,
         }
     }
 }
@@ -161,6 +168,7 @@ impl Recipe {
         let wire: WireIn = serde_json::from_str(json).map_err(json_error)?;
         let params = match Tool::from_slug(&wire.tool)? {
             Tool::Sonar => Params::Sonar(sonar::from_json(wire.params)?),
+            Tool::Husk => Params::Husk(husk::from_json(wire.params)?),
         };
         Ok(Self {
             tool_seed: wire.tool_seed,

@@ -7,7 +7,9 @@ use tirage::{Frame, Palette, Params, Recipe, SonarParams, Tool, ToolPin, derive,
 const SONAR: ToolPin = ToolPin::Tool(Tool::Sonar);
 
 fn sonar(recipe: &Recipe) -> &SonarParams {
-    let Params::Sonar(params) = recipe.params();
+    let Params::Sonar(params) = recipe.params() else {
+        panic!("not a sonar Recipe");
+    };
     params
 }
 
@@ -95,7 +97,7 @@ fn setters_reject_values_outside_the_site_range() {
         "sonar: spark NaN is outside 0..=1"
     );
     assert_eq!(
-        error(p.grain_mut().set_amount(-0.1)),
+        error(p.grain_pass_mut().set_amount(-0.1)),
         "grain: grnAmount -0.1 is outside 0..=1"
     );
     assert_eq!(
@@ -166,7 +168,7 @@ fn recipe_json_errors_are_human() {
         (r##"palette: "#ggg000" is not a #rrggbb colour"##, |v| {
             v["palette"][0] = "#ggg000".into()
         }),
-        (r#"unknown tool "vien", expected one of sonar"#, |v| {
+        (r#"unknown tool "vien", expected one of sonar, husk"#, |v| {
             v["tool"] = "vien".into()
         }),
         (

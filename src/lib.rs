@@ -1,6 +1,7 @@
 mod chassis;
 mod derive;
 mod error;
+mod husk;
 mod image;
 mod palette;
 mod param;
@@ -13,6 +14,7 @@ mod taste;
 pub use chassis::{Blend, Dither, DitherKind, Grain};
 pub use derive::{ToolPin, derive};
 pub use error::Error;
+pub use husk::{Bite, HuskParams};
 pub use image::Image;
 pub use palette::Palette;
 pub use recipe::{Parameter, Params, Recipe, Tool};
