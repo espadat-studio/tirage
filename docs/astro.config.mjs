@@ -8,7 +8,7 @@ export default defineConfig({
     starlight({
       plugins: [starlightLlmsTxt()],
       title: "tirage",
-      description: "Original generative artwork and animations, rendered from code. One Seed gives one Still or Loop.",
+      description: "Original generative artwork and animations, rendered from code.",
       logo: { src: "./src/assets/mark.svg", alt: "Espadat" },
       head: [{ tag: "link", attrs: { rel: "icon", href: "/favicon.ico", sizes: "16x16 32x32" } }],
       customCss: ["@espadat/docs-theme/styles/theme.css"],
