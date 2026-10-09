@@ -16,7 +16,7 @@ A Recipe renders a _Visual_. That is either a _Still_, one frame, or a _Loop_, a
 ## Install and render
 
 ```sh
-cargo install --git https://github.com/espadat-studio/tirage --features cli
+cargo install --locked --git https://github.com/espadat-studio/tirage --tag vX.Y.Z --features cli
 tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
 ```
 
