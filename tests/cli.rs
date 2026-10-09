@@ -12,7 +12,9 @@ fn tirage(args: &[&str], stdin: &[u8]) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .unwrap();
-    child.stdin.take().unwrap().write_all(stdin).unwrap();
+    if let Err(e) = child.stdin.take().unwrap().write_all(stdin) {
+        assert_eq!(e.kind(), std::io::ErrorKind::BrokenPipe);
+    }
     child.wait_with_output().unwrap()
 }
 
