@@ -39,4 +39,4 @@ Open `recipe.json`, set `level` to `0.9`, then render it:
 tirage render recipe.json --size 1080x1920 -o out.png
 ```
 
-A pinned value can sit anywhere on the site's slider, outside the [Taste bounds](/concepts/taste-bounds/) the Seed draws from. It does have to be a value the slider can take: `render` rejects a value off the range or off the step, and `tirage tools` lists both for every Parameter. `tool_seed` takes any integer from 1 to 4294967295.
+A pinned value can sit anywhere on the site's slider, outside the [Taste bounds](/concepts/taste-bounds/) the Seed draws from. It does have to stay inside that slider's range, which `render` checks. `tirage tools` lists the range and step of every Parameter. `tool_seed` takes any integer from 1 to 4294967295.
