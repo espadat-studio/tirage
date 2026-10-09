@@ -155,6 +155,14 @@ fn taste_json_errors_are_human() {
             r#"{"tool":"sonar","lvl":[0,1]}"#,
             r#"sonar: unknown Parameter "lvl", expected one of level, scale, warp, grid, depth, fringe, spark"#,
         ),
+        (
+            r#"{"tool":"sonar","level":[0,1],"level":[0.5,1]}"#,
+            "Taste JSON: duplicate field `level` at line 1 column 46",
+        ),
+        (
+            r#"{"tool":"sonar","tool":"husk"}"#,
+            "Taste JSON: duplicate field `tool` at line 1 column 22",
+        ),
     ];
     for (json, message) in cases {
         assert_eq!(error(Taste::from_json(json)), message, "{json}");

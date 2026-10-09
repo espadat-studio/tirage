@@ -111,11 +111,17 @@ fn render_reads_a_recipe_file_and_writes_a_png_file() {
 
 #[test]
 fn runtime_errors_exit_1_with_a_human_message() {
-    let cases: [(&[&str], &[u8], &str); 4] = [
+    let repeated = text(&recipe()).replacen(r#""level":"#, r#""level":0.5,"level":"#, 1);
+    let cases: [(&[&str], &[u8], &str); 5] = [
         (
             &["render", "--size", "9x16", "-o", "-"],
             b"{",
             "error: Recipe JSON: EOF while parsing an object at line 1 column 1\n",
+        ),
+        (
+            &["render", "--size", "9x16", "-o", "-"],
+            repeated.as_bytes(),
+            "error: Recipe JSON: params: duplicate field `level` at line 1 column 156\n",
         ),
         (
             &["render", "--size", "0x16", "-o", "-"],
@@ -398,6 +404,8 @@ fn derive_reads_taste_bounds_from_a_file() {
     let (good, bad) = (dir.join("good.json"), dir.join("bad.json"));
     std::fs::write(&good, r#"{"tool":"sonar","level":[0.5,0.5]}"#).unwrap();
     std::fs::write(&bad, r#"{"tool":"sonar","level":[0,1.4]}"#).unwrap();
+    let repeated = dir.join("repeated.json");
+    std::fs::write(&repeated, r#"{"tool":"sonar","level":[0,1],"level":[0,1]}"#).unwrap();
     let out = tirage(
         &["derive", "--seed", "42", "--taste", good.to_str().unwrap()],
         b"",
@@ -411,6 +419,22 @@ fn derive_reads_taste_bounds_from_a_file() {
     assert_eq!(out.status.code(), Some(2));
     assert!(
         text(&out.stderr).contains("sonar: level 1.4 is outside 0..=1"),
+        "{}",
+        text(&out.stderr)
+    );
+    let out = tirage(
+        &[
+            "derive",
+            "--seed",
+            "42",
+            "--taste",
+            repeated.to_str().unwrap(),
+        ],
+        b"",
+    );
+    assert_eq!(out.status.code(), Some(2));
+    assert!(
+        text(&out.stderr).contains("Taste JSON: duplicate field `level` at line 1 column 44"),
         "{}",
         text(&out.stderr)
     );
