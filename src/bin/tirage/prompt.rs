@@ -55,10 +55,10 @@ impl Prompt {
             .items(&rows)
             .default(0)
             .interact_opt();
-        match picked {
-            Ok(Some(index)) => Ok(items[index].clone()),
-            _ => Err(aborted(choice)),
-        }
+        Ok(items[picked
+            .map_err(|e| failed(e, choice))?
+            .ok_or_else(|| aborted(choice))?]
+        .clone())
     }
 
     pub fn ask<T>(
@@ -78,19 +78,34 @@ impl Prompt {
         if let Some(default) = default {
             input = input.default(default);
         }
-        input.interact_text().map_err(|_| aborted(choice))
+        input.interact_text().map_err(|e| failed(e, choice))
+    }
+
+    pub fn value_or_prompt<T>(
+        &self,
+        arg: Option<T>,
+        choice: &Choice,
+        default: Option<T>,
+        validate: impl Fn(&T) -> Result<(), String>,
+    ) -> Result<T, Failure>
+    where
+        T: Clone + ToString + FromStr,
+        T::Err: ToString,
+    {
+        match arg {
+            Some(value) => Ok(value),
+            None => self.ask(choice, default, validate),
+        }
     }
 
     pub fn confirm(&self, prompt: &str, choice: &Choice) -> Result<bool, Failure> {
         self.check(choice)?;
-        match Confirm::with_theme(self.theme.as_ref())
+        Confirm::with_theme(self.theme.as_ref())
             .with_prompt(prompt)
             .default(false)
             .interact_opt()
-        {
-            Ok(Some(answer)) => Ok(answer),
-            _ => Err(aborted(choice)),
-        }
+            .map_err(|e| failed(e, choice))?
+            .ok_or_else(|| aborted(choice))
     }
 
     pub fn check(&self, choice: &Choice) -> Result<(), Failure> {
@@ -103,6 +118,15 @@ impl Prompt {
             None,
         ))
     }
+}
+
+fn failed(error: dialoguer::Error, choice: &Choice) -> Failure {
+    let dialoguer::Error::IO(error) = error;
+    if error.kind() == io::ErrorKind::Interrupted {
+        return aborted(choice);
+    }
+    let _ = Term::stderr().show_cursor();
+    Failure::Runtime(format!("cannot prompt for {}: {error}", choice.noun), None)
 }
 
 fn aborted(choice: &Choice) -> Failure {

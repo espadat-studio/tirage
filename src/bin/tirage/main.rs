@@ -114,7 +114,7 @@ enum Command {
             value_name = "W>x<H",
             value_parser = parse_size,
             help = "Frame size in pixels, prompted on a terminal",
-            long_help = "Frame size in pixels as <W>x<H>, each edge in 1..=8192. Prompted on a terminal with presets: 1080x1920 story, 1080x1350 portrait, 1080x1080 square, 1920x1080 landscape"
+            long_help = "Frame size in pixels as <W>x<H>, each edge in 1..=8192. Prompted on a terminal with a pick of 1080x1920 story, 1080x1350 portrait, 1080x1080 square, 1920x1080 landscape"
         )]
         size: Option<(u32, u32)>,
         #[arg(
@@ -318,14 +318,11 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             palette,
         } => {
             let prompt = Prompt::new("derive", no_input, stderr_colour());
-            let seed = match seed {
-                Some(seed) => seed,
-                None => {
-                    let seed = prompt.ask(&SEED, Some(random_seed()), |_| Ok(()))?;
-                    echo(&format!("{} --seed {seed}", rerun()));
-                    seed
-                }
-            };
+            let prompted = seed.is_none();
+            let seed = prompt.value_or_prompt(seed, &SEED, Some(random_seed()), |_| Ok(()))?;
+            if prompted {
+                echo(&format!("{} --seed {seed}", rerun()));
+            }
             let pin = match (tool, taste) {
                 (Some(tool), _) => ToolPin::Tool(tool),
                 (_, Some(path)) => {
