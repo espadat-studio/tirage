@@ -4,6 +4,15 @@ version = "0.0.0"
 edition = "2024"
 publish = false
 
+[workspace]
+members = ["encode"]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+
 [dependencies]
 clap = { version = "4", default-features = false, features = ["std", "derive", "help", "usage", "error-context", "suggestions", "string"], optional = true }
 kurbo = "0.13"
@@ -12,11 +21,8 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tiny-skia = "0.12"
 
-[lints.rust]
-unsafe_code = "forbid"
-
-[lints.clippy]
-all = { level = "deny", priority = -1 }
+[lints]
+workspace = true
 
 [dev-dependencies]
 image = { version = "0.25", default-features = false, features = ["png"] }
@@ -32,3 +38,6 @@ required-features = ["cli"]
 [[test]]
 name = "cli"
 required-features = ["cli"]
+
+[profile.dev.package."*"]
+opt-level = 3

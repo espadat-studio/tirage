@@ -1,0 +1,14 @@
+[package]
+name = "tirage-encode"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+bytes = "1"
+mp4 = "0.14"
+openh264 = "0.9"
+tirage = { path = ".." }
+
+[lints]
+workspace = true
