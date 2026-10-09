@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{Blend, Dither, DitherKind, Grain, hash, round_half_up, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up, value_noise};
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
-use crate::{Error, Palette};
+use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "sonar";
 pub(crate) const FRAMES: u32 = 24;
@@ -204,6 +204,14 @@ pub(crate) fn from_json(params: serde_json::Value) -> Result<SonarParams, Error>
 }
 
 pub(crate) const PARAMS: &[Param] = &[LEVEL, SCALE, WARP, GRID, DEPTH, FRINGE, SPARK];
+
+pub(crate) fn parameters() -> Vec<Parameter> {
+    PARAMS
+        .iter()
+        .map(Param::parameter)
+        .chain(chassis::parameters())
+        .collect()
+}
 
 pub(crate) fn palette() -> Palette {
     Palette::from_hex(&DEFAULT_PALETTE).expect("the default Palette is valid")

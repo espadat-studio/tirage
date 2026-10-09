@@ -209,38 +209,61 @@ fn version_names_the_derivation_major() {
     assert_eq!(tirage(&["-V"], b"").status.code(), Some(2));
 }
 
+const CHASSIS_LISTING: &str = concat!(
+    r#"{"id":"ditherTog","kind":"toggle"},"#,
+    r#"{"id":"dthKinds","kind":"choice","choices":["Bayer 8","Bayer 4","Noise"]},"#,
+    r#"{"id":"dthSize","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
+    r#"{"id":"dthLevels","kind":"range","min":2.0,"max":8.0,"step":1.0},"#,
+    r#"{"id":"dthAmount","kind":"range","min":0.0,"max":1.0,"step":0.05},"#,
+    r#"{"id":"grainTog","kind":"toggle"},"#,
+    r#"{"id":"grnBlends","kind":"choice","choices":["Add","Overlay","Soft light","Multiply","Screen"]},"#,
+    r#"{"id":"grnAmount","kind":"range","min":0.0,"max":1.0,"step":0.05},"#,
+    r#"{"id":"grnSize","kind":"range","min":0.5,"max":4.0,"step":0.1},"#,
+    r#"{"id":"grnSpecks","kind":"range","min":0.0,"max":1.0,"step":0.05},"#,
+    r#"{"id":"grnVignette","kind":"range","min":0.0,"max":1.0,"step":0.05}"#,
+);
+
 #[test]
 fn tools_json_has_a_stable_shape() {
     let out = tirage(&["tools", "--json"], b"");
     assert_eq!(out.status.code(), Some(0));
+    let sonar = concat!(
+        r#"{"slug":"sonar","frames":24,"params":["#,
+        r#"{"id":"level","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"scale","kind":"range","min":1.0,"max":10.0,"step":0.1},"#,
+        r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"grid","kind":"range","min":40.0,"max":320.0,"step":2.0},"#,
+        r#"{"id":"depth","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"fringe","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"spark","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
+    let husk = concat!(
+        r#"{"slug":"husk","frames":1,"params":["#,
+        r#"{"id":"count","kind":"range","min":1.0,"max":70.0,"step":1.0},"#,
+        r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"vary","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"lump","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"bites","kind":"choice","choices":["Crumble","Dots"]},"#,
+        r#"{"id":"eat","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"tex","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
+    let vein = concat!(
+        r#"{"slug":"vein","frames":1,"params":["#,
+        r#"{"id":"flows","kind":"choice","choices":["Marble","Swirl","Ripple"]},"#,
+        r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"curve","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"levels","kind":"range","min":3.0,"max":14.0,"step":1.0},"#,
+        r#"{"id":"tiger","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"edges","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"stars","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"tints","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"runs","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
-        concat!(
-            r#"[{"slug":"sonar","frames":24,"params":["#,
-            r#"{"id":"level","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"scale","min":1.0,"max":10.0,"step":0.1},"#,
-            r#"{"id":"warp","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"grid","min":40.0,"max":320.0,"step":2.0},"#,
-            r#"{"id":"depth","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"fringe","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"spark","min":0.0,"max":1.0,"step":0.01}]},"#,
-            r#"{"slug":"husk","frames":1,"params":["#,
-            r#"{"id":"count","min":1.0,"max":70.0,"step":1.0},"#,
-            r#"{"id":"size","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"vary","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"lump","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"eat","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"tex","min":0.0,"max":1.0,"step":0.01}]},"#,
-            r#"{"slug":"vein","frames":1,"params":["#,
-            r#"{"id":"scale","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"curve","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"levels","min":3.0,"max":14.0,"step":1.0},"#,
-            r#"{"id":"tiger","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"edges","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"stars","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"tints","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"runs","min":0.0,"max":1.0,"step":0.01}]}]"#,
-            "\n"
+        format!(
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }
@@ -252,15 +275,61 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     let listing = text(&out.stdout);
     assert!(listing.starts_with("sonar  24 frames\n"), "{listing}");
     assert!(listing.contains("\nhusk  1 frame\n"), "{listing}");
-    assert!(
-        listing.contains("  grid    40..=320  step 2\n"),
-        "{listing}"
-    );
     assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
-    assert!(
-        listing.contains("  levels  3..=14    step 1\n"),
-        "{listing}"
-    );
+    for line in [
+        "  grid        40..=320  step 2\n",
+        "  grnVignette 0..=1     step 0.05\n",
+        "  grainTog    on/off\n",
+        "  grnBlends   Add, Overlay, Soft light, Multiply, Screen\n",
+        "  dthKinds    Bayer 8, Bayer 4, Noise\n",
+        "  levels      3..=14    step 1\n",
+        "  flows       Marble, Swirl, Ripple\n",
+    ] {
+        assert!(listing.contains(line), "{line:?} in\n{listing}");
+    }
+}
+
+#[test]
+fn recipe_json_accepts_every_listed_parameter_value() {
+    let listings = json(&tirage(&["tools", "--json"], b"").stdout);
+    for listing in listings.as_array().unwrap() {
+        let slug = listing["slug"].as_str().unwrap();
+        let recipe = json(&tirage(&["derive", "--seed", "42", "--tool", slug], b"").stdout);
+        let params = listing["params"].as_array().unwrap();
+        let mut ids: Vec<_> = params.iter().map(|p| p["id"].as_str().unwrap()).collect();
+        ids.sort_unstable();
+        let keys: Vec<_> = recipe["params"]
+            .as_object()
+            .unwrap()
+            .keys()
+            .map(String::as_str)
+            .collect();
+        assert_eq!(ids, keys, "{slug}");
+        for param in params {
+            let values = match param["kind"].as_str().unwrap() {
+                "range" => [&param["min"], &param["max"]]
+                    .map(|bound| {
+                        let bound = bound.as_f64().unwrap();
+                        if bound.fract() == 0.0 {
+                            serde_json::json!(bound as u64)
+                        } else {
+                            serde_json::json!(bound)
+                        }
+                    })
+                    .to_vec(),
+                "toggle" => vec![true.into(), false.into()],
+                "choice" => param["choices"].as_array().unwrap().clone(),
+                kind => panic!("{slug}: unknown kind {kind}"),
+            };
+            for value in values {
+                let mut recipe = recipe.clone();
+                recipe["params"][param["id"].as_str().unwrap()] = value.clone();
+                if let Err(e) = tirage::Recipe::from_json(&recipe.to_string()) {
+                    panic!("{slug} {} = {value}: {e}", param["id"]);
+                }
+            }
+        }
+    }
 }
 
 #[test]

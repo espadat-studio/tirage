@@ -2,11 +2,13 @@ use std::f64::consts::PI;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{Blend, Dither, DitherKind, Grain, hash, round_half_up, store, value_noise};
+use crate::chassis::{
+    self, Blend, Dither, DitherKind, Grain, hash, round_half_up, store, value_noise,
+};
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
-use crate::{Error, Palette};
+use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "husk";
 pub(crate) const FRAMES: u32 = 1;
@@ -224,6 +226,22 @@ pub(crate) fn from_json(params: serde_json::Value) -> Result<HuskParams, Error> 
 }
 
 pub(crate) const PARAMS: &[Param] = &[COUNT, SIZE, VARY, LUMP, EAT, TEX];
+
+pub(crate) fn parameters() -> Vec<Parameter> {
+    [
+        COUNT.parameter(),
+        SIZE.parameter(),
+        VARY.parameter(),
+        LUMP.parameter(),
+        Parameter::choice("bites", &["Crumble", "Dots"]),
+        EAT.parameter(),
+        TEX.parameter(),
+        GRAIN.parameter(),
+    ]
+    .into_iter()
+    .chain(chassis::parameters())
+    .collect()
+}
 
 pub(crate) fn palette() -> Palette {
     Palette::from_hex(&DEFAULT_PALETTE).expect("the default Palette is valid")

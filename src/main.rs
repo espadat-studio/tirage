@@ -8,8 +8,8 @@ use clap::{ArgAction, CommandFactory, FromArgMatches, Parser, Subcommand};
 use serde::Serialize;
 
 use tirage::{
-    DERIVATION_MAJOR, Frame, Palette, Parameter, Recipe, Taste, Tool, ToolPin, VERSION, derive,
-    render,
+    DERIVATION_MAJOR, Frame, Palette, Parameter, ParameterKind, Recipe, Taste, Tool, ToolPin,
+    VERSION, derive, render,
 };
 
 const EXAMPLES: &str = "Examples:
@@ -90,7 +90,7 @@ enum Command {
         output: PathBuf,
     },
     #[command(
-        about = "List Tools with their frame counts and Parameter ranges",
+        about = "List Tools with their frame counts and Parameters",
         before_help = "Examples:\n  tirage tools\n  tirage tools --json"
     )]
     Tools {
@@ -195,14 +195,26 @@ fn run(command: Command) -> Result<(), String> {
                 let json = serde_json::to_string(&listings).expect("a listing serializes");
                 return emit(format!("{json}\n").as_bytes());
             }
+            let width = Tool::ALL
+                .iter()
+                .flat_map(|tool| tool.parameters())
+                .map(|p| p.id.len())
+                .max()
+                .expect("a Tool has Parameters");
             let mut text = String::new();
             for tool in Tool::ALL {
                 let frames = tool.frames();
                 let unit = if frames == 1 { "frame" } else { "frames" };
                 text += &format!("{}  {frames} {unit}\n", tool.slug());
                 for p in tool.parameters() {
-                    let range = format!("{}..={}", p.min, p.max);
-                    text += &format!("  {:<7} {range:<9} step {}\n", p.id, p.step);
+                    let values = match p.kind {
+                        ParameterKind::Range { min, max, step } => {
+                            format!("{:<9} step {step}", format!("{min}..={max}"))
+                        }
+                        ParameterKind::Toggle => "on/off".to_owned(),
+                        ParameterKind::Choice { choices } => choices.join(", "),
+                    };
+                    text += &format!("  {:<width$} {values}\n", p.id);
                 }
             }
             emit(text.as_bytes())
