@@ -418,12 +418,9 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             let output = match output {
                 Some(output) => output,
                 None => {
-                    let default = match seed {
-                        Some(seed) => format!("{}-{seed}.png", recipe.tool().slug()),
-                        None => "out.png".to_owned(),
-                    };
-                    let output = prompt_output(&prompt, &OUTPUT, default)?;
-                    flags += &format!(" -o {}", quote(&output.to_string_lossy()));
+                    let (output, flag) =
+                        prompt_output(&prompt, &OUTPUT, recipe.tool(), seed, "png")?;
+                    flags += &flag;
                     output
                 }
             };
@@ -464,18 +461,9 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
                     ),
                 ));
             }
-            let mut flags = String::new();
-            let output = match output {
-                Some(output) => output,
-                None => {
-                    let default = match seed {
-                        Some(seed) => format!("{}-{seed}.mp4", tool.slug()),
-                        None => "out.mp4".to_owned(),
-                    };
-                    let output = prompt_output(&prompt, &MP4_OUTPUT, default)?;
-                    flags += &format!(" -o {}", quote(&output.to_string_lossy()));
-                    output
-                }
+            let (output, flags) = match output {
+                Some(output) => (output, String::new()),
+                None => prompt_output(&prompt, &MP4_OUTPUT, tool, seed, "mp4")?,
             };
             if !pipeline.is_empty() || !flags.is_empty() {
                 echo(&format!("{pipeline}{}{flags}", rerun()));
@@ -483,7 +471,8 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             if output == stdio && io::stdout().is_terminal() {
                 return Err(refuse_terminal("encode", "an MP4"));
             }
-            let mp4 = tirage_encode::encode(&recipe).map_err(|e| encode_failure(&e))?;
+            let mp4 = tirage_encode::encode(&recipe)
+                .map_err(|e| Failure::Runtime(e.to_string(), hint::for_encode_error(&e)))?;
             write_output(&output, &mp4)
         }
         Command::Tools { json } => {
@@ -593,15 +582,27 @@ fn read_recipe(
     }
 }
 
-fn prompt_output(prompt: &Prompt, choice: &Choice, default: String) -> Result<PathBuf, Failure> {
-    loop {
+fn prompt_output(
+    prompt: &Prompt,
+    choice: &Choice,
+    tool: Tool,
+    seed: Option<u64>,
+    extension: &str,
+) -> Result<(PathBuf, String), Failure> {
+    let default = match seed {
+        Some(seed) => format!("{}-{seed}.{extension}", tool.slug()),
+        None => format!("out.{extension}"),
+    };
+    let path = loop {
         let path = PathBuf::from(prompt.ask(choice, Some(default.clone()), |_| Ok(()))?);
         if !path.exists()
             || prompt.confirm(&format!("{} exists, overwrite it?", path.display()), choice)?
         {
-            return Ok(path);
+            break path;
         }
-    }
+    };
+    let flag = format!(" -o {}", quote(&path.to_string_lossy()));
+    Ok((path, flag))
 }
 
 fn write_output(output: &Path, bytes: &[u8]) -> Result<(), Failure> {
@@ -610,17 +611,6 @@ fn write_output(output: &Path, bytes: &[u8]) -> Result<(), Failure> {
     }
     fs::write(output, bytes)
         .map_err(|e| Failure::Runtime(format!("cannot write {}: {e}", output.display()), None))
-}
-
-#[cfg(feature = "encode")]
-fn encode_failure(error: &tirage_encode::Error) -> Failure {
-    let hint = match error {
-        tirage_encode::Error::OverCap { .. } => {
-            Some("try another Seed, or a Recipe with less detail".to_owned())
-        }
-        _ => None,
-    };
-    Failure::Runtime(error.to_string(), hint)
 }
 
 fn frames_label(tool: Tool) -> String {
