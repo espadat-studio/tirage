@@ -199,7 +199,7 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(text(&out.stderr).contains(
-        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch"#
+        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith"#
     ));
 }
 
@@ -365,10 +365,23 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"ground","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"stray","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
+    let pith = concat!(
+        r#"{"slug":"pith","frames":1,"params":["#,
+        r#"{"id":"count","kind":"range","min":1.0,"max":60.0,"step":1.0},"#,
+        r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"zoom","kind":"range","min":1.0,"max":8.0,"step":0.1},"#,
+        r#"{"id":"round","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"wobble","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"band","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"dither","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"veins","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"thick","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }

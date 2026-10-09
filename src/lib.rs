@@ -22,6 +22,7 @@ registry::tools! {
     Benday: benday::{BendayParams},
     Terrain: terrain::{TerrainParams},
     Stitch: stitch::{StitchParams},
+    Pith: pith::{PithParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
