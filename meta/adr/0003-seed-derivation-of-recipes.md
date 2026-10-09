@@ -12,7 +12,8 @@ A Seed is a `u64` that deals a whole Recipe: the Tool, then the Palette, then ea
 ## Consequences
 
 - Seed to Recipe is stable within a major version. A change bumps the major, and recordreel's cache key carries the version. Pixels are not promised.
-- An unpinned Tool is dealt from every ported Tool in registry order, which is append-only within a major.
+- An unpinned Tool is dealt by rendezvous hash: the ported Tool with the highest `hash(Seed, "tool", slug)` wins. Adding a Tool moves only the Seeds it now wins, about 1/N of them; every other Seed keeps its Tool. Registry order does not matter.
+- Before 1.0, ports land under major 0. At 1.0 the 6-Tool edition freezes, and any Tool added after it bumps the derivation major.
 - An unpinned Palette is the Tool's playgrnd default. The library ships no other Palettes.
 - The Tool seed is a nonzero `u32`: playgrnd reads it as `(seed>>>0)||1`, so 0 and 1 render alike. A Recipe replays on the site by setting the seed before the Parameters, since deal Tools like `vein` rewrite Parameters from the seed.
 - The library ships one set of Taste bounds per Tool. A caller may replace them, for example where `aura`'s two recordreel slots need different ranges.

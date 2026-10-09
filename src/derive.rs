@@ -11,10 +11,7 @@ pub enum ToolPin {
 
 pub fn derive(seed: u64, pin: ToolPin) -> Recipe {
     let taste = match pin {
-        ToolPin::Any => {
-            let slot = keyed_hash(seed, &["tool"]) % Tool::ALL.len() as u64;
-            Taste::shipped(Tool::ALL[slot as usize])
-        }
+        ToolPin::Any => Taste::shipped(deal_tool(seed, Tool::ALL)),
         ToolPin::Tool(tool) => Taste::shipped(tool),
         ToolPin::Taste(taste) => taste,
     };
@@ -36,6 +33,13 @@ pub fn derive(seed: u64, pin: ToolPin) -> Recipe {
     .expect("a Tool's default Palette fits it")
 }
 
+fn deal_tool(seed: u64, tools: &[Tool]) -> Tool {
+    *tools
+        .iter()
+        .max_by_key(|tool| keyed_hash(seed, &["tool", tool.slug()]))
+        .expect("at least one Tool")
+}
+
 fn keyed_hash(seed: u64, key: &[&str]) -> u64 {
     let mut bytes = seed.to_le_bytes().to_vec();
     for part in key {
@@ -53,7 +57,7 @@ fn keyed_hash(seed: u64, key: &[&str]) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use super::{derive, keyed_hash};
+    use super::{deal_tool, derive, keyed_hash};
     use crate::{Taste, Tool, ToolPin};
 
     #[test]
@@ -75,6 +79,32 @@ mod tests {
                     );
                 }
             }
+        }
+    }
+
+    #[test]
+    fn dropping_the_last_tool_moves_only_the_seeds_that_dealt_it() {
+        let (last, rest) = Tool::ALL.split_last().unwrap();
+        let mut moved = 0;
+        for seed in 0..2000 {
+            let before = deal_tool(seed, Tool::ALL);
+            if before == *last {
+                moved += 1;
+            } else {
+                assert_eq!(deal_tool(seed, rest), before, "seed {seed}");
+            }
+        }
+        assert!(moved > 0);
+    }
+
+    #[test]
+    fn any_deals_the_tool_with_the_highest_keyed_hash() {
+        for seed in 0..200 {
+            let best = Tool::ALL
+                .iter()
+                .max_by_key(|tool| keyed_hash(seed, &["tool", tool.slug()]))
+                .unwrap();
+            assert_eq!(derive(seed, ToolPin::Any).tool(), *best, "seed {seed}");
         }
     }
 }
