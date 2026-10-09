@@ -3,21 +3,25 @@ use std::num::NonZeroU32;
 use serde::{Deserialize, Serialize};
 
 use crate::param::Param;
-use crate::{DERIVATION_MAJOR, Error, HuskParams, Palette, SonarParams, husk, sonar};
+use crate::{
+    DERIVATION_MAJOR, Error, HuskParams, Palette, SonarParams, VeinParams, husk, sonar, vein,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Tool {
     Sonar,
     Husk,
+    Vein,
 }
 
 impl Tool {
-    pub const ALL: &[Tool] = &[Tool::Sonar, Tool::Husk];
+    pub const ALL: &[Tool] = &[Tool::Sonar, Tool::Husk, Tool::Vein];
 
     pub fn slug(self) -> &'static str {
         match self {
             Self::Sonar => sonar::SLUG,
             Self::Husk => husk::SLUG,
+            Self::Vein => vein::SLUG,
         }
     }
 
@@ -33,6 +37,7 @@ impl Tool {
         match self {
             Self::Sonar => sonar::FRAMES,
             Self::Husk => husk::FRAMES,
+            Self::Vein => vein::FRAMES,
         }
     }
 
@@ -40,6 +45,7 @@ impl Tool {
         match self {
             Self::Sonar => sonar::FPS,
             Self::Husk => husk::FPS,
+            Self::Vein => vein::FPS,
         }
     }
 
@@ -51,6 +57,7 @@ impl Tool {
         match self {
             Self::Sonar => sonar::PARAMS,
             Self::Husk => husk::PARAMS,
+            Self::Vein => vein::PARAMS,
         }
     }
 }
@@ -69,6 +76,7 @@ pub struct Parameter {
 pub enum Params {
     Sonar(SonarParams),
     Husk(HuskParams),
+    Vein(VeinParams),
 }
 
 impl Params {
@@ -76,6 +84,7 @@ impl Params {
         match self {
             Self::Sonar(_) => Tool::Sonar,
             Self::Husk(_) => Tool::Husk,
+            Self::Vein(_) => Tool::Vein,
         }
     }
 }
@@ -169,6 +178,7 @@ impl Recipe {
         let params = match Tool::from_slug(&wire.tool)? {
             Tool::Sonar => Params::Sonar(sonar::from_json(wire.params)?),
             Tool::Husk => Params::Husk(husk::from_json(wire.params)?),
+            Tool::Vein => Params::Vein(vein::from_json(wire.params)?),
         };
         Ok(Self {
             tool_seed: wire.tool_seed,

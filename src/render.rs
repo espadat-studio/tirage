@@ -1,5 +1,5 @@
 use crate::surface::Surface;
-use crate::{Error, Image, Params, Recipe, chassis, husk, sonar};
+use crate::{Error, Image, Params, Recipe, chassis, husk, sonar, vein};
 
 pub const MAX_EDGE: u32 = 8192;
 
@@ -51,6 +51,15 @@ pub fn render(recipe: &Recipe, frame: &Frame) -> Image {
         }
         Params::Husk(params) => {
             husk::paint(
+                &mut surface,
+                params,
+                recipe.palette(),
+                recipe.tool_seed().get(),
+            );
+            chassis::finish(&mut surface, params.grain_pass(), params.dither());
+        }
+        Params::Vein(params) => {
+            vein::paint(
                 &mut surface,
                 params,
                 recipe.palette(),

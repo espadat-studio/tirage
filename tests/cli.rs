@@ -163,7 +163,9 @@ fn usage_errors_exit_2() {
         );
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
-    assert!(text(&out.stderr).contains(r#"unknown tool "vien", expected one of sonar, husk"#));
+    assert!(
+        text(&out.stderr).contains(r#"unknown tool "vien", expected one of sonar, husk, vein"#)
+    );
 }
 
 #[test]
@@ -228,7 +230,16 @@ fn tools_json_has_a_stable_shape() {
             r#"{"id":"vary","min":0.0,"max":1.0,"step":0.01},"#,
             r#"{"id":"lump","min":0.0,"max":1.0,"step":0.01},"#,
             r#"{"id":"eat","min":0.0,"max":1.0,"step":0.01},"#,
-            r#"{"id":"tex","min":0.0,"max":1.0,"step":0.01}]}]"#,
+            r#"{"id":"tex","min":0.0,"max":1.0,"step":0.01}]},"#,
+            r#"{"slug":"vein","frames":1,"params":["#,
+            r#"{"id":"scale","min":0.0,"max":1.0,"step":0.01},"#,
+            r#"{"id":"curve","min":0.0,"max":1.0,"step":0.01},"#,
+            r#"{"id":"levels","min":3.0,"max":14.0,"step":1.0},"#,
+            r#"{"id":"tiger","min":0.0,"max":1.0,"step":0.01},"#,
+            r#"{"id":"edges","min":0.0,"max":1.0,"step":0.01},"#,
+            r#"{"id":"stars","min":0.0,"max":1.0,"step":0.01},"#,
+            r#"{"id":"tints","min":0.0,"max":1.0,"step":0.01},"#,
+            r#"{"id":"runs","min":0.0,"max":1.0,"step":0.01}]}]"#,
             "\n"
         )
     );
@@ -243,6 +254,11 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nhusk  1 frame\n"), "{listing}");
     assert!(
         listing.contains("  grid    40..=320  step 2\n"),
+        "{listing}"
+    );
+    assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
+    assert!(
+        listing.contains("  levels  3..=14    step 1\n"),
         "{listing}"
     );
 }
@@ -297,11 +313,12 @@ fn derive_pins_a_palette_and_keeps_the_rest() {
         b"",
     );
     assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
-    let (pinned, dealt) = (json(&out.stdout), json(&recipe()));
+    let dealt = json(&tirage(&["derive", "--seed", "42"], b"").stdout);
+    let pinned = json(&out.stdout);
     assert_eq!(pinned["palette"], serde_json::json!(["#000000", "#ffffff"]));
     assert_eq!(
-        (&pinned["params"], &pinned["tool_seed"]),
-        (&dealt["params"], &dealt["tool_seed"])
+        (&pinned["tool"], &pinned["params"], &pinned["tool_seed"]),
+        (&dealt["tool"], &dealt["params"], &dealt["tool_seed"])
     );
 }
 

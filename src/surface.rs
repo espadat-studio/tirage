@@ -1,8 +1,37 @@
-use tiny_skia::{Color, ColorU8, Paint, Pixmap, Rect, Transform};
+use tiny_skia::{
+    Color, ColorU8, FillRule, LineJoin, Paint, PathBuilder, Pixmap, Rect, Stroke, Transform,
+};
 
 use crate::Image;
 
 pub(crate) struct Surface(Pixmap);
+
+#[derive(Default)]
+pub(crate) struct Path2D(PathBuilder);
+
+impl Path2D {
+    pub(crate) fn move_to(&mut self, x: f64, y: f64) {
+        self.0.move_to(x as f32, y as f32);
+    }
+
+    pub(crate) fn quad_to(&mut self, cx: f64, cy: f64, x: f64, y: f64) {
+        self.0.quad_to(cx as f32, cy as f32, x as f32, y as f32);
+    }
+
+    pub(crate) fn close(&mut self) {
+        self.0.close();
+    }
+
+    pub(crate) fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
+fn solid([r, g, b]: [u8; 3]) -> Paint<'static> {
+    let mut paint = Paint::default();
+    paint.set_color_rgba8(r, g, b, 255);
+    paint
+}
 
 impl Surface {
     pub(crate) fn new(width: u32, height: u32) -> Self {
@@ -31,10 +60,51 @@ impl Surface {
     ) {
         let rect = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32)
             .expect("rect sides are at least 1 px");
-        let mut paint = Paint::default();
-        paint.set_color_rgba8(r, g, b, 255);
+        let mut paint = solid([r, g, b]);
         paint.anti_alias = false;
         self.0.fill_rect(rect, &paint, Transform::identity(), None);
+    }
+
+    pub(crate) fn fill_even_odd(&mut self, path: &Path2D, ink: [u8; 3]) {
+        let path = path
+            .0
+            .clone()
+            .finish()
+            .expect("a filled path has a closed loop");
+        self.0.fill_path(
+            &path,
+            &solid(ink),
+            FillRule::EvenOdd,
+            Transform::identity(),
+            None,
+        );
+    }
+
+    pub(crate) fn stroke(&mut self, path: &Path2D, ink: [u8; 3], width: f64) {
+        let stroke = Stroke {
+            width: width as f32,
+            line_join: LineJoin::Round,
+            ..Stroke::default()
+        };
+        let path = path
+            .0
+            .clone()
+            .finish()
+            .expect("a stroked path has a closed loop");
+        self.0
+            .stroke_path(&path, &solid(ink), &stroke, Transform::identity(), None);
+    }
+
+    pub(crate) fn fill_circle(&mut self, x: f64, y: f64, radius: f64, ink: [u8; 3]) {
+        let path = PathBuilder::from_circle(x as f32, y as f32, radius as f32)
+            .expect("a circle has a positive radius");
+        self.0.fill_path(
+            &path,
+            &solid(ink),
+            FillRule::Winding,
+            Transform::identity(),
+            None,
+        );
     }
 
     pub(crate) fn edit_rgba(&mut self, edit: impl FnOnce(&mut [u8], u32, u32)) {
