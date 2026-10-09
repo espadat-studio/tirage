@@ -1,0 +1,12 @@
+[workspace]
+git_only = true
+release_commits = "^(feat|fix|perf|refactor|build)(!|\\(|:)|^\\w+(\\([^)]*\\))?!:"
+git_release_draft = true
+
+[[package]]
+name = "tirage"
+git_tag_name = "v{{ version }}"
+
+[[package]]
+name = "tirage-encode"
+release = false
