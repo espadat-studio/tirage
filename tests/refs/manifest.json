@@ -369,6 +369,149 @@
       "page_sha256": "0fe55b634ea769541e0a0dd2aca0b6d32bfaafc9a9c2f5a94a3c0e9e733250dc",
       "chromium": "153.0.8010.12",
       "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+    },
+    "husk": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "husk",
+            "tool_seed": 9611518,
+            "palette": [
+              "#e0c3fc",
+              "#1b1b1e",
+              "#f9f871"
+            ],
+            "params": {
+              "count": 20,
+              "size": 0.92,
+              "vary": 0.96,
+              "lump": 0.92,
+              "bites": "Crumble",
+              "eat": 0.82,
+              "tex": 0.08,
+              "grain": 0.3,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "husk",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#e0c3fc",
+              "#1b1b1e",
+              "#f9f871"
+            ],
+            "params": {
+              "count": 29,
+              "size": 0.13,
+              "vary": 0.19,
+              "lump": 0.9,
+              "bites": "Crumble",
+              "eat": 0.97,
+              "tex": 0.69,
+              "grain": 0.3,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "husk",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#e0c3fc",
+              "#1b1b1e",
+              "#f9f871"
+            ],
+            "params": {
+              "count": 56,
+              "size": 0.76,
+              "vary": 0.16,
+              "lump": 0.15,
+              "bites": "Crumble",
+              "eat": 0.83,
+              "tex": 0.61,
+              "grain": 0.3,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "dots",
+          "recipe": {
+            "tirage": 0,
+            "tool": "husk",
+            "tool_seed": 9611518,
+            "palette": [
+              "#e0c3fc",
+              "#1b1b1e",
+              "#f9f871"
+            ],
+            "params": {
+              "count": 20,
+              "size": 0.92,
+              "vary": 0.96,
+              "lump": 0.92,
+              "bites": "Dots",
+              "eat": 0.82,
+              "tex": 0.08,
+              "grain": 0.3,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "187e7f300ef0e0ce0862b905d7a763d6ec1776aa691142e37aae108156442f96",
+      "chromium": "153.0.8010.12",
+      "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
     }
   }
 }
