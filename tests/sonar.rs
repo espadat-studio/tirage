@@ -168,9 +168,10 @@ fn recipe_json_errors_are_human() {
         (r##"palette: "#ggg000" is not a #rrggbb colour"##, |v| {
             v["palette"][0] = "#ggg000".into()
         }),
-        (r#"unknown tool "vien", expected one of sonar, husk"#, |v| {
-            v["tool"] = "vien".into()
-        }),
+        (
+            r#"unknown tool "vien", expected one of sonar, husk, vein"#,
+            |v| v["tool"] = "vien".into(),
+        ),
         (
             "Recipe JSON: invalid value: integer `0`, expected a nonzero u32 at line 1 column 392",
             |v| v["tool_seed"] = 0.into(),

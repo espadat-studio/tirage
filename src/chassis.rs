@@ -116,6 +116,17 @@ impl Default for Grain {
 }
 
 impl Grain {
+    pub(crate) fn printed() -> Self {
+        Self {
+            on: true,
+            blend: Blend::Overlay,
+            amount: 0.4,
+            size: 1.0,
+            specks: 0.4,
+            vignette: 0.25,
+        }
+    }
+
     pub fn on(&self) -> bool {
         self.on
     }

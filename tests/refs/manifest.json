@@ -512,6 +512,213 @@
       "page_sha256": "187e7f300ef0e0ce0862b905d7a763d6ec1776aa691142e37aae108156442f96",
       "chromium": "153.0.8010.12",
       "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+    },
+    "vein": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "vein",
+            "tool_seed": 9611518,
+            "palette": [
+              "#0e1a2b",
+              "#2e63b8",
+              "#7fa8e0",
+              "#e9dcc3",
+              "#f2892b",
+              "#e0362f",
+              "#2fa39a",
+              "#8b5a2b"
+            ],
+            "params": {
+              "flows": "Marble",
+              "scale": 0.37,
+              "curve": 0.62,
+              "levels": 9,
+              "tiger": 0.87,
+              "edges": 0.67,
+              "stars": 0.96,
+              "tints": 0.23,
+              "runs": 0.54,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": true,
+              "grnBlends": "Overlay",
+              "grnAmount": 0.4,
+              "grnSize": 1,
+              "grnSpecks": 0.4,
+              "grnVignette": 0.25
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "vein",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#0e1a2b",
+              "#2e63b8",
+              "#7fa8e0",
+              "#e9dcc3",
+              "#f2892b",
+              "#e0362f",
+              "#2fa39a",
+              "#8b5a2b"
+            ],
+            "params": {
+              "flows": "Swirl",
+              "scale": 0.33,
+              "curve": 0.09,
+              "levels": 9,
+              "tiger": 0.49,
+              "edges": 0.71,
+              "stars": 0.69,
+              "tints": 0.11,
+              "runs": 0.66,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": true,
+              "grnBlends": "Overlay",
+              "grnAmount": 0.4,
+              "grnSize": 1,
+              "grnSpecks": 0.4,
+              "grnVignette": 0.25
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "vein",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#0e1a2b",
+              "#2e63b8",
+              "#7fa8e0",
+              "#e9dcc3",
+              "#f2892b",
+              "#e0362f",
+              "#2fa39a",
+              "#8b5a2b"
+            ],
+            "params": {
+              "flows": "Swirl",
+              "scale": 0.29,
+              "curve": 0.59,
+              "levels": 11,
+              "tiger": 1,
+              "edges": 0.5,
+              "stars": 0.85,
+              "tints": 0.78,
+              "runs": 0.75,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": true,
+              "grnBlends": "Overlay",
+              "grnAmount": 0.4,
+              "grnSize": 1,
+              "grnSpecks": 0.4,
+              "grnVignette": 0.25
+            }
+          }
+        },
+        {
+          "name": "seed-1-swirl",
+          "recipe": {
+            "tirage": 0,
+            "tool": "vein",
+            "tool_seed": 9611518,
+            "palette": [
+              "#0e1a2b",
+              "#2e63b8",
+              "#7fa8e0",
+              "#e9dcc3",
+              "#f2892b",
+              "#e0362f",
+              "#2fa39a",
+              "#8b5a2b"
+            ],
+            "params": {
+              "flows": "Swirl",
+              "scale": 0.37,
+              "curve": 0.62,
+              "levels": 9,
+              "tiger": 0.87,
+              "edges": 0.67,
+              "stars": 0.96,
+              "tints": 0.23,
+              "runs": 0.54,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": true,
+              "grnBlends": "Overlay",
+              "grnAmount": 0.4,
+              "grnSize": 1,
+              "grnSpecks": 0.4,
+              "grnVignette": 0.25
+            }
+          }
+        },
+        {
+          "name": "seed-2-ripple",
+          "recipe": {
+            "tirage": 0,
+            "tool": "vein",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#0e1a2b",
+              "#2e63b8",
+              "#7fa8e0",
+              "#e9dcc3",
+              "#f2892b",
+              "#e0362f",
+              "#2fa39a",
+              "#8b5a2b"
+            ],
+            "params": {
+              "flows": "Ripple",
+              "scale": 0.33,
+              "curve": 0.09,
+              "levels": 9,
+              "tiger": 0.49,
+              "edges": 0.71,
+              "stars": 0.69,
+              "tints": 0.11,
+              "runs": 0.66,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": true,
+              "grnBlends": "Overlay",
+              "grnAmount": 0.4,
+              "grnSize": 1,
+              "grnSpecks": 0.4,
+              "grnVignette": 0.25
+            }
+          }
+        }
+      ],
+      "page_sha256": "39c42be819a9ae8dbce2d5ffe8ec7ce12f7a93b0cc075b8b01e92b0ac1d80609",
+      "chromium": "153.0.8010.12",
+      "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
     }
   }
 }
