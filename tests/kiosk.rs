@@ -160,7 +160,7 @@ fn recipe_json_names_the_character_set_by_its_site_label() {
 
 #[test]
 fn kiosk_is_appended_to_the_registry() {
-    assert_eq!(Tool::ALL.last(), Some(&Tool::Kiosk));
+    assert_eq!(Tool::ALL.get(4), Some(&Tool::Kiosk));
     assert_eq!(Tool::from_slug("kiosk").unwrap(), Tool::Kiosk);
 }
 

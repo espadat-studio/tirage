@@ -170,8 +170,9 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(
-        text(&out.stderr)
-            .contains(r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk"#)
+        text(&out.stderr).contains(
+            r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond"#
+        )
     );
 }
 
@@ -287,10 +288,25 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"small","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"blocks","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
+    let frond = concat!(
+        r#"{"slug":"frond","frames":36,"params":["#,
+        r#"{"id":"dirs","kind":"choice","choices":["Potted","Bouquet","Fronds"]},"#,
+        r#"{"id":"masses","kind":"range","min":0.0,"max":6.0,"step":1.0},"#,
+        r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"round","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"growth","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"detail","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"coarse","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"breakup","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"noise","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"patch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"circles","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"rules","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }
@@ -304,6 +320,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nhusk  1 frame\n"), "{listing}");
     assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     for line in [
         "  grid        40..=320  step 2\n",
         "  grnVignette 0..=1     step 0.05\n",
@@ -313,6 +330,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
         "  levels      3..=14    step 1\n",
         "  flows       Marble, Swirl, Ripple\n",
         "  styles      Auto, Clouds, Mesh, Sweep\n",
+        "  dirs        Potted, Bouquet, Fronds\n",
     ] {
         assert!(listing.contains(line), "{line:?} in\n{listing}");
     }

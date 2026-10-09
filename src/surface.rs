@@ -1,6 +1,8 @@
+use std::f64::consts::PI;
+
 use tiny_skia::{
-    Color, ColorU8, FillRule, FilterQuality, IntSize, LineJoin, Paint, Path, PathBuilder, Pixmap,
-    PixmapPaint, Rect, Stroke, Transform,
+    Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineJoin, Paint, Path,
+    PathBuilder, Pixmap, PixmapPaint, Point, RadialGradient, Rect, SpreadMode, Stroke, Transform,
 };
 
 use crate::Image;
@@ -13,6 +15,44 @@ pub(crate) struct Path2D(PathBuilder);
 impl Path2D {
     pub(crate) fn move_to(&mut self, x: f64, y: f64) {
         self.0.move_to(x as f32, y as f32);
+    }
+
+    pub(crate) fn line_to(&mut self, x: f64, y: f64) {
+        self.0.line_to(x as f32, y as f32);
+    }
+
+    pub(crate) fn arc_to(&mut self, x1: f64, y1: f64, x2: f64, y2: f64, radius: f64) {
+        let start = self.0.last_point().expect("arcTo follows a point");
+        let (ux, uy) = (f64::from(start.x) - x1, f64::from(start.y) - y1);
+        let (vx, vy) = (x2 - x1, y2 - y1);
+        let (lu, lv) = (ux.hypot(uy), vx.hypot(vy));
+        if radius == 0.0 || lu == 0.0 || lv == 0.0 || ux * vy == uy * vx {
+            self.line_to(x1, y1);
+            return;
+        }
+        let (ux, uy, vx, vy) = (ux / lu, uy / lu, vx / lv, vy / lv);
+        let between = (ux * vx + uy * vy).clamp(-1.0, 1.0).acos();
+        let reach = radius / (between / 2.0).tan();
+        let handle = radius * 4.0 / 3.0 * ((PI - between) / 4.0).tan();
+        let (sx, sy) = (x1 + ux * reach, y1 + uy * reach);
+        let (ex, ey) = (x1 + vx * reach, y1 + vy * reach);
+        self.line_to(sx, sy);
+        self.0.cubic_to(
+            (sx - ux * handle) as f32,
+            (sy - uy * handle) as f32,
+            (ex - vx * handle) as f32,
+            (ey - vy * handle) as f32,
+            ex as f32,
+            ey as f32,
+        );
+    }
+
+    pub(crate) fn push_circle(&mut self, x: f64, y: f64, radius: f64) {
+        self.0.push_circle(x as f32, y as f32, radius as f32);
+    }
+
+    pub(crate) fn into_path(self) -> Path {
+        self.0.finish().expect("a filled path is not empty")
     }
 
     pub(crate) fn quad_to(&mut self, cx: f64, cy: f64, x: f64, y: f64) {
@@ -111,6 +151,48 @@ impl Surface {
             Transform::identity(),
             None,
         );
+    }
+
+    pub(crate) fn fill_radial_fade(
+        &mut self,
+        x: f64,
+        y: f64,
+        radius: f64,
+        [r, g, b]: [u8; 3],
+        alpha: f32,
+    ) {
+        let centre = Point::from_xy(x as f32, y as f32);
+        let [r, g, b] = [r, g, b].map(|c| f32::from(c) / 255.0);
+        let stop = |offset, alpha| {
+            GradientStop::new(
+                offset,
+                Color::from_rgba(r, g, b, alpha).expect("alpha is 0..=1"),
+            )
+        };
+        let shader = RadialGradient::new(
+            centre,
+            0.0,
+            centre,
+            radius as f32,
+            vec![stop(0.0, alpha), stop(1.0, 0.0)],
+            SpreadMode::Pad,
+            Transform::identity(),
+        )
+        .expect("a fade has a positive radius");
+        let paint = Paint {
+            shader,
+            ..Paint::default()
+        };
+        let side = (radius * 2.0) as f32;
+        let rect = Rect::from_xywh((x - radius) as f32, (y - radius) as f32, side, side)
+            .expect("a fade has a positive radius");
+        self.0.fill_rect(rect, &paint, Transform::identity(), None);
+    }
+
+    pub(crate) fn set_pixel(&mut self, x: u32, y: u32, [r, g, b]: [u8; 3]) {
+        let width = self.width();
+        self.0.pixels_mut()[(y * width + x) as usize] =
+            ColorU8::from_rgba(r, g, b, 255).premultiply();
     }
 
     pub(crate) fn fill_circle(&mut self, x: f64, y: f64, radius: f64, ink: [u8; 3]) {

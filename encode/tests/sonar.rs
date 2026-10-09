@@ -2,9 +2,8 @@ use std::io::Cursor;
 
 use mp4::{MediaType, Mp4Reader};
 use tirage::{Tool, ToolPin, derive};
-use tirage_encode::{HEIGHT, OPENH264, WIDTH, encode, settings};
+use tirage_encode::{HEIGHT, MAX_BYTES, OPENH264, WIDTH, encode, settings};
 
-const MAX_BYTES: usize = 1_500_000;
 const SEEDS: [u64; 3] = [1, 2, 3];
 
 fn read(mp4: &[u8]) -> Mp4Reader<Cursor<&[u8]>> {

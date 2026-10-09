@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use crate::param::Param;
 use crate::unique_keys;
 use crate::{
-    AuraParams, DERIVATION_MAJOR, Error, HuskParams, KioskParams, Palette, SonarParams, VeinParams,
-    aura, husk, kiosk, sonar, vein,
+    AuraParams, DERIVATION_MAJOR, Error, FrondParams, HuskParams, KioskParams, Palette,
+    SonarParams, VeinParams, aura, frond, husk, kiosk, sonar, vein,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -16,10 +16,18 @@ pub enum Tool {
     Vein,
     Aura,
     Kiosk,
+    Frond,
 }
 
 impl Tool {
-    pub const ALL: &[Tool] = &[Tool::Sonar, Tool::Husk, Tool::Vein, Tool::Aura, Tool::Kiosk];
+    pub const ALL: &[Tool] = &[
+        Tool::Sonar,
+        Tool::Husk,
+        Tool::Vein,
+        Tool::Aura,
+        Tool::Kiosk,
+        Tool::Frond,
+    ];
 
     pub fn slug(self) -> &'static str {
         match self {
@@ -28,6 +36,7 @@ impl Tool {
             Self::Vein => vein::SLUG,
             Self::Aura => aura::SLUG,
             Self::Kiosk => kiosk::SLUG,
+            Self::Frond => frond::SLUG,
         }
     }
 
@@ -46,6 +55,7 @@ impl Tool {
             Self::Vein => vein::FRAMES,
             Self::Aura => aura::FRAMES,
             Self::Kiosk => kiosk::FRAMES,
+            Self::Frond => frond::FRAMES,
         }
     }
 
@@ -56,6 +66,7 @@ impl Tool {
             Self::Vein => vein::FPS,
             Self::Aura => aura::FPS,
             Self::Kiosk => kiosk::FPS,
+            Self::Frond => frond::FPS,
         }
     }
 
@@ -66,6 +77,7 @@ impl Tool {
             Self::Vein => vein::parameters(),
             Self::Aura => aura::parameters(),
             Self::Kiosk => kiosk::parameters(),
+            Self::Frond => frond::parameters(),
         }
     }
 
@@ -76,6 +88,7 @@ impl Tool {
             Self::Vein => vein::PARAMS,
             Self::Aura => aura::PARAMS,
             Self::Kiosk => kiosk::PARAMS,
+            Self::Frond => frond::PARAMS,
         }
     }
 }
@@ -120,6 +133,7 @@ pub enum Params {
     Vein(VeinParams),
     Aura(AuraParams),
     Kiosk(KioskParams),
+    Frond(FrondParams),
 }
 
 impl Params {
@@ -130,6 +144,7 @@ impl Params {
             Self::Vein(_) => Tool::Vein,
             Self::Aura(_) => Tool::Aura,
             Self::Kiosk(_) => Tool::Kiosk,
+            Self::Frond(_) => Tool::Frond,
         }
     }
 }
@@ -236,6 +251,7 @@ impl Recipe {
             Tool::Vein => Params::Vein(vein::from_json(wire.params)?),
             Tool::Aura => Params::Aura(aura::from_json(wire.params)?),
             Tool::Kiosk => Params::Kiosk(kiosk::from_json(wire.params)?),
+            Tool::Frond => Params::Frond(frond::from_json(wire.params)?),
         };
         Self::new(wire.tool_seed, Palette::from_hex(&wire.palette)?, params)
     }
@@ -244,7 +260,7 @@ impl Recipe {
 fn fit(tool: Tool, palette: Palette) -> Result<Palette, Error> {
     let max = match tool {
         Tool::Aura => aura::INKS,
-        Tool::Sonar | Tool::Husk | Tool::Vein | Tool::Kiosk => return Ok(palette),
+        Tool::Sonar | Tool::Husk | Tool::Vein | Tool::Kiosk | Tool::Frond => return Ok(palette),
     };
     if palette.len() > max {
         return Err(Error::TooManyInks {
