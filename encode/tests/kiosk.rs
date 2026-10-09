@@ -2,9 +2,8 @@ use std::io::Cursor;
 
 use mp4::{MediaType, Mp4Reader};
 use tirage::{Tool, ToolPin, derive};
-use tirage_encode::{HEIGHT, WIDTH, encode};
+use tirage_encode::{HEIGHT, MAX_BYTES, WIDTH, encode};
 
-const MAX_BYTES: usize = 1_500_000;
 const SEEDS: [u64; 6] = [1, 2, 3, 5, 13, 26];
 
 #[test]

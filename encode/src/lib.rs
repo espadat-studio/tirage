@@ -15,6 +15,8 @@ pub const HEIGHT: u32 = 1280;
 
 pub const OPENH264: &str = "0.9.8";
 
+pub const MAX_BYTES: usize = 1_500_000;
+
 const BUDGET: u32 = 1_200_000;
 const QP: (u8, u8) = (12, 51);
 
@@ -34,6 +36,7 @@ pub fn settings() -> String {
 pub enum Error {
     H264(openh264::Error),
     Mp4(mp4::Error),
+    OverCap { bytes: usize },
 }
 
 impl fmt::Display for Error {
@@ -41,6 +44,9 @@ impl fmt::Display for Error {
         match self {
             Self::H264(error) => write!(f, "h264: {error}"),
             Self::Mp4(error) => write!(f, "mp4: {error}"),
+            Self::OverCap { bytes } => {
+                write!(f, "loop is {bytes} bytes, over the {MAX_BYTES} byte cap")
+            }
         }
     }
 }
@@ -128,7 +134,11 @@ pub fn encode(recipe: &Recipe) -> Result<Vec<u8>, Error> {
         writer.write_sample(1, sample)?;
     }
     writer.write_end()?;
-    Ok(writer.into_writer().into_inner())
+    let mp4 = writer.into_writer().into_inner();
+    if mp4.len() >= MAX_BYTES {
+        return Err(Error::OverCap { bytes: mp4.len() });
+    }
+    Ok(mp4)
 }
 
 fn strip_start_code(nal: &[u8]) -> &[u8] {
