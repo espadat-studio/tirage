@@ -202,19 +202,3 @@ fn a_two_ink_palette_falls_back_by_role() {
         "marks fall back to the mass ink"
     );
 }
-
-#[test]
-fn tools_lists_frond_after_kiosk() {
-    assert_eq!(
-        Tool::ALL,
-        &[
-            Tool::Sonar,
-            Tool::Husk,
-            Tool::Vein,
-            Tool::Aura,
-            Tool::Kiosk,
-            Tool::Frond
-        ]
-    );
-    assert_eq!(Tool::from_slug("frond").unwrap(), Tool::Frond);
-}

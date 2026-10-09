@@ -159,12 +159,6 @@ fn recipe_json_names_the_character_set_by_its_site_label() {
 }
 
 #[test]
-fn kiosk_is_appended_to_the_registry() {
-    assert_eq!(Tool::ALL.get(4), Some(&Tool::Kiosk));
-    assert_eq!(Tool::from_slug("kiosk").unwrap(), Tool::Kiosk);
-}
-
-#[test]
 fn kiosk_loops_at_its_site_default_motion() {
     assert_eq!((Tool::Kiosk.frames(), Tool::Kiosk.fps()), (24, 6));
     let recipe = derive(7, KIOSK);

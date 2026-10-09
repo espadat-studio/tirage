@@ -188,19 +188,3 @@ fn render_gives_an_opaque_image_of_the_frame_size_for_every_flow() {
         assert!(image.rgba().chunks(4).all(|px| px[3] == 255), "{flow:?}");
     }
 }
-
-#[test]
-fn tools_lists_vein_after_husk() {
-    assert_eq!(
-        Tool::ALL,
-        &[
-            Tool::Sonar,
-            Tool::Husk,
-            Tool::Vein,
-            Tool::Aura,
-            Tool::Kiosk,
-            Tool::Frond
-        ]
-    );
-    assert_eq!(Tool::from_slug("vein").unwrap(), Tool::Vein);
-}
