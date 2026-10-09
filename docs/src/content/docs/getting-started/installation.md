@@ -23,6 +23,16 @@ tirage --version
 tirage 0.1.1 (derivation major 0)
 ```
 
+## The encode feature
+
+`tirage encode`, the command that turns a Loop into an MP4, is behind the `encode` cargo feature:
+
+```sh
+cargo install --git https://github.com/espadat-studio/tirage tirage-cli --features encode
+```
+
+The feature builds openh264 from source, so it needs a C++ compiler on the `PATH`, such as `g++` or `clang++`. Without the feature the install needs no C++ compiler and the binary has no `encode` command.
+
 ## The library
 
 Depend on `tirage` by git, pinned to a commit:
@@ -34,4 +44,4 @@ tirage = { git = "https://github.com/espadat-studio/tirage", rev = "e43e5b8" }
 
 Commit the `Cargo.lock` cargo writes and build with `cargo build --locked`. `Cargo.lock` holds the full commit the pin resolved to and the version of every dependency. With `--locked`, cargo fails the build instead of resolving them again.
 
-The same repository holds `tirage-encode`, the crate that turns a Loop into an MP4. It builds openh264 from source, so it needs a C++ compiler. [Quick Start](/getting-started/quick-start/) uses both crates.
+The same repository holds `tirage-encode`, the crate behind `tirage encode`. It takes a Recipe and returns the MP4 bytes, and it needs the same C++ compiler.

@@ -970,7 +970,12 @@ fn docs_pages_list_every_flag_in_help_and_no_other() {
         ("tools", &["tools", "--help"]),
         ("completions", &["completions", "--help"]),
     ];
-    for (name, args) in commands {
+    let encode: &[(&str, &[&str])] = if cfg!(feature = "encode") {
+        &[("encode", &["encode", "--help"])]
+    } else {
+        &[]
+    };
+    for (name, args) in commands.iter().chain(encode) {
         let help = text(&tirage(args, b"").stdout);
         let path = pages.join(format!("{name}.md"));
         let page =

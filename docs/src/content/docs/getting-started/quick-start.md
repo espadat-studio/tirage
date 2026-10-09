@@ -3,7 +3,7 @@ title: "Quick Start"
 description: "Derive a Recipe from a Seed, render a Still, then render the Loop and encode it to MP4."
 ---
 
-This page goes from a Seed to a Still, then to a Loop as an MP4. It needs the CLI from [Installation](/getting-started/installation/).
+This page goes from a Seed to a Still, then to a Loop as an MP4. It needs the CLI from [Installation](/getting-started/installation/), built with the `encode` feature for the last step.
 
 ## Derive a Recipe
 
@@ -76,38 +76,12 @@ Frame 6 is high tide. Frame 0 is the Still of the same Recipe, so leaving out `-
 
 ## Encode the Loop to MP4
 
-The CLI renders one frame at a time. A whole Loop as a video comes from the `tirage-encode` crate: it renders every frame at 720x1280 and encodes them with openh264 into an H.264 MP4. Make a small program for it:
+`encode` renders every frame of the Loop at 720x1280 and writes them as one H.264 MP4. It is in the CLI only when it was installed with `--features encode`, as [Installation](/getting-started/installation/#the-encode-feature) shows.
 
 ```sh
-cargo new first-loop && cd first-loop
+tirage derive --seed 42 --tool sonar | tirage encode -o out.mp4
 ```
 
-Add both crates to `Cargo.toml`:
+openh264 prints one warning on stderr, that it cannot hold the bitrate without skipping frames. That is expected: a Loop keeps every frame. `out.mp4` is the Loop: H.264, 720x1280, 24 frames at 10 fps, 2.4 seconds, 1.15 MB. A Loop has to stay under 1.5 MB, and `encode` exits 1 for one that does not. Its first frame is the Still, so `out.png` can be the video's poster. If the video does not play (reduced motion, blocked autoplay), the viewer sees the Still instead.
 
-```toml
-[dependencies]
-tirage = { git = "https://github.com/espadat-studio/tirage", rev = "e43e5b8" }
-tirage-encode = { git = "https://github.com/espadat-studio/tirage", rev = "e43e5b8" }
-```
-
-Replace `src/main.rs`:
-
-```rust
-use std::fs;
-
-use tirage::Recipe;
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let recipe = Recipe::from_json(&fs::read_to_string("recipe.json")?)?;
-    fs::write("out.mp4", tirage_encode::encode(&recipe)?)?;
-    Ok(())
-}
-```
-
-Copy `recipe.json` next to it and run:
-
-```sh
-cargo run --release
-```
-
-openh264 prints one warning, that it cannot hold the bitrate without skipping frames. That is expected: a Loop keeps every frame. `out.mp4` is the Loop: H.264, 720x1280, 24 frames at 10 fps, 2.4 seconds, 1.15 MB. A Loop has to stay under 1.5 MB, and `encode` returns an error for one that does not. Its first frame is the Still, so `out.png` can be the video's poster. If the video does not play (reduced motion, blocked autoplay), the viewer sees the Still instead.
+Like `render`, `encode` also takes a Recipe file, so `tirage encode recipe.json -o out.mp4` writes the same bytes. From Rust, `tirage_encode::encode(&recipe)` returns them.
