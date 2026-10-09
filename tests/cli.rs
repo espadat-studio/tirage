@@ -980,3 +980,56 @@ fn docs_pages_list_every_flag_in_help_and_no_other() {
         assert_eq!(flags_in_help(&help), flags_on_page(&page), "{name}");
     }
 }
+
+#[test]
+fn every_shell_example_on_the_concepts_pages_runs() {
+    let concepts = Path::new(env!("CARGO_MANIFEST_DIR")).join("docs/src/content/docs/concepts");
+    let path = format!(
+        "{}:{}",
+        Path::new(BIN).parent().unwrap().display(),
+        std::env::var("PATH").unwrap()
+    );
+    let dir = scratch("concepts");
+    let mut pages: Vec<PathBuf> = std::fs::read_dir(&concepts)
+        .unwrap()
+        .map(|entry| entry.unwrap().path())
+        .filter(|page| page.extension().is_some_and(|ext| ext == "md"))
+        .collect();
+    pages.sort();
+    assert!(!pages.is_empty());
+    for page in pages {
+        let markdown = std::fs::read_to_string(&page).unwrap();
+        let script = shell_blocks(&markdown).join("\n");
+        let cwd = dir.join(page.file_stem().unwrap());
+        std::fs::create_dir_all(&cwd).unwrap();
+        let out = Command::new("sh")
+            .args(["-ec", &script])
+            .current_dir(&cwd)
+            .env("PATH", &path)
+            .stdin(Stdio::null())
+            .output()
+            .unwrap();
+        assert_eq!(
+            out.status.code(),
+            Some(0),
+            "{}:\n{script}\n{}",
+            page.display(),
+            text(&out.stderr)
+        );
+    }
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+fn shell_blocks(markdown: &str) -> Vec<&str> {
+    let mut lines = Vec::new();
+    let mut in_block = false;
+    for line in markdown.lines() {
+        match (in_block, line.trim_end()) {
+            (false, "```sh") => in_block = true,
+            (true, "```") => in_block = false,
+            (true, line) => lines.push(line),
+            (false, _) => {}
+        }
+    }
+    lines
+}
