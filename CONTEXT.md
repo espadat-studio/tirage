@@ -17,11 +17,11 @@ One named, bounded input of a Tool, matching a slider, toggle or picker on its s
 _Avoid_: Option, setting, knob
 
 **Palette**:
-The ordered colours a Tool paints with.
+The ordered colours a Tool can be given, read by position. Colours a Tool fixes itself are not part of it.
 _Avoid_: Theme, scheme
 
 **Recipe**:
-A Tool plus a value for each of its Parameters, a Palette and a Tool seed. It fully determines one Visual.
+A Tool plus a value for each of its Parameters, a Palette where the Tool takes one, and a Tool seed. It fully determines one Visual.
 _Avoid_: Preset, config
 
 **Seed**:
