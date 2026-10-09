@@ -37,6 +37,18 @@ export default defineConfig({
           ],
         },
         {
+          label: "Tools",
+          items: [
+            { label: "Overview", slug: "tools" },
+            { slug: "tools/sonar" },
+            { slug: "tools/husk" },
+            { slug: "tools/vein" },
+            { slug: "tools/aura" },
+            { slug: "tools/kiosk" },
+            { slug: "tools/frond" },
+          ],
+        },
+        {
           label: "CLI Reference",
           items: [
             { slug: "cli-reference/tirage" },

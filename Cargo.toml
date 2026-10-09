@@ -43,5 +43,9 @@ required-features = ["cli"]
 name = "cli"
 required-features = ["cli"]
 
+[[test]]
+name = "docs"
+required-features = ["cli"]
+
 [profile.dev.package."*"]
 opt-level = 3
