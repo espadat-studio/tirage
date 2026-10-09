@@ -2,6 +2,7 @@ use std::num::NonZeroU32;
 
 use serde::{Deserialize, Serialize};
 
+use crate::param::Param;
 use crate::{DERIVATION_MAJOR, Error, Palette, SonarParams, sonar};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -39,8 +40,12 @@ impl Tool {
     }
 
     pub fn parameters(self) -> Vec<Parameter> {
+        self.params().iter().map(Param::parameter).collect()
+    }
+
+    pub(crate) fn params(self) -> &'static [Param] {
         match self {
-            Self::Sonar => sonar::parameters(),
+            Self::Sonar => sonar::PARAMS,
         }
     }
 }
