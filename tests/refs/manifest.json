@@ -1963,6 +1963,124 @@
       "page_sha256": "698124f73fb6fd767d79c43d6d15ff12bd9cc77bab3a1f6fe468091346266951",
       "chromium": "153.0.8010.12",
       "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+    },
+    "mosh": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "mosh",
+            "tool_seed": 9611518,
+            "palette": [
+              "#000000",
+              "#ffffff",
+              "#ff3131",
+              "#31ff6b",
+              "#3164ff",
+              "#31f0ff",
+              "#ff31e0",
+              "#ffee31"
+            ],
+            "params": {
+              "bands": 3,
+              "cols": 284,
+              "mix": 0.01,
+              "tears": 0.1,
+              "runs": 0.74,
+              "bright": 0.86,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "mosh",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#000000",
+              "#ffffff",
+              "#ff3131",
+              "#31ff6b",
+              "#3164ff",
+              "#31f0ff",
+              "#ff31e0",
+              "#ffee31"
+            ],
+            "params": {
+              "bands": 9,
+              "cols": 144,
+              "mix": 0.84,
+              "tears": 0.89,
+              "runs": 0.68,
+              "bright": 0.33,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "mosh",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#000000",
+              "#ffffff",
+              "#ff3131",
+              "#31ff6b",
+              "#3164ff",
+              "#31f0ff",
+              "#ff31e0",
+              "#ffee31"
+            ],
+            "params": {
+              "bands": 8,
+              "cols": 108,
+              "mix": 0.94,
+              "tears": 0.1,
+              "runs": 0.89,
+              "bright": 0.19,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "3a48aa526b7229beca9037643fb219300ad55859ca7f1d43e6041abe167f0e9b",
+      "chromium": "153.0.8010.12",
+      "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
     }
   }
 }
