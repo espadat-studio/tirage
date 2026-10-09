@@ -56,8 +56,13 @@ enum Command {
         seed: u64,
         #[arg(long, value_name = "SLUG", value_parser = Tool::from_slug, help = "Tool to pin, see 'tirage tools'. Dealt from the Seed when left out")]
         tool: Option<Tool>,
-        #[arg(long, value_name = "FILE", value_parser = parse_taste, conflicts_with = "tool", help = "Taste bounds JSON to deal Parameters from, pins its Tool")]
-        taste: Option<Taste>,
+        #[arg(
+            long,
+            value_name = "FILE",
+            conflicts_with = "tool",
+            help = "Taste bounds JSON to deal Parameters from, pins its Tool"
+        )]
+        taste: Option<PathBuf>,
         #[arg(long, value_name = "INKS", value_parser = parse_palette, help = "Palette to pin, as comma-separated #rrggbb inks")]
         palette: Option<Palette>,
     },
@@ -127,7 +132,13 @@ fn run(command: Command) -> Result<(), String> {
         } => {
             let pin = match (tool, taste) {
                 (Some(tool), _) => ToolPin::Tool(tool),
-                (_, Some(taste)) => ToolPin::Taste(taste),
+                (_, Some(path)) => {
+                    let json = fs::read_to_string(&path)
+                        .map_err(|e| format!("cannot read {}: {e}", path.display()))?;
+                    ToolPin::Taste(
+                        Taste::from_json(&json).unwrap_or_else(|e| usage("derive", &e.to_string())),
+                    )
+                }
                 (None, None) => ToolPin::Any,
             };
             let mut recipe = derive(seed, pin);
@@ -144,10 +155,16 @@ fn run(command: Command) -> Result<(), String> {
         } => {
             let stdio = Path::new("-");
             if output == stdio && io::stdout().is_terminal() {
-                render_usage("refusing to write a PNG to a terminal, pass -o FILE or pipe stdout");
+                usage(
+                    "render",
+                    "refusing to write a PNG to a terminal, pass -o FILE or pipe stdout",
+                );
             }
             if input == stdio && io::stdin().is_terminal() {
-                render_usage("no Recipe on stdin, pass a FILE or pipe 'tirage derive' into it");
+                usage(
+                    "render",
+                    "no Recipe on stdin, pass a FILE or pipe 'tirage derive' into it",
+                );
             }
             let json = if input == stdio {
                 io::read_to_string(io::stdin()).map_err(|e| format!("cannot read stdin: {e}"))?
@@ -197,12 +214,12 @@ fn command() -> clap::Command {
     Cli::command().version(format!("{VERSION} (derivation major {DERIVATION_MAJOR})"))
 }
 
-fn render_usage(message: &str) -> ! {
+fn usage(subcommand: &str, message: &str) -> ! {
     let mut command = command();
     command.build();
     command
-        .find_subcommand_mut("render")
-        .expect("render is a subcommand")
+        .find_subcommand_mut(subcommand)
+        .expect("usage names a subcommand")
         .error(ErrorKind::InvalidValue, message)
         .exit()
 }
@@ -218,11 +235,6 @@ fn parse_size(size: &str) -> Result<(u32, u32), String> {
     size.split_once('x')
         .and_then(|(width, height)| Some((width.parse().ok()?, height.parse().ok()?)))
         .ok_or_else(|| "expected <W>x<H> in pixels, like 1080x1920".to_owned())
-}
-
-fn parse_taste(path: &str) -> Result<Taste, String> {
-    let json = fs::read_to_string(path).map_err(|e| format!("cannot read {path}: {e}"))?;
-    Taste::from_json(&json).map_err(|e| e.to_string())
 }
 
 fn parse_palette(inks: &str) -> Result<Palette, String> {

@@ -333,6 +333,14 @@ fn derive_reads_taste_bounds_from_a_file() {
         b"",
     );
     assert_eq!(out.status.code(), Some(2), "{}", text(&out.stderr));
+    let out = tirage(&["derive", "--seed", "1", "--taste", "missing.json"], b"");
+    assert_eq!(
+        (out.status.code(), text(&out.stderr).as_str()),
+        (
+            Some(1),
+            "error: cannot read missing.json: No such file or directory (os error 2)\n"
+        )
+    );
     std::fs::remove_dir_all(dir).unwrap();
 }
 
