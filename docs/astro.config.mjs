@@ -26,6 +26,16 @@ export default defineConfig({
           label: "Getting Started",
           items: [{ slug: "getting-started/installation" }, { slug: "getting-started/quick-start" }],
         },
+        {
+          label: "CLI Reference",
+          items: [
+            { slug: "cli-reference/tirage" },
+            { slug: "cli-reference/derive" },
+            { slug: "cli-reference/render" },
+            { slug: "cli-reference/tools" },
+            { slug: "cli-reference/completions" },
+          ],
+        },
       ],
     }),
   ],
