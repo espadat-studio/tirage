@@ -1600,6 +1600,121 @@
       "page_sha256": "425239283ce911a41bbcf48e90095e38c27b7bdc22976ec3f084e6130343aaa6",
       "chromium": "153.0.8010.12",
       "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+    },
+    "terrain": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "terrain",
+            "tool_seed": 9611518,
+            "palette": [
+              "#264653",
+              "#2a9d8f",
+              "#8ab17d",
+              "#e9c46a",
+              "#f4a261",
+              "#e76f51"
+            ],
+            "params": {
+              "scale": 2,
+              "warp": 0.4,
+              "oct": 6,
+              "contrast": 2.9,
+              "balance": -0.2,
+              "grain": 0.3,
+              "block": 2,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "terrain",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#264653",
+              "#2a9d8f",
+              "#8ab17d",
+              "#e9c46a",
+              "#f4a261",
+              "#e76f51"
+            ],
+            "params": {
+              "scale": 7.8,
+              "warp": 0.02,
+              "oct": 6,
+              "contrast": 3.35,
+              "balance": -0.3,
+              "grain": 0.3,
+              "block": 10,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "terrain",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#264653",
+              "#2a9d8f",
+              "#8ab17d",
+              "#e9c46a",
+              "#f4a261",
+              "#e76f51"
+            ],
+            "params": {
+              "scale": 3.4,
+              "warp": 1.24,
+              "oct": 1,
+              "contrast": 3.45,
+              "balance": -0.55,
+              "grain": 0.3,
+              "block": 12,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "eb5ca702eb35265f4aeebaff6dac8c25d00ec39102bf7d9518ff809c08581ffd",
+      "chromium": "153.0.8010.12",
+      "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
     }
   }
 }
