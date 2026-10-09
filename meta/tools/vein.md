@@ -73,7 +73,7 @@ At a point `(u, v)`:
 
 ## Levels
 
-`N = max(2, levels)`. Level `k` cuts at `(k + 0.5) / N`. The bottom `dark = max(1, round(0.3 N))` levels are ground.
+`N = levels`. Level `k` cuts at `(k + 0.5) / N`. The bottom `dark = round(0.3 N)` levels are ground, at least 1 since `levels` is at least 3.
 
 Colour per level, `k = 0..N`:
 
@@ -116,5 +116,6 @@ Since each loop is a closed cycle, its start point and direction do not change t
 - Edges are anti-aliased, so a port cannot match byte for byte. Skia's analytic coverage and tiny-skia's supersampling disagree slightly on edge pixels.
 - The field uses `sin`, `cos` and `exp`. A last-bit difference from V8 can move a rounded 0.1 px coordinate, which is well under an edge pixel.
 - Path points are written to a string at 0.1 px and parsed back. Rounding the float to 0.1 gives the same value.
+- A Recipe with fewer than 8 inks does not replay on the site: "My colors" pads it to 8 with derived tints, and we render the inks as given. recordreel's 6-ink Palette is such a Recipe, with no Reference export.
 - The site's "My colors" fits a set to the Tool's swatch count, deriving tints for missing inks. vein has 8 swatches, so Reference exports use an 8-ink Palette and the site's inks equal the Recipe's.
 - Taste bounds only cover the sliders. `flows` stays Marble in a derived Recipe: the triage never looked at the other two.
