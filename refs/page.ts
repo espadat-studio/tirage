@@ -41,6 +41,16 @@ export async function openTool(
     if (palette && (await page.getAttribute("#mycTog", "aria-pressed")) !== "true") {
       throw new Error(`${slug} did not apply the Palette`);
     }
+    if (palette) {
+      const swatches = await page.$$eval(
+        "#swatches input[type=color]",
+        inputs => inputs.map(input => (input as HTMLInputElement).value.toLowerCase()),
+      );
+      const want = palette.map(ink => ink.toLowerCase());
+      if (swatches.join() !== want.join()) {
+        throw new Error(`${slug} shows swatches ${swatches.join(" ")}, expected the Palette ${want.join(" ")}`);
+      }
+    }
     return { context, page, pageSha };
   } catch (error) {
     await context.close();
