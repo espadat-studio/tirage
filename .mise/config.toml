@@ -14,7 +14,7 @@ bun = "1.4.2"
 [tasks.build]
 alias = "b"
 description = "Build the crate"
-run = "cargo build --locked"
+run = "cargo build --locked --all-features"
 
 [tasks.fmt]
 alias = "f"
@@ -31,7 +31,7 @@ run = "hk check --all"
 alias = "t"
 description = "Run all tests"
 depends = ["refs:install"]
-run = ["cargo nextest run --locked --no-tests=pass", "bun test --cwd refs"]
+run = ["cargo nextest run --locked --all-features --no-tests=pass", "bun test --cwd refs"]
 
 [tasks.wasm]
 alias = "w"

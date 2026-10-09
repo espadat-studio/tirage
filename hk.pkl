@@ -8,8 +8,8 @@ local linters = new Mapping<String, Step> {
   ["rustfmt"] = Builtins.rustfmt
   ["clippy"] {
     glob = "**/*.rs"
-    check = "cargo clippy --all-targets --quiet -- -D warnings"
-    fix = "cargo clippy --all-targets --fix --allow-dirty --allow-staged --quiet -- -D warnings"
+    check = "cargo clippy --all-targets --all-features --quiet -- -D warnings"
+    fix = "cargo clippy --all-targets --all-features --fix --allow-dirty --allow-staged --quiet -- -D warnings"
   }
   ["zizmor"] = Builtins.zizmor
   ["oxlint"] = Builtins.ox_lint

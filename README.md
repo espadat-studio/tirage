@@ -4,6 +4,15 @@ Original generative artwork and animations, rendered from code. It reproduces th
 
 See [`CONTEXT.md`](./CONTEXT.md).
 
+## CLI
+
+```sh
+cargo install --git https://github.com/espadat-studio/tirage --features cli
+tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
+```
+
+`tirage --help` lists the rest.
+
 ## Develop
 
 Requires [mise](https://mise.jdx.dev).
