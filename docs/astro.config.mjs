@@ -27,6 +27,16 @@ export default defineConfig({
           items: [{ slug: "getting-started/installation" }, { slug: "getting-started/quick-start" }],
         },
         {
+          label: "Concepts",
+          items: [
+            { slug: "concepts/seed-and-recipe" },
+            { slug: "concepts/pins" },
+            { slug: "concepts/taste-bounds" },
+            { slug: "concepts/still-and-loop" },
+            { slug: "concepts/reproducing-the-look" },
+          ],
+        },
+        {
           label: "CLI Reference",
           items: [
             { slug: "cli-reference/tirage" },
