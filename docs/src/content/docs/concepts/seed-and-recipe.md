@@ -64,14 +64,10 @@ Seed 42 deals kiosk. Pin sonar with `--tool sonar` and the same Seed gives the R
 
 ## What stays fixed
 
-Seed to Recipe is stable within a derivation major. The major is the `tirage` field of the JSON, and `tirage --version` prints it after the version:
+Seed to Recipe is stable within a derivation major. The major is the `tirage` field of the JSON. `tirage --version` prints the crate version and then the derivation major in brackets:
 
 ```sh
 tirage --version
-```
-
-```
-tirage 0.0.0 (derivation major 0)
 ```
 
 Any change that would hand some Seed a different Recipe bumps the major. A build refuses a Recipe written under another major and asks you to derive it again from its Seed. Until 1.0 the major stays at 0 while the derivation settles. From 1.0 on, every change to it bumps the major.
