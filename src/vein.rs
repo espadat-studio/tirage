@@ -2,7 +2,9 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up, value_noise};
+use crate::chassis::{
+    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, value_noise,
+};
 use crate::param::Param;
 use crate::surface::{Path2D, Surface};
 use crate::taste::Taste;
@@ -270,21 +272,6 @@ pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> VeinParams {
         tints: pick(&TINTS),
         runs: pick(&RUNS),
         ..VeinParams::default()
-    }
-}
-
-struct XorShift(u32);
-
-impl XorShift {
-    fn new(seed: u32) -> Self {
-        Self(seed.max(1))
-    }
-
-    fn next(&mut self) -> f64 {
-        self.0 ^= self.0 << 13;
-        self.0 ^= self.0 >> 17;
-        self.0 ^= self.0 << 5;
-        f64::from(self.0) / 4_294_967_296.0
     }
 }
 
