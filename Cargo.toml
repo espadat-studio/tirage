@@ -5,6 +5,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
+clap = { version = "4", default-features = false, features = ["std", "derive", "help", "usage", "error-context", "suggestions", "string"], optional = true }
 kurbo = "0.13"
 png = "0.18"
 serde = { version = "1", features = ["derive"] }
@@ -19,3 +20,15 @@ all = { level = "deny", priority = -1 }
 
 [dev-dependencies]
 image = { version = "0.25", default-features = false, features = ["png"] }
+
+[features]
+cli = ["dep:clap"]
+
+[[bin]]
+name = "tirage"
+path = "src/main.rs"
+required-features = ["cli"]
+
+[[test]]
+name = "cli"
+required-features = ["cli"]

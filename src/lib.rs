@@ -11,7 +11,7 @@ pub use derive::{ToolPin, derive};
 pub use error::Error;
 pub use image::Image;
 pub use palette::Palette;
-pub use recipe::{Params, Recipe, Tool};
+pub use recipe::{Parameter, Params, Recipe, Tool};
 pub use render::{Frame, MAX_EDGE, render};
 pub use sonar::SonarParams;
 
