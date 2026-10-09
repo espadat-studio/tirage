@@ -29,6 +29,7 @@ registry::tools! {
     Whorl: whorl::{WhorlParams, WhorlWarp},
     Sear: sear::{SearParams},
     Culture: culture::{CultureParams, CultureTexture},
+    Bloom: bloom::{BloomParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
