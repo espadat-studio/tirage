@@ -27,7 +27,15 @@ impl Tool {
     }
 
     pub fn frames(self) -> u32 {
-        1
+        match self {
+            Self::Sonar => sonar::FRAMES,
+        }
+    }
+
+    pub fn fps(self) -> u32 {
+        match self {
+            Self::Sonar => sonar::FPS,
+        }
     }
 }
 

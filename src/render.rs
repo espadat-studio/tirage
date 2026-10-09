@@ -44,6 +44,7 @@ pub fn render(recipe: &Recipe, frame: &Frame) -> Image {
             params,
             recipe.palette(),
             recipe.tool_seed().get(),
+            frame.t,
         ),
     }
     surface.into_image()
