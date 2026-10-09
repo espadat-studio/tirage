@@ -238,10 +238,7 @@ fn version_names_the_derivation_major() {
     assert_eq!(out.status.code(), Some(0));
     assert_eq!(
         text(&out.stdout),
-        format!(
-            "tirage {} (derivation major 0)\n",
-            env!("CARGO_PKG_VERSION")
-        )
+        format!("tirage {} (derivation major 0)\n", tirage::VERSION)
     );
     assert_eq!(tirage(&["-V"], b"").status.code(), Some(2));
 }
@@ -964,7 +961,8 @@ fn flags_on_page(page: &str) -> BTreeSet<String> {
 
 #[test]
 fn docs_pages_list_every_flag_in_help_and_no_other() {
-    let pages = Path::new(env!("CARGO_MANIFEST_DIR")).join("docs/src/content/docs/cli-reference");
+    let pages =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../docs/src/content/docs/cli-reference");
     let commands: [(&str, &[&str]); 5] = [
         ("tirage", &["--help"]),
         ("derive", &["derive", "--help"]),
@@ -983,7 +981,7 @@ fn docs_pages_list_every_flag_in_help_and_no_other() {
 
 #[test]
 fn every_shell_example_on_the_concepts_pages_runs() {
-    let concepts = Path::new(env!("CARGO_MANIFEST_DIR")).join("docs/src/content/docs/concepts");
+    let concepts = Path::new(env!("CARGO_MANIFEST_DIR")).join("../docs/src/content/docs/concepts");
     let path = format!(
         "{}:{}",
         Path::new(BIN).parent().unwrap().display(),

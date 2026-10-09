@@ -743,9 +743,6 @@ dependencies = [
 name = "tirage"
 version = "0.1.1"
 dependencies = [
- "clap",
- "clap_complete",
- "dialoguer",
  "image",
  "kurbo",
  "png",
@@ -753,6 +750,19 @@ dependencies = [
  "serde_json",
  "skrifa",
  "tiny-skia",
+]
+
+[[package]]
+name = "tirage-cli"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "clap_complete",
+ "dialoguer",
+ "image",
+ "serde",
+ "serde_json",
+ "tirage",
 ]
 
 [[package]]
