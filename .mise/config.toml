@@ -31,7 +31,7 @@ run = "hk check --all"
 alias = "t"
 description = "Run all tests"
 depends = ["refs:install"]
-run = ["cargo nextest run --locked --all-features --no-tests=pass", "bun test --cwd refs"]
+run = ["cargo nextest run --locked --workspace --all-features --no-tests=pass", "bun test --cwd refs"]
 
 [tasks.wasm]
 alias = "w"
