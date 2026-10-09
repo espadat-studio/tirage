@@ -49,36 +49,22 @@ fn keyed_hash(seed: u64, key: &[&str]) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::{derive, keyed_hash};
-    use crate::param::Param;
     use crate::{Taste, Tool, ToolPin};
 
     #[test]
-    fn adding_a_parameter_leaves_other_draws_unchanged() {
-        let added = Param::new("sonar", "added", 0, 100, 100);
-        let shipped: Vec<&Param> = Tool::Sonar.params().iter().collect();
-        let mut params = shipped.clone();
-        params.insert(2, &added);
+    fn each_parameter_draw_hangs_only_on_its_own_key() {
         let taste = Taste::shipped(Tool::Sonar);
         for seed in 0..200 {
-            let draws = |params: &[&Param]| -> Vec<(&str, f64)> {
-                params
-                    .iter()
-                    .filter(|param| param.id != "added")
-                    .map(|param| {
-                        let draw = keyed_hash(seed, &["sonar", param.id]);
-                        (param.id, param.deal(taste.ticks(param), draw))
-                    })
-                    .collect()
-            };
             let json: serde_json::Value =
                 serde_json::from_str(&derive(seed, ToolPin::Tool(Tool::Sonar)).to_json()).unwrap();
-            let shipped = draws(&shipped);
-            assert_eq!(draws(&params), shipped, "seed {seed}");
-            for (id, value) in shipped {
+            for param in Tool::Sonar.params() {
+                let draw = keyed_hash(seed, &["sonar", param.id]);
+                let value = param.deal(taste.bounds(param), draw);
                 assert_eq!(
-                    json["params"][id].as_f64(),
+                    json["params"][param.id].as_f64(),
                     Some(value),
-                    "seed {seed}: {id}"
+                    "seed {seed}: {}",
+                    param.id
                 );
             }
         }

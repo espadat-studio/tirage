@@ -23,14 +23,10 @@ impl Taste {
         let mut taste = Self::shipped(tool);
         for (id, [low, high]) in bounds {
             let id = id.as_ref();
-            let slot = tool
-                .params()
-                .iter()
-                .position(|param| param.id == id)
-                .ok_or_else(|| Error::UnknownParameter {
-                    tool,
-                    param: id.to_owned(),
-                })?;
+            let slot = slot(tool, id).ok_or_else(|| Error::UnknownParameter {
+                tool,
+                param: id.to_owned(),
+            })?;
             let param = &tool.params()[slot];
             let ticks = (param.ticks(*low)?, param.ticks(*high)?);
             if ticks.0 > ticks.1 {
@@ -63,13 +59,11 @@ impl Taste {
         }
     }
 
-    pub(crate) fn ticks(&self, param: &Param) -> (u32, u32) {
-        let slot = self
-            .tool
-            .params()
-            .iter()
-            .position(|known| known.id == param.id)
-            .expect("a Tool deals only its own Parameters");
-        self.ticks[slot]
+    pub(crate) fn bounds(&self, param: &Param) -> (u32, u32) {
+        self.ticks[slot(self.tool, param.id).expect("a Tool deals only its own Parameters")]
     }
+}
+
+fn slot(tool: Tool, id: &str) -> Option<usize> {
+    tool.params().iter().position(|param| param.id == id)
 }

@@ -210,7 +210,7 @@ pub(crate) fn palette() -> Palette {
 }
 
 pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> SonarParams {
-    let pick = |param: &Param| param.deal(taste.ticks(param), draw(param.id));
+    let pick = |param: &Param| param.deal(taste.bounds(param), draw(param.id));
     SonarParams {
         level: pick(&LEVEL),
         scale: pick(&SCALE),

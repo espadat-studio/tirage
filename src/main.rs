@@ -56,7 +56,7 @@ enum Command {
         seed: u64,
         #[arg(long, value_name = "SLUG", value_parser = Tool::from_slug, help = "Tool to pin, see 'tirage tools'. Dealt from the Seed when left out")]
         tool: Option<Tool>,
-        #[arg(long, value_name = "FILE", value_parser = parse_taste, conflicts_with = "tool", help = "Taste JSON overriding Parameter bounds, pins its Tool")]
+        #[arg(long, value_name = "FILE", value_parser = parse_taste, conflicts_with = "tool", help = "Taste bounds JSON to deal Parameters from, pins its Tool")]
         taste: Option<Taste>,
         #[arg(long, value_name = "INKS", value_parser = parse_palette, help = "Palette to pin, as comma-separated #rrggbb inks")]
         palette: Option<Palette>,
