@@ -18,7 +18,7 @@ Site control ids, slider ranges and site defaults:
 | `fringe` | 0..1    | 0.01 | 0.45    | width of the coastal band                      |
 | `spark`  | 0..1    | 0.01 | 0.6     | how many specks the band carries               |
 
-Motion (`modes`, `amt`, `fps`, `frames`), grain and dither are off by default and not part of a Still. Default Palette: `#0a0f1c #3ddc97 #4361ee #ffd166 #ef476f #f1faee`.
+Motion (`modes`, `amt`, `fps`, `frames`), grain and dither are off by default and not part of a Still. Taste bounds keep them at site defaults, so none of them is a Recipe Parameter. Default Palette: `#0a0f1c #3ddc97 #4361ee #ffd166 #ef476f #f1faee`.
 
 Inks go by position, wrapping when the Palette is short: ink 0 is the water, ink 1 the land, inks 2 and 3 the two speck colours. Inks past the fourth are unused.
 
@@ -57,7 +57,20 @@ The whole frame is filled with ink 0 first. Then cells are visited row by row, l
 
 Every dot is a square centred in its cell. Its corner is rounded to a whole pixel on each axis, and its side is rounded with a minimum of 1 px. Both cell edges use the cell width for the side, so dots stay square even when cells are not. Rounding goes half up, as JavaScript's `Math.round` does.
 
+## Motion
+
+The site has one motion mode, Tide. The land keeps its shape and the water level rises and falls, so the coast moves in and out.
+
+- Site defaults: amount 0.6, 24 frames at 10 fps. These are sonar's Loop.
+- Frame `f` sits at `T = f / frames` through the Loop.
+- The number of tide cycles per Loop is `max(1, round(2 * amount))`, so 1 at the default.
+- The offset is `sin(2π * cycles * T) * 0.1 * min(1.6, amount)`, so ±0.06 at the default.
+- The offset is added to the cut level after the clamp to 0.05..0.95, not before.
+- A whole number of cycles brings the level back to its start, so the last frame leads into the first. At `f = 0` the offset is exactly 0, so frame 0 is the Still.
+- The band, the hashes and the Tool seed do not change with `f`.
+
 ## Fidelity notes
 
 - Dots are whole-pixel axis-aligned rects with no anti-aliasing. The Still uses no trigonometry, only integer hashing and float arithmetic, so a port can match the export byte for byte.
+- Loop frames past 0 call `sin`. Rust's and V8's `sin` may differ in the last bit, which can flip a rare cell that sits exactly on the cut.
 - The site's "My colors" fills a 6-swatch Tool from a shorter set with derived tints. Reference exports therefore use a 6-ink Palette, so the site's swatches equal the Recipe's Palette.
