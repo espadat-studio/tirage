@@ -22,6 +22,11 @@ pub enum Error {
     },
     Ink(String),
     FewInks(usize),
+    TooManyInks {
+        tool: Tool,
+        inks: usize,
+        max: usize,
+    },
     OffStep {
         scope: &'static str,
         param: &'static str,
@@ -65,6 +70,13 @@ impl fmt::Display for Error {
             Self::FrameTime { t, frames } => write!(f, "frame {t} is outside 0..{frames}"),
             Self::Ink(ink) => write!(f, "palette: {ink:?} is not a #rrggbb colour"),
             Self::FewInks(n) => write!(f, "palette: needs at least 2 inks, got {n}"),
+            Self::TooManyInks { tool, inks, max } => {
+                let slug = tool.slug();
+                write!(
+                    f,
+                    "{slug}: palette has {inks} inks, {slug} draws at most {max}"
+                )
+            }
             Self::Major(found) => write!(
                 f,
                 "Recipe is tirage major {found}, this build reads major {DERIVATION_MAJOR}"

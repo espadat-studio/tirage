@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 use crate::param::Param;
 use crate::unique_keys;
 use crate::{
-    DERIVATION_MAJOR, Error, HuskParams, Palette, SonarParams, VeinParams, husk, sonar, vein,
+    AuraParams, DERIVATION_MAJOR, Error, HuskParams, Palette, SonarParams, VeinParams, aura, husk,
+    sonar, vein,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -13,16 +14,18 @@ pub enum Tool {
     Sonar,
     Husk,
     Vein,
+    Aura,
 }
 
 impl Tool {
-    pub const ALL: &[Tool] = &[Tool::Sonar, Tool::Husk, Tool::Vein];
+    pub const ALL: &[Tool] = &[Tool::Sonar, Tool::Husk, Tool::Vein, Tool::Aura];
 
     pub fn slug(self) -> &'static str {
         match self {
             Self::Sonar => sonar::SLUG,
             Self::Husk => husk::SLUG,
             Self::Vein => vein::SLUG,
+            Self::Aura => aura::SLUG,
         }
     }
 
@@ -39,6 +42,7 @@ impl Tool {
             Self::Sonar => sonar::FRAMES,
             Self::Husk => husk::FRAMES,
             Self::Vein => vein::FRAMES,
+            Self::Aura => aura::FRAMES,
         }
     }
 
@@ -47,6 +51,7 @@ impl Tool {
             Self::Sonar => sonar::FPS,
             Self::Husk => husk::FPS,
             Self::Vein => vein::FPS,
+            Self::Aura => aura::FPS,
         }
     }
 
@@ -55,6 +60,7 @@ impl Tool {
             Self::Sonar => sonar::parameters(),
             Self::Husk => husk::parameters(),
             Self::Vein => vein::parameters(),
+            Self::Aura => aura::parameters(),
         }
     }
 
@@ -63,6 +69,7 @@ impl Tool {
             Self::Sonar => sonar::PARAMS,
             Self::Husk => husk::PARAMS,
             Self::Vein => vein::PARAMS,
+            Self::Aura => aura::PARAMS,
         }
     }
 }
@@ -105,6 +112,7 @@ pub enum Params {
     Sonar(SonarParams),
     Husk(HuskParams),
     Vein(VeinParams),
+    Aura(AuraParams),
 }
 
 impl Params {
@@ -113,6 +121,7 @@ impl Params {
             Self::Sonar(_) => Tool::Sonar,
             Self::Husk(_) => Tool::Husk,
             Self::Vein(_) => Tool::Vein,
+            Self::Aura(_) => Tool::Aura,
         }
     }
 }
@@ -158,12 +167,13 @@ fn unique_params<'de, D: serde::Deserializer<'de>>(
 }
 
 impl Recipe {
-    pub fn new(tool_seed: NonZeroU32, palette: Palette, params: Params) -> Self {
-        Self {
+    pub fn new(tool_seed: NonZeroU32, palette: Palette, params: Params) -> Result<Self, Error> {
+        let palette = fit(params.tool(), palette)?;
+        Ok(Self {
             tool_seed,
             palette,
             params,
-        }
+        })
     }
 
     pub fn tool(&self) -> Tool {
@@ -182,8 +192,9 @@ impl Recipe {
         &self.palette
     }
 
-    pub fn set_palette(&mut self, palette: Palette) {
-        self.palette = palette;
+    pub fn set_palette(&mut self, palette: Palette) -> Result<(), Error> {
+        self.palette = fit(self.tool(), palette)?;
+        Ok(())
     }
 
     pub fn params(&self) -> &Params {
@@ -215,13 +226,25 @@ impl Recipe {
             Tool::Sonar => Params::Sonar(sonar::from_json(wire.params)?),
             Tool::Husk => Params::Husk(husk::from_json(wire.params)?),
             Tool::Vein => Params::Vein(vein::from_json(wire.params)?),
+            Tool::Aura => Params::Aura(aura::from_json(wire.params)?),
         };
-        Ok(Self {
-            tool_seed: wire.tool_seed,
-            palette: Palette::from_hex(&wire.palette)?,
-            params,
-        })
+        Self::new(wire.tool_seed, Palette::from_hex(&wire.palette)?, params)
     }
+}
+
+fn fit(tool: Tool, palette: Palette) -> Result<Palette, Error> {
+    let max = match tool {
+        Tool::Aura => aura::INKS,
+        Tool::Sonar | Tool::Husk | Tool::Vein => return Ok(palette),
+    };
+    if palette.len() > max {
+        return Err(Error::TooManyInks {
+            tool,
+            inks: palette.len(),
+            max,
+        });
+    }
+    Ok(palette)
 }
 
 fn json_error(error: serde_json::Error) -> Error {

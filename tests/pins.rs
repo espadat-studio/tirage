@@ -31,7 +31,7 @@ fn pinning_the_palette_to_its_dealt_value_changes_nothing() {
     for seed in 0..500 {
         let dealt = derive(seed, SONAR);
         let mut pinned = derive(seed, SONAR);
-        pinned.set_palette(dealt.palette().clone());
+        pinned.set_palette(dealt.palette().clone()).unwrap();
         assert_eq!(pinned, dealt, "seed {seed}");
     }
 }
@@ -41,7 +41,7 @@ fn a_palette_pin_leaves_every_other_field_unchanged() {
     let dealt = derive(9, SONAR);
     let inks = Palette::from_hex(&["#000000", "#ffffff"]).unwrap();
     let mut pinned = derive(9, SONAR);
-    pinned.set_palette(inks.clone());
+    pinned.set_palette(inks.clone()).unwrap();
     assert_eq!(pinned.palette(), &inks);
     assert_eq!(
         (pinned.tool(), pinned.tool_seed(), pinned.params()),
@@ -145,7 +145,7 @@ fn taste_json_errors_are_human() {
         ),
         (
             r#"{"tool":"vien"}"#,
-            r#"unknown tool "vien", expected one of sonar, husk, vein"#,
+            r#"unknown tool "vien", expected one of sonar, husk, vein, aura"#,
         ),
         (
             r#"{"tool":"sonar","level":[0,1.4]}"#,

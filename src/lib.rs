@@ -1,3 +1,4 @@
+mod aura;
 mod chassis;
 mod derive;
 mod error;
@@ -13,6 +14,7 @@ mod taste;
 mod unique_keys;
 mod vein;
 
+pub use aura::{AuraParams, AuraStyle};
 pub use chassis::{Blend, Dither, DitherKind, Grain};
 pub use derive::{ToolPin, derive};
 pub use error::Error;

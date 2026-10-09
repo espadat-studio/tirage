@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use crate::{Params, Recipe, Taste, Tool, husk, sonar, vein};
+use crate::{Params, Recipe, Taste, Tool, aura, husk, sonar, vein};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ToolPin {
@@ -24,6 +24,7 @@ pub fn derive(seed: u64, pin: ToolPin) -> Recipe {
         Tool::Sonar => (sonar::palette(), Params::Sonar(sonar::deal(draw, &taste))),
         Tool::Husk => (husk::palette(), Params::Husk(husk::deal(draw, &taste))),
         Tool::Vein => (vein::palette(), Params::Vein(vein::deal(draw, &taste))),
+        Tool::Aura => (aura::palette(), Params::Aura(aura::deal(draw, &taste))),
     };
     let tool_seed = (keyed_hash(seed, &["tool_seed"]) >> 32) as u32;
     Recipe::new(
@@ -31,6 +32,7 @@ pub fn derive(seed: u64, pin: ToolPin) -> Recipe {
         palette,
         params,
     )
+    .expect("a Tool's default Palette fits it")
 }
 
 fn keyed_hash(seed: u64, key: &[&str]) -> u64 {
@@ -55,19 +57,22 @@ mod tests {
 
     #[test]
     fn each_parameter_draw_hangs_only_on_its_own_key() {
-        let taste = Taste::shipped(Tool::Sonar);
-        for seed in 0..200 {
-            let json: serde_json::Value =
-                serde_json::from_str(&derive(seed, ToolPin::Tool(Tool::Sonar)).to_json()).unwrap();
-            for param in Tool::Sonar.params() {
-                let draw = keyed_hash(seed, &["sonar", param.id]);
-                let value = param.deal(taste.bounds(param), draw);
-                assert_eq!(
-                    json["params"][param.id].as_f64(),
-                    Some(value),
-                    "seed {seed}: {}",
-                    param.id
-                );
+        for &tool in Tool::ALL {
+            let taste = Taste::shipped(tool);
+            for seed in 0..200 {
+                let json: serde_json::Value =
+                    serde_json::from_str(&derive(seed, ToolPin::Tool(tool)).to_json()).unwrap();
+                for param in tool.params() {
+                    let draw = keyed_hash(seed, &[tool.slug(), param.id]);
+                    let value = param.deal(taste.bounds(param), draw);
+                    assert_eq!(
+                        json["params"][param.id].as_f64(),
+                        Some(value),
+                        "{} seed {seed}: {}",
+                        tool.slug(),
+                        param.id
+                    );
+                }
             }
         }
     }
