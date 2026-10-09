@@ -23,6 +23,6 @@ They are not covered by any licence tirage grants, now or later. They will be re
 
 `mise run refs [--update] [tool...]`. It is hand-run and never runs in CI. It fails when a live page hash differs from the manifest, unless `--update` is passed.
 
-A fixture without `frame` is exported with motion off. A fixture with `frame` is exported with motion on and the timeline pinned to that frame, so a Loop Tool's Still is `frame: 0`.
+A fixture without `frame` is exported with motion off. A fixture with `frame` is exported with motion on and the timeline pinned to that frame. A Loop Tool's Still fixture has no `frame`, and its frame 0 must render the same pixels.
 
 A Tool may set `"threshold": {"max": <share>, "reason": "<why>"}` to tighten the 1.6% fidelity ceiling. It can never loosen it, and the reason is required.

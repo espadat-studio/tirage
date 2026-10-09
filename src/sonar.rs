@@ -232,9 +232,8 @@ pub(crate) fn paint(
     let cell_height = height / f64::from(rows);
     let aspect = width / height;
     let scale = params.scale.max(0.5);
-    let cycles = round_half_up(AMOUNT * 2.0).max(1.0);
     let phase = f64::from(t) / f64::from(FRAMES);
-    let tide = (phase * std::f64::consts::TAU * cycles).sin() * 0.1 * AMOUNT.min(1.6);
+    let tide = (phase * std::f64::consts::TAU).sin() * 0.1 * AMOUNT;
     let level = (params.level * 0.7 + 0.15).clamp(0.05, 0.95) + tide;
     let band = 0.012 + params.fringe * 0.07;
 

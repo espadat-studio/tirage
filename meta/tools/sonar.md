@@ -18,7 +18,7 @@ Site control ids, slider ranges and site defaults:
 | `fringe` | 0..1    | 0.01 | 0.45    | width of the coastal band                      |
 | `spark`  | 0..1    | 0.01 | 0.6     | how many specks the band carries               |
 
-Motion (`modes`, `amt`, `fps`, `frames`), grain and dither are off by default and not part of a Still. Taste bounds keep them at site defaults, so none of them is a Recipe Parameter. Default Palette: `#0a0f1c #3ddc97 #4361ee #ffd166 #ef476f #f1faee`.
+Motion (`modes`, `amt`, `fps`, `frames`), grain and dither are off by default and not part of a Still. Motion stays fixed at site defaults and is not a Parameter. Default Palette: `#0a0f1c #3ddc97 #4361ee #ffd166 #ef476f #f1faee`.
 
 Inks go by position, wrapping when the Palette is short: ink 0 is the water, ink 1 the land, inks 2 and 3 the two speck colours. Inks past the fourth are unused.
 
