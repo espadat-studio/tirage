@@ -12,7 +12,7 @@ How a port session picks a Tool's Taste bounds before the Tool is ported. The or
 
 `mise run taste <slug> --bounds <file>` renders 24 draws inside candidate bounds, `{"tool": "<slug>", "<id>": [min, max], …}`, for a second round. A slider left out keeps its full range. A run keeps the other round's tiles on the sheet.
 
-Tiles are 270x480 PNGs. `data.js` lists each tile's file, tool seed and slider values; read it and the tiles instead of the page. Art sliders are the range inputs outside the motion, dither, grain and export panels. Pickers and toggles stay at site defaults.
+Tiles are 270x480 PNGs. `data.js` lists each tile's file, tool seed and slider values; read it and the tiles instead of the page. Art sliders are the range inputs outside the motion, dither, grain and export panels. A Tool's own slider named `grain` or `dither` is grain, not art, and stays at its site default like the chassis passes. Pickers and toggles stay at site defaults.
 
 It drives the live site and refuses to run in CI, like `refs`.
 

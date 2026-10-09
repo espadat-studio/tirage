@@ -8,7 +8,7 @@
             "tirage": 0,
             "tool": "sonar",
             "tool_seed": 4242,
-            "palette": ["#000000", "#ffffff"],
+            "palette": ["#000000", "#ffffff", "#4361ee", "#ffd166", "#ef476f", "#f1faee"],
             "params": { "level": 0.5, "grid": 200, "modes": "Tide", "grainTog": true }
           }
         },
@@ -19,7 +19,7 @@
             "tirage": 0,
             "tool": "sonar",
             "tool_seed": 4242,
-            "palette": ["#000000", "#ffffff"],
+            "palette": ["#000000", "#ffffff", "#4361ee", "#ffd166", "#ef476f", "#f1faee"],
             "params": { "level": 0.5, "grid": 200, "modes": "Tide", "grainTog": true }
           }
         }
