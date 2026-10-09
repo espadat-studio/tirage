@@ -26,6 +26,7 @@ registry::tools! {
     Mosh: mosh::{MoshParams},
     Mist: mist::{MistParams},
     Coral: coral::{CoralParams},
+    Whorl: whorl::{WhorlParams, WhorlWarp},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
