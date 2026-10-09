@@ -24,7 +24,7 @@ tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
 
 ## Options
 
-These work on every command.
+`-h`, `--help`, `--no-color` and `--no-input` work on every command. `--version` only works on `tirage` itself.
 
 | Option       | Does                                                                         |
 | ------------ | ---------------------------------------------------------------------------- |

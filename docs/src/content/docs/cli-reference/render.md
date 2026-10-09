@@ -16,21 +16,17 @@ Reads a Recipe and writes one frame of its Visual as a PNG. A Still has one fram
 
 ## Options
 
-| Option           | Value                                          | Without it                                                                                                                                                  |
-| ---------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--size <W>x<H>` | Frame size in pixels, each edge from 1 to 8192 | Prompted on a terminal with a pick of 1080x1920 story, 1080x1350 portrait, 1080x1080 square, 1920x1080 landscape, or a custom size                          |
-| `--frame <T>`    | A frame of a Loop, counted from 0              | Frame 0, the Still                                                                                                                                          |
-| `-o <FILE>`      | PNG to write, or `-` for stdout                | Prompted on a terminal, with `<tool>-<seed>.png` as default when render derived the Recipe itself and `out.png` otherwise. Asks before it overwrites a file |
+| Option           | Value                                          | Without it                                                                                                                                                                                                    |
+| ---------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--size <W>x<H>` | Frame size in pixels, each edge from 1 to 8192 | Prompted on a terminal with a pick of 1080x1920 story, 1080x1350 portrait, 1080x1080 square, 1920x1080 landscape, or a custom size                                                                            |
+| `--frame <T>`    | A frame of a Loop, counted from 0              | Frame 0, the Still                                                                                                                                                                                            |
+| `-o <FILE>`      | PNG to write, or `-` for stdout                | Prompted on a terminal, with `<tool>-<seed>.png` as default when render derived the Recipe itself and `out.png` otherwise. The prompt asks before overwriting. An explicit path is overwritten without asking |
 
 `-h`, `--help`, `--no-color` and `--no-input` work here as on every command. See [tirage](/cli-reference/tirage/).
 
 ## Input
 
-render takes a Recipe three ways:
-
-- A path: `tirage render recipe.json`.
-- stdin: `tirage derive --seed 42 | tirage render`. This is the usual pipeline.
-- Prompts: `tirage render` alone on a terminal asks for a Seed, with a random one as default, then for a Tool, with "deal from Seed" first in the list.
+render takes a Recipe from a path, as in `tirage render recipe.json`, or from stdin, as in `tirage derive --seed 42 | tirage render`, which is the usual pipeline. Alone on a terminal it asks for a Seed, with a random one as default, then for a Tool, with "deal from Seed" first in the list.
 
 When render derived the Recipe by prompts, it prints the whole pipeline on stderr so you can rerun it without the prompts:
 

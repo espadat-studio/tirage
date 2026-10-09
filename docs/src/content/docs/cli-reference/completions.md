@@ -4,7 +4,7 @@ description: "Print a shell completion script."
 ---
 
 ```sh
-tirage completions <SHELL>
+tirage completions [OPTIONS] <SHELL>
 ```
 
 Prints a completion script for `SHELL` on stdout. Save it where your shell loads completions from, and the Tab key completes commands, aliases, options and Tool slugs.

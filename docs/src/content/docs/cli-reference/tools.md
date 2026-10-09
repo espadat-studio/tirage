@@ -9,7 +9,7 @@ tirage t
 tirage ls
 ```
 
-Lists every Tool with its frame count and its Parameters. For each Parameter it prints the id, then the range and step of a slider, `on/off` for a toggle, or the choices of a picker. The slugs are what [derive](/cli-reference/derive/) pins a Tool by, and the ids are what a Taste bounds file names.
+Lists every Tool with its frame count and its Parameters. For each Parameter it prints the id, then the range and step of a slider, `on/off` for a toggle, or the values a choice can take. The slugs are what [derive](/cli-reference/derive/) Pins a Tool by, and the ids are what a Taste bounds file names.
 
 ## Options
 

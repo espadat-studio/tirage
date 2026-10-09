@@ -18,14 +18,14 @@ The same Seed with the same Pins gives the same Recipe, for as long as the deriv
 | ------------------ | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | `--seed <N>`       | An integer from 0 to 18446744073709551615                                                      | Prompted on a terminal, with a random Seed as default |
 | `--tool <SLUG>`    | `sonar`, `husk`, `vein`, `aura`, `kiosk` or `frond`                                            | The Seed deals the Tool                               |
-| `--taste <FILE>`   | Path to a Taste bounds JSON file. It pins the Tool named inside, so it conflicts with `--tool` | Each Parameter draws from its shipped Taste bounds    |
+| `--taste <FILE>`   | Path to a Taste bounds JSON file. It Pins the Tool named inside, so it conflicts with `--tool` | Each Parameter draws from its shipped Taste bounds    |
 | `--palette <INKS>` | Two or more `#rrggbb` inks, comma separated                                                    | The Tool's own Palette                                |
 
 `-h`, `--help`, `--no-color` and `--no-input` work here as on every command. See [tirage](/cli-reference/tirage/).
 
 ## Seed
 
-Without `--seed` on a terminal, derive asks for one and offers a random Seed as default. Once it has the Seed, it prints the full command on stderr so you can rerun it or paste it somewhere:
+Without `--seed` on a terminal, derive asks for one and offers a random Seed as default. Once it has the Seed, it prints the full command on stderr so you can rerun it:
 
 ```
 → tirage derive --tool sonar --seed 1234
@@ -53,7 +53,7 @@ Parameters you leave out keep their shipped bounds. Only slider Parameters take 
 
 ## Palette
 
-`--palette` pins the inks a Tool paints with. Pass two or more `#rrggbb` colours separated by commas. aura draws at most 4 inks, the other Tools take any number. Uppercase hex is accepted and printed lowercase.
+`--palette` Pins the inks a Tool paints with. Pass two or more `#rrggbb` colours separated by commas. aura draws at most 4 inks, the other Tools take any number. Uppercase hex is accepted and printed lowercase.
 
 ```sh
 tirage derive --seed 42 --tool sonar --palette '#000000,#ffffff'
@@ -63,7 +63,7 @@ Quote the value, since `#` starts a comment in most shells.
 
 ## Output
 
-One line of JSON, ending in a newline. Pretty printed, the Recipe for Seed 42 pinned to sonar reads:
+One line of JSON, ending in a newline. Pretty printed, the Recipe for Seed 42 Pinned to sonar reads:
 
 ```json
 {
@@ -106,11 +106,11 @@ Editing the file is how you Pin anything derive has no flag for. Change a value 
 
 ## Exit codes
 
-| Code | When                                                                                                                           |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `0`  | A Recipe was printed                                                                                                           |
-| `1`  | The Taste bounds file could not be read                                                                                        |
-| `2`  | A bad value: an unknown Tool, a malformed ink, too many inks for the Tool, a bound off its slider, or no Seed with prompts off |
+| Code | When                                                                                                                                                                       |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0`  | A Recipe was printed                                                                                                                                                       |
+| `1`  | The Taste bounds file could not be read                                                                                                                                    |
+| `2`  | A bad value: an unknown Tool, a malformed ink, too many inks for the Tool, a Taste bounds file that is not valid JSON, a bound off its slider, or no Seed with prompts off |
 
 ## Examples
 
