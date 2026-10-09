@@ -133,7 +133,14 @@ fn a_frame_wider_than_the_buffer_is_scaled_up_smooth() {
 fn aura_is_appended_to_the_registry() {
     assert_eq!(
         Tool::ALL,
-        &[Tool::Sonar, Tool::Husk, Tool::Vein, Tool::Aura, Tool::Kiosk]
+        &[
+            Tool::Sonar,
+            Tool::Husk,
+            Tool::Vein,
+            Tool::Aura,
+            Tool::Kiosk,
+            Tool::Frond
+        ]
     );
     assert_eq!(Tool::from_slug("aura").unwrap(), Tool::Aura);
 }
