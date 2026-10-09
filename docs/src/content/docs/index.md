@@ -21,3 +21,5 @@ tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
 ```
 
 `derive` prints the Recipe for Seed 42, with the Tool pinned to sonar, as JSON. `render` reads it and writes a 1080x1920 PNG. `tirage tools` lists every Tool. The [CLI Reference](/cli-reference/tirage/) covers every command and flag.
+
+[Quick Start](/getting-started/quick-start/) goes on from here to a Loop and its MP4.

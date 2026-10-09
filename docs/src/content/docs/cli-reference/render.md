@@ -61,5 +61,5 @@ Any size from 1x1 to 8192x8192 pixels. The prompt offers the four common social 
 ```sh
 tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
 tirage render recipe.json --size 540x960 -o - > still.png
-tirage render recipe.json --size 540x960 --frame 12 -o frame-12.png
+tirage render recipe.json --size 540x960 --frame 6 -o frame-6.png
 ```

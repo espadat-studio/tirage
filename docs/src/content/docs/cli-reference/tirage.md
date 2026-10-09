@@ -54,7 +54,7 @@ Errors and hints are coloured when stderr is a terminal. `--no-color`, a non-emp
 
 ```
 $ tirage --version
-tirage 0.0.0 (derivation major 0)
+tirage 0.1.0 (derivation major 0)
 ```
 
 The derivation major is the version of the Seed to Recipe mapping. A Recipe records the major it came from in its `tirage` field, and a build reads only Recipes of its own major. A Seed gives the same Recipe for as long as the major stays the same. Pixels are not promised across releases.
