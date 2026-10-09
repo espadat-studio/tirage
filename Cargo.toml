@@ -33,7 +33,7 @@ cli = ["dep:clap"]
 
 [[bin]]
 name = "tirage"
-path = "src/main.rs"
+path = "src/bin/tirage/main.rs"
 required-features = ["cli"]
 
 [[test]]
