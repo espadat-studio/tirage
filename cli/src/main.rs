@@ -132,6 +132,27 @@ enum Command {
         )]
         output: Option<PathBuf>,
     },
+    #[cfg(feature = "encode")]
+    #[command(
+        visible_alias = "e",
+        about = "Encode a Loop to an H.264 MP4",
+        before_help = "Examples:\n  tirage derive --seed 42 --tool sonar | tirage encode -o out.mp4\n  tirage encode recipe.json -o - > loop.mp4"
+    )]
+    Encode {
+        #[arg(
+            value_name = "FILE",
+            help = "Recipe JSON, '-' for stdin, derived by prompts on a terminal",
+            long_help = "Recipe JSON, '-' for stdin, which is the default. On a terminal with nothing piped in, prompts for a Seed and a Loop Tool and derives the Recipe"
+        )]
+        input: Option<PathBuf>,
+        #[arg(
+            short,
+            value_name = "FILE",
+            help = "MP4 to write, '-' for stdout, prompted on a terminal",
+            long_help = "MP4 to write, '-' for stdout. Prompted on a terminal with <tool>-<seed>.mp4 or out.mp4 as default, asking before it overwrites a file"
+        )]
+        output: Option<PathBuf>,
+    },
     #[command(
         visible_aliases = ["t", "ls"],
         about = "List Tools with their frame counts and Parameters",
@@ -214,6 +235,13 @@ const CUSTOM_SIZE: Choice = Choice {
 const OUTPUT: Choice = Choice {
     noun: "output path",
     prompt: "PNG to write",
+    resolved_by: "-o FILE, or -o - for stdout",
+};
+
+#[cfg(feature = "encode")]
+const MP4_OUTPUT: Choice = Choice {
+    noun: "output path",
+    prompt: "MP4 to write",
     resolved_by: "-o FILE, or -o - for stdout",
 };
 
@@ -351,7 +379,7 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             let prompt = Prompt::new("render", no_input, stderr_colour());
             let stdio = Path::new("-");
             if output.as_deref() == Some(stdio) && io::stdout().is_terminal() {
-                return Err(refuse_terminal());
+                return Err(refuse_terminal("render", "a PNG"));
             }
             if size.is_none() {
                 prompt.check(&SIZE)?;
@@ -359,51 +387,10 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             if output.is_none() {
                 prompt.check(&OUTPUT)?;
             }
-            let mut pipeline = String::new();
+            let mut tools = vec![None];
+            tools.extend(Tool::ALL.iter().copied().map(Some));
+            let (recipe, seed, pipeline) = read_recipe(input, &prompt, "render", &tools)?;
             let mut flags = String::new();
-            let (recipe, seed) = match input {
-                Some(input) if input != stdio => {
-                    let json =
-                        fs::read_to_string(&input).map_err(|e| Failure::unreadable(&input, &e))?;
-                    (
-                        Recipe::from_json(&json).map_err(|e| Failure::runtime(&e))?,
-                        None,
-                    )
-                }
-                _ if !io::stdin().is_terminal() => {
-                    let json = io::read_to_string(io::stdin())
-                        .map_err(|e| Failure::unreadable(stdio, &e))?;
-                    (
-                        Recipe::from_json(&json).map_err(|e| Failure::runtime(&e))?,
-                        None,
-                    )
-                }
-                _ if prompt.is_interactive() => {
-                    let seed = prompt.ask(&SEED, Some(random_seed()), |_| Ok(()))?;
-                    let mut tools = vec![None];
-                    tools.extend(Tool::ALL.iter().copied().map(Some));
-                    let tool = prompt.select(
-                        &tools,
-                        |tool| tool.map_or("deal from Seed".to_owned(), frames_label),
-                        &TOOL,
-                    )?;
-                    pipeline = format!("tirage derive --seed {seed}");
-                    if let Some(tool) = tool {
-                        pipeline += &format!(" --tool {}", tool.slug());
-                    }
-                    pipeline += " | ";
-                    (
-                        derive(seed, tool.map_or(ToolPin::Any, ToolPin::Tool)),
-                        Some(seed),
-                    )
-                }
-                _ => {
-                    return Err(usage(
-                        "render",
-                        "no Recipe on stdin, pass a FILE or pipe 'tirage derive' into it",
-                    ));
-                }
-            };
             let (width, height) = match size {
                 Some(size) => size,
                 None => {
@@ -435,21 +422,7 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
                         Some(seed) => format!("{}-{seed}.png", recipe.tool().slug()),
                         None => "out.png".to_owned(),
                     };
-                    let output = loop {
-                        let path = PathBuf::from(prompt.ask(
-                            &OUTPUT,
-                            Some(default.clone()),
-                            |_| Ok(()),
-                        )?);
-                        if !path.exists()
-                            || prompt.confirm(
-                                &format!("{} exists, overwrite it?", path.display()),
-                                &OUTPUT,
-                            )?
-                        {
-                            break path;
-                        }
-                    };
+                    let output = prompt_output(&prompt, &OUTPUT, default)?;
                     flags += &format!(" -o {}", quote(&output.to_string_lossy()));
                     output
                 }
@@ -458,18 +431,60 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
                 echo(&format!("{pipeline}{}{flags}", rerun()));
             }
             if output == stdio && io::stdout().is_terminal() {
-                return Err(refuse_terminal());
+                return Err(refuse_terminal("render", "a PNG"));
             }
             let frame =
                 Frame::new(&recipe, width, height, frame).map_err(|e| Failure::runtime(&e))?;
-            let png = render(&recipe, &frame).to_png();
-            if output == stdio {
-                emit(&png)
-            } else {
-                fs::write(&output, png).map_err(|e| {
-                    Failure::Runtime(format!("cannot write {}: {e}", output.display()), None)
-                })
+            write_output(&output, &render(&recipe, &frame).to_png())
+        }
+        #[cfg(feature = "encode")]
+        Command::Encode { input, output } => {
+            let prompt = Prompt::new("encode", no_input, stderr_colour());
+            let stdio = Path::new("-");
+            if output.as_deref() == Some(stdio) && io::stdout().is_terminal() {
+                return Err(refuse_terminal("encode", "an MP4"));
             }
+            if output.is_none() {
+                prompt.check(&MP4_OUTPUT)?;
+            }
+            let loops: Vec<Option<Tool>> = Tool::ALL
+                .iter()
+                .copied()
+                .filter(|tool| tool.frames() > 1)
+                .map(Some)
+                .collect();
+            let (recipe, seed, pipeline) = read_recipe(input, &prompt, "encode", &loops)?;
+            let tool = recipe.tool();
+            if tool.frames() == 1 {
+                return Err(Failure::Runtime(
+                    format!("{} draws a Still, not a Loop", tool.slug()),
+                    Some(
+                        "render it as a PNG with 'tirage render --size 1080x1920 -o out.png'"
+                            .to_owned(),
+                    ),
+                ));
+            }
+            let mut flags = String::new();
+            let output = match output {
+                Some(output) => output,
+                None => {
+                    let default = match seed {
+                        Some(seed) => format!("{}-{seed}.mp4", tool.slug()),
+                        None => "out.mp4".to_owned(),
+                    };
+                    let output = prompt_output(&prompt, &MP4_OUTPUT, default)?;
+                    flags += &format!(" -o {}", quote(&output.to_string_lossy()));
+                    output
+                }
+            };
+            if !pipeline.is_empty() || !flags.is_empty() {
+                echo(&format!("{pipeline}{}{flags}", rerun()));
+            }
+            if output == stdio && io::stdout().is_terminal() {
+                return Err(refuse_terminal("encode", "an MP4"));
+            }
+            let mp4 = tirage_encode::encode(&recipe).map_err(|e| encode_failure(&e))?;
+            write_output(&output, &mp4)
         }
         Command::Tools { json } => {
             if json {
@@ -530,11 +545,82 @@ fn usage(subcommand: &'static str, message: &str) -> Failure {
     Failure::Usage(subcommand, message.to_owned(), None)
 }
 
-fn refuse_terminal() -> Failure {
+fn refuse_terminal(subcommand: &'static str, format: &str) -> Failure {
     usage(
-        "render",
-        "refusing to write a PNG to a terminal, pass -o FILE or pipe stdout",
+        subcommand,
+        &format!("refusing to write {format} to a terminal, pass -o FILE or pipe stdout"),
     )
+}
+
+fn read_recipe(
+    input: Option<PathBuf>,
+    prompt: &Prompt,
+    subcommand: &'static str,
+    tools: &[Option<Tool>],
+) -> Result<(Recipe, Option<u64>, String), Failure> {
+    let stdio = Path::new("-");
+    match input {
+        Some(input) if input != stdio => {
+            let json = fs::read_to_string(&input).map_err(|e| Failure::unreadable(&input, &e))?;
+            let recipe = Recipe::from_json(&json).map_err(|e| Failure::runtime(&e))?;
+            Ok((recipe, None, String::new()))
+        }
+        _ if !io::stdin().is_terminal() => {
+            let json =
+                io::read_to_string(io::stdin()).map_err(|e| Failure::unreadable(stdio, &e))?;
+            let recipe = Recipe::from_json(&json).map_err(|e| Failure::runtime(&e))?;
+            Ok((recipe, None, String::new()))
+        }
+        _ if prompt.is_interactive() => {
+            let seed = prompt.ask(&SEED, Some(random_seed()), |_| Ok(()))?;
+            let tool = prompt.select(
+                tools,
+                |tool| tool.map_or("deal from Seed".to_owned(), frames_label),
+                &TOOL,
+            )?;
+            let mut pipeline = format!("tirage derive --seed {seed}");
+            if let Some(tool) = tool {
+                pipeline += &format!(" --tool {}", tool.slug());
+            }
+            pipeline += " | ";
+            let recipe = derive(seed, tool.map_or(ToolPin::Any, ToolPin::Tool));
+            Ok((recipe, Some(seed), pipeline))
+        }
+        _ => Err(usage(
+            subcommand,
+            "no Recipe on stdin, pass a FILE or pipe 'tirage derive' into it",
+        )),
+    }
+}
+
+fn prompt_output(prompt: &Prompt, choice: &Choice, default: String) -> Result<PathBuf, Failure> {
+    loop {
+        let path = PathBuf::from(prompt.ask(choice, Some(default.clone()), |_| Ok(()))?);
+        if !path.exists()
+            || prompt.confirm(&format!("{} exists, overwrite it?", path.display()), choice)?
+        {
+            return Ok(path);
+        }
+    }
+}
+
+fn write_output(output: &Path, bytes: &[u8]) -> Result<(), Failure> {
+    if output == Path::new("-") {
+        return emit(bytes);
+    }
+    fs::write(output, bytes)
+        .map_err(|e| Failure::Runtime(format!("cannot write {}: {e}", output.display()), None))
+}
+
+#[cfg(feature = "encode")]
+fn encode_failure(error: &tirage_encode::Error) -> Failure {
+    let hint = match error {
+        tirage_encode::Error::OverCap { .. } => {
+            Some("try another Seed, or a Recipe with less detail".to_owned())
+        }
+        _ => None,
+    };
+    Failure::Runtime(error.to_string(), hint)
 }
 
 fn frames_label(tool: Tool) -> String {

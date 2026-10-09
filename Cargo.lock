@@ -763,6 +763,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tirage",
+ "tirage-encode",
 ]
 
 [[package]]
