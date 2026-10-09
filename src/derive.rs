@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use crate::{Params, Recipe, Taste, Tool, aura, husk, sonar, vein};
+use crate::{Params, Recipe, Taste, Tool, aura, husk, kiosk, sonar, vein};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ToolPin {
@@ -25,6 +25,7 @@ pub fn derive(seed: u64, pin: ToolPin) -> Recipe {
         Tool::Husk => (husk::palette(), Params::Husk(husk::deal(draw, &taste))),
         Tool::Vein => (vein::palette(), Params::Vein(vein::deal(draw, &taste))),
         Tool::Aura => (aura::palette(), Params::Aura(aura::deal(draw, &taste))),
+        Tool::Kiosk => (kiosk::palette(), Params::Kiosk(kiosk::deal(draw, &taste))),
     };
     let tool_seed = (keyed_hash(seed, &["tool_seed"]) >> 32) as u32;
     Recipe::new(

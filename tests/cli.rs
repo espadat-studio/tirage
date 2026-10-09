@@ -171,7 +171,7 @@ fn usage_errors_exit_2() {
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(
         text(&out.stderr)
-            .contains(r#"unknown tool "vien", expected one of sonar, husk, vein, aura"#)
+            .contains(r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk"#)
     );
 }
 
@@ -274,10 +274,23 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"churn","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"punch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
+    let kiosk = concat!(
+        r#"{"slug":"kiosk","frames":24,"params":["#,
+        r#"{"id":"split","kind":"range","min":0.15,"max":0.95,"step":0.01},"#,
+        r#"{"id":"rings","kind":"range","min":4.0,"max":40.0,"step":1.0},"#,
+        r#"{"id":"stripes","kind":"range","min":2.0,"max":24.0,"step":1.0},"#,
+        r#"{"id":"sets","kind":"choice","choices":["DOS","Stipple","Blocks","Code","Digits","Runes"]},"#,
+        r#"{"id":"grid","kind":"range","min":4.0,"max":30.0,"step":1.0},"#,
+        r#"{"id":"bigSize","kind":"range","min":0.3,"max":1.6,"step":0.01},"#,
+        r#"{"id":"density","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"smallSize","kind":"range","min":0.1,"max":0.9,"step":0.01},"#,
+        r#"{"id":"small","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"blocks","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }

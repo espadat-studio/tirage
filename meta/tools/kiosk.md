@@ -104,7 +104,7 @@ Rounding elsewhere goes half up, as `Math.round` does.
 Each character is one bold glyph, centred on its point both ways. The font is the bundled DejaVu Sans Mono Bold 2.37, the face Chromium resolves for kiosk's monospace stack when it is the only font installed.
 
 - Across: the glyph's left edge is `x - advance / 2`, with the `hmtx` advance at the drawn size.
-- Down: canvas `middle` puts the baseline at `y + (a - d) / 2`. `a` is `size * typoAscender / (typoAscender - typoDescender)` from the OS/2 table, rounded to 1/64 px. `d` is `round(size) - a`. For DejaVu the typo metrics are 1556 and -492 at 2048 units per em.
+- Down: canvas `middle` puts the baseline at `y + (a - d) / 2`. `a` is `size * typoAscender / (typoAscender - typoDescender)` from the OS/2 table, rounded to 1/64 px. `d` is the size rounded to 1/64 px, minus `a`. For DejaVu the typo metrics are 1556 and -492 at 2048 units per em.
 - Up to 256 px: the outline is hinted by the light autohinter, as FreeType's slight hinting does. The left edge is rounded to 1/4 px and the baseline to a whole pixel, both halves up.
 - Above 256 px: the outline is not hinted, and the position is not rounded.
 - The outline is filled nonzero and anti-aliased, in the glyph's ink.

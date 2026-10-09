@@ -131,7 +131,10 @@ fn a_frame_wider_than_the_buffer_is_scaled_up_smooth() {
 
 #[test]
 fn aura_is_appended_to_the_registry() {
-    assert_eq!(Tool::ALL.last(), Some(&Tool::Aura));
+    assert_eq!(
+        Tool::ALL,
+        &[Tool::Sonar, Tool::Husk, Tool::Vein, Tool::Aura, Tool::Kiosk]
+    );
     assert_eq!(Tool::from_slug("aura").unwrap(), Tool::Aura);
 }
 

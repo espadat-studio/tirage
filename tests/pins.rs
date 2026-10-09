@@ -145,7 +145,7 @@ fn taste_json_errors_are_human() {
         ),
         (
             r#"{"tool":"vien"}"#,
-            r#"unknown tool "vien", expected one of sonar, husk, vein, aura"#,
+            r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk"#,
         ),
         (
             r#"{"tool":"sonar","level":[0,1.4]}"#,
