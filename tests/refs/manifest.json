@@ -719,6 +719,168 @@
       "page_sha256": "39c42be819a9ae8dbce2d5ffe8ec7ce12f7a93b0cc075b8b01e92b0ac1d80609",
       "chromium": "153.0.8010.12",
       "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+    },
+    "aura": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "aura",
+            "tool_seed": 9611518,
+            "palette": [
+              "#ff8a5b",
+              "#ffc15e",
+              "#f4a7d6",
+              "#8e7cff"
+            ],
+            "params": {
+              "styles": "Auto",
+              "scale": 1.2,
+              "churn": 0.63,
+              "punch": 0.79,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "aura",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#ff8a5b",
+              "#ffc15e",
+              "#f4a7d6",
+              "#8e7cff"
+            ],
+            "params": {
+              "styles": "Clouds",
+              "scale": 1.6,
+              "churn": 0.93,
+              "punch": 0.36,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "aura",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#ff8a5b",
+              "#ffc15e",
+              "#f4a7d6",
+              "#8e7cff"
+            ],
+            "params": {
+              "styles": "Auto",
+              "scale": 1.15,
+              "churn": 0.81,
+              "punch": 0.77,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3-mesh",
+          "recipe": {
+            "tirage": 0,
+            "tool": "aura",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#ff8a5b",
+              "#ffc15e",
+              "#f4a7d6",
+              "#8e7cff"
+            ],
+            "params": {
+              "styles": "Mesh",
+              "scale": 1.15,
+              "churn": 0.81,
+              "punch": 0.77,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3-sweep",
+          "recipe": {
+            "tirage": 0,
+            "tool": "aura",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#ff8a5b",
+              "#ffc15e",
+              "#f4a7d6",
+              "#8e7cff"
+            ],
+            "params": {
+              "styles": "Sweep",
+              "scale": 1.15,
+              "churn": 0.81,
+              "punch": 0.77,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "2c3727b12a1e13efe95028d79f069b3b5dc9d96abe2dcb57deae6b49601124dc",
+      "chromium": "153.0.8010.12",
+      "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
     }
   }
 }
