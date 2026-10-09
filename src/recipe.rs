@@ -3,6 +3,7 @@ use std::num::NonZeroU32;
 use serde::{Deserialize, Serialize};
 
 use crate::param::Param;
+use crate::unique_keys;
 use crate::{
     DERIVATION_MAJOR, Error, HuskParams, Palette, SonarParams, VeinParams, husk, sonar, vein,
 };
@@ -145,7 +146,15 @@ struct WireIn {
     tool: String,
     tool_seed: NonZeroU32,
     palette: Vec<String>,
+    #[serde(deserialize_with = "unique_params")]
     params: serde_json::Value,
+}
+
+fn unique_params<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<serde_json::Value, D::Error> {
+    let entries = unique_keys::deserialize(deserializer, "params: ")?;
+    Ok(serde_json::Value::Object(entries.into_iter().collect()))
 }
 
 impl Recipe {

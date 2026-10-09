@@ -183,6 +183,17 @@ fn recipe_json_errors_are_human() {
 }
 
 #[test]
+fn recipe_params_reject_a_repeated_parameter() {
+    let json = derive(7, SONAR)
+        .to_json()
+        .replacen(r#""level":"#, r#""level":0.5,"level":"#, 1);
+    assert_eq!(
+        error(Recipe::from_json(&json)),
+        "Recipe JSON: params: duplicate field `level` at line 1 column 154"
+    );
+}
+
+#[test]
 fn frame_checks_edges_and_time() {
     let recipe = derive(7, SONAR);
     assert_eq!(

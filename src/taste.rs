@@ -1,8 +1,7 @@
-use std::collections::BTreeMap;
-
 use serde::Deserialize;
 
 use crate::param::Param;
+use crate::unique_keys;
 use crate::{Error, Tool};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -14,8 +13,14 @@ pub struct Taste {
 #[derive(Deserialize)]
 struct Wire {
     tool: String,
-    #[serde(flatten)]
-    bounds: BTreeMap<String, [f64; 2]>,
+    #[serde(flatten, deserialize_with = "unique_bounds")]
+    bounds: Vec<(String, [f64; 2])>,
+}
+
+fn unique_bounds<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Vec<(String, [f64; 2])>, D::Error> {
+    unique_keys::deserialize(deserializer, "")
 }
 
 impl Taste {
@@ -44,8 +49,7 @@ impl Taste {
 
     pub fn from_json(json: &str) -> Result<Self, Error> {
         let wire: Wire = serde_json::from_str(json).map_err(|e| Error::TasteJson(e.to_string()))?;
-        let bounds: Vec<_> = wire.bounds.into_iter().collect();
-        Self::new(Tool::from_slug(&wire.tool)?, &bounds)
+        Self::new(Tool::from_slug(&wire.tool)?, &wire.bounds)
     }
 
     pub fn tool(&self) -> Tool {

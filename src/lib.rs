@@ -10,6 +10,7 @@ mod render;
 mod sonar;
 mod surface;
 mod taste;
+mod unique_keys;
 mod vein;
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
