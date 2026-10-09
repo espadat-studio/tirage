@@ -200,7 +200,7 @@ fn run(command: Command) -> Result<(), String> {
                 .flat_map(|tool| tool.parameters())
                 .map(|p| p.id.len())
                 .max()
-                .unwrap_or(0);
+                .expect("a Tool has Parameters");
             let mut text = String::new();
             for tool in Tool::ALL {
                 let frames = tool.frames();
