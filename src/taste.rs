@@ -7,7 +7,7 @@ use crate::{Error, Tool};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Taste {
     tool: Tool,
-    ticks: Vec<(u32, u32)>,
+    ticks: Vec<(i32, i32)>,
 }
 
 #[derive(Deserialize)]
@@ -63,7 +63,7 @@ impl Taste {
         }
     }
 
-    pub(crate) fn bounds(&self, param: &Param) -> (u32, u32) {
+    pub(crate) fn bounds(&self, param: &Param) -> (i32, i32) {
         self.ticks[slot(self.tool, param.id).expect("a Tool deals only its own Parameters")]
     }
 }
