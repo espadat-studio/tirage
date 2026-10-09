@@ -7,7 +7,10 @@ use clap::error::ErrorKind;
 use clap::{ArgAction, CommandFactory, FromArgMatches, Parser, Subcommand};
 use serde::Serialize;
 
-use tirage::{DERIVATION_MAJOR, Frame, Parameter, Recipe, Tool, ToolPin, VERSION, derive, render};
+use tirage::{
+    DERIVATION_MAJOR, Frame, Palette, Parameter, Recipe, Taste, Tool, ToolPin, VERSION, derive,
+    render,
+};
 
 const EXAMPLES: &str = "Examples:
   tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
@@ -46,13 +49,17 @@ struct Cli {
 enum Command {
     #[command(
         about = "Derive a Recipe from a Seed and print it as JSON",
-        before_help = "Examples:\n  tirage derive --seed 42 --tool sonar > recipe.json"
+        before_help = "Examples:\n  tirage derive --seed 42 > recipe.json\n  tirage derive --seed 42 --tool sonar --palette '#000000,#ffffff'\n  tirage derive --seed 42 --taste taste.json"
     )]
     Derive {
         #[arg(long, help = "Seed to derive the Recipe from")]
         seed: u64,
-        #[arg(long, value_name = "SLUG", value_parser = Tool::from_slug, help = "Tool to pin, see 'tirage tools'")]
-        tool: Tool,
+        #[arg(long, value_name = "SLUG", value_parser = Tool::from_slug, help = "Tool to pin, see 'tirage tools'. Dealt from the Seed when left out")]
+        tool: Option<Tool>,
+        #[arg(long, value_name = "FILE", value_parser = parse_taste, conflicts_with = "tool", help = "Taste JSON overriding Parameter bounds, pins its Tool")]
+        taste: Option<Taste>,
+        #[arg(long, value_name = "INKS", value_parser = parse_palette, help = "Palette to pin, as comma-separated #rrggbb inks")]
+        palette: Option<Palette>,
     },
     #[command(
         about = "Render a Recipe to a PNG",
@@ -112,8 +119,22 @@ fn main() -> ExitCode {
 
 fn run(command: Command) -> Result<(), String> {
     match command {
-        Command::Derive { seed, tool } => {
-            emit(format!("{}\n", derive(seed, ToolPin::Tool(tool)).to_json()).as_bytes())
+        Command::Derive {
+            seed,
+            tool,
+            taste,
+            palette,
+        } => {
+            let pin = match (tool, taste) {
+                (Some(tool), _) => ToolPin::Tool(tool),
+                (_, Some(taste)) => ToolPin::Taste(taste),
+                (None, None) => ToolPin::Any,
+            };
+            let mut recipe = derive(seed, pin);
+            if let Some(palette) = palette {
+                recipe.set_palette(palette);
+            }
+            emit(format!("{}\n", recipe.to_json()).as_bytes())
         }
         Command::Render {
             input,
@@ -197,4 +218,13 @@ fn parse_size(size: &str) -> Result<(u32, u32), String> {
     size.split_once('x')
         .and_then(|(width, height)| Some((width.parse().ok()?, height.parse().ok()?)))
         .ok_or_else(|| "expected <W>x<H> in pixels, like 1080x1920".to_owned())
+}
+
+fn parse_taste(path: &str) -> Result<Taste, String> {
+    let json = fs::read_to_string(path).map_err(|e| format!("cannot read {path}: {e}"))?;
+    Taste::from_json(&json).map_err(|e| e.to_string())
+}
+
+fn parse_palette(inks: &str) -> Result<Palette, String> {
+    Palette::from_hex(&inks.split(',').collect::<Vec<_>>()).map_err(|e| e.to_string())
 }

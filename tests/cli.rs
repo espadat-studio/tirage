@@ -267,3 +267,86 @@ fn help_leads_with_examples() {
     let help = text(&tirage(&["render", "--help"], b"").stdout);
     assert!(help.starts_with("Examples:\n"), "{help}");
 }
+
+fn json(bytes: &[u8]) -> serde_json::Value {
+    serde_json::from_slice(bytes).unwrap()
+}
+
+#[test]
+fn derive_without_a_tool_deals_one() {
+    let out = tirage(&["derive", "--seed", "42"], b"");
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+    assert_eq!(
+        text(&out.stdout),
+        format!("{}\n", tirage::derive(42, tirage::ToolPin::Any).to_json())
+    );
+}
+
+#[test]
+fn derive_pins_a_palette_and_keeps_the_rest() {
+    let out = tirage(
+        &["derive", "--seed", "42", "--palette", "#000000,#FFFFFF"],
+        b"",
+    );
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+    let (pinned, dealt) = (json(&out.stdout), json(&recipe()));
+    assert_eq!(pinned["palette"], serde_json::json!(["#000000", "#ffffff"]));
+    assert_eq!(
+        (&pinned["params"], &pinned["tool_seed"]),
+        (&dealt["params"], &dealt["tool_seed"])
+    );
+}
+
+#[test]
+fn derive_reads_taste_bounds_from_a_file() {
+    let dir = std::env::temp_dir().join(format!("tirage-taste-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let (good, bad) = (dir.join("good.json"), dir.join("bad.json"));
+    std::fs::write(&good, r#"{"tool":"sonar","level":[0.5,0.5]}"#).unwrap();
+    std::fs::write(&bad, r#"{"tool":"sonar","level":[0,1.4]}"#).unwrap();
+    let out = tirage(
+        &["derive", "--seed", "42", "--taste", good.to_str().unwrap()],
+        b"",
+    );
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+    assert_eq!(json(&out.stdout)["params"]["level"], 0.5);
+    let out = tirage(
+        &["derive", "--seed", "42", "--taste", bad.to_str().unwrap()],
+        b"",
+    );
+    assert_eq!(out.status.code(), Some(2));
+    assert!(
+        text(&out.stderr).contains("sonar: level 1.4 is outside 0..=1"),
+        "{}",
+        text(&out.stderr)
+    );
+    let out = tirage(
+        &[
+            "derive",
+            "--seed",
+            "1",
+            "--tool",
+            "sonar",
+            "--taste",
+            good.to_str().unwrap(),
+        ],
+        b"",
+    );
+    assert_eq!(out.status.code(), Some(2), "{}", text(&out.stderr));
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn derive_rejects_malformed_hex_as_a_usage_error() {
+    let out = tirage(
+        &["derive", "--seed", "42", "--palette", "#000000,#fff"],
+        b"",
+    );
+    assert_eq!(out.status.code(), Some(2));
+    assert!(
+        text(&out.stderr).contains(r##"palette: "#fff" is not a #rrggbb colour"##),
+        "{}",
+        text(&out.stderr)
+    );
+    assert!(out.stdout.is_empty());
+}
