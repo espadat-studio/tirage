@@ -2,96 +2,8 @@ use std::num::NonZeroU32;
 
 use serde::{Deserialize, Serialize};
 
-use crate::param::Param;
 use crate::unique_keys;
-use crate::{
-    AuraParams, DERIVATION_MAJOR, Error, FrondParams, HuskParams, KioskParams, Palette,
-    SonarParams, VeinParams, aura, frond, husk, kiosk, sonar, vein,
-};
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Tool {
-    Sonar,
-    Husk,
-    Vein,
-    Aura,
-    Kiosk,
-    Frond,
-}
-
-impl Tool {
-    pub const ALL: &[Tool] = &[
-        Tool::Sonar,
-        Tool::Husk,
-        Tool::Vein,
-        Tool::Aura,
-        Tool::Kiosk,
-        Tool::Frond,
-    ];
-
-    pub fn slug(self) -> &'static str {
-        match self {
-            Self::Sonar => sonar::SLUG,
-            Self::Husk => husk::SLUG,
-            Self::Vein => vein::SLUG,
-            Self::Aura => aura::SLUG,
-            Self::Kiosk => kiosk::SLUG,
-            Self::Frond => frond::SLUG,
-        }
-    }
-
-    pub fn from_slug(slug: &str) -> Result<Self, Error> {
-        Self::ALL
-            .iter()
-            .copied()
-            .find(|tool| tool.slug() == slug)
-            .ok_or_else(|| Error::UnknownTool(slug.to_owned()))
-    }
-
-    pub fn frames(self) -> u32 {
-        match self {
-            Self::Sonar => sonar::FRAMES,
-            Self::Husk => husk::FRAMES,
-            Self::Vein => vein::FRAMES,
-            Self::Aura => aura::FRAMES,
-            Self::Kiosk => kiosk::FRAMES,
-            Self::Frond => frond::FRAMES,
-        }
-    }
-
-    pub fn fps(self) -> u32 {
-        match self {
-            Self::Sonar => sonar::FPS,
-            Self::Husk => husk::FPS,
-            Self::Vein => vein::FPS,
-            Self::Aura => aura::FPS,
-            Self::Kiosk => kiosk::FPS,
-            Self::Frond => frond::FPS,
-        }
-    }
-
-    pub fn parameters(self) -> Vec<Parameter> {
-        match self {
-            Self::Sonar => sonar::parameters(),
-            Self::Husk => husk::parameters(),
-            Self::Vein => vein::parameters(),
-            Self::Aura => aura::parameters(),
-            Self::Kiosk => kiosk::parameters(),
-            Self::Frond => frond::parameters(),
-        }
-    }
-
-    pub(crate) fn params(self) -> &'static [Param] {
-        match self {
-            Self::Sonar => sonar::PARAMS,
-            Self::Husk => husk::PARAMS,
-            Self::Vein => vein::PARAMS,
-            Self::Aura => aura::PARAMS,
-            Self::Kiosk => kiosk::PARAMS,
-            Self::Frond => frond::PARAMS,
-        }
-    }
-}
+use crate::{DERIVATION_MAJOR, Error, Palette, Params, Tool};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize)]
 #[non_exhaustive]
@@ -121,30 +33,6 @@ impl Parameter {
         Self {
             id,
             kind: ParameterKind::Choice { choices },
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-#[serde(untagged)]
-pub enum Params {
-    Sonar(SonarParams),
-    Husk(HuskParams),
-    Vein(VeinParams),
-    Aura(AuraParams),
-    Kiosk(KioskParams),
-    Frond(FrondParams),
-}
-
-impl Params {
-    pub fn tool(&self) -> Tool {
-        match self {
-            Self::Sonar(_) => Tool::Sonar,
-            Self::Husk(_) => Tool::Husk,
-            Self::Vein(_) => Tool::Vein,
-            Self::Aura(_) => Tool::Aura,
-            Self::Kiosk(_) => Tool::Kiosk,
-            Self::Frond(_) => Tool::Frond,
         }
     }
 }
@@ -245,31 +133,20 @@ impl Recipe {
             return Err(Error::Major(tirage));
         }
         let wire: WireIn = serde_json::from_str(json).map_err(json_error)?;
-        let params = match Tool::from_slug(&wire.tool)? {
-            Tool::Sonar => Params::Sonar(sonar::from_json(wire.params)?),
-            Tool::Husk => Params::Husk(husk::from_json(wire.params)?),
-            Tool::Vein => Params::Vein(vein::from_json(wire.params)?),
-            Tool::Aura => Params::Aura(aura::from_json(wire.params)?),
-            Tool::Kiosk => Params::Kiosk(kiosk::from_json(wire.params)?),
-            Tool::Frond => Params::Frond(frond::from_json(wire.params)?),
-        };
+        let params = Tool::from_slug(&wire.tool)?.params_from_json(wire.params)?;
         Self::new(wire.tool_seed, Palette::from_hex(&wire.palette)?, params)
     }
 }
 
 fn fit(tool: Tool, palette: Palette) -> Result<Palette, Error> {
-    let max = match tool {
-        Tool::Aura => aura::INKS,
-        Tool::Sonar | Tool::Husk | Tool::Vein | Tool::Kiosk | Tool::Frond => return Ok(palette),
-    };
-    if palette.len() > max {
-        return Err(Error::TooManyInks {
+    match tool.max_inks() {
+        Some(max) if palette.len() > max => Err(Error::TooManyInks {
             tool,
             inks: palette.len(),
             max,
-        });
+        }),
+        _ => Ok(palette),
     }
-    Ok(palette)
 }
 
 fn json_error(error: serde_json::Error) -> Error {

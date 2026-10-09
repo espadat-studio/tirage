@@ -10,6 +10,7 @@ use crate::{Error, Palette, Parameter};
 pub(crate) const SLUG: &str = "kiosk";
 pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 6;
+pub(crate) const MAX_INKS: Option<usize> = None;
 const SHUFFLE: u32 = 7919;
 
 const DEFAULT_PALETTE: [&str; 8] = [
@@ -381,13 +382,18 @@ impl Roles {
     }
 }
 
-pub(crate) fn paint(
+pub(crate) fn render(
     surface: &mut Surface,
     params: &KioskParams,
     palette: &Palette,
     tool_seed: u32,
     t: u32,
 ) {
+    paint(surface, params, palette, tool_seed, t);
+    chassis::finish(surface, &params.grain, &params.dither);
+}
+
+fn paint(surface: &mut Surface, params: &KioskParams, palette: &Palette, tool_seed: u32, t: u32) {
     let roles = Roles::new(palette);
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let at = |x: i32, y: i32, salt: u32| hash(x, y, tool_seed.wrapping_add(salt));

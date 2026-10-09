@@ -13,6 +13,7 @@ use crate::{Error, Palette, Parameter};
 pub(crate) const SLUG: &str = "vein";
 pub(crate) const FRAMES: u32 = 1;
 pub(crate) const FPS: u32 = 12;
+pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 8] = [
     "#0e1a2b", "#2e63b8", "#7fa8e0", "#e9dcc3", "#f2892b", "#e0362f", "#2fa39a", "#8b5a2b",
@@ -411,7 +412,18 @@ impl Grid {
     }
 }
 
-pub(crate) fn paint(surface: &mut Surface, params: &VeinParams, palette: &Palette, tool_seed: u32) {
+pub(crate) fn render(
+    surface: &mut Surface,
+    params: &VeinParams,
+    palette: &Palette,
+    tool_seed: u32,
+    _t: u32,
+) {
+    paint(surface, params, palette, tool_seed);
+    chassis::finish(surface, &params.grain, &params.dither);
+}
+
+fn paint(surface: &mut Surface, params: &VeinParams, palette: &Palette, tool_seed: u32) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let unit = (width * height).sqrt();
     let inks = palette.len();

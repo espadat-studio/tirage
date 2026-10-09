@@ -13,6 +13,7 @@ use crate::{Error, Palette, Parameter};
 pub(crate) const SLUG: &str = "husk";
 pub(crate) const FRAMES: u32 = 1;
 pub(crate) const FPS: u32 = 1;
+pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 3] = ["#e0c3fc", "#1b1b1e", "#f9f871"];
 
@@ -354,7 +355,18 @@ fn field(params: &HuskParams, tool_seed: u32, aspect: f64) -> Field {
     }
 }
 
-pub(crate) fn paint(surface: &mut Surface, params: &HuskParams, palette: &Palette, tool_seed: u32) {
+pub(crate) fn render(
+    surface: &mut Surface,
+    params: &HuskParams,
+    palette: &Palette,
+    tool_seed: u32,
+    _t: u32,
+) {
+    paint(surface, params, palette, tool_seed);
+    chassis::finish(surface, &params.chassis_grain, &params.dither);
+}
+
+fn paint(surface: &mut Surface, params: &HuskParams, palette: &Palette, tool_seed: u32) {
     let (width, height) = (surface.width(), surface.height());
     let field = field(params, tool_seed, f64::from(height) / f64::from(width));
     let ground = palette.ink(GROUND);

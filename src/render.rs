@@ -1,5 +1,5 @@
 use crate::surface::Surface;
-use crate::{Error, Image, Params, Recipe, aura, chassis, frond, husk, kiosk, sonar, vein};
+use crate::{Error, Image, Recipe};
 
 pub const MAX_EDGE: u32 = 8192;
 
@@ -38,64 +38,11 @@ impl Frame {
 
 pub fn render(recipe: &Recipe, frame: &Frame) -> Image {
     let mut surface = Surface::new(frame.width, frame.height);
-    match recipe.params() {
-        Params::Sonar(params) => {
-            sonar::paint(
-                &mut surface,
-                params,
-                recipe.palette(),
-                recipe.tool_seed().get(),
-                frame.t,
-            );
-            chassis::finish(&mut surface, params.grain_pass(), params.dither());
-        }
-        Params::Husk(params) => {
-            husk::paint(
-                &mut surface,
-                params,
-                recipe.palette(),
-                recipe.tool_seed().get(),
-            );
-            chassis::finish(&mut surface, params.grain_pass(), params.dither());
-        }
-        Params::Vein(params) => {
-            vein::paint(
-                &mut surface,
-                params,
-                recipe.palette(),
-                recipe.tool_seed().get(),
-            );
-            chassis::finish(&mut surface, params.grain_pass(), params.dither());
-        }
-        Params::Aura(params) => {
-            aura::paint(
-                &mut surface,
-                params,
-                recipe.palette(),
-                recipe.tool_seed().get(),
-            );
-            chassis::finish(&mut surface, params.grain(), params.dither());
-        }
-        Params::Kiosk(params) => {
-            kiosk::paint(
-                &mut surface,
-                params,
-                recipe.palette(),
-                recipe.tool_seed().get(),
-                frame.t,
-            );
-            chassis::finish(&mut surface, params.grain_pass(), params.dither());
-        }
-        Params::Frond(params) => {
-            frond::paint(
-                &mut surface,
-                params,
-                recipe.palette(),
-                recipe.tool_seed().get(),
-                frame.t,
-            );
-            chassis::finish(&mut surface, params.grain_pass(), params.dither());
-        }
-    }
+    recipe.params().render(
+        &mut surface,
+        recipe.palette(),
+        recipe.tool_seed().get(),
+        frame.t,
+    );
     surface.into_image()
 }

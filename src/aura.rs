@@ -13,6 +13,7 @@ pub(crate) const FRAMES: u32 = 1;
 pub(crate) const FPS: u32 = 12;
 const BUDGET: f64 = 700.0;
 pub(crate) const INKS: usize = 4;
+pub(crate) const MAX_INKS: Option<usize> = Some(INKS);
 
 const DEFAULT_PALETTE: [&str; INKS] = ["#ff8a5b", "#ffc15e", "#f4a7d6", "#8e7cff"];
 
@@ -269,7 +270,18 @@ struct Ink {
     direction: (f64, f64),
 }
 
-pub(crate) fn paint(surface: &mut Surface, params: &AuraParams, palette: &Palette, tool_seed: u32) {
+pub(crate) fn render(
+    surface: &mut Surface,
+    params: &AuraParams,
+    palette: &Palette,
+    tool_seed: u32,
+    _t: u32,
+) {
+    paint(surface, params, palette, tool_seed);
+    chassis::finish(surface, &params.grain, &params.dither);
+}
+
+fn paint(surface: &mut Surface, params: &AuraParams, palette: &Palette, tool_seed: u32) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let bw = round_half_up(width).clamp(90.0, BUDGET);
     let bh = round_half_up(bw * height / width).max(90.0);
