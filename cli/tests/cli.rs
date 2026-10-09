@@ -198,11 +198,9 @@ fn usage_errors_exit_2() {
         );
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
-    assert!(
-        text(&out.stderr).contains(
-            r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond"#
-        )
-    );
+    assert!(text(&out.stderr).contains(
+        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday"#
+    ));
 }
 
 #[test]
@@ -329,10 +327,24 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"circles","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"rules","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
+    let benday = concat!(
+        r#"{"slug":"benday","frames":1,"params":["#,
+        r#"{"id":"turb","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"streak","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"dir","kind":"range","min":-1.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"black","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"bands","kind":"range","min":2.0,"max":16.0,"step":1.0},"#,
+        r#"{"id":"rims","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"dot","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"ring","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"angle","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"bite","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }

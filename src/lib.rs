@@ -19,6 +19,7 @@ registry::tools! {
     Aura: aura::{AuraParams, AuraStyle},
     Kiosk: kiosk::{KioskParams, CharacterSet},
     Frond: frond::{FrondParams, Plant},
+    Benday: benday::{BendayParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
