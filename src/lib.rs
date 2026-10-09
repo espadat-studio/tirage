@@ -21,6 +21,7 @@ registry::tools! {
     Frond: frond::{FrondParams, Plant},
     Benday: benday::{BendayParams},
     Terrain: terrain::{TerrainParams},
+    Stitch: stitch::{StitchParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
