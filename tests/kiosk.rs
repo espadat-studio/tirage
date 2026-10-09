@@ -91,12 +91,16 @@ fn recipe_round_trips_through_json() {
 }
 
 #[test]
-fn every_character_of_every_set_is_in_the_bundled_font() {
-    let font = FontRef::new(include_bytes!("../fonts/DejaVuSansMono-Bold.ttf")).unwrap();
-    let charmap = font.charmap();
-    for set in CharacterSet::ALL {
-        for ch in set.chars().chars() {
-            assert!(charmap.map(ch).is_some(), "{set:?}: U+{:04X}", ch as u32);
+fn every_character_of_every_set_is_in_both_bundled_faces() {
+    for face in [
+        &include_bytes!("../fonts/DejaVuSansMono.ttf")[..],
+        include_bytes!("../fonts/DejaVuSansMono-Bold.ttf"),
+    ] {
+        let charmap = FontRef::new(face).unwrap().charmap();
+        for set in CharacterSet::ALL {
+            for ch in set.chars().chars() {
+                assert!(charmap.map(ch).is_some(), "{set:?}: U+{:04X}", ch as u32);
+            }
         }
     }
     assert_eq!(

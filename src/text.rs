@@ -11,11 +11,29 @@ use tiny_skia::PathBuilder;
 
 use crate::surface::Surface;
 
-pub(crate) const FONT: &[u8] = include_bytes!("../fonts/DejaVuSansMono-Bold.ttf");
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Face {
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "atlas is the first Tool to draw Book")
+    )]
+    Book,
+    Bold,
+}
+
+impl Face {
+    fn bytes(self) -> &'static [u8] {
+        match self {
+            Self::Book => include_bytes!("../fonts/DejaVuSansMono.ttf"),
+            Self::Bold => include_bytes!("../fonts/DejaVuSansMono-Bold.ttf"),
+        }
+    }
+}
 
 const MAX_HINTED_SIZE: f32 = 256.0;
 
 pub(crate) struct Type {
+    face: Face,
     font: FontRef<'static>,
     outlines: OutlineGlyphCollection<'static>,
     middle: (f32, f32),
@@ -23,14 +41,15 @@ pub(crate) struct Type {
 }
 
 impl Type {
-    pub(crate) fn new() -> Self {
-        let font = FontRef::new(FONT).expect("the bundled font parses");
+    pub(crate) fn new(face: Face) -> Self {
+        let font = FontRef::new(face.bytes()).expect("the bundled font parses");
         let os2 = font.os2().expect("the bundled font has an OS/2 table");
         let middle = (
             f32::from(os2.s_typo_ascender()),
             -f32::from(os2.s_typo_descender()),
         );
         Self {
+            face,
             outlines: font.outline_glyphs(),
             font,
             middle,
@@ -102,7 +121,7 @@ impl Type {
                     Size::new(size),
                     LocationRef::default(),
                     HintingOptions {
-                        engine: Engine::Auto(Some(styles(&self.outlines))),
+                        engine: Engine::Auto(Some(styles(self.face, &self.outlines))),
                         target: Target::Smooth {
                             mode: SmoothMode::Light,
                             symmetric_rendering: true,
@@ -119,9 +138,11 @@ impl Type {
     }
 }
 
-fn styles(outlines: &OutlineGlyphCollection) -> GlyphStyles {
-    static STYLES: OnceLock<GlyphStyles> = OnceLock::new();
-    STYLES.get_or_init(|| GlyphStyles::new(outlines)).clone()
+fn styles(face: Face, outlines: &OutlineGlyphCollection) -> GlyphStyles {
+    static STYLES: [OnceLock<GlyphStyles>; 2] = [OnceLock::new(), OnceLock::new()];
+    STYLES[face as usize]
+        .get_or_init(|| GlyphStyles::new(outlines))
+        .clone()
 }
 
 fn sixty_fourths(value: f32) -> f32 {
@@ -165,5 +186,29 @@ impl OutlinePen for Pen {
 
     fn close(&mut self) {
         self.path.close();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Face, Type};
+    use crate::surface::Surface;
+
+    fn inked(face: Face) -> usize {
+        let mut surface = Surface::new(64, 64);
+        surface.fill([255, 255, 255]);
+        Type::new(face).fill_centred(&mut surface, '#', 32.0, 32.0, 48.0, [0, 0, 0]);
+        surface
+            .into_image()
+            .rgba()
+            .chunks(4)
+            .filter(|px| px[0] < 128)
+            .count()
+    }
+
+    #[test]
+    fn book_inks_a_lighter_glyph_than_bold() {
+        let (book, bold) = (inked(Face::Book), inked(Face::Bold));
+        assert!(book > 0 && book < bold, "book {book}, bold {bold}");
     }
 }
