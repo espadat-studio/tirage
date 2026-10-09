@@ -28,6 +28,7 @@ registry::tools! {
     Coral: coral::{CoralParams},
     Whorl: whorl::{WhorlParams, WhorlWarp},
     Sear: sear::{SearParams},
+    Culture: culture::{CultureParams, CultureTexture},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

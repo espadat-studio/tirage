@@ -145,7 +145,7 @@ fn taste_json_errors_are_human() {
         ),
         (
             r#"{"tool":"vien"}"#,
-            r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear"#,
+            r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture"#,
         ),
         (
             r#"{"tool":"sonar","level":[0,1.4]}"#,
