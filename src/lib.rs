@@ -8,6 +8,7 @@ mod recipe;
 mod render;
 mod sonar;
 mod surface;
+mod taste;
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
 pub use derive::{ToolPin, derive};
@@ -17,6 +18,7 @@ pub use palette::Palette;
 pub use recipe::{Parameter, Params, Recipe, Tool};
 pub use render::{Frame, MAX_EDGE, render};
 pub use sonar::SonarParams;
+pub use taste::Taste;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 

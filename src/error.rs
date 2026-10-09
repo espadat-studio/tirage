@@ -22,9 +22,28 @@ pub enum Error {
     },
     Ink(String),
     FewInks(usize),
+    OffStep {
+        scope: &'static str,
+        param: &'static str,
+        value: f64,
+        min: f64,
+        max: f64,
+        step: f64,
+    },
+    Reversed {
+        scope: &'static str,
+        param: &'static str,
+        low: f64,
+        high: f64,
+    },
     Major(u64),
     UnknownTool(String),
+    UnknownParameter {
+        tool: Tool,
+        param: String,
+    },
     Json(String),
+    TasteJson(String),
 }
 
 impl fmt::Display for Error {
@@ -58,7 +77,37 @@ impl fmt::Display for Error {
                     known.join(", ")
                 )
             }
+            Self::OffStep {
+                scope,
+                param,
+                value,
+                min,
+                max,
+                step,
+            } => write!(
+                f,
+                "{scope}: {param} {value} is not a slider value, {min}..={max} step {step}"
+            ),
+            Self::Reversed {
+                scope,
+                param,
+                low,
+                high,
+            } => write!(
+                f,
+                "{scope}: {param} Taste bounds {low}..={high} have min above max"
+            ),
+            Self::UnknownParameter { tool, param } => {
+                let known: Vec<_> = tool.parameters().iter().map(|p| p.id).collect();
+                write!(
+                    f,
+                    "{}: unknown Parameter {param:?}, expected one of {}",
+                    tool.slug(),
+                    known.join(", ")
+                )
+            }
             Self::Json(message) => write!(f, "Recipe JSON: {message}"),
+            Self::TasteJson(message) => write!(f, "Taste JSON: {message}"),
         }
     }
 }

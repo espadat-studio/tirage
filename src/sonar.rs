@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{Blend, Dither, DitherKind, Grain, hash, round_half_up, value_noise};
 use crate::param::Param;
 use crate::surface::Surface;
-use crate::{Error, Palette, Parameter};
+use crate::taste::Taste;
+use crate::{Error, Palette};
 
 pub(crate) const SLUG: &str = "sonar";
 pub(crate) const FRAMES: u32 = 24;
@@ -202,19 +203,14 @@ pub(crate) fn from_json(params: serde_json::Value) -> Result<SonarParams, Error>
     Ok(params)
 }
 
-pub(crate) fn parameters() -> Vec<Parameter> {
-    [LEVEL, SCALE, WARP, GRID, DEPTH, FRINGE, SPARK]
-        .iter()
-        .map(Param::parameter)
-        .collect()
-}
+pub(crate) const PARAMS: &[Param] = &[LEVEL, SCALE, WARP, GRID, DEPTH, FRINGE, SPARK];
 
 pub(crate) fn palette() -> Palette {
     Palette::from_hex(&DEFAULT_PALETTE).expect("the default Palette is valid")
 }
 
-pub(crate) fn deal(draw: impl Fn(&str) -> u64) -> SonarParams {
-    let pick = |param: &Param| param.deal(draw(param.id));
+pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> SonarParams {
+    let pick = |param: &Param| param.deal(taste.bounds(param), draw(param.id));
     SonarParams {
         level: pick(&LEVEL),
         scale: pick(&SCALE),

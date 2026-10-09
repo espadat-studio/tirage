@@ -29,8 +29,7 @@ impl Param {
         }
     }
 
-    pub(crate) fn deal(&self, draw: u64) -> f64 {
-        let (low, high) = self.taste;
+    pub(crate) fn deal(&self, (low, high): (u32, u32), draw: u64) -> f64 {
         let steps = u64::from((high - low) / self.step + 1);
         let ticks = low + (draw % steps) as u32 * self.step;
         f64::from(ticks) / f64::from(self.unit)
@@ -44,6 +43,24 @@ impl Param {
             max: f64::from(self.max) / unit,
             step: f64::from(self.step) / unit,
         }
+    }
+
+    pub(crate) fn ticks(&self, value: f64) -> Result<u32, Error> {
+        self.check(value)?;
+        let exact = value * f64::from(self.unit);
+        let ticks = exact.round();
+        if (exact - ticks).abs() > 1e-9 || !(ticks as u32 - self.min).is_multiple_of(self.step) {
+            let Parameter { min, max, step, .. } = self.parameter();
+            return Err(Error::OffStep {
+                scope: self.scope,
+                param: self.id,
+                value,
+                min,
+                max,
+                step,
+            });
+        }
+        Ok(ticks as u32)
     }
 
     pub(crate) fn check(&self, value: f64) -> Result<f64, Error> {
