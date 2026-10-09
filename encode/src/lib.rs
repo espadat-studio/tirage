@@ -13,14 +13,14 @@ pub const HEIGHT: u32 = 1280;
 
 pub const OPENH264: &str = "0.9.8";
 
-const BITRATE: u32 = 4_000_000;
+const BUDGET: u32 = 1_200_000;
 
 const SPS: u8 = 7;
 const PPS: u8 = 8;
 
 pub fn settings() -> String {
     format!(
-        "tirage-encode {} openh264 {OPENH264} h264 {WIDTH}x{HEIGHT} rc bitrate {BITRATE} no-skip",
+        "tirage-encode {} openh264 {OPENH264} h264 {WIDTH}x{HEIGHT} rc budget {BUDGET} bytes per Loop no-skip",
         env!("CARGO_PKG_VERSION")
     )
 }
@@ -57,8 +57,9 @@ impl From<mp4::Error> for Error {
 pub fn encode(recipe: &Recipe) -> Result<Vec<u8>, Error> {
     let tool = recipe.tool();
     let fps = tool.fps();
+    let bitrate = u64::from(BUDGET) * 8 * u64::from(fps) / u64::from(tool.frames());
     let config = EncoderConfig::new()
-        .bitrate(BitRate::from_bps(BITRATE))
+        .bitrate(BitRate::from_bps(bitrate as u32))
         .max_frame_rate(FrameRate::from_hz(fps as f32))
         .rate_control_mode(RateControlMode::Bitrate)
         .skip_frames(false);

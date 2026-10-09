@@ -80,7 +80,7 @@ fn husk_is_a_still() {
 fn husk_is_appended_to_the_registry() {
     assert_eq!(
         Tool::ALL,
-        &[Tool::Sonar, Tool::Husk, Tool::Vein, Tool::Aura]
+        &[Tool::Sonar, Tool::Husk, Tool::Vein, Tool::Aura, Tool::Kiosk]
     );
     assert_eq!(Tool::from_slug("husk").unwrap(), Tool::Husk);
 }

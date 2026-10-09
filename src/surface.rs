@@ -1,5 +1,5 @@
 use tiny_skia::{
-    Color, ColorU8, FillRule, FilterQuality, IntSize, LineJoin, Paint, PathBuilder, Pixmap,
+    Color, ColorU8, FillRule, FilterQuality, IntSize, LineJoin, Paint, Path, PathBuilder, Pixmap,
     PixmapPaint, Rect, Stroke, Transform,
 };
 
@@ -94,6 +94,23 @@ impl Surface {
             .expect("a stroked path has a closed loop");
         self.0
             .stroke_path(&path, &solid(ink), &stroke, Transform::identity(), None);
+    }
+
+    pub(crate) fn fill_box(&mut self, x: f64, y: f64, width: f64, height: f64, ink: [u8; 3]) {
+        if let Some(rect) = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32) {
+            self.0
+                .fill_rect(rect, &solid(ink), Transform::identity(), None);
+        }
+    }
+
+    pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
+        self.0.fill_path(
+            path,
+            &solid(ink),
+            FillRule::Winding,
+            Transform::identity(),
+            None,
+        );
     }
 
     pub(crate) fn fill_circle(&mut self, x: f64, y: f64, radius: f64, ink: [u8; 3]) {
