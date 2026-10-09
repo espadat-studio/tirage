@@ -20,6 +20,13 @@ export default defineConfig({
       social: [
         { icon: "github", label: "GitHub", href: "https://github.com/espadat-studio/tirage" },
       ],
+      sidebar: [
+        { label: "Home", link: "/" },
+        {
+          label: "Getting Started",
+          items: [{ slug: "getting-started/installation" }, { slug: "getting-started/quick-start" }],
+        },
+      ],
     }),
   ],
 });
