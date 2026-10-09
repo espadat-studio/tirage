@@ -51,10 +51,7 @@ impl Param {
     }
 
     fn check(&self, value: f64) -> Result<f64, Error> {
-        let (min, max) = (
-            f64::from(self.min) / f64::from(self.unit),
-            f64::from(self.max) / f64::from(self.unit),
-        );
+        let Parameter { min, max, .. } = self.parameter();
         if (min..=max).contains(&value) {
             return Ok(value);
         }

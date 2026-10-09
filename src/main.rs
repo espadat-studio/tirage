@@ -75,7 +75,7 @@ enum Command {
         )]
         frame: u32,
         #[arg(short, value_name = "FILE", help = "PNG to write, '-' for stdout")]
-        o: PathBuf,
+        output: PathBuf,
     },
     #[command(
         about = "List Tools with their frame counts and Parameter ranges",
@@ -88,7 +88,7 @@ enum Command {
 }
 
 #[derive(Serialize)]
-struct Listing {
+struct ToolListing {
     slug: &'static str,
     frames: u32,
     params: Vec<Parameter>,
@@ -113,21 +113,20 @@ fn main() -> ExitCode {
 fn run(command: Command) -> Result<(), String> {
     match command {
         Command::Derive { seed, tool } => {
-            println!("{}", derive(seed, ToolPin::Tool(tool)).to_json());
-            Ok(())
+            emit(format!("{}\n", derive(seed, ToolPin::Tool(tool)).to_json()).as_bytes())
         }
         Command::Render {
             input,
             size: (width, height),
             frame,
-            o,
+            output,
         } => {
             let stdio = Path::new("-");
-            if o == stdio && io::stdout().is_terminal() {
-                usage("refusing to write a PNG to a terminal, pass -o FILE or pipe stdout");
+            if output == stdio && io::stdout().is_terminal() {
+                render_usage("refusing to write a PNG to a terminal, pass -o FILE or pipe stdout");
             }
             if input == stdio && io::stdin().is_terminal() {
-                usage("no Recipe on stdin, pass a FILE or pipe 'tirage derive' into it");
+                render_usage("no Recipe on stdin, pass a FILE or pipe 'tirage derive' into it");
             }
             let json = if input == stdio {
                 io::read_to_string(io::stdin()).map_err(|e| format!("cannot read stdin: {e}"))?
@@ -138,40 +137,37 @@ fn run(command: Command) -> Result<(), String> {
             let recipe = Recipe::from_json(&json).map_err(|e| e.to_string())?;
             let frame = Frame::new(&recipe, width, height, frame).map_err(|e| e.to_string())?;
             let png = render(&recipe, &frame).to_png();
-            if o == stdio {
-                io::stdout()
-                    .write_all(&png)
-                    .map_err(|e| format!("cannot write stdout: {e}"))
+            if output == stdio {
+                emit(&png)
             } else {
-                fs::write(&o, png).map_err(|e| format!("cannot write {}: {e}", o.display()))
+                fs::write(&output, png)
+                    .map_err(|e| format!("cannot write {}: {e}", output.display()))
             }
         }
         Command::Tools { json } => {
             if json {
                 let listings: Vec<_> = Tool::ALL
                     .iter()
-                    .map(|tool| Listing {
+                    .map(|tool| ToolListing {
                         slug: tool.slug(),
                         frames: tool.frames(),
                         params: tool.parameters(),
                     })
                     .collect();
-                println!(
-                    "{}",
-                    serde_json::to_string(&listings).expect("a listing serializes")
-                );
-                return Ok(());
+                let json = serde_json::to_string(&listings).expect("a listing serializes");
+                return emit(format!("{json}\n").as_bytes());
             }
+            let mut text = String::new();
             for tool in Tool::ALL {
                 let frames = tool.frames();
                 let unit = if frames == 1 { "frame" } else { "frames" };
-                println!("{}  {frames} {unit}", tool.slug());
+                text += &format!("{}  {frames} {unit}\n", tool.slug());
                 for p in tool.parameters() {
                     let range = format!("{}..={}", p.min, p.max);
-                    println!("  {:<7} {range:<9} step {}", p.id, p.step);
+                    text += &format!("  {:<7} {range:<9} step {}\n", p.id, p.step);
                 }
             }
-            Ok(())
+            emit(text.as_bytes())
         }
     }
 }
@@ -180,8 +176,21 @@ fn command() -> clap::Command {
     Cli::command().version(format!("{VERSION} (derivation major {DERIVATION_MAJOR})"))
 }
 
-fn usage(message: &str) -> ! {
-    command().error(ErrorKind::InvalidValue, message).exit()
+fn render_usage(message: &str) -> ! {
+    let mut command = command();
+    command.build();
+    command
+        .find_subcommand_mut("render")
+        .expect("render is a subcommand")
+        .error(ErrorKind::InvalidValue, message)
+        .exit()
+}
+
+fn emit(bytes: &[u8]) -> Result<(), String> {
+    match io::stdout().lock().write_all(bytes) {
+        Err(e) if e.kind() != io::ErrorKind::BrokenPipe => Err(format!("cannot write stdout: {e}")),
+        _ => Ok(()),
+    }
 }
 
 fn parse_size(size: &str) -> Result<(u32, u32), String> {

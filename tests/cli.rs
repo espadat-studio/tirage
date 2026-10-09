@@ -37,10 +37,38 @@ fn recipe() -> Vec<u8> {
 
 #[test]
 fn derive_pipes_into_render_as_a_png() {
-    let out = tirage(&["render", "--size", "1080x1920", "-o", "-"], &recipe());
+    let dir = std::env::temp_dir().join(format!("tirage-pipe-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let mut derive = Command::new(BIN)
+        .args(["derive", "--seed", "42", "--tool", "sonar"])
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let out = Command::new(BIN)
+        .args(["render", "--size", "1080x1920", "-o", "out.png"])
+        .current_dir(&dir)
+        .stdin(derive.stdout.take().unwrap())
+        .output()
+        .unwrap();
+    assert_eq!(derive.wait().unwrap().code(), Some(0));
     assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
-    let png = image::load_from_memory(&out.stdout).unwrap();
+    let png = image::open(dir.join("out.png")).unwrap();
     assert_eq!((png.width(), png.height()), (1080, 1920));
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn a_closed_pipe_is_not_an_error() {
+    let mut child = Command::new(BIN)
+        .args(["tools"])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    drop(child.stdout.take());
+    let out = child.wait_with_output().unwrap();
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+    assert!(out.stderr.is_empty(), "{}", text(&out.stderr));
 }
 
 #[test]
@@ -144,6 +172,11 @@ fn render_refuses_png_bytes_on_a_terminal() {
     assert_eq!(out.status.code(), Some(2));
     assert!(
         text(&out.stdout).contains("refusing to write a PNG to a terminal"),
+        "{}",
+        text(&out.stdout)
+    );
+    assert!(
+        text(&out.stdout).contains("Usage: tirage render"),
         "{}",
         text(&out.stdout)
     );
