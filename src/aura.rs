@@ -46,6 +46,7 @@ const STYLES: [AuraStyle; 4] = [
     AuraStyle::Mesh,
     AuraStyle::Sweep,
 ];
+const AUTO_POOL: [AuraStyle; 3] = [AuraStyle::Clouds, AuraStyle::Mesh, AuraStyle::Sweep];
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct AuraParams {
@@ -274,7 +275,7 @@ pub(crate) fn paint(surface: &mut Surface, params: &AuraParams, palette: &Palett
     let bh = round_half_up(bw * height / width).max(90.0);
     let mut rng = Xorshift::new(tool_seed);
     let style = match params.style {
-        AuraStyle::Auto => STYLES[1 + (rng.next() * 3.0) as usize],
+        AuraStyle::Auto => AUTO_POOL[(rng.next() * AUTO_POOL.len() as f64) as usize],
         style => style,
     };
     let inks: Vec<Ink> = (0..INKS)
@@ -294,14 +295,14 @@ pub(crate) fn paint(surface: &mut Surface, params: &AuraParams, palette: &Palett
     let noise = Noise(tool_seed ^ 0x51ed_270b);
     let exponent = 1.3 + params.punch * 5.2;
     let warp = 0.4 + params.churn * 2.4;
-    let short = bw.min(bh);
+    let short_edge = bw.min(bh);
     let zoom = 1.7 * params.scale;
 
     let mut rgba = Vec::with_capacity((bw * bh) as usize * 4);
     for y in 0..bh as u32 {
-        let ny = (f64::from(y) - bh / 2.0) / short * zoom;
+        let ny = (f64::from(y) - bh / 2.0) / short_edge * zoom;
         for x in 0..bw as u32 {
-            let nx = (f64::from(x) - bw / 2.0) / short * zoom;
+            let nx = (f64::from(x) - bw / 2.0) / short_edge * zoom;
             let q1 = noise.fbm(nx + 11.3, ny + 7.9, 81);
             let q2 = noise.fbm(nx + 3.7, ny + 19.1, 82);
             let (wx, wy) = (nx + warp * (q1 - 0.5), ny + warp * (q2 - 0.5));
@@ -309,6 +310,8 @@ pub(crate) fn paint(surface: &mut Surface, params: &AuraParams, palette: &Palett
             for (channel, ink) in (60..).zip(&inks) {
                 let nz = noise.fbm2(wx * 1.15 + ink.offset.0, wy * 1.15 + ink.offset.1, channel);
                 let strength = match style {
+                    AuraStyle::Auto => unreachable!("Auto is resolved before the field"),
+                    AuraStyle::Clouds => nz,
                     AuraStyle::Mesh => {
                         let dx = wx * 0.8 - ink.centre.0;
                         let dy = wy * 0.8 - ink.centre.1;
@@ -318,7 +321,6 @@ pub(crate) fn paint(surface: &mut Surface, params: &AuraParams, palette: &Palett
                         let along = wx * ink.direction.0 + wy * ink.direction.1;
                         (0.5 + along * 0.5).clamp(0.0, 1.0) * 0.66 + nz * 0.4
                     }
-                    _ => nz,
                 };
                 let weight = strength.max(0.002).powf(exponent);
                 total += weight;

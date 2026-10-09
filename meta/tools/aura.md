@@ -62,8 +62,8 @@ The field is painted on a buffer of its own, then drawn over the whole frame:
 ## Field
 
 - `exponent = 1.3 + 5.2·punch` and `warp = 0.4 + 2.4·churn`.
-- `m = min(bw, bh)` and `zoom = 1.7·scale`.
-- A buffer pixel `(x, y)` sits at `nx = (x - bw/2) / m · zoom`, `ny = (y - bh/2) / m · zoom`. Pixels are sampled at their top-left corner, not their centre.
+- `short = min(bw, bh)` and `zoom = 1.7·scale`.
+- A buffer pixel `(x, y)` sits at `nx = (x - bw/2) / short · zoom`, `ny = (y - bh/2) / short · zoom`. Pixels are sampled at their top-left corner, not their centre.
 - Warp: `q1 = fbm(nx + 11.3, ny + 7.9, 81)` and `q2 = fbm(nx + 3.7, ny + 19.1, 82)`. The warped point is `wx = nx + warp·(q1 - 0.5)`, `wy = ny + warp·(q2 - 0.5)`.
 - Each ink `i` reads `nz = fbm2(1.15·wx + ox, 1.15·wy + oy, 60 + i)` and turns it into a strength `f` by style:
   - Clouds: `f = nz`
