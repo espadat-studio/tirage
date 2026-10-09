@@ -2,6 +2,8 @@
 
 Original generative artwork and animations, rendered from code. It reproduces the look of playgrnd.tools generators; not affiliated.
 
+Docs: https://tirage.espadat.com
+
 See [`CONTEXT.md`](./CONTEXT.md). [`encode/`](./encode) turns a Loop into an MP4 (ADR 0004).
 
 ## CLI
