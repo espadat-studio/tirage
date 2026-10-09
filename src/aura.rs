@@ -209,15 +209,15 @@ pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> AuraParams {
     }
 }
 
-struct Xorshift(u32);
+pub(crate) struct Xorshift(u32);
 
 impl Xorshift {
-    fn new(tool_seed: u32) -> Self {
+    pub(crate) fn new(tool_seed: u32) -> Self {
         let start = (f64::from(tool_seed) * 2_654_435_761.0).rem_euclid(4_294_967_296.0) as u32;
         Self(start.max(1))
     }
 
-    fn next(&mut self) -> f64 {
+    pub(crate) fn next(&mut self) -> f64 {
         let mut a = self.0;
         a ^= a << 13;
         a ^= ((a as i32) >> 17) as u32;
@@ -227,7 +227,7 @@ impl Xorshift {
     }
 }
 
-fn hash(x: i32, y: i32, channel: u32, seed: u32) -> f64 {
+pub(crate) fn hash(x: i32, y: i32, channel: u32, seed: u32) -> f64 {
     let mut n = (x as u32).wrapping_mul(374_761_393)
         ^ (y as u32).wrapping_mul(668_265_263)
         ^ channel.wrapping_mul(1_440_662_683)
@@ -238,7 +238,7 @@ fn hash(x: i32, y: i32, channel: u32, seed: u32) -> f64 {
     f64::from(n) / 4_294_967_296.0
 }
 
-struct Noise(u32);
+pub(crate) struct Noise(pub(crate) u32);
 
 impl Noise {
     fn value(&self, x: f64, y: f64, channel: u32) -> f64 {
@@ -252,13 +252,13 @@ impl Noise {
         a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v
     }
 
-    fn fbm(&self, x: f64, y: f64, channel: u32) -> f64 {
+    pub(crate) fn fbm(&self, x: f64, y: f64, channel: u32) -> f64 {
         self.value(x, y, channel) * 0.55
             + self.value(x * 2.13, y * 2.13, channel + 11) * 0.28
             + self.value(x * 4.31, y * 4.31, channel + 23) * 0.17
     }
 
-    fn fbm2(&self, x: f64, y: f64, channel: u32) -> f64 {
+    pub(crate) fn fbm2(&self, x: f64, y: f64, channel: u32) -> f64 {
         self.value(x, y, channel) * 0.62 + self.value(x * 2.13, y * 2.13, channel + 11) * 0.38
     }
 }

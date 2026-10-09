@@ -24,6 +24,7 @@ registry::tools! {
     Stitch: stitch::{StitchParams},
     Pith: pith::{PithParams},
     Mosh: mosh::{MoshParams},
+    Mist: mist::{MistParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
