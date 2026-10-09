@@ -9,7 +9,7 @@ One playgrnd.tools generator we reproduce, named by its site slug (aura, riso, m
 _Avoid_: Effect, filter, generator
 
 **Parameter**:
-One named, bounded input of a Tool, matching a slider or toggle on its site page.
+One named, bounded input of a Tool, matching a slider, toggle or picker on its site page.
 _Avoid_: Option, setting, knob
 
 **Palette**:
