@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::chassis::{Blend, Dither, DitherKind, Grain, hash, round_half_up, value_noise};
+use crate::param::Param;
 use crate::surface::Surface;
 use crate::{Error, Palette, Parameter};
 
@@ -12,80 +14,20 @@ const DEFAULT_PALETTE: [&str; 6] = [
     "#0a0f1c", "#3ddc97", "#4361ee", "#ffd166", "#ef476f", "#f1faee",
 ];
 
-struct Param {
-    id: &'static str,
-    min: u32,
-    max: u32,
-    step: u32,
-    unit: u32,
-    taste: (u32, u32),
-}
-
-impl Param {
-    const fn unit(id: &'static str, taste: (u32, u32)) -> Self {
-        Self {
-            id,
-            min: 0,
-            max: 100,
-            step: 1,
-            unit: 100,
-            taste,
-        }
-    }
-
-    fn deal(&self, draw: u64) -> f64 {
-        let (low, high) = self.taste;
-        let steps = u64::from((high - low) / self.step + 1);
-        let ticks = low + (draw % steps) as u32 * self.step;
-        f64::from(ticks) / f64::from(self.unit)
-    }
-
-    fn parameter(&self) -> Parameter {
-        let unit = f64::from(self.unit);
-        Parameter {
-            id: self.id,
-            min: f64::from(self.min) / unit,
-            max: f64::from(self.max) / unit,
-            step: f64::from(self.step) / unit,
-        }
-    }
-
-    fn check(&self, value: f64) -> Result<f64, Error> {
-        let Parameter { min, max, .. } = self.parameter();
-        if (min..=max).contains(&value) {
-            return Ok(value);
-        }
-        Err(Error::OutOfRange {
-            tool: SLUG,
-            param: self.id,
-            value,
-            min,
-            max,
-        })
-    }
-}
-
-const LEVEL: Param = Param::unit("level", (25, 70));
-const SCALE: Param = Param {
-    id: "scale",
-    min: 10,
-    max: 100,
-    step: 1,
-    unit: 10,
-    taste: (10, 100),
+const LEVEL: Param = Param {
+    taste: (25, 70),
+    ..Param::new(SLUG, "level", 0, 100, 100)
 };
-const WARP: Param = Param::unit("warp", (0, 100));
+const SCALE: Param = Param::new(SLUG, "scale", 10, 100, 10);
+const WARP: Param = Param::new(SLUG, "warp", 0, 100, 100);
 const GRID: Param = Param {
-    id: "grid",
-    min: 40,
-    max: 320,
     step: 2,
-    unit: 1,
     taste: (140, 300),
+    ..Param::new(SLUG, "grid", 40, 320, 1)
 };
-const DEPTH: Param = Param::unit("depth", (0, 100));
-const FRINGE: Param = Param::unit("fringe", (0, 100));
-const SPARK: Param = Param::unit("spark", (0, 100));
+const DEPTH: Param = Param::new(SLUG, "depth", 0, 100, 100);
+const FRINGE: Param = Param::new(SLUG, "fringe", 0, 100, 100);
+const SPARK: Param = Param::new(SLUG, "spark", 0, 100, 100);
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct SonarParams {
@@ -96,6 +38,10 @@ pub struct SonarParams {
     depth: f64,
     fringe: f64,
     spark: f64,
+    #[serde(flatten)]
+    dither: Dither,
+    #[serde(flatten)]
+    grain: Grain,
 }
 
 impl Default for SonarParams {
@@ -108,6 +54,8 @@ impl Default for SonarParams {
             depth: 0.7,
             fringe: 0.45,
             spark: 0.6,
+            dither: Dither::default(),
+            grain: Grain::default(),
         }
     }
 }
@@ -176,6 +124,22 @@ impl SonarParams {
         self.spark = SPARK.check(spark)?;
         Ok(())
     }
+
+    pub fn dither(&self) -> &Dither {
+        &self.dither
+    }
+
+    pub fn dither_mut(&mut self) -> &mut Dither {
+        &mut self.dither
+    }
+
+    pub fn grain(&self) -> &Grain {
+        &self.grain
+    }
+
+    pub fn grain_mut(&mut self) -> &mut Grain {
+        &mut self.grain
+    }
 }
 
 #[derive(Deserialize)]
@@ -188,6 +152,28 @@ struct Unchecked {
     depth: f64,
     fringe: f64,
     spark: f64,
+    #[serde(rename = "ditherTog")]
+    dither_on: bool,
+    #[serde(rename = "dthKinds")]
+    dither_kind: DitherKind,
+    #[serde(rename = "dthSize")]
+    dither_size: u32,
+    #[serde(rename = "dthLevels")]
+    dither_levels: u32,
+    #[serde(rename = "dthAmount")]
+    dither_amount: f64,
+    #[serde(rename = "grainTog")]
+    grain_on: bool,
+    #[serde(rename = "grnBlends")]
+    grain_blend: Blend,
+    #[serde(rename = "grnAmount")]
+    grain_amount: f64,
+    #[serde(rename = "grnSize")]
+    grain_size: f64,
+    #[serde(rename = "grnSpecks")]
+    grain_specks: f64,
+    #[serde(rename = "grnVignette")]
+    grain_vignette: f64,
 }
 
 pub(crate) fn from_json(params: serde_json::Value) -> Result<SonarParams, Error> {
@@ -200,6 +186,19 @@ pub(crate) fn from_json(params: serde_json::Value) -> Result<SonarParams, Error>
     params.set_depth(raw.depth)?;
     params.set_fringe(raw.fringe)?;
     params.set_spark(raw.spark)?;
+    let dither = params.dither_mut();
+    dither.set_on(raw.dither_on);
+    dither.set_kind(raw.dither_kind);
+    dither.set_size(raw.dither_size)?;
+    dither.set_levels(raw.dither_levels)?;
+    dither.set_amount(raw.dither_amount)?;
+    let grain = params.grain_mut();
+    grain.set_on(raw.grain_on);
+    grain.set_blend(raw.grain_blend);
+    grain.set_amount(raw.grain_amount)?;
+    grain.set_size(raw.grain_size)?;
+    grain.set_specks(raw.grain_specks)?;
+    grain.set_vignette(raw.grain_vignette)?;
     Ok(params)
 }
 
@@ -224,6 +223,8 @@ pub(crate) fn deal(draw: impl Fn(&str) -> u64) -> SonarParams {
         depth: pick(&DEPTH),
         fringe: pick(&FRINGE),
         spark: pick(&SPARK),
+        dither: Dither::default(),
+        grain: Grain::default(),
     }
 }
 
@@ -298,35 +299,6 @@ pub(crate) fn paint(
             }
         }
     }
-}
-
-fn round_half_up(value: f64) -> f64 {
-    let floor = value.floor();
-    if value - floor >= 0.5 {
-        floor + 1.0
-    } else {
-        floor
-    }
-}
-
-fn hash(x: i32, y: i32, seed: u32) -> f64 {
-    let mut n = (x as u32)
-        .wrapping_mul(374_761_393)
-        .wrapping_add((y as u32).wrapping_mul(668_265_263))
-        .wrapping_add(seed.wrapping_mul(1_274_126_177));
-    n = (n ^ (n >> 13)).wrapping_mul(1_274_126_177);
-    n ^= n >> 16;
-    f64::from(n) / 4_294_967_296.0
-}
-
-fn value_noise(x: f64, y: f64, seed: u32) -> f64 {
-    let (x0, y0) = (x.floor(), y.floor());
-    let smooth = |t: f64| t * t * (3.0 - 2.0 * t);
-    let (u, v) = (smooth(x - x0), smooth(y - y0));
-    let (xi, yi) = (x0 as i32, y0 as i32);
-    let corner = |dx: i32, dy: i32| hash(xi.wrapping_add(dx), yi.wrapping_add(dy), seed);
-    (corner(0, 0) * (1.0 - u) + corner(1, 0) * u) * (1.0 - v)
-        + (corner(0, 1) * (1.0 - u) + corner(1, 1) * u) * v
 }
 
 fn fbm(x: f64, y: f64, seed: u32, octaves: u32) -> f64 {

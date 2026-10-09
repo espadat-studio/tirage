@@ -20,15 +20,15 @@ fn derive_gives_golden_recipes() {
     let golden = [
         (
             1,
-            r##"{"tirage":0,"tool":"sonar","tool_seed":9611518,"palette":["#0a0f1c","#3ddc97","#4361ee","#ffd166","#ef476f","#f1faee"],"params":{"level":0.46,"scale":7.3,"warp":0.61,"grid":238,"depth":0.16,"fringe":0.04,"spark":0.1}}"##,
+            r##"{"tirage":0,"tool":"sonar","tool_seed":9611518,"palette":["#0a0f1c","#3ddc97","#4361ee","#ffd166","#ef476f","#f1faee"],"params":{"level":0.46,"scale":7.3,"warp":0.61,"grid":238,"depth":0.16,"fringe":0.04,"spark":0.1,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
         ),
         (
             2,
-            r##"{"tirage":0,"tool":"sonar","tool_seed":3724278653,"palette":["#0a0f1c","#3ddc97","#4361ee","#ffd166","#ef476f","#f1faee"],"params":{"level":0.46,"scale":4.3,"warp":0.2,"grid":270,"depth":0.98,"fringe":0.58,"spark":0.85}}"##,
+            r##"{"tirage":0,"tool":"sonar","tool_seed":3724278653,"palette":["#0a0f1c","#3ddc97","#4361ee","#ffd166","#ef476f","#f1faee"],"params":{"level":0.46,"scale":4.3,"warp":0.2,"grid":270,"depth":0.98,"fringe":0.58,"spark":0.85,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
         ),
         (
             u64::MAX,
-            r##"{"tirage":0,"tool":"sonar","tool_seed":3565986084,"palette":["#0a0f1c","#3ddc97","#4361ee","#ffd166","#ef476f","#f1faee"],"params":{"level":0.63,"scale":2.6,"warp":0.99,"grid":218,"depth":0.2,"fringe":0.4,"spark":0.02}}"##,
+            r##"{"tirage":0,"tool":"sonar","tool_seed":3565986084,"palette":["#0a0f1c","#3ddc97","#4361ee","#ffd166","#ef476f","#f1faee"],"params":{"level":0.63,"scale":2.6,"warp":0.99,"grid":218,"depth":0.2,"fringe":0.4,"spark":0.02,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
         ),
     ];
     for (seed, json) in golden {
@@ -94,6 +94,18 @@ fn setters_reject_values_outside_the_site_range() {
         error(p.set_spark(f64::NAN)),
         "sonar: spark NaN is outside 0..=1"
     );
+    assert_eq!(
+        error(p.grain_mut().set_amount(-0.1)),
+        "grain: grnAmount -0.1 is outside 0..=1"
+    );
+    assert_eq!(
+        error(p.dither_mut().set_levels(9)),
+        "dither: dthLevels 9 is outside 2..=8"
+    );
+    assert_eq!(
+        error(p.dither_mut().set_size(0)),
+        "dither: dthSize 0 is outside 1..=10"
+    );
     assert_eq!(p, SonarParams::default());
     p.set_level(1.0).unwrap();
     assert_eq!(p.level(), 1.0);
@@ -129,7 +141,7 @@ fn json(edit: impl FnOnce(&mut serde_json::Value)) -> Result<Recipe, tirage::Err
 
 #[test]
 fn recipe_json_errors_are_human() {
-    let cases: [(&str, Edit); 7] = [
+    let cases: [(&str, Edit); 9] = [
         ("Recipe is tirage major 1, this build reads major 0", |v| {
             v["tirage"] = 1.into()
         }),
@@ -138,12 +150,19 @@ fn recipe_json_errors_are_human() {
             |v| v["colour"] = 1.into(),
         ),
         (
-            "Recipe JSON: params: unknown field `lvl`, expected one of `level`, `scale`, `warp`, `grid`, `depth`, `fringe`, `spark`",
+            "Recipe JSON: params: unknown field `lvl`, expected one of `level`, `scale`, `warp`, `grid`, `depth`, `fringe`, `spark`, `ditherTog`, `dthKinds`, `dthSize`, `dthLevels`, `dthAmount`, `grainTog`, `grnBlends`, `grnAmount`, `grnSize`, `grnSpecks`, `grnVignette`",
             |v| v["params"]["lvl"] = 1.into(),
         ),
         ("sonar: level 1.4 is outside 0..=1", |v| {
             v["params"]["level"] = 1.4.into()
         }),
+        ("grain: grnSize 0.4 is outside 0.5..=4", |v| {
+            v["params"]["grnSize"] = 0.4.into()
+        }),
+        (
+            "Recipe JSON: params: unknown variant `Bayer 16`, expected one of `Bayer 8`, `Bayer 4`, `Noise`",
+            |v| v["params"]["dthKinds"] = "Bayer 16".into(),
+        ),
         (r##"palette: "#ggg000" is not a #rrggbb colour"##, |v| {
             v["palette"][0] = "#ggg000".into()
         }),
@@ -151,7 +170,7 @@ fn recipe_json_errors_are_human() {
             v["tool"] = "vien".into()
         }),
         (
-            "Recipe JSON: invalid value: integer `0`, expected a nonzero u32 at line 1 column 211",
+            "Recipe JSON: invalid value: integer `0`, expected a nonzero u32 at line 1 column 392",
             |v| v["tool_seed"] = 0.into(),
         ),
     ];
