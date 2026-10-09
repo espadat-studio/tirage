@@ -132,7 +132,9 @@ fn recipe_json_rejects_unknown_bites_and_keys() {
 #[test]
 fn a_two_ink_palette_fills_with_the_silhouette() {
     let mut recipe = derive(7, HUSK);
-    recipe.set_palette(Palette::from_hex(&["#000000", "#ff0000"]).unwrap());
+    recipe
+        .set_palette(Palette::from_hex(&["#000000", "#ff0000"]).unwrap())
+        .unwrap();
     let image = render(&recipe, &Frame::new(&recipe, 90, 160, 0).unwrap());
     let Params::Husk(p) = recipe.params() else {
         unreachable!()

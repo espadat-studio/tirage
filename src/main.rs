@@ -143,7 +143,9 @@ fn run(command: Command) -> Result<(), String> {
             };
             let mut recipe = derive(seed, pin);
             if let Some(palette) = palette {
-                recipe.set_palette(palette);
+                recipe
+                    .set_palette(palette)
+                    .unwrap_or_else(|e| usage("derive", &e.to_string()));
             }
             emit(format!("{}\n", recipe.to_json()).as_bytes())
         }

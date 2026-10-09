@@ -449,6 +449,29 @@ fn derive_reads_taste_bounds_from_a_file() {
 }
 
 #[test]
+fn derive_rejects_more_inks_than_the_tool_draws_as_a_usage_error() {
+    let out = tirage(
+        &[
+            "derive",
+            "--seed",
+            "42",
+            "--tool",
+            "aura",
+            "--palette",
+            "#000000,#111111,#222222,#333333,#444444",
+        ],
+        b"",
+    );
+    assert_eq!(out.status.code(), Some(2));
+    assert!(
+        text(&out.stderr).contains("aura: palette has 5 inks, aura draws at most 4"),
+        "{}",
+        text(&out.stderr)
+    );
+    assert!(out.stdout.is_empty());
+}
+
+#[test]
 fn derive_rejects_malformed_hex_as_a_usage_error() {
     let out = tirage(
         &["derive", "--seed", "42", "--palette", "#000000,#fff"],

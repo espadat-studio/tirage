@@ -158,12 +158,13 @@ struct WireIn {
 }
 
 impl Recipe {
-    pub fn new(tool_seed: NonZeroU32, palette: Palette, params: Params) -> Self {
-        Self {
+    pub fn new(tool_seed: NonZeroU32, palette: Palette, params: Params) -> Result<Self, Error> {
+        let palette = fit(params.tool(), palette)?;
+        Ok(Self {
             tool_seed,
             palette,
             params,
-        }
+        })
     }
 
     pub fn tool(&self) -> Tool {
@@ -182,8 +183,9 @@ impl Recipe {
         &self.palette
     }
 
-    pub fn set_palette(&mut self, palette: Palette) {
-        self.palette = palette;
+    pub fn set_palette(&mut self, palette: Palette) -> Result<(), Error> {
+        self.palette = fit(self.tool(), palette)?;
+        Ok(())
     }
 
     pub fn params(&self) -> &Params {
@@ -217,12 +219,23 @@ impl Recipe {
             Tool::Vein => Params::Vein(vein::from_json(wire.params)?),
             Tool::Aura => Params::Aura(aura::from_json(wire.params)?),
         };
-        Ok(Self {
-            tool_seed: wire.tool_seed,
-            palette: Palette::from_hex(&wire.palette)?,
-            params,
-        })
+        Self::new(wire.tool_seed, Palette::from_hex(&wire.palette)?, params)
     }
+}
+
+fn fit(tool: Tool, palette: Palette) -> Result<Palette, Error> {
+    let max = match tool {
+        Tool::Aura => aura::INKS,
+        Tool::Sonar | Tool::Husk | Tool::Vein => return Ok(palette),
+    };
+    if palette.len() > max {
+        return Err(Error::TooManyInks {
+            tool,
+            inks: palette.len(),
+            max,
+        });
+    }
+    Ok(palette)
 }
 
 fn json_error(error: serde_json::Error) -> Error {

@@ -134,3 +134,24 @@ fn aura_is_appended_to_the_registry() {
     assert_eq!(Tool::ALL.last(), Some(&Tool::Aura));
     assert_eq!(Tool::from_slug("aura").unwrap(), Tool::Aura);
 }
+
+#[test]
+fn a_palette_over_four_inks_is_refused() {
+    let five = Palette::from_hex(&["#ff8fcb", "#b79cff", "#ffe066", "#6ee7c8", "#7cc6ff"]).unwrap();
+    let mut recipe = derive(7, AURA);
+    assert_eq!(
+        error(recipe.set_palette(five)),
+        "aura: palette has 5 inks, aura draws at most 4"
+    );
+    assert_eq!(recipe, derive(7, AURA));
+    let four = Palette::from_hex(&["#ff8fcb", "#b79cff", "#ffe066", "#6ee7c8"]).unwrap();
+    recipe.set_palette(four.clone()).unwrap();
+    assert_eq!(recipe.palette(), &four);
+
+    let mut value: serde_json::Value = serde_json::from_str(&derive(7, AURA).to_json()).unwrap();
+    value["palette"] = serde_json::json!(["#000000", "#111111", "#222222", "#333333", "#444444"]);
+    assert_eq!(
+        error(Recipe::from_json(&value.to_string())),
+        "aura: palette has 5 inks, aura draws at most 4"
+    );
+}

@@ -32,6 +32,7 @@ pub fn derive(seed: u64, pin: ToolPin) -> Recipe {
         palette,
         params,
     )
+    .expect("a Tool's default Palette fits it")
 }
 
 fn keyed_hash(seed: u64, key: &[&str]) -> u64 {

@@ -17,7 +17,7 @@ Site control ids, slider ranges and site defaults:
 
 Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. aura is a Still Tool: one frame, motion stays off and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. Default Palette: `#ff8a5b #ffc15e #f4a7d6 #8e7cff`.
 
-The site has 4 ink swatches, and every swatch takes part. Inks go by position, wrapping when the Palette is short. Inks past the fourth are unused, since the site's "My colors" fills its 4 swatches from the first 4 of a longer set.
+The site has 4 ink swatches, and every swatch takes part. A Palette of more than 4 inks is refused, since the site's "My colors" would keep only the first 4. A shorter Palette wraps by position. The site fills those slots with derived tints instead, so a Palette under 4 inks does not replay on the site.
 
 ## Random draws
 

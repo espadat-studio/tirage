@@ -12,7 +12,7 @@ pub(crate) const SLUG: &str = "aura";
 pub(crate) const FRAMES: u32 = 1;
 pub(crate) const FPS: u32 = 12;
 const BUDGET: f64 = 700.0;
-const INKS: usize = 4;
+pub(crate) const INKS: usize = 4;
 
 const DEFAULT_PALETTE: [&str; INKS] = ["#ff8a5b", "#ffc15e", "#f4a7d6", "#8e7cff"];
 
