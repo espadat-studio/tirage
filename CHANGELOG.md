@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/espadat-studio/tirage/compare/v0.1.1...v0.2.0) - 2026-10-09
+
+### Added
+
+- [**breaking**] add benday, terrain, stitch, pith and mosh as stills ([#111](https://github.com/espadat-studio/tirage/pull/111))
+- *(cli)* roll a random Seed to a PNG or MP4 with tirage roll ([#110](https://github.com/espadat-studio/tirage/pull/110))
+- *(cli)* encode a Loop to MP4 with tirage encode ([#108](https://github.com/espadat-studio/tirage/pull/108))
+
+### Other
+
+- *(glossary)* narrow palette to the colours a tool can be given ([#97](https://github.com/espadat-studio/tirage/pull/97))
+- registry table, taste triage rig and ADR 0003 amendment ([#95](https://github.com/espadat-studio/tirage/pull/95))
+- *(glossary)* define edition ([#89](https://github.com/espadat-studio/tirage/pull/89))
+- *(cli)* [**breaking**] move the tirage binary into its own crate ([#94](https://github.com/espadat-studio/tirage/pull/94))
+- pass client-id to create-github-app-token ([#85](https://github.com/espadat-studio/tirage/pull/85))
+
 ## [0.1.1](https://github.com/espadat-studio/tirage/compare/v0.1.0...v0.1.1) - 2026-10-09
 
 ### Added
