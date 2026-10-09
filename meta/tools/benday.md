@@ -60,7 +60,7 @@ The ramp at `t` in 0..1: `p = clamp(t, 0, 1) (n - 1)` for `n` inks, `k = min(n -
 
 - The cell is `max(2, U (0.006 + 0.03 dot))` px.
 - The screen angle is `80 angle` degrees, with cosine `ca` and sine `sa`.
-- Dot radius limits `rmin = 0.13`, `rmax = 0.7`, and `γ = 1 / (0.45 + 1.4 bite)`. The core share is `0.8 ring`.
+- Dot radius range `rmin = 0.13`, `rmax = 0.7`, and `γ = 1 / (0.45 + 1.4 bite)`. The core share is `0.8 ring`.
 - Paper is `(244, 241, 232)`.
 
 Each pixel, after its band colour `C`:
