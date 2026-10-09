@@ -39,3 +39,7 @@ mise run check
 ```
 
 `mise tasks` lists the rest.
+
+## Licence
+
+AGPL-3.0-or-later ([LICENSE](./LICENSE)). The Reference exports under [`tests/refs/`](./tests/refs) are test fixtures outside it, as their [README](./tests/refs/README.md) states.
