@@ -1,4 +1,5 @@
 use std::io::Write;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
 
 const BIN: &str = env!("CARGO_BIN_EXE_tirage");
@@ -25,6 +26,31 @@ fn on_tty(script: &str) -> Output {
         .stdin(Stdio::null())
         .output()
         .unwrap()
+}
+
+fn on_tty_typing(script: &str, keys: &str, dir: &Path) -> Output {
+    let mut child = Command::new("script")
+        .args([
+            "-qec",
+            &script.replace("tirage", &format!("'{BIN}'")),
+            "/dev/null",
+        ])
+        .current_dir(dir)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let mut stdin = child.stdin.take().unwrap();
+    stdin.write_all(keys.as_bytes()).unwrap();
+    let out = child.wait_with_output().unwrap();
+    drop(stdin);
+    out
+}
+
+fn scratch(name: &str) -> PathBuf {
+    let dir = std::env::temp_dir().join(format!("tirage-{name}-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    dir
 }
 
 fn text(bytes: &[u8]) -> String {
@@ -193,7 +219,7 @@ fn render_refuses_png_bytes_on_a_terminal() {
 
 #[test]
 fn render_refuses_to_wait_on_a_terminal_for_a_recipe() {
-    let out = on_tty("tirage render --size 9x16 -o out.png");
+    let out = on_tty("tirage render --size 9x16 -o out.png --no-input");
     assert_eq!(out.status.code(), Some(2));
     assert!(
         text(&out.stdout).contains("no Recipe on stdin"),
@@ -715,4 +741,183 @@ fn errors_are_red_on_a_colour_terminal_only() {
         )
         .contains('\x1b')
     );
+}
+
+#[test]
+fn derive_prompts_for_a_missing_seed_on_a_terminal() {
+    let dir = scratch("seed");
+    let out = on_tty_typing(
+        "tirage derive --tool sonar > recipe.json",
+        "abc\r42\r",
+        &dir,
+    );
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stdout));
+    assert_eq!(std::fs::read(dir.join("recipe.json")).unwrap(), recipe());
+    assert!(
+        text(&out.stdout).contains("→ tirage derive --tool sonar --seed 42"),
+        "{}",
+        text(&out.stdout)
+    );
+    let out = on_tty_typing("tirage derive > random.json", "\r", &dir);
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stdout));
+    json(&std::fs::read(dir.join("random.json")).unwrap());
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn render_derives_a_recipe_inline_like_derive_piped_into_render() {
+    let dir = scratch("inline");
+    let out = on_tty_typing("tirage render --size 9x16", "42\rso\r\r", &dir);
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stdout));
+    let piped = tirage(&["render", "--size", "9x16", "-o", "-"], &recipe()).stdout;
+    assert_eq!(std::fs::read(dir.join("sonar-42.png")).unwrap(), piped);
+    assert!(
+        text(&out.stdout).contains(
+            "→ tirage derive --seed 42 --tool sonar | tirage render --size 9x16 -o sonar-42.png"
+        ),
+        "{}",
+        text(&out.stdout)
+    );
+    let out = on_tty_typing("tirage render --size 9x16 -o dealt.png", "42\r\r", &dir);
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stdout));
+    let dealt = tirage(&["derive", "--seed", "42"], b"").stdout;
+    let piped = tirage(&["render", "--size", "9x16", "-o", "-"], &dealt).stdout;
+    assert_eq!(std::fs::read(dir.join("dealt.png")).unwrap(), piped);
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn render_prompts_for_a_preset_or_custom_size() {
+    let dir = scratch("size");
+    std::fs::write(dir.join("recipe.json"), recipe()).unwrap();
+    for (keys, size) in [("\r", (1080, 1920)), ("cus\r0x5\r90x160\r", (90, 160))] {
+        let out = on_tty_typing("tirage render recipe.json -o out.png", keys, &dir);
+        assert_eq!(
+            out.status.code(),
+            Some(0),
+            "{keys:?}: {}",
+            text(&out.stdout)
+        );
+        let png = image::open(dir.join("out.png")).unwrap();
+        assert_eq!((png.width(), png.height()), size, "{keys:?}");
+    }
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn the_output_prompt_asks_before_overwriting() {
+    let dir = scratch("overwrite");
+    std::fs::write(dir.join("recipe.json"), recipe()).unwrap();
+    std::fs::write(dir.join("out.png"), "keep").unwrap();
+    let out = on_tty_typing(
+        "tirage render recipe.json --size 9x16",
+        "\r\rother.png\r",
+        &dir,
+    );
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stdout));
+    assert_eq!(std::fs::read(dir.join("out.png")).unwrap(), b"keep");
+    image::open(dir.join("other.png")).unwrap();
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn esc_at_a_prompt_exits_130_and_writes_nothing() {
+    let dir = scratch("esc");
+    std::fs::write(dir.join("recipe.json"), recipe()).unwrap();
+    std::fs::write(dir.join("out.png"), "keep").unwrap();
+    for (script, keys, message) in [
+        ("tirage render --size 9x16", "42\r\x1b", "no Tool selected"),
+        (
+            "tirage render recipe.json -o new.png",
+            "\x1b",
+            "no frame size selected",
+        ),
+        (
+            "tirage render recipe.json --size 9x16",
+            "\r\x1b",
+            "no output path selected",
+        ),
+    ] {
+        let out = on_tty_typing(script, keys, &dir);
+        assert_eq!(
+            out.status.code(),
+            Some(130),
+            "{script}: {}",
+            text(&out.stdout)
+        );
+        assert!(
+            text(&out.stdout).contains(message),
+            "{script}: {}",
+            text(&out.stdout)
+        );
+    }
+    let mut files: Vec<_> = std::fs::read_dir(&dir)
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name())
+        .collect();
+    files.sort();
+    assert_eq!(files, ["out.png", "recipe.json"]);
+    assert_eq!(std::fs::read(dir.join("out.png")).unwrap(), b"keep");
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn prompts_are_off_without_a_full_terminal() {
+    let dir = scratch("no-input");
+    let seed = "no Seed given, pass --seed <N>, like --seed 42";
+    for script in [
+        "tirage derive --no-input",
+        "tirage --no-input derive",
+        "TIRAGE_NO_INPUT=1 tirage derive",
+        "TERM=dumb tirage derive",
+    ] {
+        let out = on_tty_typing(script, "", &dir);
+        assert_eq!(out.status.code(), Some(2), "{script}");
+        assert!(
+            text(&out.stdout).contains(seed),
+            "{script}: {}",
+            text(&out.stdout)
+        );
+    }
+    let out = on_tty_typing("tirage derive 2>err.log", "", &dir);
+    assert_eq!(out.status.code(), Some(2));
+    assert!(
+        std::fs::read_to_string(dir.join("err.log"))
+            .unwrap()
+            .contains(seed)
+    );
+    let cases: [(&[&str], &[u8], &str); 3] = [
+        (&["derive"], b"", seed),
+        (
+            &["render", "-o", "-"],
+            &recipe(),
+            "no frame size given, pass --size <W>x<H>, like 1080x1920",
+        ),
+        (
+            &["render", "--size", "9x16"],
+            &recipe(),
+            "no output path given, pass -o FILE, or -o - for stdout",
+        ),
+    ];
+    for (args, stdin, message) in cases {
+        let out = tirage(args, stdin);
+        assert_eq!(out.status.code(), Some(2), "{args:?}");
+        assert!(
+            text(&out.stderr).contains(message),
+            "{args:?}: {}",
+            text(&out.stderr)
+        );
+    }
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn short_help_stays_short_and_long_help_shows_shapes() {
+    let short = text(&tirage(&["render", "-h"], b"").stdout);
+    let long = text(&tirage(&["render", "--help"], b"").stdout);
+    assert!(short.contains("prompted on a terminal"), "{short}");
+    assert!(!short.contains("1080x1350"), "{short}");
+    assert!(long.contains("1080x1350 portrait"), "{long}");
+    let concise = text(&on_tty("tirage").stdout);
+    assert!(concise.contains("prompt on a terminal"), "{concise}");
 }

@@ -1,5 +1,6 @@
 use std::error::Error as _;
 use std::fs;
+use std::hash::{BuildHasher, RandomState};
 use std::io::{self, IsTerminal, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -11,11 +12,14 @@ use clap::{ArgAction, ColorChoice, CommandFactory, FromArgMatches, Parser, Subco
 use clap_complete::Shell;
 use serde::Serialize;
 
+use prompt::{Choice, Prompt};
+
 mod hint;
+mod prompt;
 
 use tirage::{
-    DERIVATION_MAJOR, Frame, Palette, Parameter, ParameterKind, Recipe, Taste, Tool, ToolPin,
-    VERSION, derive, render,
+    DERIVATION_MAJOR, Frame, MAX_EDGE, Palette, Parameter, ParameterKind, Recipe, Taste, Tool,
+    ToolPin, VERSION, derive, render,
 };
 
 const EXAMPLES: &str = "Examples:
@@ -32,6 +36,7 @@ Examples:
   tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
   tirage tools
 
+Commands prompt on a terminal for values you leave out.
 Run 'tirage --help' for more.";
 
 const LINKS: &str = "Docs: https://github.com/espadat-studio/tirage#readme
@@ -49,8 +54,10 @@ Issues: https://github.com/espadat-studio/tirage/issues";
 struct Cli {
     #[command(subcommand)]
     command: Command,
-    #[arg(short, long, action = ArgAction::HelpLong, global = true, help = "Print help")]
+    #[arg(short = 'h', action = ArgAction::Help, global = true, help = "Print short help")]
     help: Option<bool>,
+    #[arg(long = "help", action = ArgAction::HelpLong, global = true, help = "Print long help")]
+    help_long: Option<bool>,
     #[arg(long, action = ArgAction::Version, help = "Print version and derivation major")]
     version: Option<bool>,
     #[arg(
@@ -59,6 +66,8 @@ struct Cli {
         help = "Turn off colour, also NO_COLOR or TERM=dumb"
     )]
     no_color: bool,
+    #[arg(long, global = true, help = "Never prompt, also TIRAGE_NO_INPUT=1")]
+    no_input: bool,
 }
 
 #[derive(Subcommand)]
@@ -69,8 +78,13 @@ enum Command {
         before_help = "Examples:\n  tirage derive --seed 42 > recipe.json\n  tirage derive --seed 42 --tool sonar --palette '#000000,#ffffff'\n  tirage derive --seed 42 --taste taste.json"
     )]
     Derive {
-        #[arg(long, help = "Seed to derive the Recipe from")]
-        seed: u64,
+        #[arg(
+            long,
+            value_name = "N",
+            help = "Seed to derive the Recipe from, prompted on a terminal",
+            long_help = "Seed to derive the Recipe from, an integer in 0..=18446744073709551615. Prompted on a terminal with a random Seed as default"
+        )]
+        seed: Option<u64>,
         #[arg(long, value_name = "SLUG", value_parser = ToolParser, hide_possible_values = true, help = "Tool to pin, see 'tirage tools'. Dealt from the Seed when left out")]
         tool: Option<Tool>,
         #[arg(
@@ -91,12 +105,18 @@ enum Command {
     Render {
         #[arg(
             value_name = "FILE",
-            default_value = "-",
-            help = "Recipe JSON, '-' for stdin"
+            help = "Recipe JSON, '-' for stdin, derived by prompts on a terminal",
+            long_help = "Recipe JSON, '-' for stdin, which is the default. On a terminal with nothing piped in, prompts for a Seed and a Tool and derives the Recipe"
         )]
-        input: PathBuf,
-        #[arg(long, value_name = "W>x<H", value_parser = parse_size, help = "Frame size in pixels")]
-        size: (u32, u32),
+        input: Option<PathBuf>,
+        #[arg(
+            long,
+            value_name = "W>x<H",
+            value_parser = parse_size,
+            help = "Frame size in pixels, prompted on a terminal",
+            long_help = "Frame size in pixels as <W>x<H>, each edge in 1..=8192. Prompted on a terminal with presets: 1080x1920 story, 1080x1350 portrait, 1080x1080 square, 1920x1080 landscape"
+        )]
+        size: Option<(u32, u32)>,
         #[arg(
             long,
             value_name = "T",
@@ -104,8 +124,13 @@ enum Command {
             help = "Frame of a Loop, from 0"
         )]
         frame: u32,
-        #[arg(short, value_name = "FILE", help = "PNG to write, '-' for stdout")]
-        output: PathBuf,
+        #[arg(
+            short,
+            value_name = "FILE",
+            help = "PNG to write, '-' for stdout, prompted on a terminal",
+            long_help = "PNG to write, '-' for stdout. Prompted on a terminal with <tool>-<seed>.png or out.png as default, asking before it overwrites a file"
+        )]
+        output: Option<PathBuf>,
     },
     #[command(
         visible_aliases = ["t", "ls"],
@@ -159,7 +184,46 @@ struct ToolListing {
 enum Failure {
     Usage(&'static str, String, Option<String>),
     Runtime(String, Option<String>),
+    Aborted(String),
 }
+
+const SEED: Choice = Choice {
+    noun: "Seed",
+    prompt: "Seed",
+    resolved_by: "--seed <N>, like --seed 42",
+};
+
+const TOOL: Choice = Choice {
+    noun: "Tool",
+    prompt: "Tool",
+    resolved_by: "--tool <SLUG>",
+};
+
+const SIZE: Choice = Choice {
+    noun: "frame size",
+    prompt: "Frame size",
+    resolved_by: "--size <W>x<H>, like 1080x1920",
+};
+
+const CUSTOM_SIZE: Choice = Choice {
+    noun: "frame size",
+    prompt: "Frame size as <W>x<H>",
+    resolved_by: "--size <W>x<H>, like 1080x1920",
+};
+
+const OUTPUT: Choice = Choice {
+    noun: "output path",
+    prompt: "PNG to write",
+    resolved_by: "-o FILE, or -o - for stdout",
+};
+
+const SIZES: [(Option<(u32, u32)>, &str); 5] = [
+    (Some((1080, 1920)), "story"),
+    (Some((1080, 1350)), "portrait 4:5"),
+    (Some((1080, 1080)), "square"),
+    (Some((1920, 1080)), "landscape"),
+    (None, "custom…"),
+];
 
 impl Failure {
     fn usage(subcommand: &'static str, error: &tirage::Error) -> Self {
@@ -198,7 +262,7 @@ fn main() -> ExitCode {
         std::process::exit(2)
     });
     let cli = Cli::from_arg_matches(&matches).unwrap_or_else(|error| error.exit());
-    match run(cli.command) {
+    match run(cli.command, cli.no_input) {
         Ok(()) => ExitCode::SUCCESS,
         Err(Failure::Usage(subcommand, message, hint)) => {
             let mut command = command();
@@ -216,6 +280,10 @@ fn main() -> ExitCode {
             hint.inspect(|hint| print_hint(hint));
             ExitCode::FAILURE
         }
+        Err(Failure::Aborted(message)) => {
+            eprintln!("{} {message}", paint("1;31", "error:"));
+            ExitCode::from(130)
+        }
     }
 }
 
@@ -229,15 +297,19 @@ fn colour_allowed() -> bool {
         && std::env::var_os("TERM").is_none_or(|term| term != "dumb")
 }
 
+fn stderr_colour() -> bool {
+    colour_allowed() && io::stderr().is_terminal()
+}
+
 fn paint(style: &str, text: &str) -> String {
-    if colour_allowed() && io::stderr().is_terminal() {
+    if stderr_colour() {
         format!("\x1b[{style}m{text}\x1b[0m")
     } else {
         text.to_owned()
     }
 }
 
-fn run(command: Command) -> Result<(), Failure> {
+fn run(command: Command, no_input: bool) -> Result<(), Failure> {
     match command {
         Command::Derive {
             seed,
@@ -245,6 +317,15 @@ fn run(command: Command) -> Result<(), Failure> {
             taste,
             palette,
         } => {
+            let prompt = Prompt::new("derive", no_input, stderr_colour());
+            let seed = match seed {
+                Some(seed) => seed,
+                None => {
+                    let seed = prompt.ask(&SEED, Some(random_seed()), |_| Ok(()))?;
+                    echo(&format!("{} --seed {seed}", rerun()));
+                    seed
+                }
+            };
             let pin = match (tool, taste) {
                 (Some(tool), _) => ToolPin::Tool(tool),
                 (_, Some(path)) => {
@@ -266,29 +347,122 @@ fn run(command: Command) -> Result<(), Failure> {
         }
         Command::Render {
             input,
-            size: (width, height),
+            size,
             frame,
             output,
         } => {
+            let prompt = Prompt::new("render", no_input, stderr_colour());
             let stdio = Path::new("-");
-            if output == stdio && io::stdout().is_terminal() {
-                return Err(usage(
-                    "render",
-                    "refusing to write a PNG to a terminal, pass -o FILE or pipe stdout",
-                ));
+            if output.as_deref() == Some(stdio) && io::stdout().is_terminal() {
+                return Err(refuse_terminal());
             }
-            if input == stdio && io::stdin().is_terminal() {
-                return Err(usage(
-                    "render",
-                    "no Recipe on stdin, pass a FILE or pipe 'tirage derive' into it",
-                ));
+            if size.is_none() {
+                prompt.check(&SIZE)?;
             }
-            let json = if input == stdio {
-                io::read_to_string(io::stdin()).map_err(|e| Failure::unreadable(stdio, &e))?
-            } else {
-                fs::read_to_string(&input).map_err(|e| Failure::unreadable(&input, &e))?
+            if output.is_none() {
+                prompt.check(&OUTPUT)?;
+            }
+            let mut pipeline = String::new();
+            let mut flags = String::new();
+            let (recipe, seed) = match input {
+                Some(input) if input != stdio => {
+                    let json =
+                        fs::read_to_string(&input).map_err(|e| Failure::unreadable(&input, &e))?;
+                    (
+                        Recipe::from_json(&json).map_err(|e| Failure::runtime(&e))?,
+                        None,
+                    )
+                }
+                _ if !io::stdin().is_terminal() => {
+                    let json = io::read_to_string(io::stdin())
+                        .map_err(|e| Failure::unreadable(stdio, &e))?;
+                    (
+                        Recipe::from_json(&json).map_err(|e| Failure::runtime(&e))?,
+                        None,
+                    )
+                }
+                _ if prompt.is_interactive() => {
+                    let seed = prompt.ask(&SEED, Some(random_seed()), |_| Ok(()))?;
+                    let mut tools = vec![None];
+                    tools.extend(Tool::ALL.iter().copied().map(Some));
+                    let tool = prompt.select(
+                        &tools,
+                        |tool| tool.map_or("deal from Seed".to_owned(), frames_label),
+                        &TOOL,
+                    )?;
+                    pipeline = format!("tirage derive --seed {seed}");
+                    if let Some(tool) = tool {
+                        pipeline += &format!(" --tool {}", tool.slug());
+                    }
+                    pipeline += " | ";
+                    (
+                        derive(seed, tool.map_or(ToolPin::Any, ToolPin::Tool)),
+                        Some(seed),
+                    )
+                }
+                _ => {
+                    return Err(usage(
+                        "render",
+                        "no Recipe on stdin, pass a FILE or pipe 'tirage derive' into it",
+                    ));
+                }
             };
-            let recipe = Recipe::from_json(&json).map_err(|e| Failure::runtime(&e))?;
+            let (width, height) = match size {
+                Some(size) => size,
+                None => {
+                    let size = match prompt.select(
+                        &SIZES,
+                        |(size, name)| match size {
+                            Some((width, height)) => format!("{width}x{height}  {name}"),
+                            None => (*name).to_owned(),
+                        },
+                        &SIZE,
+                    )? {
+                        (Some(size), _) => size,
+                        (None, _) => {
+                            let size: String =
+                                prompt.ask(&CUSTOM_SIZE, None, |size: &String| {
+                                    checked_size(size).map(|_| ())
+                                })?;
+                            checked_size(&size).expect("the prompt checked the size")
+                        }
+                    };
+                    flags += &format!(" --size {}x{}", size.0, size.1);
+                    size
+                }
+            };
+            let output = match output {
+                Some(output) => output,
+                None => {
+                    let default = match seed {
+                        Some(seed) => format!("{}-{seed}.png", recipe.tool().slug()),
+                        None => "out.png".to_owned(),
+                    };
+                    let output = loop {
+                        let path = PathBuf::from(prompt.ask(
+                            &OUTPUT,
+                            Some(default.clone()),
+                            |_| Ok(()),
+                        )?);
+                        if !path.exists()
+                            || prompt.confirm(
+                                &format!("{} exists, overwrite it?", path.display()),
+                                &OUTPUT,
+                            )?
+                        {
+                            break path;
+                        }
+                    };
+                    flags += &format!(" -o {}", quote(&output.to_string_lossy()));
+                    output
+                }
+            };
+            if !pipeline.is_empty() || !flags.is_empty() {
+                echo(&format!("{pipeline}{}{flags}", rerun()));
+            }
+            if output == stdio && io::stdout().is_terminal() {
+                return Err(refuse_terminal());
+            }
             let frame =
                 Frame::new(&recipe, width, height, frame).map_err(|e| Failure::runtime(&e))?;
             let png = render(&recipe, &frame).to_png();
@@ -321,9 +495,7 @@ fn run(command: Command) -> Result<(), Failure> {
                 .expect("a Tool has Parameters");
             let mut text = String::new();
             for tool in Tool::ALL {
-                let frames = tool.frames();
-                let unit = if frames == 1 { "frame" } else { "frames" };
-                text += &format!("{}  {frames} {unit}\n", tool.slug());
+                text += &format!("{}\n", frames_label(*tool));
                 for p in tool.parameters() {
                     let values = match p.kind {
                         ParameterKind::Range { min, max, step } => {
@@ -361,6 +533,43 @@ fn usage(subcommand: &'static str, message: &str) -> Failure {
     Failure::Usage(subcommand, message.to_owned(), None)
 }
 
+fn refuse_terminal() -> Failure {
+    usage(
+        "render",
+        "refusing to write a PNG to a terminal, pass -o FILE or pipe stdout",
+    )
+}
+
+fn frames_label(tool: Tool) -> String {
+    let frames = tool.frames();
+    let unit = if frames == 1 { "frame" } else { "frames" };
+    format!("{}  {frames} {unit}", tool.slug())
+}
+
+fn random_seed() -> u64 {
+    RandomState::new().hash_one(std::time::SystemTime::now())
+}
+
+fn rerun() -> String {
+    std::iter::once("tirage".to_owned())
+        .chain(std::env::args().skip(1).map(|arg| quote(&arg)))
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+fn quote(arg: &str) -> String {
+    let plain = |c: char| c.is_ascii_alphanumeric() || "-_./=:,+@%".contains(c);
+    if !arg.is_empty() && arg.chars().all(plain) {
+        arg.to_owned()
+    } else {
+        format!("'{}'", arg.replace('\'', r"'\''"))
+    }
+}
+
+fn echo(command: &str) {
+    eprintln!("{}", paint("2", &format!("→ {command}")));
+}
+
 fn emit(bytes: &[u8]) -> Result<(), Failure> {
     match io::stdout().lock().write_all(bytes) {
         Err(e) if e.kind() != io::ErrorKind::BrokenPipe => {
@@ -374,6 +583,16 @@ fn parse_size(size: &str) -> Result<(u32, u32), String> {
     size.split_once('x')
         .and_then(|(width, height)| Some((width.parse().ok()?, height.parse().ok()?)))
         .ok_or_else(|| "expected <W>x<H> in pixels, like 1080x1920".to_owned())
+}
+
+fn checked_size(size: &str) -> Result<(u32, u32), String> {
+    let (width, height) = parse_size(size)?;
+    let edges = 1..=MAX_EDGE;
+    if edges.contains(&width) && edges.contains(&height) {
+        Ok((width, height))
+    } else {
+        Err(format!("each edge must be in 1..={MAX_EDGE}"))
+    }
 }
 
 fn parse_palette(inks: &str) -> Result<Palette, tirage::Error> {
