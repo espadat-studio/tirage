@@ -50,7 +50,11 @@ impl Tool {
     }
 
     pub fn parameters(self) -> Vec<Parameter> {
-        self.params().iter().map(Param::parameter).collect()
+        match self {
+            Self::Sonar => sonar::parameters(),
+            Self::Husk => husk::parameters(),
+            Self::Vein => vein::parameters(),
+        }
     }
 
     pub(crate) fn params(self) -> &'static [Param] {
@@ -66,9 +70,32 @@ impl Tool {
 #[non_exhaustive]
 pub struct Parameter {
     pub id: &'static str,
-    pub min: f64,
-    pub max: f64,
-    pub step: f64,
+    #[serde(flatten)]
+    pub kind: ParameterKind,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
+#[serde(tag = "kind", rename_all = "lowercase")]
+pub enum ParameterKind {
+    Range { min: f64, max: f64, step: f64 },
+    Toggle,
+    Choice { choices: &'static [&'static str] },
+}
+
+impl Parameter {
+    pub(crate) fn toggle(id: &'static str) -> Self {
+        Self {
+            id,
+            kind: ParameterKind::Toggle,
+        }
+    }
+
+    pub(crate) fn choice(id: &'static str, choices: &'static [&'static str]) -> Self {
+        Self {
+            id,
+            kind: ParameterKind::Choice { choices },
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]

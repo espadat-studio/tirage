@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::Error;
 use crate::param::Param;
 use crate::surface::Surface;
+use crate::{Error, Parameter};
 
 pub(crate) fn hash(x: i32, y: i32, seed: u32) -> f64 {
     let mut n = (x as u32)
@@ -45,6 +45,25 @@ pub(crate) fn finish(surface: &mut Surface, grain: &Grain, dither: &Dither) {
         grain.apply(rgba, width, height);
         dither.apply(rgba, width, height);
     });
+}
+
+pub(crate) fn parameters() -> [Parameter; 11] {
+    [
+        Parameter::toggle("ditherTog"),
+        Parameter::choice("dthKinds", &["Bayer 8", "Bayer 4", "Noise"]),
+        DITHER_SIZE.parameter(),
+        DITHER_LEVELS.parameter(),
+        DITHER_AMOUNT.parameter(),
+        Parameter::toggle("grainTog"),
+        Parameter::choice(
+            "grnBlends",
+            &["Add", "Overlay", "Soft light", "Multiply", "Screen"],
+        ),
+        GRAIN_AMOUNT.parameter(),
+        GRAIN_SIZE.parameter(),
+        GRAIN_SPECKS.parameter(),
+        GRAIN_VIGNETTE.parameter(),
+    ]
 }
 
 const GRAIN: &str = "grain";

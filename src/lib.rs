@@ -18,7 +18,7 @@ pub use error::Error;
 pub use husk::{Bite, HuskParams};
 pub use image::Image;
 pub use palette::Palette;
-pub use recipe::{Parameter, Params, Recipe, Tool};
+pub use recipe::{Parameter, ParameterKind, Params, Recipe, Tool};
 pub use render::{Frame, MAX_EDGE, render};
 pub use sonar::SonarParams;
 pub use taste::Taste;

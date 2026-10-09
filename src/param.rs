@@ -1,4 +1,4 @@
-use crate::{Error, Parameter};
+use crate::{Error, Parameter, ParameterKind};
 
 pub(crate) struct Param {
     pub(crate) scope: &'static str,
@@ -36,13 +36,20 @@ impl Param {
     }
 
     pub(crate) fn parameter(&self) -> Parameter {
-        let unit = f64::from(self.unit);
+        let (min, max, step) = self.range();
         Parameter {
             id: self.id,
-            min: f64::from(self.min) / unit,
-            max: f64::from(self.max) / unit,
-            step: f64::from(self.step) / unit,
+            kind: ParameterKind::Range { min, max, step },
         }
+    }
+
+    fn range(&self) -> (f64, f64, f64) {
+        let unit = f64::from(self.unit);
+        (
+            f64::from(self.min) / unit,
+            f64::from(self.max) / unit,
+            f64::from(self.step) / unit,
+        )
     }
 
     pub(crate) fn ticks(&self, value: f64) -> Result<u32, Error> {
@@ -50,7 +57,7 @@ impl Param {
         let exact = value * f64::from(self.unit);
         let ticks = exact.round();
         if (exact - ticks).abs() > 1e-9 || !(ticks as u32 - self.min).is_multiple_of(self.step) {
-            let Parameter { min, max, step, .. } = self.parameter();
+            let (min, max, step) = self.range();
             return Err(Error::OffStep {
                 scope: self.scope,
                 param: self.id,
@@ -64,7 +71,7 @@ impl Param {
     }
 
     pub(crate) fn check(&self, value: f64) -> Result<f64, Error> {
-        let Parameter { min, max, .. } = self.parameter();
+        let (min, max, _) = self.range();
         if (min..=max).contains(&value) {
             return Ok(value);
         }

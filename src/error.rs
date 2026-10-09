@@ -98,7 +98,7 @@ impl fmt::Display for Error {
                 "{scope}: {param} Taste bounds {low}..={high} have min above max"
             ),
             Self::UnknownParameter { tool, param } => {
-                let known: Vec<_> = tool.parameters().iter().map(|p| p.id).collect();
+                let known: Vec<_> = tool.params().iter().map(|p| p.id).collect();
                 write!(
                     f,
                     "{}: unknown Parameter {param:?}, expected one of {}",

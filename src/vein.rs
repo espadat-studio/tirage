@@ -2,11 +2,11 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{Blend, Dither, DitherKind, Grain, hash, round_half_up, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up, value_noise};
 use crate::param::Param;
 use crate::surface::{Path2D, Surface};
 use crate::taste::Taste;
-use crate::{Error, Palette};
+use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "vein";
 pub(crate) const FRAMES: u32 = 1;
@@ -244,6 +244,13 @@ pub(crate) fn from_json(params: serde_json::Value) -> Result<VeinParams, Error> 
 }
 
 pub(crate) const PARAMS: &[Param] = &[SCALE, CURVE, LEVELS, TIGER, EDGES, STARS, TINTS, RUNS];
+
+pub(crate) fn parameters() -> Vec<Parameter> {
+    std::iter::once(Parameter::choice("flows", &["Marble", "Swirl", "Ripple"]))
+        .chain(PARAMS.iter().map(Param::parameter))
+        .chain(chassis::parameters())
+        .collect()
+}
 
 pub(crate) fn palette() -> Palette {
     Palette::from_hex(&DEFAULT_PALETTE).expect("the default Palette is valid")
