@@ -10,3 +10,8 @@ git_tag_name = "v{{ version }}"
 [[package]]
 name = "tirage-encode"
 release = false
+
+[[package]]
+name = "tirage-cli"
+release = false
+git_tag_name = "tirage-cli-v{{ version }}"

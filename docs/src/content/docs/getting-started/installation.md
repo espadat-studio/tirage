@@ -10,17 +10,17 @@ You need Rust: tirage is built and tested with 1.99, and its 2024 edition needs 
 ## The CLI
 
 ```sh
-cargo install --git https://github.com/espadat-studio/tirage --features cli
+cargo install --git https://github.com/espadat-studio/tirage tirage-cli
 ```
 
-cargo clones the repository, builds the `tirage` binary and puts it in `~/.cargo/bin`. That directory has to be on your `PATH`.
+cargo clones the repository, builds the `tirage` binary from its `tirage-cli` crate and puts it in `~/.cargo/bin`. That directory has to be on your `PATH`.
 
 ```sh
 tirage --version
 ```
 
 ```
-tirage 0.0.0 (derivation major 0)
+tirage 0.1.1 (derivation major 0)
 ```
 
 ## The library

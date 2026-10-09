@@ -4,7 +4,7 @@ Original generative artwork and animations, rendered from code. It reproduces th
 
 Docs: https://tirage.espadat.com
 
-See [`CONTEXT.md`](./CONTEXT.md). [`encode/`](./encode) turns a Loop into an MP4 (ADR 0004).
+See [`CONTEXT.md`](./CONTEXT.md). [`cli/`](./cli) is the `tirage` binary. [`encode/`](./encode) turns a Loop into an MP4 (ADR 0004).
 
 Tools: `sonar`, `husk`, `vein`, `aura`, `kiosk`, `frond` ([ADR 0002](./meta/adr/0002-tool-shortlist-for-recordreel.md)).
 
@@ -23,7 +23,7 @@ A Seed gives the same Recipe within a major version. A Seed→Recipe change bump
 ## CLI
 
 ```sh
-cargo install --locked --git https://github.com/espadat-studio/tirage --tag vX.Y.Z --features cli
+cargo install --locked --git https://github.com/espadat-studio/tirage --tag vX.Y.Z tirage-cli
 tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
 ```
 

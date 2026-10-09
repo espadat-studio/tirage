@@ -8,7 +8,7 @@ const BIN: &str = env!("CARGO_BIN_EXE_tirage");
 const ROOT: &str = env!("CARGO_MANIFEST_DIR");
 
 fn read_page(tool: Tool) -> String {
-    let path = Path::new(ROOT).join(format!("docs/src/content/docs/tools/{}.md", tool.slug()));
+    let path = Path::new(ROOT).join(format!("../docs/src/content/docs/tools/{}.md", tool.slug()));
     fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
 }
 
@@ -41,7 +41,7 @@ fn each_still_re_renders_byte_for_byte_from_the_command_on_its_page() {
             panic!("{}: the command did not write <slug>.png: {e}", tool.slug())
         });
         let committed =
-            fs::read(Path::new(ROOT).join(format!("docs/src/assets/tools/{}.png", tool.slug())))
+            fs::read(Path::new(ROOT).join(format!("../docs/src/assets/tools/{}.png", tool.slug())))
                 .unwrap_or_else(|e| panic!("{}: no committed Still: {e}", tool.slug()));
         assert!(
             rendered == committed,
