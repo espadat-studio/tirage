@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use crate::{Params, Recipe, Taste, Tool, aura, frond, husk, kiosk, sonar, vein};
+use crate::{Recipe, Taste, Tool};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ToolPin {
@@ -17,19 +17,11 @@ pub fn derive(seed: u64, pin: ToolPin) -> Recipe {
     };
     let tool = taste.tool();
     let draw = |param: &str| keyed_hash(seed, &[tool.slug(), param]);
-    let (palette, params) = match tool {
-        Tool::Sonar => (sonar::palette(), Params::Sonar(sonar::deal(draw, &taste))),
-        Tool::Husk => (husk::palette(), Params::Husk(husk::deal(draw, &taste))),
-        Tool::Vein => (vein::palette(), Params::Vein(vein::deal(draw, &taste))),
-        Tool::Aura => (aura::palette(), Params::Aura(aura::deal(draw, &taste))),
-        Tool::Kiosk => (kiosk::palette(), Params::Kiosk(kiosk::deal(draw, &taste))),
-        Tool::Frond => (frond::palette(), Params::Frond(frond::deal(draw, &taste))),
-    };
     let tool_seed = (keyed_hash(seed, &["tool_seed"]) >> 32) as u32;
     Recipe::new(
         NonZeroU32::new(tool_seed).unwrap_or(NonZeroU32::MIN),
-        palette,
-        params,
+        tool.palette(),
+        tool.deal(draw, &taste),
     )
     .expect("a Tool's default Palette fits it")
 }

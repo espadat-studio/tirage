@@ -130,22 +130,6 @@ fn a_frame_wider_than_the_buffer_is_scaled_up_smooth() {
 }
 
 #[test]
-fn aura_is_appended_to_the_registry() {
-    assert_eq!(
-        Tool::ALL,
-        &[
-            Tool::Sonar,
-            Tool::Husk,
-            Tool::Vein,
-            Tool::Aura,
-            Tool::Kiosk,
-            Tool::Frond
-        ]
-    );
-    assert_eq!(Tool::from_slug("aura").unwrap(), Tool::Aura);
-}
-
-#[test]
 fn a_palette_over_four_inks_is_refused() {
     let five = Palette::from_hex(&["#ff8fcb", "#b79cff", "#ffe066", "#6ee7c8", "#7cc6ff"]).unwrap();
     let mut recipe = derive(7, AURA);

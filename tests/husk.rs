@@ -77,22 +77,6 @@ fn husk_is_a_still() {
 }
 
 #[test]
-fn husk_is_appended_to_the_registry() {
-    assert_eq!(
-        Tool::ALL,
-        &[
-            Tool::Sonar,
-            Tool::Husk,
-            Tool::Vein,
-            Tool::Aura,
-            Tool::Kiosk,
-            Tool::Frond
-        ]
-    );
-    assert_eq!(Tool::from_slug("husk").unwrap(), Tool::Husk);
-}
-
-#[test]
 fn recipe_round_trips_through_json() {
     let mut recipe = derive(7, HUSK);
     let Params::Husk(params) = recipe.params_mut() else {

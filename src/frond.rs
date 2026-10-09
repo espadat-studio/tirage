@@ -13,6 +13,7 @@ use crate::{Error, Palette, Parameter};
 pub(crate) const SLUG: &str = "frond";
 pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
+pub(crate) const MAX_INKS: Option<usize> = None;
 const BOIL: i32 = 911;
 
 const DEFAULT_PALETTE: [&str; 5] = ["#ede4d3", "#ff8c42", "#0b3d91", "#1a1a1a", "#a89f8c"];
@@ -557,13 +558,18 @@ fn noise_block(
     }
 }
 
-pub(crate) fn paint(
+pub(crate) fn render(
     surface: &mut Surface,
     params: &FrondParams,
     palette: &Palette,
     tool_seed: u32,
     t: u32,
 ) {
+    paint(surface, params, palette, tool_seed, t);
+    chassis::finish(surface, &params.grain, &params.dither);
+}
+
+fn paint(surface: &mut Surface, params: &FrondParams, palette: &Palette, tool_seed: u32, t: u32) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let unit = (width * height).sqrt();
     let boil = t as i32 * BOIL;

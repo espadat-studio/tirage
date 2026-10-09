@@ -41,11 +41,11 @@ const CEILING = 0.016;
 
 type Json = Record<string, unknown>;
 
-function fail(path: string, message: string): never {
+export function fail(path: string, message: string): never {
   throw new Error(`${path}: ${message}`);
 }
 
-function expectObject(value: unknown, path: string, allowed: string[]): Json {
+export function expectObject(value: unknown, path: string, allowed: string[]): Json {
   if (typeof value !== "object" || value === null || Array.isArray(value)) fail(path, "expected an object");
   for (const key of Object.keys(value)) if (!allowed.includes(key)) fail(path, `unknown key ${key}`);
   return value as Json;

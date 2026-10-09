@@ -1,36 +1,34 @@
-mod aura;
 mod chassis;
 mod derive;
 mod error;
-mod frond;
-mod husk;
 mod image;
-mod kiosk;
 mod palette;
 mod param;
 mod recipe;
+mod registry;
 mod render;
-mod sonar;
 mod surface;
 mod taste;
 mod text;
 mod unique_keys;
-mod vein;
 
-pub use aura::{AuraParams, AuraStyle};
+registry::tools! {
+    Sonar: sonar::{SonarParams},
+    Husk: husk::{HuskParams, Bite},
+    Vein: vein::{VeinParams, Flow},
+    Aura: aura::{AuraParams, AuraStyle},
+    Kiosk: kiosk::{KioskParams, CharacterSet},
+    Frond: frond::{FrondParams, Plant},
+}
+
 pub use chassis::{Blend, Dither, DitherKind, Grain};
 pub use derive::{ToolPin, derive};
 pub use error::Error;
-pub use frond::{FrondParams, Plant};
-pub use husk::{Bite, HuskParams};
 pub use image::Image;
-pub use kiosk::{CharacterSet, KioskParams};
 pub use palette::Palette;
-pub use recipe::{Parameter, ParameterKind, Params, Recipe, Tool};
+pub use recipe::{Parameter, ParameterKind, Recipe};
 pub use render::{Frame, MAX_EDGE, render};
-pub use sonar::SonarParams;
 pub use taste::Taste;
-pub use vein::{Flow, VeinParams};
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 

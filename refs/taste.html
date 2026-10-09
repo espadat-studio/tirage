@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taste triage</title>
+<style>
+  :root { --board: #0d0d0d; --stock: #f7f7f2; --dim: rgba(247,247,242,.6); --mark: #ffd400; --bad: #e8202a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--board); color: var(--stock); font: 14px/1.4 system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; background: var(--board); border-bottom: 1px solid #333; padding: 10px 16px; display: grid; gap: 8px; }
+  h1 { margin: 0; font-size: 16px; }
+  .bar { color: var(--dim); font-size: 12px; }
+  button { font: inherit; background: #222; color: var(--stock); border: 1px solid #444; border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+  main { padding: 16px; display: grid; gap: 20px; }
+  h2 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+  .row { display: grid; grid-template-columns: 130px repeat(5, minmax(0, 1fr)); gap: 6px; align-items: start; }
+  .label { font: 12px ui-monospace, monospace; color: var(--dim); padding-top: 4px; }
+  .label b { display: block; color: var(--mark); font-weight: 400; }
+  figure { margin: 0; position: relative; cursor: pointer; }
+  figure img { width: 100%; display: block; border-radius: 2px; background: #000; border: 2px solid transparent; }
+  figure.bad img { border-color: var(--bad); opacity: .35; }
+  figure.bad::after { content: "X"; position: absolute; top: 4px; right: 8px; color: var(--bad); font-weight: 900; font-size: 20px; }
+  figure.out img { opacity: .2; }
+  figcaption { font: 11px ui-monospace, monospace; color: var(--dim); margin-top: 2px; overflow-wrap: anywhere; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 6px; }
+  pre { margin: 0; font: 12px ui-monospace, monospace; background: #181818; color: var(--mark); border: 1px solid #333; padding: 8px; border-radius: 4px; overflow: auto; white-space: pre-wrap; }
+  @media (max-width: 700px) { .row { grid-template-columns: 80px repeat(5, minmax(0, 1fr)); } }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title"></h1>
+  <div class="bar">Click a tile to mark it bad. The bar and the procedure are in <code>meta/agents/taste-triage.md</code>.</div>
+  <div class="bar"><button id="copy">Copy bounds JSON</button> <span id="copied"></span></div>
+</header>
+<main id="main"></main>
+<script src="data.js"></script>
+<script>
+const { slug, sliders, bounds: given, tiles } = window.DATA;
+const bad = new Set();
+const fmt = v => Number.isInteger(v) ? String(v) : String(Number(v.toFixed(4)));
+const ofKind = kind => tiles.filter(t => t.kind === kind);
+const values = t => sliders.map(s => `${s.id}=${fmt(t.values[s.id])}`).join(" ");
+
+function sweptBounds() {
+  const out = {};
+  for (const s of sliders) {
+    const good = ofKind("sweep").filter(t => t.param === s.id && !bad.has(t.file)).map(t => t.values[s.id]);
+    out[s.id] = good.length ? [Math.min(...good), Math.max(...good)] : [s.min, s.max];
+  }
+  return out;
+}
+
+const inside = (t, b) => sliders.every(s => t.values[s.id] >= b[s.id][0] - 1e-9 && t.values[s.id] <= b[s.id][1] + 1e-9);
+
+function figure(t, caption, cls = "") {
+  const f = document.createElement("figure");
+  f.className = [cls, bad.has(t.file) && "bad"].filter(Boolean).join(" ");
+  f.innerHTML = `<img loading="lazy" src="${t.file}" alt=""><figcaption>${caption}</figcaption>`;
+  f.onclick = () => { bad.has(t.file) ? bad.delete(t.file) : bad.add(t.file); render(); };
+  return f;
+}
+
+function section(title) {
+  const h = document.createElement("h2");
+  h.textContent = title;
+  main.append(h);
+}
+
+function render() {
+  document.getElementById("title").textContent = `${slug} taste triage`;
+  main.innerHTML = "";
+  const b = sweptBounds();
+
+  const checks = ofKind("check");
+  if (checks.length) {
+    const badChecks = checks.filter(t => bad.has(t.file)).length;
+    section(`Check: ${checks.length} draws inside ${JSON.stringify(given)}, ${badChecks} bad`);
+    const g = document.createElement("div");
+    g.className = "grid";
+    for (const t of checks) g.append(figure(t, `tool seed ${t.toolSeed}<br>${values(t)}`));
+    main.append(g);
+  }
+
+  const sweeps = ofKind("sweep");
+  if (sweeps.length) {
+    section(`Sweeps at tool seed ${sweeps[0].toolSeed}, one slider at a time`);
+    for (const s of sliders) {
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `<div class="label">${s.id}<br>${fmt(s.min)}..${fmt(s.max)} step ${fmt(s.step)}<b>${b[s.id].map(fmt).join("..")}</b></div>`;
+      for (const t of sweeps.filter(t => t.param === s.id)) row.append(figure(t, fmt(t.values[s.id])));
+      main.append(row);
+    }
+  }
+
+  const draws = ofKind("draw");
+  if (draws.length) {
+    const kept = draws.filter(t => inside(t, b));
+    section(`Draws across full ranges: ${kept.length}/${draws.length} inside the swept bounds, ${kept.filter(t => bad.has(t.file)).length} of those bad`);
+    const g = document.createElement("div");
+    g.className = "grid";
+    for (const t of draws) g.append(figure(t, `tool seed ${t.toolSeed}<br>${values(t)}`, inside(t, b) ? "" : "out"));
+    main.append(g);
+  }
+
+  section("Bounds from the unmarked sweep tiles, as a --bounds file");
+  const pre = document.createElement("pre");
+  pre.id = "bounds";
+  pre.textContent = JSON.stringify({ tool: slug, ...Object.fromEntries(Object.entries(b).map(([k, v]) => [k, v.map(Number)])) });
+  main.append(pre);
+
+  section("Marked bad");
+  const list = document.createElement("pre");
+  list.textContent = [...bad].map(file => { const t = tiles.find(t => t.file === file); return `${file}  tool seed ${t.toolSeed}  ${values(t)}`; }).join("\n") || "none";
+  main.append(list);
+}
+
+document.getElementById("copy").onclick = async () => {
+  await navigator.clipboard.writeText(document.getElementById("bounds").textContent);
+  document.getElementById("copied").textContent = "copied";
+};
+render();
+</script>
+</body>
+</html>
