@@ -1,0 +1,25 @@
+import starlight from "@astrojs/starlight";
+import { defineConfig } from "astro/config";
+import starlightLlmsTxt from "starlight-llms-txt";
+
+export default defineConfig({
+  site: "https://tirage.espadat.com",
+  integrations: [
+    starlight({
+      plugins: [starlightLlmsTxt()],
+      title: "tirage",
+      description: "Original generative artwork and animations, rendered from code. One Seed gives one Still or Loop.",
+      logo: { src: "./src/assets/mark.svg", alt: "Espadat" },
+      head: [{ tag: "link", attrs: { rel: "icon", href: "/favicon.ico", sizes: "16x16 32x32" } }],
+      customCss: ["@espadat/docs-theme/styles/theme.css"],
+      components: {
+        Footer: "@espadat/docs-theme/components/footer.astro",
+        ThemeProvider: "@espadat/docs-theme/components/theme-provider.astro",
+        ThemeSelect: "@espadat/docs-theme/components/theme-select.astro",
+      },
+      social: [
+        { icon: "github", label: "GitHub", href: "https://github.com/espadat-studio/tirage" },
+      ],
+    }),
+  ],
+});
