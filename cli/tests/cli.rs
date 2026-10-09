@@ -199,7 +199,7 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(text(&out.stderr).contains(
-        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday"#
+        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain"#
     ));
 }
 
@@ -341,10 +341,20 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"angle","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"bite","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
+    let terrain = concat!(
+        r#"{"slug":"terrain","frames":1,"params":["#,
+        r#"{"id":"scale","kind":"range","min":0.6,"max":9.0,"step":0.1},"#,
+        r#"{"id":"warp","kind":"range","min":0.0,"max":3.0,"step":0.02},"#,
+        r#"{"id":"oct","kind":"range","min":1.0,"max":7.0,"step":1.0},"#,
+        r#"{"id":"contrast","kind":"range","min":0.5,"max":4.0,"step":0.05},"#,
+        r#"{"id":"balance","kind":"range","min":-1.2,"max":1.2,"step":0.05},"#,
+        r#"{"id":"grain","kind":"range","min":0.0,"max":1.2,"step":0.01},"#,
+        r#"{"id":"block","kind":"range","min":0.0,"max":14.0,"step":1.0},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }

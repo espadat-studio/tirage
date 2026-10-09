@@ -20,6 +20,7 @@ registry::tools! {
     Kiosk: kiosk::{KioskParams, CharacterSet},
     Frond: frond::{FrondParams, Plant},
     Benday: benday::{BendayParams},
+    Terrain: terrain::{TerrainParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
