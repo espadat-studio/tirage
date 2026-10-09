@@ -522,3 +522,65 @@ fn derive_rejects_malformed_hex_as_a_usage_error() {
     );
     assert!(out.stdout.is_empty());
 }
+
+#[test]
+fn aliases_run_the_same_command_and_show_in_help() {
+    let tools = tirage(&["tools"], b"").stdout;
+    for alias in ["t", "ls"] {
+        assert_eq!(tirage(&[alias], b"").stdout, tools, "{alias}");
+    }
+    assert_eq!(
+        tirage(&["d", "--seed", "42"], b"").stdout,
+        tirage(&["derive", "--seed", "42"], b"").stdout
+    );
+    let out = tirage(&["r", "--size", "9x16", "-o", "-"], &recipe());
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+    assert!(out.stdout.starts_with(b"\x89PNG"));
+    let help = text(&tirage(&["--help"], b"").stdout);
+    for alias in ["[alias: d]", "[alias: r]", "[aliases: t, ls]"] {
+        assert!(help.contains(alias), "{alias} in\n{help}");
+    }
+}
+
+#[test]
+fn a_mistyped_command_suggests_the_closest() {
+    let out = tirage(&["rendr"], b"");
+    assert_eq!(out.status.code(), Some(2));
+    assert!(
+        text(&out.stderr).contains("'render'"),
+        "{}",
+        text(&out.stderr)
+    );
+}
+
+#[test]
+fn completions_name_every_subcommand_and_alias() {
+    let out = tirage(&["completions", "bash"], b"");
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+    let script = text(&out.stdout);
+    for word in [
+        "derive",
+        "render",
+        "tools",
+        "completions",
+        "ls",
+        "sonar",
+        "kiosk",
+    ] {
+        assert!(script.contains(word), "{word}");
+    }
+}
+
+#[test]
+fn help_links_to_the_readme_and_issues() {
+    let help = text(&tirage(&["--help"], b"").stdout);
+    assert!(
+        help.contains("https://github.com/espadat-studio/tirage#readme"),
+        "{help}"
+    );
+    assert!(
+        help.trim_end()
+            .ends_with("https://github.com/espadat-studio/tirage/issues"),
+        "{help}"
+    );
+}

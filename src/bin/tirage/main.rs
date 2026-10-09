@@ -3,8 +3,11 @@ use std::io::{self, IsTerminal, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
+use clap::builder::styling::{AnsiColor, Styles};
+use clap::builder::{PossibleValue, TypedValueParser};
 use clap::error::ErrorKind;
 use clap::{ArgAction, CommandFactory, FromArgMatches, Parser, Subcommand};
+use clap_complete::Shell;
 use serde::Serialize;
 
 use tirage::{
@@ -28,11 +31,15 @@ Examples:
 
 Run 'tirage --help' for more.";
 
+const LINKS: &str = "Docs: https://github.com/espadat-studio/tirage#readme
+Issues: https://github.com/espadat-studio/tirage/issues";
+
 #[derive(Parser)]
 #[command(
     name = "tirage",
     about = "Seed to PNG: derive a Recipe, then render it",
     before_help = EXAMPLES,
+    after_help = LINKS,
     disable_help_flag = true,
     disable_version_flag = true
 )]
@@ -48,13 +55,14 @@ struct Cli {
 #[derive(Subcommand)]
 enum Command {
     #[command(
+        visible_alias = "d",
         about = "Derive a Recipe from a Seed and print it as JSON",
         before_help = "Examples:\n  tirage derive --seed 42 > recipe.json\n  tirage derive --seed 42 --tool sonar --palette '#000000,#ffffff'\n  tirage derive --seed 42 --taste taste.json"
     )]
     Derive {
         #[arg(long, help = "Seed to derive the Recipe from")]
         seed: u64,
-        #[arg(long, value_name = "SLUG", value_parser = Tool::from_slug, help = "Tool to pin, see 'tirage tools'. Dealt from the Seed when left out")]
+        #[arg(long, value_name = "SLUG", value_parser = ToolParser, hide_possible_values = true, help = "Tool to pin, see 'tirage tools'. Dealt from the Seed when left out")]
         tool: Option<Tool>,
         #[arg(
             long,
@@ -67,6 +75,7 @@ enum Command {
         palette: Option<Palette>,
     },
     #[command(
+        visible_alias = "r",
         about = "Render a Recipe to a PNG",
         before_help = "Examples:\n  tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png\n  tirage render recipe.json --size 540x960 -o - > still.png"
     )]
@@ -90,6 +99,7 @@ enum Command {
         output: PathBuf,
     },
     #[command(
+        visible_aliases = ["t", "ls"],
         about = "List Tools with their frame counts and Parameters",
         before_help = "Examples:\n  tirage tools\n  tirage tools --json"
     )]
@@ -97,6 +107,37 @@ enum Command {
         #[arg(long, help = "Print JSON instead of text")]
         json: bool,
     },
+    #[command(
+        about = "Print a shell completion script",
+        before_help = "Examples:\n  tirage completions bash > ~/.local/share/bash-completion/completions/tirage\n  tirage completions fish > ~/.config/fish/completions/tirage.fish"
+    )]
+    Completions {
+        #[arg(value_name = "SHELL")]
+        shell: Shell,
+    },
+}
+
+#[derive(Clone)]
+struct ToolParser;
+
+impl TypedValueParser for ToolParser {
+    type Value = Tool;
+
+    fn parse_ref(
+        &self,
+        command: &clap::Command,
+        arg: Option<&clap::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Tool, clap::Error> {
+        let from_slug: fn(&str) -> Result<Tool, tirage::Error> = Tool::from_slug;
+        from_slug.parse_ref(command, arg, value)
+    }
+
+    fn possible_values(&self) -> Option<Box<dyn Iterator<Item = PossibleValue> + '_>> {
+        Some(Box::new(
+            Tool::ALL.iter().map(|tool| PossibleValue::new(tool.slug())),
+        ))
+    }
 }
 
 #[derive(Serialize)]
@@ -221,11 +262,18 @@ fn run(command: Command) -> Result<(), String> {
             }
             emit(text.as_bytes())
         }
+        Command::Completions { shell } => {
+            let mut script = Vec::new();
+            clap_complete::generate(shell, &mut self::command(), "tirage", &mut script);
+            emit(&script)
+        }
     }
 }
 
 fn command() -> clap::Command {
-    Cli::command().version(format!("{VERSION} (derivation major {DERIVATION_MAJOR})"))
+    Cli::command()
+        .version(format!("{VERSION} (derivation major {DERIVATION_MAJOR})"))
+        .styles(Styles::plain().error(AnsiColor::Red.on_default().bold()))
 }
 
 fn usage(subcommand: &str, message: &str) -> ! {

@@ -14,7 +14,8 @@ unsafe_code = "forbid"
 all = { level = "deny", priority = -1 }
 
 [dependencies]
-clap = { version = "4", default-features = false, features = ["std", "derive", "help", "usage", "error-context", "suggestions", "string"], optional = true }
+clap = { version = "4", default-features = false, features = ["std", "derive", "help", "usage", "error-context", "suggestions", "string", "color"], optional = true }
+clap_complete = { version = "4", optional = true }
 kurbo = "0.13"
 png = "0.18"
 serde = { version = "1", features = ["derive"] }
@@ -29,7 +30,7 @@ workspace = true
 image = { version = "0.25", default-features = false, features = ["png"] }
 
 [features]
-cli = ["dep:clap"]
+cli = ["dep:clap", "dep:clap_complete"]
 
 [[bin]]
 name = "tirage"
