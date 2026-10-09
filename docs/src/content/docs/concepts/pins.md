@@ -7,7 +7,7 @@ A _Pin_ is a part of a Recipe you fix instead of letting the Seed derive it. You
 
 ## Pin the Tool
 
-Seed 42 deals kiosk on its own. Name a Tool and the Seed derives a Recipe for that Tool instead:
+Seed 42 deals whorl on its own. Name a Tool and the Seed derives a Recipe for that Tool instead:
 
 ```sh
 tirage derive --seed 42 --tool sonar

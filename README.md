@@ -6,7 +6,7 @@ Docs: https://tirage.espadat.com
 
 See [`CONTEXT.md`](./CONTEXT.md). [`cli/`](./cli) is the `tirage` binary. [`encode/`](./encode) turns a Loop into an MP4 (ADR 0004).
 
-Tools: `sonar`, `husk`, `vein`, `aura`, `kiosk`, `frond` ([ADR 0002](./meta/adr/0002-tool-shortlist-for-recordreel.md)).
+Tools: `tirage tools` lists them. The first six, `sonar`, `husk`, `vein`, `aura`, `kiosk` and `frond`, came from recordreel ([ADR 0002](./meta/adr/0002-tool-shortlist-for-recordreel.md)).
 
 ## Library
 

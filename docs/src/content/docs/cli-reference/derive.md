@@ -17,7 +17,7 @@ The same Seed with the same Pins gives the same Recipe, for as long as the deriv
 | Option             | Value                                                                                          | Without it                                            |
 | ------------------ | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | `--seed <N>`       | An integer from 0 to 18446744073709551615                                                      | Prompted on a terminal, with a random Seed as default |
-| `--tool <SLUG>`    | `sonar`, `husk`, `vein`, `aura`, `kiosk` or `frond`                                            | The Seed deals the Tool                               |
+| `--tool <SLUG>`    | A Tool slug, as [`tirage tools`](/cli-reference/tools/) lists it                               | The Seed deals the Tool                               |
 | `--taste <FILE>`   | Path to a Taste bounds JSON file. It Pins the Tool named inside, so it conflicts with `--tool` | Each Parameter draws from its shipped Taste bounds    |
 | `--palette <INKS>` | Two or more `#rrggbb` inks, comma separated                                                    | The Tool's own Palette                                |
 
