@@ -8,6 +8,10 @@ Original generative artwork and animations that reproduce the look of the playgr
 One playgrnd.tools generator we reproduce, named by its site slug (aura, riso, mist).
 _Avoid_: Effect, filter, generator
 
+**Edition**:
+The set of Tools a tirage version ships. A Seed is one print of it.
+_Avoid_: Catalogue, set, shortlist
+
 **Parameter**:
 One named, bounded input of a Tool, matching a slider, toggle or picker on its site page.
 _Avoid_: Option, setting, knob
