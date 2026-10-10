@@ -36,18 +36,7 @@ export default defineConfig({
             { slug: "concepts/reproducing-the-look" },
           ],
         },
-        {
-          label: "Tools",
-          items: [
-            { label: "Overview", slug: "tools" },
-            { slug: "tools/sonar" },
-            { slug: "tools/husk" },
-            { slug: "tools/vein" },
-            { slug: "tools/aura" },
-            { slug: "tools/kiosk" },
-            { slug: "tools/frond" },
-          ],
-        },
+        { label: "Tools", items: [{ autogenerate: { directory: "tools" } }] },
         {
           label: "CLI Reference",
           items: [
