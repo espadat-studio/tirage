@@ -54,6 +54,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `quilt`   | 1      | Still  |
 | `static`  | 1      | Still  |
 | `splice`  | 1      | Still  |
+| `dahlia`  | 1      | Still  |
 
 ## Text output
 
