@@ -61,6 +61,7 @@ registry::tools! {
     Vee: vee::{VeeParams, VeeStyle},
     Sampler: sampler::{SamplerParams},
     Totem: totem::{TotemParams},
+    Delta: delta::{DeltaParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

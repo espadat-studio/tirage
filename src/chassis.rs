@@ -486,6 +486,6 @@ fn noise_hash(x: usize, y: usize) -> f64 {
     f64::from((b ^ (b >> 16)) as u32) / 4_294_967_296.0
 }
 
-fn to_int32(value: f64) -> i32 {
+pub(crate) fn to_int32(value: f64) -> i32 {
     value.rem_euclid(4_294_967_296.0) as u32 as i32
 }

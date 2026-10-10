@@ -27,10 +27,6 @@ pub(crate) enum Join {
 #[derive(Clone, Copy)]
 pub(crate) enum Smoothing {
     Bicubic,
-    #[cfg_attr(
-        not(test),
-        expect(dead_code, reason = "delta upscales its field bilinear")
-    )]
     Bilinear,
     Nearest,
 }
