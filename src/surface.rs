@@ -204,14 +204,12 @@ impl Surface {
         self.3 = outer;
     }
 
-    #[cfg_attr(not(test), expect(dead_code, reason = "strand adds its eroded rods"))]
     pub(crate) fn with_plus(&mut self, draw: impl FnOnce(&mut Self)) {
         let outer = std::mem::replace(&mut self.3, BlendMode::Plus);
         draw(self);
         self.3 = outer;
     }
 
-    #[cfg_attr(not(test), expect(dead_code, reason = "strand blurs its eroded rods"))]
     pub(crate) fn with_blur(&mut self, sigma: f64, draw: impl FnOnce(&mut Self)) {
         let mut layer = Self::new(self.width(), self.height());
         draw(&mut layer);

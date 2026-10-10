@@ -63,6 +63,7 @@ registry::tools! {
     Totem: totem::{TotemParams},
     Filament: filament::{FilamentParams, FilamentMarks},
     Chaff: chaff::{ChaffParams, ChaffShape},
+    Strand: strand::{StrandParams, StrandTexture},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
