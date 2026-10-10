@@ -31,7 +31,9 @@ fn pinning_the_palette_to_its_dealt_value_changes_nothing() {
     for seed in 0..500 {
         let dealt = derive(seed, SONAR);
         let mut pinned = derive(seed, SONAR);
-        pinned.set_palette(dealt.palette().clone()).unwrap();
+        pinned
+            .set_palette(dealt.palette().unwrap().clone())
+            .unwrap();
         assert_eq!(pinned, dealt, "seed {seed}");
     }
 }
@@ -42,7 +44,7 @@ fn a_palette_pin_leaves_every_other_field_unchanged() {
     let inks = Palette::from_hex(&["#000000", "#ffffff"]).unwrap();
     let mut pinned = derive(9, SONAR);
     pinned.set_palette(inks.clone()).unwrap();
-    assert_eq!(pinned.palette(), &inks);
+    assert_eq!(pinned.palette().unwrap(), &inks);
     assert_eq!(
         (pinned.tool(), pinned.tool_seed(), pinned.params()),
         (dealt.tool(), dealt.tool_seed(), dealt.params())

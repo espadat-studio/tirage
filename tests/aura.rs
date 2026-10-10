@@ -43,7 +43,7 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
         let recipe = derive(seed, AURA);
         let p = aura(&recipe);
         assert_eq!(
-            recipe.palette(),
+            recipe.palette().unwrap(),
             &Palette::from_hex(&["#ff8a5b", "#ffc15e", "#f4a7d6", "#8e7cff"]).unwrap()
         );
         for (value, min, max, unit) in [
@@ -140,7 +140,7 @@ fn a_palette_over_four_inks_is_refused() {
     assert_eq!(recipe, derive(7, AURA));
     let four = Palette::from_hex(&["#ff8fcb", "#b79cff", "#ffe066", "#6ee7c8"]).unwrap();
     recipe.set_palette(four.clone()).unwrap();
-    assert_eq!(recipe.palette(), &four);
+    assert_eq!(recipe.palette().unwrap(), &four);
 
     let mut value: serde_json::Value = serde_json::from_str(&derive(7, AURA).to_json()).unwrap();
     value["palette"] = serde_json::json!(["#000000", "#111111", "#222222", "#333333", "#444444"]);

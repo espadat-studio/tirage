@@ -43,7 +43,7 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
     for seed in 0..2000 {
         let recipe = derive(seed, STITCH);
         let p = stitch(&recipe);
-        assert_eq!(recipe.palette(), &palette);
+        assert_eq!(recipe.palette().unwrap(), &palette);
         assert!(
             (16..=96).contains(&p.cols()),
             "seed {seed}: cols {}",

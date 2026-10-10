@@ -31,6 +31,19 @@ describe("parseManifest", () => {
       },
     });
     expect(parsed.tools.sonar.fixtures.map(f => f.frame)).toEqual([undefined, 12]);
+    expect(Object.keys(parsed.tools.sonar.fixtures[0].recipe)).toEqual([
+      "tirage",
+      "tool",
+      "tool_seed",
+      "palette",
+      "params",
+    ]);
+  });
+
+  test("accepts a Recipe without a Palette, for a Tool that takes none", () => {
+    const { palette: _, ...bare } = recipe();
+    const parsed = parseManifest(manifest({ recipe: bare }));
+    expect(Object.keys(parsed.tools.sonar.fixtures[0].recipe)).toEqual(["tirage", "tool", "tool_seed", "params"]);
   });
 
   test.each([
@@ -41,6 +54,7 @@ describe("parseManifest", () => {
       "tools.sonar.fixtures[0].recipe.tool_seed: expected an integer in 1..4294967295",
     ],
     [{ recipe: recipe({ palette: ["#fff"] }) }, {}, "tools.sonar.fixtures[0].recipe.palette[0]: expected #rrggbb"],
+    [{ recipe: recipe({ palette: [] }) }, {}, "tools.sonar.fixtures[0].recipe.palette: expected a non-empty array"],
     [
       { recipe: recipe({ params: { scrub: 3 } }) },
       {},
