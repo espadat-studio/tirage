@@ -43,12 +43,10 @@ impl Transform {
         ty: 0.0,
     });
 
-    #[cfg_attr(not(test), expect(dead_code, reason = "optic is the first caller"))]
     pub(crate) fn translate(self, x: f64, y: f64) -> Self {
         Self(self.0.pre_translate(x as f32, y as f32))
     }
 
-    #[cfg_attr(not(test), expect(dead_code, reason = "optic is the first caller"))]
     pub(crate) fn rotate(self, radians: f64) -> Self {
         Self(self.0.pre_rotate(radians.to_degrees() as f32))
     }
@@ -136,7 +134,6 @@ impl Path2D {
         }
     }
 
-    #[cfg_attr(not(test), expect(dead_code, reason = "optic is the first caller"))]
     pub(crate) fn rect(&mut self, x: f64, y: f64, width: f64, height: f64) {
         if let Some(rect) = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32) {
             self.0.push_rect(rect);
@@ -356,7 +353,6 @@ impl Surface {
         );
     }
 
-    #[cfg_attr(not(test), expect(dead_code, reason = "optic is the first caller"))]
     pub(crate) fn fill_transformed(&mut self, path: &Path2D, ink: [u8; 3], transform: Transform) {
         let path = path
             .0
