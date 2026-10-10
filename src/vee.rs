@@ -238,7 +238,6 @@ enum Layout {
 struct Stripes {
     transform: Transform,
     rects: Path2D,
-    each: Vec<Path2D>,
 }
 
 fn stripes(
@@ -252,28 +251,19 @@ fn stripes(
     let first = ((-reach - ph) / per).ceil() as i64;
     let last = ((reach - ph) / per).floor() as i64;
     let mut rects = Path2D::default();
-    let each = (first..=last)
-        .map(|k| {
-            let y = k as f64 * per + ph;
-            rects.rect(-reach, y, reach * 2.0, per * duty);
-            let mut rect = Path2D::default();
-            rect.rect(-reach, y, reach * 2.0, per * duty);
-            rect
-        })
-        .collect();
+    for k in first..=last {
+        rects.rect(-reach, k as f64 * per + ph, reach * 2.0, per * duty);
+    }
     Stripes {
         transform: Transform::IDENTITY
             .translate((x0 + x1) / 2.0, (y0 + y1) / 2.0)
             .rotate(angle),
         rects,
-        each,
     }
 }
 
 fn fill_stripes(surface: &mut Surface, set: &Stripes, ink: [u8; 3]) {
-    for rect in &set.each {
-        surface.fill_transformed(rect, ink, set.transform);
-    }
+    surface.fill_transformed(&set.rects, ink, set.transform);
 }
 
 fn region_clip((x0, y0, x1, y1): (f64, f64, f64, f64)) -> Path2D {
