@@ -75,13 +75,6 @@ impl Path2D {
         );
     }
 
-    #[cfg_attr(
-        not(test),
-        expect(
-            dead_code,
-            reason = "splice, specimen and filament stroke elliptical arcs"
-        )
-    )]
     #[expect(clippy::too_many_arguments, reason = "canvas ellipse() takes seven")]
     pub(crate) fn ellipse(
         &mut self,
@@ -146,10 +139,6 @@ impl Surface {
         )
     }
 
-    #[cfg_attr(
-        not(test),
-        expect(dead_code, reason = "splice and crowd stroke at an opacity")
-    )]
     pub(crate) fn with_alpha(&mut self, alpha: f32, draw: impl FnOnce(&mut Self)) {
         let outer = std::mem::replace(&mut self.1, alpha);
         draw(self);

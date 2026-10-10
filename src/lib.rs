@@ -43,6 +43,7 @@ registry::tools! {
     Fold: fold::{FoldParams, FoldMirror, FoldKind},
     Quilt: quilt::{QuiltParams, QuiltStyle},
     Static: r#static::{StaticParams},
+    Splice: splice::{SpliceParams, SpliceCut},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
