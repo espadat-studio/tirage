@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/espadat-studio/tirage/compare/v0.2.0...v0.3.0) - 2026-10-10
+
+### Added
+
+- [**breaking**] add filament, chaff and strand as stills ([#123](https://github.com/espadat-studio/tirage/pull/123))
+- [**breaking**] add optic, vee, sampler and totem as stills ([#121](https://github.com/espadat-studio/tirage/pull/121))
+- [**breaking**] add pane, modular, prism, parcel and tokens as stills ([#120](https://github.com/espadat-studio/tirage/pull/120))
+- [**breaking**] add riso, rise, carve and specimen as stills ([#119](https://github.com/espadat-studio/tirage/pull/119))
+- [**breaking**] add splice, dahlia, hiss, crowd and cipher as stills ([#118](https://github.com/espadat-studio/tirage/pull/118))
+- [**breaking**] add fete, fold, quilt and static as stills ([#116](https://github.com/espadat-studio/tirage/pull/116))
+- [**breaking**] add atlas, sprig, stipple, motley and oddgrid as stills ([#115](https://github.com/espadat-studio/tirage/pull/115))
+- [**breaking**] add bloom, weave, warp, zig and relief as stills ([#114](https://github.com/espadat-studio/tirage/pull/114))
+- [**breaking**] add mist, coral, whorl, sear and culture as stills ([#112](https://github.com/espadat-studio/tirage/pull/112))
+
+### Other
+
+- autogenerate tools sidebar from content directory ([#117](https://github.com/espadat-studio/tirage/pull/117))
+- remove pre-push hook
+
 ## [0.2.0](https://github.com/espadat-studio/tirage/compare/v0.1.1...v0.2.0) - 2026-10-09
 
 ### Added
