@@ -39,11 +39,4 @@ hooks {
       }
     }
   }
-  ["pre-push"] {
-    steps {
-      ["nextest"] {
-        check = "mise run test"
-      }
-    }
-  }
 }
