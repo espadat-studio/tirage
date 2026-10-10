@@ -57,6 +57,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `dahlia`  | 1      | Still  |
 | `hiss`    | 1      | Still  |
 | `crowd`   | 1      | Still  |
+| `cipher`  | 1      | Still  |
 
 ## Text output
 
