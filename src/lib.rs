@@ -58,6 +58,7 @@ registry::tools! {
     Parcel: parcel::{ParcelParams, LineBlend},
     Tokens: tokens::{TokensParams},
     Optic: optic::{OpticParams, OpticStyle},
+    Vee: vee::{VeeParams, VeeStyle},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
