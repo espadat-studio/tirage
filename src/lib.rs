@@ -57,6 +57,10 @@ registry::tools! {
     Prism: prism::{PrismParams},
     Parcel: parcel::{ParcelParams, LineBlend},
     Tokens: tokens::{TokensParams},
+    Optic: optic::{OpticParams, OpticStyle},
+    Vee: vee::{VeeParams, VeeStyle},
+    Sampler: sampler::{SamplerParams},
+    Totem: totem::{TotemParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

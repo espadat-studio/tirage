@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::param::Param;
-use crate::surface::{Path2D, Surface};
+use crate::surface::{Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
@@ -255,7 +255,7 @@ fn paint(surface: &mut Surface, p: &RiseParams, palette: &Palette) {
         let (ground, ink) = PAIRS[i as usize % 4];
         let mut disc = Path2D::default();
         disc.push_circle(ax, ay, (f64::from(i) + 0.8) * band);
-        surface.with_clip(&disc, |surface| {
+        surface.with_clip(&disc, Transform::IDENTITY, |surface| {
             surface.fill(palette.ink(ground));
             bars(surface, palette.ink(ink));
         });
