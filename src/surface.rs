@@ -3,14 +3,14 @@ use std::f64::consts::{PI, TAU};
 use kurbo::{Arc, PathEl, Shape, Vec2};
 
 use tiny_skia::{
-    Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin,
+    BlendMode, Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin,
     LinearGradient, Mask, Paint, Path, PathBuilder, Pixmap, PixmapPaint, Point, RadialGradient,
     Rect, SpreadMode, Stroke, Transform,
 };
 
 use crate::Image;
 
-pub(crate) struct Surface(Pixmap, f32, Option<Mask>);
+pub(crate) struct Surface(Pixmap, f32, Option<Mask>, BlendMode);
 
 #[derive(Clone, Copy)]
 pub(crate) enum Cap {
@@ -134,6 +134,7 @@ impl Surface {
             Pixmap::new(width, height).expect("frame edges are validated"),
             1.0,
             None,
+            BlendMode::SourceOver,
         )
     }
 
@@ -152,10 +153,21 @@ impl Surface {
         self.2 = None;
     }
 
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "parcel multiplies its hairlines")
+    )]
+    pub(crate) fn with_multiply(&mut self, draw: impl FnOnce(&mut Self)) {
+        let outer = std::mem::replace(&mut self.3, BlendMode::Multiply);
+        draw(self);
+        self.3 = outer;
+    }
+
     fn solid(&self, [r, g, b]: [u8; 3]) -> Paint<'static> {
         let [r, g, b] = [r, g, b].map(|c| f32::from(c) / 255.0);
         let mut paint = Paint::default();
         paint.set_color(Color::from_rgba(r, g, b, self.1).expect("alpha is 0..=1"));
+        paint.blend_mode = self.3;
         paint
     }
 
@@ -583,5 +595,20 @@ mod tests {
         assert_eq!((red(8), red(9)), (240, 240), "padded past the end");
         assert!(red(4).abs_diff(100) <= 2, "x 4.5 is 2.5/6 along: {rgba:?}");
         assert!(rgba.chunks(4).all(|px| px[2] == 0 && px[3] == 255));
+    }
+
+    #[test]
+    fn with_multiply_darkens_by_the_ink_then_restores_source_over() {
+        let mut surface = Surface::new(2, 1);
+        surface.fill([200, 100, 50]);
+        surface.with_multiply(|surface| {
+            surface.fill_box(0.0, 0.0, 1.0, 1.0, [128, 255, 0]);
+        });
+        surface.fill_box(1.0, 0.0, 1.0, 1.0, [128, 255, 0]);
+        let rgba = surface.into_image().rgba().to_vec();
+        for (ours, multiplied) in rgba[..4].iter().zip([100, 100, 0, 255]) {
+            assert!(ours.abs_diff(multiplied) <= 1, "{rgba:?}");
+        }
+        assert_eq!(&rgba[4..], [128, 255, 0, 255]);
     }
 }
