@@ -34,6 +34,7 @@ registry::tools! {
     Warp: warp::{WarpParams, WarpStyle},
     Zig: zig::{ZigParams, ZigStyle},
     Relief: relief::{ReliefParams},
+    Atlas: atlas::{AtlasParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

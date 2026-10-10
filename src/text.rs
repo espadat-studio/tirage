@@ -13,10 +13,6 @@ use crate::surface::Surface;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Face {
-    #[cfg_attr(
-        not(test),
-        expect(dead_code, reason = "atlas is the first Tool to draw Book")
-    )]
     Book,
     Bold,
 }
