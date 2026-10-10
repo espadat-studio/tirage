@@ -301,7 +301,7 @@ fn paint(surface: &mut Surface, p: &OpticParams, palette: &Palette, tool_seed: u
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let (cx, cy) = (w / 2.0, h / 2.0);
     let md = w.min(h);
-    let period = md / f64::from(p.count.max(4));
+    let period = md / f64::from(p.count);
     let bar = period * p.weight;
     let reach = w.hypot(h) / 2.0 + period * (LAP + 2.0);
     let (base, ink) = (palette.ink(0), palette.ink(1));

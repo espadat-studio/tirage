@@ -46,7 +46,7 @@ The moves:
 
 For a `W x H` frame, centre `(cx, cy) = (W/2, H/2)`, `md = min(W, H)`:
 
-- bar period `P = md / max(4, count)`, bar width `w = P · weight`
+- bar period `P = md / count`, bar width `w = P · weight`
 - reach `R = hypot(W, H) / 2 + 4 P`. The 4 is `lap + 2` with `lap = max(1, round(2 · amt)) = 2` at the default `amt`
 - level `i` has figure size `s_i = sizeF · md / 2 · [1, 0.55, 0.22][i]`, turn and phase `φ_i = phase · P` from its move
 
