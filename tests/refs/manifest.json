@@ -3674,6 +3674,152 @@
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
       }
+    },
+    "sprig": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sprig",
+            "tool_seed": 9611518,
+            "palette": [
+              "#f9e4c8",
+              "#2d6a4f"
+            ],
+            "params": {
+              "dirs": "Leaves",
+              "count": 96,
+              "size": 0.49,
+              "vary": 0.01,
+              "solids": 0.2,
+              "weight": 0.4,
+              "rough": 0.55,
+              "wobble": 0.21,
+              "detail": 1,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sprig",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#f9e4c8",
+              "#2d6a4f"
+            ],
+            "params": {
+              "dirs": "Blooms",
+              "count": 33,
+              "size": 0.23,
+              "vary": 0.98,
+              "solids": 0.54,
+              "weight": 0.59,
+              "rough": 0.5,
+              "wobble": 0.96,
+              "detail": 0.87,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sprig",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#f9e4c8",
+              "#2d6a4f"
+            ],
+            "params": {
+              "dirs": "Leaves",
+              "count": 87,
+              "size": 0.58,
+              "vary": 0.01,
+              "solids": 0.5,
+              "weight": 0.37,
+              "rough": 0.23,
+              "wobble": 0.68,
+              "detail": 0.86,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-1-garden",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sprig",
+            "tool_seed": 9611518,
+            "palette": [
+              "#f9e4c8",
+              "#2d6a4f"
+            ],
+            "params": {
+              "dirs": "Garden",
+              "count": 96,
+              "size": 0.49,
+              "vary": 0.01,
+              "solids": 0.2,
+              "weight": 0.4,
+              "rough": 0.55,
+              "wobble": 0.21,
+              "detail": 1,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "58cad1c63fb27541442375767dc054c7c732353ccd59a31f0e549e43e84634dc",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
     }
   }
 }
