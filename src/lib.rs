@@ -35,6 +35,7 @@ registry::tools! {
     Zig: zig::{ZigParams, ZigStyle},
     Relief: relief::{ReliefParams},
     Atlas: atlas::{AtlasParams},
+    Sprig: sprig::{SprigParams, MotifSet},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
