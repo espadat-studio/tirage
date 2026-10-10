@@ -397,7 +397,8 @@ fn doodle(motif: FeteMotif, view_height: f64, tool_seed: u32) -> Vec<Vec<Point>>
                 .collect();
             lines.push(line);
         }
-        FeteMotif::Scribble | FeteMotif::Auto => {
+        FeteMotif::Auto => unreachable!("Auto resolves to a motif"),
+        FeteMotif::Scribble => {
             let loops = 4 + (rng.next() * 3.0) as u32;
             let (mut x, mut y) = (VIEW * 0.15, cy);
             let mut line = vec![(x, y)];

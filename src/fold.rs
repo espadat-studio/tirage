@@ -415,7 +415,7 @@ fn patches(
         FoldKind::Checks => &[Pattern::Checks],
     };
     let pick = |rng: &mut XorShift| (rng.next() * others.len() as f64) as usize;
-    (0..params.patches.max(1))
+    (0..params.patches)
         .map(|_| {
             let pattern = pool[(rng.next() * pool.len() as f64) as usize];
             let cx = rng.next() * aw;
@@ -509,7 +509,7 @@ fn shade(
 }
 
 fn step(tone: f64, levels: u32) -> f64 {
-    let levels = f64::from(levels.max(2));
+    let levels = f64::from(levels);
     (tone * levels).floor() / (levels - 1.0)
 }
 

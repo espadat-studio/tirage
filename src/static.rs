@@ -364,7 +364,7 @@ fn bits(params: &StaticParams, gw: usize, gh: usize, tool_seed: u32) -> Vec<bool
         let band = bands
             .iter()
             .find(|band| v >= band.y0 && v < band.y1)
-            .unwrap_or(&bands[0]);
+            .expect("the last band ends at the last row");
         for u in 0..gw {
             let u = u as f64;
             let region = match &inset {

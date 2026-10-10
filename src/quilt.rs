@@ -575,7 +575,8 @@ impl Pattern {
                 let cell = ((vy.floor() as usize) & 3) * 4 + ((ux.floor() as usize) & 3);
                 u8::from(s > (BAYER[cell] + 0.5) / 16.0)
             }
-            QuiltStyle::Steps | QuiltStyle::Auto => lookup(
+            QuiltStyle::Auto => unreachable!("Auto resolves to a style"),
+            QuiltStyle::Steps => lookup(
                 &self.steps,
                 (vy + ((ux + self.off) / self.rw).floor() * self.rh).floor(),
             ),
