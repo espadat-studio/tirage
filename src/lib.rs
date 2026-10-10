@@ -38,6 +38,7 @@ registry::tools! {
     Sprig: sprig::{SprigParams, MotifSet},
     Stipple: stipple::{StippleParams, DotMode, Lattice, DotShape, Symmetry},
     Motley: motley::{MotleyParams},
+    Oddgrid: oddgrid::{OddgridParams, Motif},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
