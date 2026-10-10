@@ -65,6 +65,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `pane`     | 1      | Still  |
 | `modular`  | 1      | Still  |
 | `prism`    | 1      | Still  |
+| `parcel`   | 1      | Still  |
 
 ## Text output
 
