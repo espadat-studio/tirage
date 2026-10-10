@@ -7,7 +7,7 @@ use tiny_skia::{
 
 use crate::Image;
 
-pub(crate) struct Surface(Pixmap);
+pub(crate) struct Surface(Pixmap, f32);
 
 #[derive(Clone, Copy)]
 pub(crate) enum Cap {
@@ -94,15 +94,29 @@ impl Path2D {
     }
 }
 
-fn solid([r, g, b]: [u8; 3]) -> Paint<'static> {
-    let mut paint = Paint::default();
-    paint.set_color_rgba8(r, g, b, 255);
-    paint
-}
-
 impl Surface {
     pub(crate) fn new(width: u32, height: u32) -> Self {
-        Self(Pixmap::new(width, height).expect("frame edges are validated"))
+        Self(
+            Pixmap::new(width, height).expect("frame edges are validated"),
+            1.0,
+        )
+    }
+
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "splice and crowd stroke at an opacity")
+    )]
+    pub(crate) fn with_alpha(&mut self, alpha: f32, draw: impl FnOnce(&mut Self)) {
+        let outer = std::mem::replace(&mut self.1, alpha);
+        draw(self);
+        self.1 = outer;
+    }
+
+    fn solid(&self, [r, g, b]: [u8; 3]) -> Paint<'static> {
+        let [r, g, b] = [r, g, b].map(|c| f32::from(c) / 255.0);
+        let mut paint = Paint::default();
+        paint.set_color(Color::from_rgba(r, g, b, self.1).expect("alpha is 0..=1"));
+        paint
     }
 
     pub(crate) fn width(&self) -> u32 {
@@ -127,7 +141,7 @@ impl Surface {
     ) {
         let rect = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32)
             .expect("rect sides are at least 1 px");
-        let mut paint = solid([r, g, b]);
+        let mut paint = self.solid([r, g, b]);
         paint.anti_alias = false;
         self.0.fill_rect(rect, &paint, Transform::identity(), None);
     }
@@ -138,9 +152,10 @@ impl Surface {
             .clone()
             .finish()
             .expect("a filled path has a closed loop");
+        let paint = self.solid(ink);
         self.0.fill_path(
             &path,
-            &solid(ink),
+            &paint,
             FillRule::EvenOdd,
             Transform::identity(),
             None,
@@ -166,25 +181,22 @@ impl Surface {
             .clone()
             .finish()
             .expect("a stroked path has a closed loop");
+        let paint = self.solid(ink);
         self.0
-            .stroke_path(&path, &solid(ink), &stroke, Transform::identity(), None);
+            .stroke_path(&path, &paint, &stroke, Transform::identity(), None);
     }
 
     pub(crate) fn fill_box(&mut self, x: f64, y: f64, width: f64, height: f64, ink: [u8; 3]) {
         if let Some(rect) = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32) {
-            self.0
-                .fill_rect(rect, &solid(ink), Transform::identity(), None);
+            let paint = self.solid(ink);
+            self.0.fill_rect(rect, &paint, Transform::identity(), None);
         }
     }
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
-        self.0.fill_path(
-            path,
-            &solid(ink),
-            FillRule::Winding,
-            Transform::identity(),
-            None,
-        );
+        let paint = self.solid(ink);
+        self.0
+            .fill_path(path, &paint, FillRule::Winding, Transform::identity(), None);
     }
 
     pub(crate) fn fill_radial_fade(
@@ -232,9 +244,10 @@ impl Surface {
     pub(crate) fn fill_circle(&mut self, x: f64, y: f64, radius: f64, ink: [u8; 3]) {
         let path = PathBuilder::from_circle(x as f32, y as f32, radius as f32)
             .expect("a circle has a positive radius");
+        let paint = self.solid(ink);
         self.0.fill_path(
             &path,
-            &solid(ink),
+            &paint,
             FillRule::Winding,
             Transform::identity(),
             None,
@@ -333,6 +346,21 @@ mod tests {
         for (ours, straight) in rgba[..3].iter().zip([200, 100, 50]) {
             assert!(ours.abs_diff(straight) <= 1, "{rgba:?}");
         }
+    }
+
+    #[test]
+    fn with_alpha_composites_straight_ink_source_over_then_restores_opaque_ink() {
+        let mut surface = Surface::new(2, 1);
+        surface.fill([0, 0, 0]);
+        surface.with_alpha(0.85, |surface| {
+            surface.fill_box(0.0, 0.0, 1.0, 1.0, [200, 100, 40]);
+        });
+        surface.fill_box(1.0, 0.0, 1.0, 1.0, [200, 100, 40]);
+        let rgba = surface.into_image().rgba().to_vec();
+        for (ours, blended) in rgba[..4].iter().zip([170, 85, 34, 255]) {
+            assert!(ours.abs_diff(blended) <= 1, "{rgba:?}");
+        }
+        assert_eq!(&rgba[4..], [200, 100, 40, 255]);
     }
 
     #[test]
