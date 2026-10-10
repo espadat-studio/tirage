@@ -39,7 +39,7 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
     for seed in 0..2000 {
         let recipe = derive(seed, BENDAY);
         let p = benday(&recipe);
-        assert_eq!(recipe.palette().to_hex().len(), 8);
+        assert_eq!(recipe.palette().unwrap().to_hex().len(), 8);
         assert!(
             (2..=16).contains(&p.bands()),
             "seed {seed}: bands {}",

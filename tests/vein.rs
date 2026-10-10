@@ -47,7 +47,7 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
         let recipe = derive(seed, VEIN);
         let p = vein(&recipe);
         assert_eq!(
-            recipe.palette(),
+            recipe.palette().unwrap(),
             &Palette::from_hex(&DEFAULT_PALETTE).unwrap()
         );
         flows.insert(format!("{:?}", p.flow()));

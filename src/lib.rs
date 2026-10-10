@@ -52,6 +52,11 @@ registry::tools! {
     Rise: rise::{RiseParams, RiseAnchor},
     Carve: carve::{CarveParams},
     Specimen: specimen::{SpecimenParams},
+    Pane: pane::{PaneParams},
+    Modular: modular::{ModularParams},
+    Prism: prism::{PrismParams},
+    Parcel: parcel::{ParcelParams, LineBlend},
+    Tokens: tokens::{TokensParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

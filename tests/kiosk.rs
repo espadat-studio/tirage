@@ -46,7 +46,7 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
     let mut sets = Vec::new();
     for seed in 0..2000 {
         let recipe = derive(seed, KIOSK);
-        assert_eq!(recipe.palette(), &palette);
+        assert_eq!(recipe.palette().unwrap(), &palette);
         let p = kiosk(&recipe);
         for (value, min, max) in [
             (p.split(), 0.15, 0.95),

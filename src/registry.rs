@@ -1,4 +1,4 @@
-use crate::{Error, Tool};
+use crate::{Error, Palette, Tool};
 
 macro_rules! tools {
     ($($variant:ident: $module:ident::{$params:ident $(, $extra:ident)* $(,)?}),* $(,)?) => {
@@ -49,9 +49,9 @@ macro_rules! tools {
                 }
             }
 
-            pub(crate) fn palette(self) -> $crate::Palette {
+            pub(crate) fn palette(self) -> Option<$crate::Palette> {
                 match self {
-                    $(Self::$variant => $module::palette(),)*
+                    $(Self::$variant => $module::palette().into(),)*
                 }
             }
 
@@ -87,12 +87,13 @@ macro_rules! tools {
             pub(crate) fn render(
                 &self,
                 surface: &mut $crate::surface::Surface,
-                palette: &$crate::Palette,
+                palette: Option<&$crate::Palette>,
                 tool_seed: u32,
                 t: u32,
             ) {
+                use $crate::registry::Inks;
                 match self {
-                    $(Self::$variant(params) => $module::render(surface, params, palette, tool_seed, t),)*
+                    $(Self::$variant(params) => $module::render(surface, params, Inks::inks(palette), tool_seed, t),)*
                 }
             }
         }
@@ -108,5 +109,21 @@ impl Tool {
             .copied()
             .find(|tool| tool.slug() == slug)
             .ok_or_else(|| Error::UnknownTool(slug.to_owned()))
+    }
+}
+
+pub(crate) trait Inks<'a> {
+    fn inks(palette: Option<&'a Palette>) -> Self;
+}
+
+impl<'a> Inks<'a> for &'a Palette {
+    fn inks(palette: Option<&'a Palette>) -> Self {
+        palette.expect("a Recipe holds a Palette for a Tool that takes one")
+    }
+}
+
+impl<'a> Inks<'a> for Option<&'a Palette> {
+    fn inks(palette: Option<&'a Palette>) -> Self {
+        palette
     }
 }

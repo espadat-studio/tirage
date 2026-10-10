@@ -21,6 +21,10 @@ pub fn for_error(error: &Error) -> Option<String> {
         Error::Ink(_) | Error::FewInks(_) => {
             "pass at least 2 comma-separated #rrggbb inks, like '#000000,#ffffff'".to_owned()
         }
+        Error::NoPalette(tool) => format!(
+            "{} draws its own colours; drop --palette, or pin a Tool that takes a Palette with --tool <slug>",
+            tool.slug()
+        ),
         Error::TooManyInks { tool, max, .. } => {
             format!("pass at most {max} inks for {}", tool.slug())
         }

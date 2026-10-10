@@ -54,7 +54,7 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
         let recipe = derive(seed, FROND);
         let p = frond(&recipe);
         assert_eq!(
-            recipe.palette(),
+            recipe.palette().unwrap(),
             &Palette::from_hex(&DEFAULT_PALETTE).unwrap()
         );
         *plants.entry(format!("{:?}", p.plant())).or_insert(0) += 1;

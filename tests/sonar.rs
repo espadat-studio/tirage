@@ -44,7 +44,7 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
         let recipe = derive(seed, SONAR);
         let p = sonar(&recipe);
         assert_eq!(
-            recipe.palette(),
+            recipe.palette().unwrap(),
             &Palette::from_hex(&[
                 "#0a0f1c", "#3ddc97", "#4361ee", "#ffd166", "#ef476f", "#f1faee"
             ])
@@ -143,7 +143,7 @@ fn json(edit: impl FnOnce(&mut serde_json::Value)) -> Result<Recipe, tirage::Err
 
 #[test]
 fn recipe_json_errors_are_human() {
-    let cases: [(&str, Edit); 9] = [
+    let cases: [(&str, Edit); 10] = [
         ("Recipe is tirage major 1, this build reads major 0", |v| {
             v["tirage"] = 1.into()
         }),
@@ -168,8 +168,11 @@ fn recipe_json_errors_are_human() {
         (r##"palette: "#ggg000" is not a #rrggbb colour"##, |v| {
             v["palette"][0] = "#ggg000".into()
         }),
+        ("palette: needs at least 2 inks, got 0", |v| {
+            v.as_object_mut().unwrap().remove("palette");
+        }),
         (
-            r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple, motley, oddgrid, fete, fold, quilt, static, splice, dahlia, hiss, crowd, cipher, riso, rise, carve, specimen"#,
+            r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple, motley, oddgrid, fete, fold, quilt, static, splice, dahlia, hiss, crowd, cipher, riso, rise, carve, specimen, pane, modular, prism, parcel, tokens"#,
             |v| v["tool"] = "vien".into(),
         ),
         (

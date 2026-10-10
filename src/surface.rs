@@ -3,14 +3,14 @@ use std::f64::consts::{PI, TAU};
 use kurbo::{Arc, PathEl, Shape, Vec2};
 
 use tiny_skia::{
-    Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin, Mask, Paint,
-    Path, PathBuilder, Pixmap, PixmapPaint, Point, RadialGradient, Rect, SpreadMode, Stroke,
-    Transform,
+    BlendMode, Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin,
+    LinearGradient, Mask, Paint, Path, PathBuilder, Pixmap, PixmapPaint, Point, RadialGradient,
+    Rect, SpreadMode, Stroke, Transform,
 };
 
 use crate::Image;
 
-pub(crate) struct Surface(Pixmap, f32, Option<Mask>);
+pub(crate) struct Surface(Pixmap, f32, Option<Mask>, BlendMode);
 
 #[derive(Clone, Copy)]
 pub(crate) enum Cap {
@@ -134,6 +134,7 @@ impl Surface {
             Pixmap::new(width, height).expect("frame edges are validated"),
             1.0,
             None,
+            BlendMode::SourceOver,
         )
     }
 
@@ -152,10 +153,17 @@ impl Surface {
         self.2 = None;
     }
 
+    pub(crate) fn with_multiply(&mut self, draw: impl FnOnce(&mut Self)) {
+        let outer = std::mem::replace(&mut self.3, BlendMode::Multiply);
+        draw(self);
+        self.3 = outer;
+    }
+
     fn solid(&self, [r, g, b]: [u8; 3]) -> Paint<'static> {
         let [r, g, b] = [r, g, b].map(|c| f32::from(c) / 255.0);
         let mut paint = Paint::default();
         paint.set_color(Color::from_rgba(r, g, b, self.1).expect("alpha is 0..=1"));
+        paint.blend_mode = self.3;
         paint
     }
 
@@ -186,6 +194,44 @@ impl Surface {
         paint.anti_alias = false;
         self.0
             .fill_rect(rect, &paint, Transform::identity(), self.2.as_ref());
+    }
+
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "a rect, a gradient line and its stops"
+    )]
+    pub(crate) fn fill_rect_linear(
+        &mut self,
+        x: i32,
+        y: i32,
+        width: u32,
+        height: u32,
+        (x0, y0): (f64, f64),
+        (x1, y1): (f64, f64),
+        stops: &[(f64, [u8; 3])],
+    ) {
+        let rect = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32)
+            .expect("rect sides are at least 1 px");
+        let stops = stops
+            .iter()
+            .map(|&(offset, [r, g, b])| {
+                GradientStop::new(offset as f32, Color::from_rgba8(r, g, b, 255))
+            })
+            .collect();
+        let shader = LinearGradient::new(
+            Point::from_xy(x0 as f32, y0 as f32),
+            Point::from_xy(x1 as f32, y1 as f32),
+            stops,
+            SpreadMode::Pad,
+            Transform::identity(),
+        )
+        .expect("a ramp has two stops and a line of positive length");
+        let paint = Paint {
+            shader,
+            anti_alias: false,
+            ..Paint::default()
+        };
+        self.0.fill_rect(rect, &paint, Transform::identity(), None);
     }
 
     pub(crate) fn fill_even_odd(&mut self, path: &Path2D, ink: [u8; 3]) {
@@ -525,5 +571,40 @@ mod tests {
     fn stroke_draws_a_miter_join_into_the_corner() {
         assert!(inked(Cap::Butt, Join::Miter, 5, 5));
         assert!(!inked(Cap::Butt, Join::Round, 5, 5));
+    }
+
+    #[test]
+    fn fill_rect_linear_ramps_between_stops_and_pads_past_the_ends() {
+        let mut surface = Surface::new(10, 1);
+        surface.fill_rect_linear(
+            0,
+            0,
+            10,
+            1,
+            (2.0, 0.0),
+            (8.0, 0.0),
+            &[(0.0, [0, 0, 0]), (1.0, [240, 120, 0])],
+        );
+        let rgba = surface.into_image().rgba().to_vec();
+        let red = |x: usize| rgba[x * 4];
+        assert_eq!((red(0), red(1)), (0, 0), "padded before the start");
+        assert_eq!((red(8), red(9)), (240, 240), "padded past the end");
+        assert!(red(4).abs_diff(100) <= 2, "x 4.5 is 2.5/6 along: {rgba:?}");
+        assert!(rgba.chunks(4).all(|px| px[2] == 0 && px[3] == 255));
+    }
+
+    #[test]
+    fn with_multiply_darkens_by_the_ink_then_restores_source_over() {
+        let mut surface = Surface::new(2, 1);
+        surface.fill([200, 100, 50]);
+        surface.with_multiply(|surface| {
+            surface.fill_box(0.0, 0.0, 1.0, 1.0, [128, 255, 0]);
+        });
+        surface.fill_box(1.0, 0.0, 1.0, 1.0, [128, 255, 0]);
+        let rgba = surface.into_image().rgba().to_vec();
+        for (ours, multiplied) in rgba[..4].iter().zip([100, 100, 0, 255]) {
+            assert!(ours.abs_diff(multiplied) <= 1, "{rgba:?}");
+        }
+        assert_eq!(&rgba[4..], [128, 255, 0, 255]);
     }
 }

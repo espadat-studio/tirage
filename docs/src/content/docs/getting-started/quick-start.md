@@ -7,7 +7,7 @@ This page goes from a Seed to a Still, then to a Loop as an MP4. It needs the CL
 
 ## Derive a Recipe
 
-A Seed is one integer. `derive` turns it into a Recipe: a Tool, a value for each of its Parameters, a Palette and a Tool seed.
+A Seed is one integer. `derive` turns it into a Recipe: a Tool, a value for each of its Parameters, a Palette where the Tool takes one, and a Tool seed.
 
 ```sh
 tirage derive --seed 42 --tool sonar > recipe.json

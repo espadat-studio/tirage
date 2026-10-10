@@ -27,6 +27,7 @@ pub enum Error {
         inks: usize,
         max: usize,
     },
+    NoPalette(Tool),
     OffStep {
         scope: &'static str,
         param: &'static str,
@@ -77,6 +78,7 @@ impl fmt::Display for Error {
                     "{slug}: palette has {inks} inks, {slug} draws at most {max}"
                 )
             }
+            Self::NoPalette(tool) => write!(f, "{}: takes no Palette", tool.slug()),
             Self::Major(found) => write!(
                 f,
                 "Recipe is tirage major {found}, this build reads major {DERIVATION_MAJOR}"

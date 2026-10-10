@@ -40,7 +40,7 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
         let recipe = derive(seed, HUSK);
         let p = husk(&recipe);
         assert_eq!(
-            recipe.palette(),
+            recipe.palette().unwrap(),
             &Palette::from_hex(&["#e0c3fc", "#1b1b1e", "#f9f871"]).unwrap()
         );
         assert_eq!((p.bite(), p.grain()), (Bite::Crumble, 0.3), "seed {seed}");

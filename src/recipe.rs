@@ -40,7 +40,7 @@ impl Parameter {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Recipe {
     tool_seed: NonZeroU32,
-    palette: Palette,
+    palette: Option<Palette>,
     params: Params,
 }
 
@@ -49,7 +49,8 @@ struct WireOut<'a> {
     tirage: u32,
     tool: &'static str,
     tool_seed: NonZeroU32,
-    palette: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    palette: Option<Vec<String>>,
     params: &'a Params,
 }
 
@@ -65,7 +66,7 @@ struct WireIn {
     _tirage: u64,
     tool: String,
     tool_seed: NonZeroU32,
-    palette: Vec<String>,
+    palette: Option<Vec<String>>,
     #[serde(deserialize_with = "unique_params")]
     params: serde_json::Value,
 }
@@ -78,7 +79,11 @@ fn unique_params<'de, D: serde::Deserializer<'de>>(
 }
 
 impl Recipe {
-    pub fn new(tool_seed: NonZeroU32, palette: Palette, params: Params) -> Result<Self, Error> {
+    pub fn new(
+        tool_seed: NonZeroU32,
+        palette: Option<Palette>,
+        params: Params,
+    ) -> Result<Self, Error> {
         let palette = fit(params.tool(), palette)?;
         Ok(Self {
             tool_seed,
@@ -99,12 +104,12 @@ impl Recipe {
         self.tool_seed = tool_seed;
     }
 
-    pub fn palette(&self) -> &Palette {
-        &self.palette
+    pub fn palette(&self) -> Option<&Palette> {
+        self.palette.as_ref()
     }
 
     pub fn set_palette(&mut self, palette: Palette) -> Result<(), Error> {
-        self.palette = fit(self.tool(), palette)?;
+        self.palette = fit(self.tool(), Some(palette))?;
         Ok(())
     }
 
@@ -121,7 +126,7 @@ impl Recipe {
             tirage: DERIVATION_MAJOR,
             tool: self.tool().slug(),
             tool_seed: self.tool_seed,
-            palette: self.palette.to_hex(),
+            palette: self.palette.as_ref().map(Palette::to_hex),
             params: &self.params,
         })
         .expect("a Recipe always serializes")
@@ -134,18 +139,25 @@ impl Recipe {
         }
         let wire: WireIn = serde_json::from_str(json).map_err(json_error)?;
         let params = Tool::from_slug(&wire.tool)?.params_from_json(wire.params)?;
-        Self::new(wire.tool_seed, Palette::from_hex(&wire.palette)?, params)
+        let palette = wire.palette.as_deref().map(Palette::from_hex).transpose()?;
+        Self::new(wire.tool_seed, palette, params)
     }
 }
 
-fn fit(tool: Tool, palette: Palette) -> Result<Palette, Error> {
+fn fit(tool: Tool, palette: Option<Palette>) -> Result<Option<Palette>, Error> {
+    let palette = match (tool.palette(), palette) {
+        (None, None) => return Ok(None),
+        (None, Some(_)) => return Err(Error::NoPalette(tool)),
+        (Some(_), None) => return Err(Error::FewInks(0)),
+        (Some(_), Some(palette)) => palette,
+    };
     match tool.max_inks() {
         Some(max) if palette.len() > max => Err(Error::TooManyInks {
             tool,
             inks: palette.len(),
             max,
         }),
-        _ => Ok(palette),
+        _ => Ok(Some(palette)),
     }
 }
 

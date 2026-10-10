@@ -4,7 +4,7 @@ export interface Recipe {
   tirage: number;
   tool: string;
   tool_seed: number;
-  palette: string[];
+  palette?: string[];
   params: Record<string, ParamValue>;
 }
 
@@ -65,7 +65,9 @@ function expectText(value: unknown, path: string, pattern: RegExp, message: stri
 function parseRecipe(value: unknown, path: string, slug: string): Recipe {
   const r = expectObject(value, path, ["tirage", "tool", "tool_seed", "palette", "params"]);
   if (r.tool !== slug) fail(`${path}.tool`, `expected ${slug}, got ${String(r.tool)}`);
-  if (!Array.isArray(r.palette) || !r.palette.length) fail(`${path}.palette`, "expected a non-empty array");
+  if (r.palette !== undefined && (!Array.isArray(r.palette) || !r.palette.length)) {
+    fail(`${path}.palette`, "expected a non-empty array");
+  }
   const params = expectObject(r.params, `${path}.params`, Object.keys(r.params ?? {}));
   for (const [id, v] of Object.entries(params)) {
     if (EXPORT_CONTROLS.includes(id)) fail(`${path}.params.${id}`, "set by the export, not the Recipe");
@@ -73,11 +75,14 @@ function parseRecipe(value: unknown, path: string, slug: string): Recipe {
       fail(`${path}.params.${id}`, "expected a number, boolean or string");
     }
   }
+  const palette = r.palette as unknown[] | undefined;
   return {
     tirage: expectInteger(r.tirage, `${path}.tirage`, 0, Number.MAX_SAFE_INTEGER, "expected an integer >= 0"),
     tool: slug,
     tool_seed: expectInteger(r.tool_seed, `${path}.tool_seed`, 1, 0xffffffff, "expected an integer in 1..4294967295"),
-    palette: r.palette.map((c, i) => expectText(c, `${path}.palette[${i}]`, HEX, "expected #rrggbb")),
+    ...(palette && {
+      palette: palette.map((c, i) => expectText(c, `${path}.palette[${i}]`, HEX, "expected #rrggbb")),
+    }),
     params: params as Record<string, ParamValue>,
   };
 }

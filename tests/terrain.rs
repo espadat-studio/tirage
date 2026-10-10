@@ -43,7 +43,7 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
     for seed in 0..2000 {
         let recipe = derive(seed, TERRAIN);
         let p = terrain(&recipe);
-        assert_eq!(recipe.palette(), &palette);
+        assert_eq!(recipe.palette().unwrap(), &palette);
         assert_eq!(p.grain(), 0.3, "seed {seed}");
         let value = p.scale();
         assert!((1.5..=9.0).contains(&value), "seed {seed}: scale {value}");
