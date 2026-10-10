@@ -40,6 +40,7 @@ registry::tools! {
     Motley: motley::{MotleyParams},
     Oddgrid: oddgrid::{OddgridParams, Motif},
     Fete: fete::{FeteParams, FeteMotif},
+    Fold: fold::{FoldParams, FoldMirror, FoldKind},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
