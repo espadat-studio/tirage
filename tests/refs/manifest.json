@@ -3820,6 +3820,188 @@
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
       }
+    },
+    "stipple": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "stipple",
+            "tool_seed": 9611518,
+            "palette": [
+              "#3a86ff",
+              "#8ab6ff",
+              "#d6e6ff"
+            ],
+            "params": {
+              "modesDot": "Lattice",
+              "lattices": "Square",
+              "shapes": "Circle",
+              "res": 165,
+              "dot": 1.07,
+              "vary": 0.62,
+              "cut": 0.24,
+              "jit": 0.38,
+              "edge": 0.41,
+              "loose": 0.26,
+              "zoom": 4.3,
+              "warp": 1.02,
+              "oct": 1,
+              "contrast": 1.4,
+              "syms": "Mirror",
+              "folds": 10,
+              "accRate": 0.066,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "stipple",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#3a86ff",
+              "#8ab6ff",
+              "#d6e6ff"
+            ],
+            "params": {
+              "modesDot": "Contour",
+              "lattices": "Hex",
+              "shapes": "Square",
+              "res": 142,
+              "dot": 0.97,
+              "vary": 0.03,
+              "cut": 0.07,
+              "jit": 0.78,
+              "edge": 0.53,
+              "loose": 0.21,
+              "zoom": 6.1,
+              "warp": 2.74,
+              "oct": 4,
+              "contrast": 2.1,
+              "syms": "Quad",
+              "folds": 12,
+              "accRate": 0.032,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "stipple",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#3a86ff",
+              "#8ab6ff",
+              "#d6e6ff"
+            ],
+            "params": {
+              "modesDot": "Lattice",
+              "lattices": "Square",
+              "shapes": "Circle",
+              "res": 154,
+              "dot": 1.02,
+              "vary": 0.86,
+              "cut": 0.11,
+              "jit": 0.85,
+              "edge": 0.63,
+              "loose": 0.28,
+              "zoom": 2.5,
+              "warp": 1.7,
+              "oct": 2,
+              "contrast": 3.3,
+              "syms": "None",
+              "folds": 15,
+              "accRate": 0.105,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-1-radial",
+          "recipe": {
+            "tirage": 0,
+            "tool": "stipple",
+            "tool_seed": 9611518,
+            "palette": [
+              "#3a86ff",
+              "#8ab6ff",
+              "#d6e6ff"
+            ],
+            "params": {
+              "modesDot": "Lattice",
+              "lattices": "Square",
+              "shapes": "Circle",
+              "res": 165,
+              "dot": 1.07,
+              "vary": 0.62,
+              "cut": 0.24,
+              "jit": 0.38,
+              "edge": 0.41,
+              "loose": 0.26,
+              "zoom": 4.3,
+              "warp": 1.02,
+              "oct": 1,
+              "contrast": 1.4,
+              "syms": "Radial",
+              "folds": 10,
+              "accRate": 0.066,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "cf8309ab86a7527dc9067a1ce9bef83f189bc00ffa2841417204509a2619392a",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
     }
   }
 }
