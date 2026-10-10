@@ -6693,6 +6693,124 @@
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
       }
+    },
+    "carve": {
+      "page_sha256": "dc53ced249a42dbcf4f9de5a8873c599cdc3d878ca43c777b0c0a3928c5ce683",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      },
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "carve",
+            "tool_seed": 9611518,
+            "palette": [
+              "#1a1a1a",
+              "#f5f2ec",
+              "#ff5c00",
+              "#00a3ff",
+              "#ff00a8",
+              "#a8ff00"
+            ],
+            "params": {
+              "cuts": 14,
+              "uneven": 0.86,
+              "gap": 0.07,
+              "mix": 0.04,
+              "pitch": 0.52,
+              "grain": 0.5,
+              "nodes": 0.79,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "carve",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#1a1a1a",
+              "#f5f2ec",
+              "#ff5c00",
+              "#00a3ff",
+              "#ff00a8",
+              "#a8ff00"
+            ],
+            "params": {
+              "cuts": 8,
+              "uneven": 0.87,
+              "gap": 0.4,
+              "mix": 0.64,
+              "pitch": 0.5,
+              "grain": 0.5,
+              "nodes": 0.54,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "carve",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#1a1a1a",
+              "#f5f2ec",
+              "#ff5c00",
+              "#00a3ff",
+              "#ff00a8",
+              "#a8ff00"
+            ],
+            "params": {
+              "cuts": 12,
+              "uneven": 0.76,
+              "gap": 0.98,
+              "mix": 0.48,
+              "pitch": 0.11,
+              "grain": 0.5,
+              "nodes": 0.1,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ]
     }
   }
 }
