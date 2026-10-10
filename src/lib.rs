@@ -52,6 +52,7 @@ registry::tools! {
     Rise: rise::{RiseParams, RiseAnchor},
     Carve: carve::{CarveParams},
     Specimen: specimen::{SpecimenParams},
+    Pane: pane::{PaneParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

@@ -188,10 +188,6 @@ impl Surface {
             .fill_rect(rect, &paint, Transform::identity(), self.2.as_ref());
     }
 
-    #[cfg_attr(
-        not(test),
-        expect(dead_code, reason = "pane and modular fill cells with a ramp")
-    )]
     #[expect(
         clippy::too_many_arguments,
         reason = "a rect, a gradient line and its stops"
