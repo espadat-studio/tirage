@@ -41,6 +41,7 @@ registry::tools! {
     Oddgrid: oddgrid::{OddgridParams, Motif},
     Fete: fete::{FeteParams, FeteMotif},
     Fold: fold::{FoldParams, FoldMirror, FoldKind},
+    Quilt: quilt::{QuiltParams, QuiltStyle},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
