@@ -26,11 +26,15 @@ impl Path2D {
         let (ux, uy) = (f64::from(start.x) - x1, f64::from(start.y) - y1);
         let (vx, vy) = (x2 - x1, y2 - y1);
         let (lu, lv) = (ux.hypot(uy), vx.hypot(vy));
-        if radius == 0.0 || lu == 0.0 || lv == 0.0 || ux * vy == uy * vx {
+        if radius == 0.0 || lu == 0.0 || lv == 0.0 {
             self.line_to(x1, y1);
             return;
         }
         let (ux, uy, vx, vy) = (ux / lu, uy / lu, vx / lv, vy / lv);
+        if (ux * vy - uy * vx).abs() <= 1.0 / 4096.0 {
+            self.line_to(x1, y1);
+            return;
+        }
         let between = (ux * vx + uy * vy).clamp(-1.0, 1.0).acos();
         let reach = radius / (between / 2.0).tan();
         let handle = radius * 4.0 / 3.0 * ((PI - between) / 4.0).tan();
@@ -261,7 +265,7 @@ impl Surface {
 
 #[cfg(test)]
 mod tests {
-    use super::Surface;
+    use super::{Path2D, Surface};
 
     #[test]
     fn edit_rgba_hands_out_and_takes_back_straight_alpha() {
@@ -272,5 +276,14 @@ mod tests {
         for (ours, straight) in rgba[..3].iter().zip([200, 100, 50]) {
             assert!(ours.abs_diff(straight) <= 1, "{rgba:?}");
         }
+    }
+
+    #[test]
+    fn arc_to_draws_a_near_straight_corner_as_a_line() {
+        let mut path = Path2D::default();
+        path.move_to(0.0, 0.0);
+        path.arc_to(10.0, 0.001, 20.0, 0.0, 5.0);
+        let end = path.0.last_point().unwrap();
+        assert_eq!((end.x, end.y), (10.0, 0.001));
     }
 }

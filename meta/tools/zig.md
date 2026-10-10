@@ -103,5 +103,5 @@ The clamp keeps a sharp corner from eating more than half of either edge.
 
 - All geometry is anti-aliased paths in two flat inks, so the diff is edge pixels only.
 - Waves and Scales call `sin`; Rust's and V8's may differ in the last bit, far below a pixel.
-- Collinear points on the sampled curves turn `arcTo` into a straight line, and near-collinear ones into tiny arcs. Either way the edge is the same to well under a pixel.
+- Collinear and near-collinear points on the sampled curves turn `arcTo` into a straight line to the corner. The Surface's `arc_to` treats a corner as straight when the sine of the angle between its unit edges is at most 1/4096. Without that tolerance the Reference exports fail.
 - The site's "My colors" fills a 6-swatch Tool from a shorter set with derived tints. Reference exports therefore use a 6-ink Palette, so the site's swatches equal the Recipe's Palette.
