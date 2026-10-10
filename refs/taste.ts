@@ -81,7 +81,12 @@ async function exportTile(browser: Browser, job: Job, ids: string[]): Promise<Ti
       ids => Object.fromEntries(ids.map(id => [id, Number((document.getElementById(id) as HTMLInputElement).value)])),
       ids,
     );
-    writeFileSync(join(dir, job.file), await downloadPng(page, WIDTH, HEIGHT));
+    const png = await downloadPng(page);
+    const [w, h] = [png.readUInt32BE(16), png.readUInt32BE(20)];
+    if (Math.abs(w / h - WIDTH / HEIGHT) > 0.02) {
+      throw new Error(`${slug} exported ${w}x${h}, not at the ${WIDTH}x${HEIGHT} aspect`);
+    }
+    writeFileSync(join(dir, job.file), png);
     const { sets: _, ...tile } = job;
     return { ...tile, values };
   } finally {

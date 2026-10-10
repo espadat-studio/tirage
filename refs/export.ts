@@ -40,7 +40,7 @@ async function exportPng(
     for (const [id, value] of Object.entries(recipe.params)) await setParam(page, id, value);
     if (frame !== undefined) await setRange(page, "scrub", frame);
 
-    return { png: await downloadPng(page, WIDTH, HEIGHT), pageSha };
+    return { png: await downloadPng(page, { width: WIDTH, height: HEIGHT }), pageSha };
   } finally {
     await context.close();
   }
