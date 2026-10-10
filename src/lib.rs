@@ -51,6 +51,7 @@ registry::tools! {
     Riso: riso::{RisoParams},
     Rise: rise::{RiseParams, RiseAnchor},
     Carve: carve::{CarveParams},
+    Specimen: specimen::{SpecimenParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
