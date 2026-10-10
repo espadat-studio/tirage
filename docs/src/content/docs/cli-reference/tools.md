@@ -21,14 +21,24 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 
 ## Tools
 
-| Tool    | Frames | Visual |
-| ------- | ------ | ------ |
-| `sonar` | 24     | Loop   |
-| `husk`  | 1      | Still  |
-| `vein`  | 1      | Still  |
-| `aura`  | 1      | Still  |
-| `kiosk` | 24     | Loop   |
-| `frond` | 36     | Loop   |
+| Tool      | Frames | Visual |
+| --------- | ------ | ------ |
+| `sonar`   | 24     | Loop   |
+| `husk`    | 1      | Still  |
+| `vein`    | 1      | Still  |
+| `aura`    | 1      | Still  |
+| `kiosk`   | 24     | Loop   |
+| `frond`   | 36     | Loop   |
+| `benday`  | 1      | Still  |
+| `terrain` | 1      | Still  |
+| `stitch`  | 1      | Still  |
+| `pith`    | 1      | Still  |
+| `mosh`    | 1      | Still  |
+| `mist`    | 1      | Still  |
+| `coral`   | 1      | Still  |
+| `whorl`   | 1      | Still  |
+| `sear`    | 1      | Still  |
+| `culture` | 1      | Still  |
 
 ## Text output
 

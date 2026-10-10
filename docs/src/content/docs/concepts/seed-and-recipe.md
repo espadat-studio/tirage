@@ -3,7 +3,7 @@ title: "Seed and Recipe"
 description: "How one integer turns into a whole Recipe, and what tirage promises about that mapping."
 ---
 
-A _Tool_ is one of the six things tirage draws: sonar, husk, vein, aura, kiosk or frond. Each is named by the slug of its page on the site it reproduces. A Tool has _Parameters_, one per slider, toggle or picker on that page, with the same id and the same range as the control there. It paints with a _Palette_, an ordered list of inks. Its own random draws start from a _Tool seed_, the integer you would type into the seed box on that page.
+A _Tool_ is one of the things tirage draws, such as sonar, aura or mist. [`tirage tools`](/cli-reference/tools/) lists them all. Each is named by the slug of its page on the site it reproduces. A Tool has _Parameters_, one per slider, toggle or picker on that page, with the same id and the same range as the control there. It paints with a _Palette_, an ordered list of inks. Its own random draws start from a _Tool seed_, the integer you would type into the seed box on that page.
 
 A _Recipe_ is a Tool, a value for each of its Parameters, a Palette and a Tool seed. That is everything a render needs, so a Recipe fully determines one [Visual](/concepts/still-and-loop/).
 
@@ -58,9 +58,9 @@ The Tool seed is drawn the same way and is never 0, because the site reads a see
 
 ## Which Tool a Seed gets
 
-With no Tool pinned, each Tool hashes the Seed with its own slug and the highest hash wins. The order Tools are registered in plays no part. Adding a seventh Tool moves only the Seeds the new Tool wins, about one in seven. The other six sevenths keep their Tool.
+With no Tool pinned, each Tool hashes the Seed with its own slug and the highest hash wins. The order Tools are registered in plays no part. Adding the nth Tool moves only the Seeds it wins, about one in n. The rest keep their Tool.
 
-Seed 42 deals kiosk. Pin sonar with `--tool sonar` and the same Seed gives the Recipe above, with every Parameter drawn as if sonar had won.
+Seed 42 deals whorl. Pin sonar with `--tool sonar` and the same Seed gives the Recipe above, with every Parameter drawn as if sonar had won.
 
 ## What stays fixed
 

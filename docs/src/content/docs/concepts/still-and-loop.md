@@ -3,7 +3,7 @@ title: "Still and Loop"
 description: "One Recipe gives one frame or a short video, and the first frame of the video is that frame."
 ---
 
-A _Visual_ is what a Recipe renders. It is either a _Still_, a single frame, or a _Loop_, an animation that ends where it starts: after its last frame, frame 0 plays again. The Tool decides which you get. husk, vein and aura draw Stills. sonar, kiosk and frond draw Loops. `tirage tools` lists the frame count beside each Tool, and a Still Tool has 1.
+A _Visual_ is what a Recipe renders. It is either a _Still_, a single frame, or a _Loop_, an animation that ends where it starts: after its last frame, frame 0 plays again. The Tool decides which you get. sonar, kiosk and frond draw Loops. Every other Tool draws a Still. `tirage tools` lists the frame count beside each Tool, and a Still Tool has 1.
 
 ## Frame 0 is the Still
 
