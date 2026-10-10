@@ -4135,6 +4135,296 @@
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
       }
+    },
+    "oddgrid": {
+      "fixtures": [
+        {
+          "name": "seed-1-cols-54",
+          "recipe": {
+            "tirage": 0,
+            "tool": "oddgrid",
+            "tool_seed": 9611518,
+            "palette": [
+              "#ff5e5b",
+              "#ffed66",
+              "#00cecb",
+              "#f2ede4",
+              "#9b5de5"
+            ],
+            "params": {
+              "cols": 54,
+              "scale": 13.5,
+              "density": 0.92,
+              "grain": 1.21,
+              "variety": 0.6,
+              "block": 0.48,
+              "bsize": 6,
+              "speck": 0.14,
+              "motifs": "Square",
+              "motifAmt": 0.42,
+              "markSize": 0.99,
+              "balance": -0.95,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2-cols-90",
+          "recipe": {
+            "tirage": 0,
+            "tool": "oddgrid",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#ff5e5b",
+              "#ffed66",
+              "#00cecb",
+              "#f2ede4",
+              "#9b5de5"
+            ],
+            "params": {
+              "cols": 90,
+              "scale": 14,
+              "density": 0.74,
+              "grain": 1.09,
+              "variety": 1.37,
+              "block": 0.57,
+              "bsize": 12,
+              "speck": 0.39,
+              "motifs": "Dot",
+              "motifAmt": 0.96,
+              "markSize": 0.61,
+              "balance": 0.35,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3-cols-108",
+          "recipe": {
+            "tirage": 0,
+            "tool": "oddgrid",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#ff5e5b",
+              "#ffed66",
+              "#00cecb",
+              "#f2ede4",
+              "#9b5de5"
+            ],
+            "params": {
+              "cols": 108,
+              "scale": 51,
+              "density": 0.78,
+              "grain": 0.16,
+              "variety": 1.12,
+              "block": 0.68,
+              "bsize": 4,
+              "speck": 0.42,
+              "motifs": "Dot",
+              "motifAmt": 0.5,
+              "markSize": 0.6,
+              "balance": -0.15,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-1-cols-54-none",
+          "recipe": {
+            "tirage": 0,
+            "tool": "oddgrid",
+            "tool_seed": 9611518,
+            "palette": [
+              "#ff5e5b",
+              "#ffed66",
+              "#00cecb",
+              "#f2ede4",
+              "#9b5de5"
+            ],
+            "params": {
+              "cols": 54,
+              "scale": 13.5,
+              "density": 0.92,
+              "grain": 1.21,
+              "variety": 0.6,
+              "block": 0.48,
+              "bsize": 6,
+              "speck": 0.14,
+              "motifs": "None",
+              "motifAmt": 0.42,
+              "markSize": 0.99,
+              "balance": -0.95,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2-cols-90-ring",
+          "recipe": {
+            "tirage": 0,
+            "tool": "oddgrid",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#ff5e5b",
+              "#ffed66",
+              "#00cecb",
+              "#f2ede4",
+              "#9b5de5"
+            ],
+            "params": {
+              "cols": 90,
+              "scale": 14,
+              "density": 0.74,
+              "grain": 1.09,
+              "variety": 1.37,
+              "block": 0.57,
+              "bsize": 12,
+              "speck": 0.39,
+              "motifs": "Ring",
+              "motifAmt": 0.96,
+              "markSize": 0.61,
+              "balance": 0.35,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3-cols-108-wedge",
+          "recipe": {
+            "tirage": 0,
+            "tool": "oddgrid",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#ff5e5b",
+              "#ffed66",
+              "#00cecb",
+              "#f2ede4",
+              "#9b5de5"
+            ],
+            "params": {
+              "cols": 108,
+              "scale": 51,
+              "density": 0.78,
+              "grain": 0.16,
+              "variety": 1.12,
+              "block": 0.68,
+              "bsize": 4,
+              "speck": 0.42,
+              "motifs": "Wedge",
+              "motifAmt": 0.5,
+              "markSize": 0.6,
+              "balance": -0.15,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-1-cols-54-mixed",
+          "recipe": {
+            "tirage": 0,
+            "tool": "oddgrid",
+            "tool_seed": 9611518,
+            "palette": [
+              "#ff5e5b",
+              "#ffed66",
+              "#00cecb",
+              "#f2ede4",
+              "#9b5de5"
+            ],
+            "params": {
+              "cols": 54,
+              "scale": 13.5,
+              "density": 0.92,
+              "grain": 1.21,
+              "variety": 0.6,
+              "block": 0.48,
+              "bsize": 6,
+              "speck": 0.14,
+              "motifs": "Mixed",
+              "motifAmt": 0.42,
+              "markSize": 0.99,
+              "balance": -0.95,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "47a93dc67a1053373783afb167095f0146e1aa2de918f2065a0c8a62e501ea6d",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
     }
   }
 }
