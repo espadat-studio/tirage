@@ -44,6 +44,7 @@ registry::tools! {
     Quilt: quilt::{QuiltParams, QuiltStyle},
     Static: r#static::{StaticParams},
     Splice: splice::{SpliceParams, SpliceCut},
+    Dahlia: dahlia::{DahliaParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

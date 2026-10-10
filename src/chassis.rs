@@ -188,6 +188,17 @@ impl Grain {
         }
     }
 
+    pub(crate) fn poster() -> Self {
+        Self {
+            on: true,
+            blend: Blend::Multiply,
+            amount: 0.22,
+            size: 1.0,
+            specks: 0.5,
+            vignette: 0.15,
+        }
+    }
+
     pub fn on(&self) -> bool {
         self.on
     }
