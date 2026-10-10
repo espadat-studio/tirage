@@ -45,6 +45,7 @@ registry::tools! {
     Static: r#static::{StaticParams},
     Splice: splice::{SpliceParams, SpliceCut},
     Dahlia: dahlia::{DahliaParams},
+    Hiss: hiss::{HissParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
