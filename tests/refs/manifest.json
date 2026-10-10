@@ -4427,12 +4427,6 @@
       }
     },
     "fete": {
-      "page_sha256": "6031ddc1997e3e060e5a2755de933fbec1e6fb6c507aa587bc0610dd8e16e65c",
-      "chromium": "153.0.8010.12",
-      "fonts_sha256": {
-        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
-        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
       "fixtures": [
         {
           "name": "seed-1",
@@ -4690,15 +4684,15 @@
             }
           }
         }
-      ]
-    },
-    "fold": {
-      "page_sha256": "f00cae548c60c36ea27164b92f7169fc2ce23979016c74f02fd17719a1aad593",
+      ],
+      "page_sha256": "6031ddc1997e3e060e5a2755de933fbec1e6fb6c507aa587bc0610dd8e16e65c",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
+      }
+    },
+    "fold": {
       "fixtures": [
         {
           "name": "seed-1",
@@ -5140,15 +5134,15 @@
             }
           }
         }
-      ]
-    },
-    "quilt": {
-      "page_sha256": "74f59b2b68fd24ea6df4ab0f034e164c4aeb4944ece1bbaf0ef631569ea9b49b",
+      ],
+      "page_sha256": "f00cae548c60c36ea27164b92f7169fc2ce23979016c74f02fd17719a1aad593",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
+      }
+    },
+    "quilt": {
       "fixtures": [
         {
           "name": "seed-1",
@@ -5600,15 +5594,15 @@
             }
           }
         }
-      ]
-    },
-    "static": {
-      "page_sha256": "c0330e93072a0ff2e5aef5cb8a21d7f092bd544ea0dd0b2338618b11de98541a",
+      ],
+      "page_sha256": "74f59b2b68fd24ea6df4ab0f034e164c4aeb4944ece1bbaf0ef631569ea9b49b",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
+      }
+    },
+    "static": {
       "fixtures": [
         {
           "name": "seed-1",
@@ -5694,15 +5688,15 @@
             }
           }
         }
-      ]
-    },
-    "splice": {
-      "page_sha256": "8ec2c58a172f4f5cb22291454cdc49c2f924871fb28e5e9b8ff75aae5e055916",
+      ],
+      "page_sha256": "c0330e93072a0ff2e5aef5cb8a21d7f092bd544ea0dd0b2338618b11de98541a",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
+      }
+    },
+    "splice": {
       "fixtures": [
         {
           "name": "seed-1",
@@ -5872,7 +5866,13 @@
             }
           }
         }
-      ]
+      ],
+      "page_sha256": "8ec2c58a172f4f5cb22291454cdc49c2f924871fb28e5e9b8ff75aae5e055916",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
     },
     "dahlia": {
       "fixtures": [
@@ -6132,12 +6132,6 @@
       }
     },
     "crowd": {
-      "page_sha256": "9f77d83309eb0a8bd8d100dcde43c570b1843cd48fe96af52887ce4c4667291e",
-      "chromium": "153.0.8010.12",
-      "fonts_sha256": {
-        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
-        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
       "fixtures": [
         {
           "name": "seed-1",
@@ -6241,7 +6235,13 @@
             }
           }
         }
-      ]
+      ],
+      "page_sha256": "9f77d83309eb0a8bd8d100dcde43c570b1843cd48fe96af52887ce4c4667291e",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
     },
     "cipher": {
       "fixtures": [
@@ -6411,6 +6411,118 @@
         }
       ],
       "page_sha256": "a0f0485e862db28d8907c8a28c6ff8df20b2041bbbbf4416d886b30c01ac810c",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
+    },
+    "riso": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "riso",
+            "tool_seed": 9611518,
+            "palette": [
+              "#3a86ff",
+              "#ff006e",
+              "#fb5607",
+              "#1b1b2f",
+              "#ffbe0b",
+              "#f7f3ea"
+            ],
+            "params": {
+              "bands": 2,
+              "rough": 0.85,
+              "scrib": 0.69,
+              "dotp": 0.81,
+              "grain": 0.5,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "riso",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#3a86ff",
+              "#ff006e",
+              "#fb5607",
+              "#1b1b2f",
+              "#ffbe0b",
+              "#f7f3ea"
+            ],
+            "params": {
+              "bands": 5,
+              "rough": 0.96,
+              "scrib": 0.21,
+              "dotp": 0.16,
+              "grain": 0.5,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "riso",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#3a86ff",
+              "#ff006e",
+              "#fb5607",
+              "#1b1b2f",
+              "#ffbe0b",
+              "#f7f3ea"
+            ],
+            "params": {
+              "bands": 4,
+              "rough": 0.77,
+              "scrib": 0.86,
+              "dotp": 0.27,
+              "grain": 0.5,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "57fca60b3b13861c20f565e00447ce629871dd09f8e97544d6410eba5493f72b",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
