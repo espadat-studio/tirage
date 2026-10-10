@@ -58,6 +58,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `hiss`    | 1      | Still  |
 | `crowd`   | 1      | Still  |
 | `cipher`  | 1      | Still  |
+| `riso`    | 1      | Still  |
 
 ## Text output
 
