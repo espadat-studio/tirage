@@ -27,6 +27,11 @@ pub(crate) enum Join {
 #[derive(Clone, Copy)]
 pub(crate) enum Smoothing {
     Bicubic,
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "delta upscales its field bilinear")
+    )]
+    Bilinear,
     Nearest,
 }
 
@@ -436,10 +441,11 @@ impl Surface {
         height: u32,
         smoothing: Smoothing,
     ) {
-        if let Smoothing::Nearest = smoothing {
-            self.draw_nearest(rgba, width, height);
-            return;
-        }
+        let quality = match smoothing {
+            Smoothing::Nearest => return self.draw_nearest(rgba, width, height),
+            Smoothing::Bilinear => FilterQuality::Bilinear,
+            Smoothing::Bicubic => FilterQuality::Bicubic,
+        };
         let premultiplied = rgba
             .as_chunks::<4>()
             .0
@@ -456,7 +462,7 @@ impl Surface {
             self.height() as f32 / height as f32,
         );
         let paint = PixmapPaint {
-            quality: FilterQuality::Bicubic,
+            quality,
             ..PixmapPaint::default()
         };
         self.0
@@ -667,6 +673,24 @@ mod tests {
         surface.draw_smooth(&[255, 0, 0, 255, 0, 0, 255, 255], 2, 1, Smoothing::Nearest);
         let rgba = surface.into_image().rgba().to_vec();
         assert_eq!(&rgba[8..12], [255, 0, 0, 255]);
+    }
+
+    #[test]
+    fn draw_smooth_bilinear_mixes_the_two_nearest_buffer_pixels() {
+        let mut surface = Surface::new(4, 1);
+        surface.draw_smooth(&[255, 0, 0, 255, 0, 0, 255, 255], 2, 1, Smoothing::Bilinear);
+        let rgba = surface.into_image().rgba().to_vec();
+        let (red, blue) = (|x: usize| rgba[x * 4], |x: usize| rgba[x * 4 + 2]);
+        assert_eq!((red(0), blue(0)), (255, 0), "padded at the edge");
+        assert!(
+            red(1).abs_diff(191) <= 2 && blue(1).abs_diff(64) <= 2,
+            "{rgba:?}"
+        );
+        assert!(
+            red(2).abs_diff(64) <= 2 && blue(2).abs_diff(191) <= 2,
+            "{rgba:?}"
+        );
+        assert_eq!((red(3), blue(3)), (0, 255), "padded at the edge");
     }
 
     #[test]
