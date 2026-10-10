@@ -217,6 +217,10 @@ impl Xorshift {
         Self(start.max(1))
     }
 
+    pub(crate) fn from_state(state: u32) -> Self {
+        Self(state.max(1))
+    }
+
     pub(crate) fn next(&mut self) -> f64 {
         let mut a = self.0;
         a ^= a << 13;

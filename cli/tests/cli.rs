@@ -199,7 +199,7 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(text(&out.stderr).contains(
-        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple, motley, oddgrid"#
+        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple, motley, oddgrid, fete"#
     ));
 }
 
@@ -550,10 +550,18 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"markSize","kind":"range","min":0.15,"max":1.0,"step":0.01},"#,
         r#"{"id":"balance","kind":"range","min":-1.2,"max":1.2,"step":0.05},"#,
     );
+    let fete = concat!(
+        r#"{"slug":"fete","frames":1,"params":["#,
+        r#"{"id":"motifs","kind":"choice","choices":["Auto","Rings","Spiral","Burst","Atom","Wave","Scribble"]},"#,
+        r#"{"id":"scale","kind":"range","min":1.2,"max":6.0,"step":0.1},"#,
+        r#"{"id":"res","kind":"range","min":36.0,"max":120.0,"step":4.0},"#,
+        r#"{"id":"lw","kind":"range","min":0.4,"max":2.2,"step":0.05},"#,
+        r#"{"id":"dots","kind":"range","min":0.0,"max":80.0,"step":2.0},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}},{bloom}{CHASSIS_LISTING}]}},{weave}{CHASSIS_LISTING}]}},{warp}{CHASSIS_LISTING}]}},{zig}{CHASSIS_LISTING}]}},{relief}{CHASSIS_LISTING}]}},{atlas}{CHASSIS_LISTING}]}},{sprig}{CHASSIS_LISTING}]}},{stipple}{CHASSIS_LISTING}]}},{motley}{CHASSIS_LISTING}]}},{oddgrid}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}},{bloom}{CHASSIS_LISTING}]}},{weave}{CHASSIS_LISTING}]}},{warp}{CHASSIS_LISTING}]}},{zig}{CHASSIS_LISTING}]}},{relief}{CHASSIS_LISTING}]}},{atlas}{CHASSIS_LISTING}]}},{sprig}{CHASSIS_LISTING}]}},{stipple}{CHASSIS_LISTING}]}},{motley}{CHASSIS_LISTING}]}},{oddgrid}{CHASSIS_LISTING}]}},{fete}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }
@@ -570,6 +578,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     assert!(listing.contains("\natlas  1 frame\n"), "{listing}");
     assert!(listing.contains("\noddgrid  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nfete  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmotley  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");

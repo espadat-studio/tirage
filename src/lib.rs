@@ -39,6 +39,7 @@ registry::tools! {
     Stipple: stipple::{StippleParams, DotMode, Lattice, DotShape, Symmetry},
     Motley: motley::{MotleyParams},
     Oddgrid: oddgrid::{OddgridParams, Motif},
+    Fete: fete::{FeteParams, FeteMotif},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

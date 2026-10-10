@@ -12,10 +12,6 @@ pub(crate) struct Surface(Pixmap);
 #[derive(Clone, Copy)]
 pub(crate) enum Cap {
     Butt,
-    #[cfg_attr(
-        not(test),
-        expect(dead_code, reason = "fete is the first Tool to draw it")
-    )]
     Round,
 }
 
@@ -32,10 +28,6 @@ pub(crate) enum Join {
 #[derive(Clone, Copy)]
 pub(crate) enum Smoothing {
     Bicubic,
-    #[cfg_attr(
-        not(test),
-        expect(dead_code, reason = "fete is the first Tool to draw it")
-    )]
     Nearest,
 }
 
