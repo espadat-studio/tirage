@@ -69,6 +69,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `tokens`   | 1      | Still  |
 | `optic`    | 1      | Still  |
 | `vee`      | 1      | Still  |
+| `sampler`  | 1      | Still  |
 
 ## Text output
 
