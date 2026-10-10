@@ -57,7 +57,7 @@ A region takes these draws, in order:
 | `q`     | `2 + floor(5r)`                                              |
 | `duty`  | `0.35 + 0.35r`                                               |
 | `p`     | `5 + floor(10r)`                                             |
-| `slope` | sign `-1` under 0.5 else `1`, times `0.3 + 1.2r` (two draws) |
+| `slope` | sign `1` under 0.5 else `-1`, times `0.3 + 1.2r` (two draws) |
 | `vert`  | `r < 0.35`                                                   |
 | `rs`    | `floor(1e9 r)`, the hash seed                                |
 
