@@ -53,6 +53,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `fold`    | 1      | Still  |
 | `quilt`   | 1      | Still  |
 | `static`  | 1      | Still  |
+| `splice`  | 1      | Still  |
 
 ## Text output
 
