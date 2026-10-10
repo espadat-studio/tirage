@@ -62,6 +62,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `rise`     | 1      | Still  |
 | `carve`    | 1      | Still  |
 | `specimen` | 1      | Still  |
+| `pane`     | 1      | Still  |
 
 ## Text output
 
