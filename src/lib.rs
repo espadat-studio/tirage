@@ -37,6 +37,7 @@ registry::tools! {
     Atlas: atlas::{AtlasParams},
     Sprig: sprig::{SprigParams, MotifSet},
     Stipple: stipple::{StippleParams, DotMode, Lattice, DotShape, Symmetry},
+    Motley: motley::{MotleyParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
