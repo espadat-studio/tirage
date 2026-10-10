@@ -1,4 +1,6 @@
-use std::f64::consts::PI;
+use std::f64::consts::{PI, TAU};
+
+use kurbo::{Arc, PathEl, Shape, Vec2};
 
 use tiny_skia::{
     Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin, Paint, Path,
@@ -7,7 +9,7 @@ use tiny_skia::{
 
 use crate::Image;
 
-pub(crate) struct Surface(Pixmap);
+pub(crate) struct Surface(Pixmap, f32);
 
 #[derive(Clone, Copy)]
 pub(crate) enum Cap {
@@ -18,10 +20,6 @@ pub(crate) enum Cap {
 #[derive(Clone, Copy)]
 pub(crate) enum Join {
     Round,
-    #[cfg_attr(
-        not(test),
-        expect(dead_code, reason = "batches 6, 7 and 10 stroke miter joins")
-    )]
     Miter,
 }
 
@@ -73,6 +71,41 @@ impl Path2D {
         );
     }
 
+    #[expect(clippy::too_many_arguments, reason = "canvas ellipse() takes seven")]
+    pub(crate) fn ellipse(
+        &mut self,
+        x: f64,
+        y: f64,
+        rx: f64,
+        ry: f64,
+        rotation: f64,
+        start: f64,
+        end: f64,
+    ) {
+        let sweep = end - start;
+        let arc = Arc::new(
+            (x, y),
+            Vec2::new(rx, ry),
+            start,
+            if sweep >= TAU {
+                TAU
+            } else {
+                sweep.rem_euclid(TAU)
+            },
+            rotation,
+        );
+        for element in arc.path_elements(0.01) {
+            match element {
+                PathEl::MoveTo(p) if self.is_empty() => self.move_to(p.x, p.y),
+                PathEl::MoveTo(p) => self.line_to(p.x, p.y),
+                PathEl::CurveTo(a, b, p) => self.0.cubic_to(
+                    a.x as f32, a.y as f32, b.x as f32, b.y as f32, p.x as f32, p.y as f32,
+                ),
+                _ => unreachable!("an arc is one move and its cubics"),
+            }
+        }
+    }
+
     pub(crate) fn push_circle(&mut self, x: f64, y: f64, radius: f64) {
         self.0.push_circle(x as f32, y as f32, radius as f32);
     }
@@ -94,15 +127,25 @@ impl Path2D {
     }
 }
 
-fn solid([r, g, b]: [u8; 3]) -> Paint<'static> {
-    let mut paint = Paint::default();
-    paint.set_color_rgba8(r, g, b, 255);
-    paint
-}
-
 impl Surface {
     pub(crate) fn new(width: u32, height: u32) -> Self {
-        Self(Pixmap::new(width, height).expect("frame edges are validated"))
+        Self(
+            Pixmap::new(width, height).expect("frame edges are validated"),
+            1.0,
+        )
+    }
+
+    pub(crate) fn with_alpha(&mut self, alpha: f32, draw: impl FnOnce(&mut Self)) {
+        let outer = std::mem::replace(&mut self.1, alpha);
+        draw(self);
+        self.1 = outer;
+    }
+
+    fn solid(&self, [r, g, b]: [u8; 3]) -> Paint<'static> {
+        let [r, g, b] = [r, g, b].map(|c| f32::from(c) / 255.0);
+        let mut paint = Paint::default();
+        paint.set_color(Color::from_rgba(r, g, b, self.1).expect("alpha is 0..=1"));
+        paint
     }
 
     pub(crate) fn width(&self) -> u32 {
@@ -127,7 +170,7 @@ impl Surface {
     ) {
         let rect = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32)
             .expect("rect sides are at least 1 px");
-        let mut paint = solid([r, g, b]);
+        let mut paint = self.solid([r, g, b]);
         paint.anti_alias = false;
         self.0.fill_rect(rect, &paint, Transform::identity(), None);
     }
@@ -138,9 +181,10 @@ impl Surface {
             .clone()
             .finish()
             .expect("a filled path has a closed loop");
+        let paint = self.solid(ink);
         self.0.fill_path(
             &path,
-            &solid(ink),
+            &paint,
             FillRule::EvenOdd,
             Transform::identity(),
             None,
@@ -166,25 +210,22 @@ impl Surface {
             .clone()
             .finish()
             .expect("a stroked path has a closed loop");
+        let paint = self.solid(ink);
         self.0
-            .stroke_path(&path, &solid(ink), &stroke, Transform::identity(), None);
+            .stroke_path(&path, &paint, &stroke, Transform::identity(), None);
     }
 
     pub(crate) fn fill_box(&mut self, x: f64, y: f64, width: f64, height: f64, ink: [u8; 3]) {
         if let Some(rect) = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32) {
-            self.0
-                .fill_rect(rect, &solid(ink), Transform::identity(), None);
+            let paint = self.solid(ink);
+            self.0.fill_rect(rect, &paint, Transform::identity(), None);
         }
     }
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
-        self.0.fill_path(
-            path,
-            &solid(ink),
-            FillRule::Winding,
-            Transform::identity(),
-            None,
-        );
+        let paint = self.solid(ink);
+        self.0
+            .fill_path(path, &paint, FillRule::Winding, Transform::identity(), None);
     }
 
     pub(crate) fn fill_radial_fade(
@@ -232,9 +273,10 @@ impl Surface {
     pub(crate) fn fill_circle(&mut self, x: f64, y: f64, radius: f64, ink: [u8; 3]) {
         let path = PathBuilder::from_circle(x as f32, y as f32, radius as f32)
             .expect("a circle has a positive radius");
+        let paint = self.solid(ink);
         self.0.fill_path(
             &path,
-            &solid(ink),
+            &paint,
             FillRule::Winding,
             Transform::identity(),
             None,
@@ -322,6 +364,8 @@ impl Surface {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::{PI, TAU};
+
     use super::{Cap, Join, Path2D, Smoothing, Surface};
 
     #[test]
@@ -333,6 +377,46 @@ mod tests {
         for (ours, straight) in rgba[..3].iter().zip([200, 100, 50]) {
             assert!(ours.abs_diff(straight) <= 1, "{rgba:?}");
         }
+    }
+
+    #[test]
+    fn with_alpha_composites_straight_ink_source_over_then_restores_opaque_ink() {
+        let mut surface = Surface::new(2, 1);
+        surface.fill([0, 0, 0]);
+        surface.with_alpha(0.85, |surface| {
+            surface.fill_box(0.0, 0.0, 1.0, 1.0, [200, 100, 40]);
+        });
+        surface.fill_box(1.0, 0.0, 1.0, 1.0, [200, 100, 40]);
+        let rgba = surface.into_image().rgba().to_vec();
+        for (ours, blended) in rgba[..4].iter().zip([170, 85, 34, 255]) {
+            assert!(ours.abs_diff(blended) <= 1, "{rgba:?}");
+        }
+        assert_eq!(&rgba[4..], [200, 100, 40, 255]);
+    }
+
+    fn stroked_arc(start: f64, end: f64) -> Vec<u8> {
+        let mut surface = Surface::new(40, 40);
+        let mut path = Path2D::default();
+        path.ellipse(20.0, 20.0, 16.0, 8.0, PI / 2.0, start, end);
+        surface.stroke(&path, [255, 255, 255], 2.0, Cap::Butt, Join::Round);
+        surface.into_image().rgba().to_vec()
+    }
+
+    fn lit(rgba: &[u8], x: u32, y: u32) -> bool {
+        rgba[((y * 40 + x) * 4) as usize] > 128
+    }
+
+    #[test]
+    fn ellipse_strokes_a_rotated_partial_arc_from_start_to_end_angle() {
+        let half = stroked_arc(0.0, PI);
+        assert!(lit(&half, 19, 36), "start, rx rotated onto +y");
+        assert!(lit(&half, 12, 20), "middle, ry rotated onto -x");
+        assert!(lit(&half, 19, 4), "end");
+        assert!(!lit(&half, 28, 20), "the other half is not drawn");
+        assert!(
+            lit(&stroked_arc(1.0, 1.0 + 3.0 * TAU), 28, 20),
+            "a sweep past TAU is whole"
+        );
     }
 
     #[test]

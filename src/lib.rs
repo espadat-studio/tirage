@@ -43,6 +43,11 @@ registry::tools! {
     Fold: fold::{FoldParams, FoldMirror, FoldKind},
     Quilt: quilt::{QuiltParams, QuiltStyle},
     Static: r#static::{StaticParams},
+    Splice: splice::{SpliceParams, SpliceCut},
+    Dahlia: dahlia::{DahliaParams},
+    Hiss: hiss::{HissParams},
+    Crowd: crowd::{CrowdParams},
+    Cipher: cipher::{CipherParams, CipherField},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

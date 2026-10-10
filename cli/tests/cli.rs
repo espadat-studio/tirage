@@ -199,7 +199,7 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(text(&out.stderr).contains(
-        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple, motley, oddgrid, fete, fold, quilt, static"#
+        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple, motley, oddgrid, fete, fold, quilt, static, splice, dahlia, hiss, crowd, cipher"#
     ));
 }
 
@@ -584,10 +584,80 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"res","kind":"range","min":48.0,"max":160.0,"step":4.0},"#,
         r#"{"id":"glitch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
+    let splice = concat!(
+        r#"{"slug":"splice","frames":1,"params":["#,
+        r#"{"id":"dirs","kind":"choice","choices":["Columns","Rows","Blocks"]},"#,
+        r#"{"id":"slices","kind":"range","min":1.0,"max":40.0,"step":1.0},"#,
+        r#"{"id":"shift","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"tones","kind":"range","min":2.0,"max":14.0,"step":1.0},"#,
+        r#"{"id":"key","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"screen","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"mix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"arcs","kind":"range","min":0.0,"max":24.0,"step":1.0},"#,
+        r#"{"id":"weight","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"bend","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
+    let dahlia = concat!(
+        r#"{"slug":"dahlia","frames":1,"params":["#,
+        r#"{"id":"rays","kind":"range","min":8.0,"max":300.0,"step":1.0},"#,
+        r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"ragged","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"cx","kind":"range","min":0.1,"max":0.9,"step":0.01},"#,
+        r#"{"id":"cy","kind":"range","min":0.1,"max":0.9,"step":0.01},"#,
+        r#"{"id":"width","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"dash","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"gap","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"bend","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"caps","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
+    let hiss = concat!(
+        r#"{"slug":"hiss","frames":1,"params":["#,
+        r#"{"id":"leaves","kind":"range","min":1.0,"max":5.0,"step":1.0},"#,
+        r#"{"id":"size","kind":"range","min":0.4,"max":1.4,"step":0.01},"#,
+        r#"{"id":"overlap","kind":"range","min":0.0,"max":0.5,"step":0.01},"#,
+        r#"{"id":"tilt","kind":"range","min":-1.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"shift","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"swirl","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"black","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"checkers","kind":"range","min":0.0,"max":4.0,"step":1.0},"#,
+        r#"{"id":"steps","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"comb","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"marks","kind":"range","min":0.0,"max":24.0,"step":1.0},"#,
+        r#"{"id":"flecks","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"coarse","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
+    let crowd = concat!(
+        r#"{"slug":"crowd","frames":1,"params":["#,
+        r#"{"id":"crowd","kind":"range","min":1.0,"max":48.0,"step":1.0},"#,
+        r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"wobble","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"blur","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"halo","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"edge","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"arrows","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"arrowSize","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
+    let cipher = concat!(
+        r#"{"slug":"cipher","frames":1,"params":["#,
+        r#"{"id":"cells","kind":"range","min":20.0,"max":140.0,"step":1.0},"#,
+        r#"{"id":"bands","kind":"range","min":2.0,"max":7.0,"step":1.0},"#,
+        r#"{"id":"fields","kind":"choice","choices":["Figure","Relief","Slope"]},"#,
+        r#"{"id":"wave","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"tilt","kind":"range","min":-1.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"detail","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"size","kind":"range","min":0.3,"max":1.0,"step":0.01},"#,
+        r#"{"id":"edges","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"flecks","kind":"range","min":0.0,"max":0.3,"step":0.01},"#,
+        r#"{"id":"smears","kind":"range","min":0.0,"max":0.6,"step":0.01},"#,
+        r#"{"id":"dots","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}},{bloom}{CHASSIS_LISTING}]}},{weave}{CHASSIS_LISTING}]}},{warp}{CHASSIS_LISTING}]}},{zig}{CHASSIS_LISTING}]}},{relief}{CHASSIS_LISTING}]}},{atlas}{CHASSIS_LISTING}]}},{sprig}{CHASSIS_LISTING}]}},{stipple}{CHASSIS_LISTING}]}},{motley}{CHASSIS_LISTING}]}},{oddgrid}{CHASSIS_LISTING}]}},{fete}{CHASSIS_LISTING}]}},{fold}{CHASSIS_LISTING}]}},{quilt}{CHASSIS_LISTING}]}},{static_tool}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}},{bloom}{CHASSIS_LISTING}]}},{weave}{CHASSIS_LISTING}]}},{warp}{CHASSIS_LISTING}]}},{zig}{CHASSIS_LISTING}]}},{relief}{CHASSIS_LISTING}]}},{atlas}{CHASSIS_LISTING}]}},{sprig}{CHASSIS_LISTING}]}},{stipple}{CHASSIS_LISTING}]}},{motley}{CHASSIS_LISTING}]}},{oddgrid}{CHASSIS_LISTING}]}},{fete}{CHASSIS_LISTING}]}},{fold}{CHASSIS_LISTING}]}},{quilt}{CHASSIS_LISTING}]}},{static_tool}{CHASSIS_LISTING}]}},{splice}{CHASSIS_LISTING}]}},{dahlia}{CHASSIS_LISTING}]}},{hiss}{CHASSIS_LISTING}]}},{crowd}{CHASSIS_LISTING}]}},{cipher}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }
@@ -608,6 +678,11 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nfold  1 frame\n"), "{listing}");
     assert!(listing.contains("\nquilt  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstatic  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nsplice  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ndahlia  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nhiss  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ncrowd  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ncipher  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmotley  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");

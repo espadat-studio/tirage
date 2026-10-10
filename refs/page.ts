@@ -86,6 +86,10 @@ export async function setRange(page: Page, id: string, value: number): Promise<v
     const el = document.getElementById(id);
     if (!(el instanceof HTMLInputElement) || el.type !== "range") return `#${id} is not a slider`;
     el.value = String(value);
+    if (Number(el.value) !== value && value >= Number(el.min) && value <= Number(el.max)) {
+      el.step = "any";
+      el.value = String(value);
+    }
     if (Number(el.value) !== value) return `#${id} rejected ${value} (min ${el.min}, max ${el.max}, step ${el.step})`;
     el.dispatchEvent(new Event("input", { bubbles: true }));
     el.dispatchEvent(new Event("change", { bubbles: true }));
