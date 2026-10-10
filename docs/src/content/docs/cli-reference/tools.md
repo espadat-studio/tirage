@@ -60,6 +60,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `cipher`  | 1      | Still  |
 | `riso`    | 1      | Still  |
 | `rise`    | 1      | Still  |
+| `carve`   | 1      | Still  |
 
 ## Text output
 
