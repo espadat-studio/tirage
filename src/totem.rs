@@ -475,7 +475,7 @@ fn carve(whole: Rect, n: usize, u: i32, rng: &mut Xorshift) -> Vec<Rect> {
     list
 }
 
-fn weight([r, g, b]: [u8; 3]) -> f64 {
+fn luma([r, g, b]: [u8; 3]) -> f64 {
     f64::from(r) * 0.299 + f64::from(g) * 0.587 + f64::from(b) * 0.114
 }
 
@@ -484,7 +484,7 @@ fn paint(surface: &mut Surface, p: &TotemParams, palette: &Palette, tool_seed: u
     let all = palette.inks();
     let mut di = 0;
     for (i, &ink) in all.iter().enumerate().skip(1) {
-        if weight(ink) < weight(all[di]) {
+        if luma(ink) < luma(all[di]) {
             di = i;
         }
     }
@@ -520,7 +520,7 @@ fn paint(surface: &mut Surface, p: &TotemParams, palette: &Palette, tool_seed: u
     };
 
     if bw > 0 && p.mat > 0.01 {
-        let mu = u * p.mat_grain.max(1) as i32;
+        let mu = u * p.mat_grain as i32;
         let (gw, gh) = ((w + mu - 1) / mu + 1, (h + mu - 1) / mu + 1);
         let at = |x: i32, y: i32| (y * gw + x) as usize;
         let mut g: Vec<bool> = (0..gw * gh).map(|_| rng.next() < p.mat).collect();
@@ -585,7 +585,7 @@ fn paint(surface: &mut Surface, p: &TotemParams, palette: &Palette, tool_seed: u
         w: half_w,
         h: ch,
     };
-    for g in carve(whole, p.regions.max(1) as usize, u, &mut rng) {
+    for g in carve(whole, p.regions as usize, u, &mut rng) {
         let left = deal_print(&mut rng, &bag, &inks, dark, u);
         let draw_w = g.w.min(cx + cw - g.x);
         let original = Rect { w: draw_w, ..g };

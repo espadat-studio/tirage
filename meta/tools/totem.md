@@ -93,11 +93,11 @@ This runs inside the painter on the paint stream. It is not a seed deal.
 ## Painting
 
 1. Fill the frame in `mat`. `bw = snap(min(W, H) border)`. The panel is `px0 = py0 = bw`, `pw0 = snap(W - 2 bw)`, `ph0 = snap(H - 2 bw)`.
-2. The mat, only when `bw > 0` and `mat > 0.01`. Cell `mu = u max(1, matGrain)`, grid `gw = ceil(W / mu) + 1` by `gh = ceil(H / mu) + 1`. Each cell, rows outer, is on when its draw is below `mat`. Two smoothing passes: a cell's sum covers its 3×3 block, a neighbour off the grid counting as the cell itself. Over 4 turns it on, under 4 off, exactly 4 keeps it. Then every on cell whose `mu` square at `(x mu, y mu)` misses the panel rect is filled in `mark`.
+2. The mat, only when `bw > 0` and `mat > 0.01`. Cell `mu = u matGrain`, grid `gw = ceil(W / mu) + 1` by `gh = ceil(H / mu) + 1`. Each cell, rows outer, is on when its draw is below `mat`. Two smoothing passes: a cell's sum covers its 3×3 block, a neighbour off the grid counting as the cell itself. Over 4 turns it on, under 4 off, exactly 4 keeps it. Then every on cell whose `mu` square at `(x mu, y mu)` misses the panel rect is filled in `mark`.
 3. Stop when `pw0 < 4u` or `ph0 < 4u`.
 4. Fill the panel in `dark`. `k = keyline u`. The composition is `cx = px0 + k`, `cy = py0 + k`, `cw = max(u, pw0 - 2k)`, `ch = max(u, ph0 - 2k)`.
 5. The bag: `n = max(2, round(2 + 9 variety))` motifs, each drawn out of the remaining motifs by `floor(r len)` and removed.
-6. `halfW = max(u, ceil(cw / u / 2) u)`. Carve `(cx, cy, halfW, ch)` into `max(1, regions)` rects.
+6. `halfW = max(u, ceil(cw / u / 2) u)`. Carve `(cx, cy, halfW, ch)` into `regions` rects.
 7. For each rect `g`, in list order:
    - `L = deal`. `drawW = min(g.w, cx + cw - g.x)`. If positive, print `L` into `(g.x, g.y, drawW, g.h)` at `L.cs`.
    - `mx = cx + cw - (g.x - cx) - g.w`, the twin's left edge.
