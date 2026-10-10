@@ -169,7 +169,7 @@ fn recipe_json_errors_are_human() {
             v["palette"][0] = "#ggg000".into()
         }),
         (
-            r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief"#,
+            r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple, motley, oddgrid"#,
             |v| v["tool"] = "vien".into(),
         ),
         (

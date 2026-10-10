@@ -22,7 +22,7 @@ export interface Threshold {
 export interface ToolEntry {
   page_sha256?: string;
   chromium?: string;
-  font_sha256?: string;
+  fonts_sha256?: Record<string, string>;
   threshold?: Threshold;
   fixtures: Fixture[];
 }
@@ -37,6 +37,7 @@ const SLUG = /^[a-z]+$/;
 const NAME = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const HEX = /^#[0-9a-f]{6}$/i;
 const SHA256 = /^[0-9a-f]{64}$/;
+const FONT_FILE = /^[A-Za-z0-9-]+\.ttf$/;
 const CEILING = 0.016;
 
 type Json = Record<string, unknown>;
@@ -102,8 +103,18 @@ function parseThreshold(value: unknown, path: string): Threshold {
   return { max: t.max, reason: t.reason };
 }
 
+function parseFonts(value: unknown, path: string): Record<string, string> {
+  const fonts = expectObject(value, path, Object.keys(value ?? {}));
+  if (!Object.keys(fonts).length) fail(path, "expected at least one font");
+  for (const [file, sha] of Object.entries(fonts)) {
+    if (!FONT_FILE.test(file)) fail(`${path}.${file}`, "expected a .ttf file name");
+    expectText(sha, `${path}.${file}`, SHA256, "expected a SHA-256 hex digest");
+  }
+  return fonts as Record<string, string>;
+}
+
 function parseTool(value: unknown, path: string, slug: string): ToolEntry {
-  const t = expectObject(value, path, ["page_sha256", "chromium", "font_sha256", "threshold", "fixtures"]);
+  const t = expectObject(value, path, ["page_sha256", "chromium", "fonts_sha256", "threshold", "fixtures"]);
   if (!Array.isArray(t.fixtures) || !t.fixtures.length) fail(`${path}.fixtures`, "expected at least one fixture");
   const names = new Set<string>();
   const fixtures = t.fixtures.map((f, i) => {
@@ -119,9 +130,7 @@ function parseTool(value: unknown, path: string, slug: string): ToolEntry {
   if (t.chromium !== undefined) {
     entry.chromium = expectText(t.chromium, `${path}.chromium`, /^\d+(\.\d+)+$/, "expected a Chromium version");
   }
-  if (t.font_sha256 !== undefined) {
-    entry.font_sha256 = expectText(t.font_sha256, `${path}.font_sha256`, SHA256, "expected a SHA-256 hex digest");
-  }
+  if (t.fonts_sha256 !== undefined) entry.fonts_sha256 = parseFonts(t.fonts_sha256, `${path}.fonts_sha256`);
   if (t.threshold !== undefined) entry.threshold = parseThreshold(t.threshold, `${path}.threshold`);
   return entry;
 }

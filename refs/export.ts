@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
@@ -22,7 +22,7 @@ import {
 
 const WIDTH = 540;
 const HEIGHT = 960;
-const FONT = join(import.meta.dir, "../fonts/DejaVuSansMono-Bold.ttf");
+const FONTS = join(import.meta.dir, "../fonts");
 
 async function exportPng(
   browser: Browser,
@@ -40,7 +40,7 @@ async function exportPng(
     for (const [id, value] of Object.entries(recipe.params)) await setParam(page, id, value);
     if (frame !== undefined) await setRange(page, "scrub", frame);
 
-    return { png: await downloadPng(page, WIDTH, HEIGHT), pageSha };
+    return { png: await downloadPng(page, { width: WIDTH, height: HEIGHT }), pageSha };
   } finally {
     await context.close();
   }
@@ -61,7 +61,12 @@ const manifest = parseManifest(JSON.parse(readFileSync(manifestPath, "utf8")));
 const slugs = positionals.length ? positionals : Object.keys(manifest.tools);
 for (const slug of slugs) if (!manifest.tools[slug]) throw new Error(`${slug} has no entry in ${manifestPath}`);
 
-const fontSha = createHash("sha256").update(readFileSync(FONT)).digest("hex");
+const fontsSha = Object.fromEntries(
+  readdirSync(FONTS)
+    .filter(file => file.endsWith(".ttf"))
+    .sort()
+    .map(file => [file, createHash("sha256").update(readFileSync(join(FONTS, file))).digest("hex")]),
+);
 const browser = await launch();
 try {
   for (const slug of slugs) {
@@ -86,7 +91,7 @@ try {
       writeFileSync(path, png);
       console.log(path);
     }
-    Object.assign(entry, { page_sha256: pageSha, chromium: browser.version(), font_sha256: fontSha });
+    Object.assign(entry, { page_sha256: pageSha, chromium: browser.version(), fonts_sha256: fontsSha });
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
   }
 } finally {

@@ -34,6 +34,11 @@ registry::tools! {
     Warp: warp::{WarpParams, WarpStyle},
     Zig: zig::{ZigParams, ZigStyle},
     Relief: relief::{ReliefParams},
+    Atlas: atlas::{AtlasParams},
+    Sprig: sprig::{SprigParams, MotifSet},
+    Stipple: stipple::{StippleParams, DotMode, Lattice, DotShape, Symmetry},
+    Motley: motley::{MotleyParams},
+    Oddgrid: oddgrid::{OddgridParams, Motif},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

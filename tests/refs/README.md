@@ -8,7 +8,7 @@ Test fixtures only. tirage reproduces the look of playgrnd.tools generators and 
 
 - `page_sha256`: SHA-256 of the Tool page HTML the exports were made from
 - `chromium`: the Chromium build that rendered them
-- `font_sha256`: SHA-256 of `fonts/DejaVuSansMono-Bold.ttf`, the only font Chromium could see
+- `fonts_sha256`: SHA-256 of each file in `fonts/` when that Tool was last exported, the only fonts Chromium could see. Tools exported before the Book face landed list Bold alone
 - `fixtures`: each file's Recipe, and its `frame` when the Tool's motion was on
 
 `<tool>/<name>.png` is the export of the fixture with that name.

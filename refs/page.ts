@@ -118,11 +118,14 @@ export async function setParam(page: Page, id: string, value: ParamValue): Promi
   return setPick(page, id, value);
 }
 
-export async function downloadPng(page: Page, width: number, height: number): Promise<Buffer> {
+export async function downloadPng(page: Page, size?: { width: number; height: number }): Promise<Buffer> {
   await page.click("#exportTog", { force: true });
   const [download] = await Promise.all([page.waitForEvent("download"), page.click("#expPng", { force: true })]);
   const png = readFileSync(await download.path());
+  if (!size) return png;
   const [w, h] = [png.readUInt32BE(16), png.readUInt32BE(20)];
-  if (w !== width || h !== height) throw new Error(`${page.url()} exported ${w}x${h}, expected ${width}x${height}`);
+  if (w !== size.width || h !== size.height) {
+    throw new Error(`${page.url()} exported ${w}x${h}, expected ${size.width}x${size.height}`);
+  }
   return png;
 }

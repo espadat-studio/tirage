@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 import { checkPage, parseManifest } from "./manifest";
 
@@ -22,7 +24,7 @@ describe("parseManifest", () => {
         sonar: {
           page_sha256: "a".repeat(64),
           chromium: "153.0.8010.12",
-          font_sha256: "b".repeat(64),
+          fonts_sha256: { "DejaVuSansMono.ttf": "b".repeat(64), "DejaVuSansMono-Bold.ttf": "d".repeat(64) },
           threshold: { max: 0.01, reason: "grain specks land on different pixels" },
           fixtures: [{ name: "seed-7", recipe: recipe() }, { name: "seed-7-mid", frame: 12, recipe: recipe() }],
         },
@@ -52,6 +54,13 @@ describe("parseManifest", () => {
     [{ frame: -1 }, {}, "tools.sonar.fixtures[0].frame: expected an integer >= 0"],
     [{ name: "Seed 7" }, {}, "tools.sonar.fixtures[0].name: expected kebab-case"],
     [{ colour: 1 }, {}, "tools.sonar.fixtures[0]: unknown key colour"],
+    [{}, { fonts_sha256: {} }, "tools.sonar.fonts_sha256: expected at least one font"],
+    [{}, { fonts_sha256: { "a.otf": "b".repeat(64) } }, "tools.sonar.fonts_sha256.a.otf: expected a .ttf file name"],
+    [
+      {},
+      { fonts_sha256: { "a.ttf": "b" } },
+      "tools.sonar.fonts_sha256.a.ttf: expected a SHA-256 hex digest",
+    ],
     [{}, { threshold: { max: 0.01 } }, "tools.sonar.threshold.reason: expected a non-empty string"],
     [
       {},
@@ -79,6 +88,11 @@ describe("parseManifest", () => {
       "tools.sonar.fixtures: expected at least one fixture",
     );
   });
+});
+
+test("the committed manifest parses", () => {
+  const path = join(import.meta.dir, "../tests/refs/manifest.json");
+  expect(() => parseManifest(JSON.parse(readFileSync(path, "utf8")))).not.toThrow();
 });
 
 describe("checkPage", () => {

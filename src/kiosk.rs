@@ -4,7 +4,7 @@ use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
-use crate::text::Type;
+use crate::text::{Face, Type};
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "kiosk";
@@ -465,7 +465,7 @@ fn paint(surface: &mut Surface, params: &KioskParams, palette: &Palette, tool_se
     let rows = round_half_up(height / cell_width).max(2.0) as u32;
     let cell_height = height / f64::from(rows);
     let chars: Vec<char> = params.sets.chars().chars().collect();
-    let mut text = Type::new();
+    let mut text = Type::new(Face::Bold);
     let mut put = |surface: &mut Surface, i: i32, j: i32, x: f64, y: f64, size: f64, salt: u32| {
         let draw = |s: u32| hash(i, j, text_seed.wrapping_add(salt + s));
         let ch = chars[(draw(3) * chars.len() as f64).floor() as usize];
