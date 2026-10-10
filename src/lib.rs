@@ -49,6 +49,7 @@ registry::tools! {
     Crowd: crowd::{CrowdParams},
     Cipher: cipher::{CipherParams, CipherField},
     Riso: riso::{RisoParams},
+    Rise: rise::{RiseParams, RiseAnchor},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
