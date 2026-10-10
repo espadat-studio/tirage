@@ -1,4 +1,6 @@
-use std::f64::consts::PI;
+use std::f64::consts::{PI, TAU};
+
+use kurbo::{Arc, PathEl, Shape, Vec2};
 
 use tiny_skia::{
     Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin, Paint, Path,
@@ -71,6 +73,48 @@ impl Path2D {
             ex as f32,
             ey as f32,
         );
+    }
+
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "splice, specimen and filament stroke elliptical arcs"
+        )
+    )]
+    #[expect(clippy::too_many_arguments, reason = "canvas ellipse() takes seven")]
+    pub(crate) fn ellipse(
+        &mut self,
+        x: f64,
+        y: f64,
+        rx: f64,
+        ry: f64,
+        rotation: f64,
+        start: f64,
+        end: f64,
+    ) {
+        let sweep = end - start;
+        let arc = Arc::new(
+            (x, y),
+            Vec2::new(rx, ry),
+            start,
+            if sweep >= TAU {
+                TAU
+            } else {
+                sweep.rem_euclid(TAU)
+            },
+            rotation,
+        );
+        for element in arc.path_elements(0.01) {
+            match element {
+                PathEl::MoveTo(p) if self.is_empty() => self.move_to(p.x, p.y),
+                PathEl::MoveTo(p) => self.line_to(p.x, p.y),
+                PathEl::CurveTo(a, b, p) => self.0.cubic_to(
+                    a.x as f32, a.y as f32, b.x as f32, b.y as f32, p.x as f32, p.y as f32,
+                ),
+                _ => unreachable!("an arc is one move and its cubics"),
+            }
+        }
     }
 
     pub(crate) fn push_circle(&mut self, x: f64, y: f64, radius: f64) {
@@ -335,6 +379,8 @@ impl Surface {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::{PI, TAU};
+
     use super::{Cap, Join, Path2D, Smoothing, Surface};
 
     #[test]
@@ -361,6 +407,31 @@ mod tests {
             assert!(ours.abs_diff(blended) <= 1, "{rgba:?}");
         }
         assert_eq!(&rgba[4..], [200, 100, 40, 255]);
+    }
+
+    fn stroked_arc(start: f64, end: f64) -> Vec<u8> {
+        let mut surface = Surface::new(40, 40);
+        let mut path = Path2D::default();
+        path.ellipse(20.0, 20.0, 16.0, 8.0, PI / 2.0, start, end);
+        surface.stroke(&path, [255, 255, 255], 2.0, Cap::Butt, Join::Round);
+        surface.into_image().rgba().to_vec()
+    }
+
+    fn lit(rgba: &[u8], x: u32, y: u32) -> bool {
+        rgba[((y * 40 + x) * 4) as usize] > 128
+    }
+
+    #[test]
+    fn ellipse_strokes_a_rotated_partial_arc_from_start_to_end_angle() {
+        let half = stroked_arc(0.0, PI);
+        assert!(lit(&half, 19, 36), "start, rx rotated onto +y");
+        assert!(lit(&half, 12, 20), "middle, ry rotated onto -x");
+        assert!(lit(&half, 19, 4), "end");
+        assert!(!lit(&half, 28, 20), "the other half is not drawn");
+        assert!(
+            lit(&stroked_arc(1.0, 1.0 + 3.0 * TAU), 28, 20),
+            "a sweep past TAU is whole"
+        );
     }
 
     #[test]
