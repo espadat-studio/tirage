@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::param::Param;
-use crate::surface::Surface;
+use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
@@ -217,6 +217,10 @@ impl Xorshift {
         Self(start.max(1))
     }
 
+    pub(crate) fn from_state(state: u32) -> Self {
+        Self(state.max(1))
+    }
+
     pub(crate) fn next(&mut self) -> f64 {
         let mut a = self.0;
         a ^= a << 13;
@@ -344,5 +348,5 @@ fn paint(surface: &mut Surface, params: &AuraParams, palette: &Palette, tool_see
             rgba.extend([r, g, b, 255]);
         }
     }
-    surface.draw_smooth(&rgba, bw as u32, bh as u32);
+    surface.draw_smooth(&rgba, bw as u32, bh as u32, Smoothing::Bicubic);
 }

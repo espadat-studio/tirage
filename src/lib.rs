@@ -39,6 +39,10 @@ registry::tools! {
     Stipple: stipple::{StippleParams, DotMode, Lattice, DotShape, Symmetry},
     Motley: motley::{MotleyParams},
     Oddgrid: oddgrid::{OddgridParams, Motif},
+    Fete: fete::{FeteParams, FeteMotif},
+    Fold: fold::{FoldParams, FoldMirror, FoldKind},
+    Quilt: quilt::{QuiltParams, QuiltStyle},
+    Static: r#static::{StaticParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

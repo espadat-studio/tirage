@@ -1,13 +1,35 @@
 use std::f64::consts::PI;
 
 use tiny_skia::{
-    Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineJoin, Paint, Path,
+    Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin, Paint, Path,
     PathBuilder, Pixmap, PixmapPaint, Point, RadialGradient, Rect, SpreadMode, Stroke, Transform,
 };
 
 use crate::Image;
 
 pub(crate) struct Surface(Pixmap);
+
+#[derive(Clone, Copy)]
+pub(crate) enum Cap {
+    Butt,
+    Round,
+}
+
+#[derive(Clone, Copy)]
+pub(crate) enum Join {
+    Round,
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "batches 6, 7 and 10 stroke miter joins")
+    )]
+    Miter,
+}
+
+#[derive(Clone, Copy)]
+pub(crate) enum Smoothing {
+    Bicubic,
+    Nearest,
+}
 
 #[derive(Default)]
 pub(crate) struct Path2D(PathBuilder);
@@ -125,10 +147,18 @@ impl Surface {
         );
     }
 
-    pub(crate) fn stroke(&mut self, path: &Path2D, ink: [u8; 3], width: f64) {
+    pub(crate) fn stroke(&mut self, path: &Path2D, ink: [u8; 3], width: f64, cap: Cap, join: Join) {
         let stroke = Stroke {
             width: width as f32,
-            line_join: LineJoin::Round,
+            line_cap: match cap {
+                Cap::Butt => LineCap::Butt,
+                Cap::Round => LineCap::Round,
+            },
+            line_join: match join {
+                Join::Round => LineJoin::Round,
+                Join::Miter => LineJoin::Miter,
+            },
+            miter_limit: 10.0,
             ..Stroke::default()
         };
         let path = path
@@ -211,7 +241,17 @@ impl Surface {
         );
     }
 
-    pub(crate) fn draw_smooth(&mut self, rgba: &[u8], width: u32, height: u32) {
+    pub(crate) fn draw_smooth(
+        &mut self,
+        rgba: &[u8],
+        width: u32,
+        height: u32,
+        smoothing: Smoothing,
+    ) {
+        if let Smoothing::Nearest = smoothing {
+            self.draw_nearest(rgba, width, height);
+            return;
+        }
         let premultiplied = rgba
             .as_chunks::<4>()
             .0
@@ -233,6 +273,23 @@ impl Surface {
         };
         self.0
             .draw_pixmap(0, 0, image.as_ref(), &paint, scale, None);
+    }
+
+    fn draw_nearest(&mut self, rgba: &[u8], width: u32, height: u32) {
+        let (columns, rows) = (self.width(), self.height());
+        let source = |at: u32, edge: u32, scaled: u32| {
+            ((f64::from(at) + 0.5) * f64::from(edge) / f64::from(scaled)).ceil() as u32 - 1
+        };
+        let pixels = self.0.pixels_mut();
+        for y in 0..rows {
+            let sy = source(y, height, rows);
+            for x in 0..columns {
+                let sx = source(x, width, columns);
+                let i = ((sy * width + sx) * 4) as usize;
+                let [r, g, b, a] = [rgba[i], rgba[i + 1], rgba[i + 2], rgba[i + 3]];
+                pixels[(y * columns + x) as usize] = ColorU8::from_rgba(r, g, b, a).premultiply();
+            }
+        }
     }
 
     pub(crate) fn edit_rgba(&mut self, edit: impl FnOnce(&mut [u8], u32, u32)) {
@@ -265,7 +322,7 @@ impl Surface {
 
 #[cfg(test)]
 mod tests {
-    use super::{Path2D, Surface};
+    use super::{Cap, Join, Path2D, Smoothing, Surface};
 
     #[test]
     fn edit_rgba_hands_out_and_takes_back_straight_alpha() {
@@ -285,5 +342,46 @@ mod tests {
         path.arc_to(10.0, 0.001, 20.0, 0.0, 5.0);
         let end = path.0.last_point().unwrap();
         assert_eq!((end.x, end.y), (10.0, 0.001));
+    }
+
+    #[test]
+    fn draw_smooth_nearest_gives_a_centre_on_a_cell_edge_to_the_left_cell() {
+        let mut surface = Surface::new(5, 1);
+        surface.draw_smooth(&[255, 0, 0, 255, 0, 0, 255, 255], 2, 1, Smoothing::Nearest);
+        let rgba = surface.into_image().rgba().to_vec();
+        assert_eq!(&rgba[8..12], [255, 0, 0, 255]);
+    }
+
+    #[test]
+    fn draw_smooth_nearest_keeps_buffer_pixels_sharp() {
+        let mut surface = Surface::new(4, 1);
+        surface.draw_smooth(&[255, 0, 0, 255, 0, 0, 255, 255], 2, 1, Smoothing::Nearest);
+        let rgba = surface.into_image().rgba().to_vec();
+        let red = [255, 0, 0, 255];
+        let blue = [0, 0, 255, 255];
+        assert_eq!(rgba, [red, red, blue, blue].concat());
+    }
+
+    fn inked(cap: Cap, join: Join, x: u32, y: u32) -> bool {
+        let mut surface = Surface::new(40, 40);
+        let mut path = Path2D::default();
+        path.move_to(10.0, 30.0);
+        path.line_to(10.0, 10.0);
+        path.line_to(30.0, 10.0);
+        surface.stroke(&path, [255, 255, 255], 10.0, cap, join);
+        let image = surface.into_image();
+        image.rgba()[((y * 40 + x) * 4) as usize] > 128
+    }
+
+    #[test]
+    fn stroke_draws_a_round_cap_past_the_end() {
+        assert!(inked(Cap::Round, Join::Round, 32, 10));
+        assert!(!inked(Cap::Butt, Join::Round, 32, 10));
+    }
+
+    #[test]
+    fn stroke_draws_a_miter_join_into_the_corner() {
+        assert!(inked(Cap::Butt, Join::Miter, 5, 5));
+        assert!(!inked(Cap::Butt, Join::Round, 5, 5));
     }
 }

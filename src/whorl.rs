@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, store, value_noise};
 use crate::param::Param;
-use crate::surface::Surface;
+use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
@@ -361,5 +361,5 @@ fn paint(surface: &mut Surface, params: &WhorlParams, palette: &Palette, tool_se
             rgba.extend([r, gg, b, 255]);
         }
     }
-    surface.draw_smooth(&rgba, w, h);
+    surface.draw_smooth(&rgba, w, h, Smoothing::Bicubic);
 }

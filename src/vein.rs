@@ -6,7 +6,7 @@ use crate::chassis::{
     self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, value_noise,
 };
 use crate::param::Param;
-use crate::surface::{Path2D, Surface};
+use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
@@ -529,7 +529,13 @@ fn paint(surface: &mut Surface, params: &VeinParams, palette: &Palette, tool_see
         }
         surface.fill_even_odd(&path, fill);
         if let Some(outline) = outline {
-            surface.stroke(&path, outline, (unit * 0.0035).max(0.6));
+            surface.stroke(
+                &path,
+                outline,
+                (unit * 0.0035).max(0.6),
+                Cap::Butt,
+                Join::Round,
+            );
         }
     }
 

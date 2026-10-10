@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up};
 use crate::param::Param;
-use crate::surface::{Path2D, Surface};
+use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
@@ -314,7 +314,7 @@ fn paint(surface: &mut Surface, params: &ReliefParams, palette: &Palette, tool_s
                 }
                 path.close();
                 surface.fill_even_odd(&path, tone);
-                surface.stroke(&path, tone, 1.0);
+                surface.stroke(&path, tone, 1.0, Cap::Butt, Join::Round);
             }
         }
     }
