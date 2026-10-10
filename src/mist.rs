@@ -28,7 +28,7 @@ const SOFT: Param = Param::new(SLUG, "soft", 10, 100, 100);
 const BLOT: Param = Param::new(SLUG, "blot", 20, 100, 100);
 const GRAIN: Param = Param::new(SLUG, "grain", 0, 100, 100);
 
-pub(crate) const PARAMS: &[Param] = &[STREAKS, COVER, SOFT, BLOT, GRAIN];
+pub(crate) const PARAMS: &[Param] = &[STREAKS, COVER, SOFT, BLOT];
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct MistParams {
@@ -179,6 +179,7 @@ pub(crate) fn from_json(params: serde_json::Value) -> Result<MistParams, Error> 
 pub(crate) fn parameters() -> Vec<Parameter> {
     PARAMS
         .iter()
+        .chain([&GRAIN])
         .map(Param::parameter)
         .chain(chassis::parameters())
         .collect()
@@ -195,7 +196,7 @@ pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> MistParams {
         cover: pick(&COVER),
         soft: pick(&SOFT),
         blot: pick(&BLOT),
-        grain: pick(&GRAIN),
+        grain: 0.4,
         dither: Dither::default(),
         chassis_grain: Grain::default(),
     }

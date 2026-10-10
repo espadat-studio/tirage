@@ -18,15 +18,15 @@ fn derive_gives_golden_recipes() {
     let golden = [
         (
             1,
-            r##"{"tirage":0,"tool":"sear","tool_seed":9611518,"palette":["#03071e","#370617","#9d0208","#e85d04","#faa307","#ffe066"],"params":{"scale":0.26,"warp":0.76,"detail":1,"smear":0.36,"drag":0.85,"tear":0.15,"steps":12,"grain":0.41,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
+            r##"{"tirage":0,"tool":"sear","tool_seed":9611518,"palette":["#03071e","#370617","#9d0208","#e85d04","#faa307","#ffe066"],"params":{"scale":0.26,"warp":0.76,"detail":1,"smear":0.36,"drag":0.85,"tear":0.15,"steps":12,"grain":0.1,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
         ),
         (
             2,
-            r##"{"tirage":0,"tool":"sear","tool_seed":3724278653,"palette":["#03071e","#370617","#9d0208","#e85d04","#faa307","#ffe066"],"params":{"scale":0.83,"warp":0.14,"detail":1,"smear":0.59,"drag":0.71,"tear":0.58,"steps":23,"grain":0.48,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
+            r##"{"tirage":0,"tool":"sear","tool_seed":3724278653,"palette":["#03071e","#370617","#9d0208","#e85d04","#faa307","#ffe066"],"params":{"scale":0.83,"warp":0.14,"detail":1,"smear":0.59,"drag":0.71,"tear":0.58,"steps":23,"grain":0.1,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
         ),
         (
             u64::MAX,
-            r##"{"tirage":0,"tool":"sear","tool_seed":3565986084,"palette":["#03071e","#370617","#9d0208","#e85d04","#faa307","#ffe066"],"params":{"scale":0.41,"warp":0.43,"detail":3,"smear":0.82,"drag":0.89,"tear":0.19,"steps":6,"grain":0.57,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
+            r##"{"tirage":0,"tool":"sear","tool_seed":3565986084,"palette":["#03071e","#370617","#9d0208","#e85d04","#faa307","#ffe066"],"params":{"scale":0.41,"warp":0.43,"detail":3,"smear":0.82,"drag":0.89,"tear":0.19,"steps":6,"grain":0.1,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
         ),
     ];
     for (seed, json) in golden {
@@ -39,6 +39,7 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
     for seed in 0..2000 {
         let recipe = derive(seed, SEAR);
         let p = sear(&recipe);
+        assert_eq!(p.grain(), 0.1, "seed {seed}");
         assert!((1..=5).contains(&p.detail()), "seed {seed}");
         assert!((2..=24).contains(&p.steps()), "seed {seed}");
         for (value, max) in [
@@ -47,7 +48,6 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
             (p.smear(), 1.0),
             (p.drag(), 1.0),
             (p.tear(), 0.6),
-            (p.grain(), 0.7),
         ] {
             assert!((0.0..=max).contains(&value), "seed {seed}: {value}");
             assert_eq!(

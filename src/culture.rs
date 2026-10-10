@@ -33,7 +33,7 @@ const SOFT: Param = Param::new(SLUG, "soft", 2, 100, 100);
 const GRAIN: Param = Param::new(SLUG, "grain", 0, 100, 100);
 const DOT: Param = Param::new(SLUG, "dot", 1, 10, 1);
 
-pub(crate) const PARAMS: &[Param] = &[COUNT, SIZE, FUSE, COVER, SPREAD, SOFT, GRAIN, DOT];
+pub(crate) const PARAMS: &[Param] = &[COUNT, SIZE, FUSE, COVER, SPREAD, SOFT, DOT];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CultureTexture {
@@ -253,7 +253,7 @@ pub(crate) fn parameters() -> Vec<Parameter> {
             "textures",
             &["Fine", "Stipple"],
         )))
-        .chain(after.iter().map(Param::parameter))
+        .chain([&GRAIN].into_iter().chain(after).map(Param::parameter))
         .chain(chassis::parameters())
         .collect()
 }
@@ -272,7 +272,7 @@ pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> CultureParams {
         spread: pick(&SPREAD),
         soft: pick(&SOFT),
         texture: TEXTURES[(draw("textures") % TEXTURES.len() as u64) as usize],
-        grain: pick(&GRAIN),
+        grain: 0.62,
         dot: pick(&DOT) as u32,
         dither: Dither::default(),
         chassis_grain: Grain::default(),

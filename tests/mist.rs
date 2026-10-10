@@ -18,15 +18,15 @@ fn derive_gives_golden_recipes() {
     let golden = [
         (
             1,
-            r##"{"tirage":0,"tool":"mist","tool_seed":9611518,"palette":["#dcff3a","#1e1b3a","#3b2a6e","#5a2e7a"],"params":{"streaks":1.45,"cover":0.45,"soft":0.38,"blot":0.28,"grain":0.86,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
+            r##"{"tirage":0,"tool":"mist","tool_seed":9611518,"palette":["#dcff3a","#1e1b3a","#3b2a6e","#5a2e7a"],"params":{"streaks":1.45,"cover":0.45,"soft":0.38,"blot":0.28,"grain":0.4,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
         ),
         (
             2,
-            r##"{"tirage":0,"tool":"mist","tool_seed":3724278653,"palette":["#dcff3a","#1e1b3a","#3b2a6e","#5a2e7a"],"params":{"streaks":1.2,"cover":0.5,"soft":0.85,"blot":0.69,"grain":0.89,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
+            r##"{"tirage":0,"tool":"mist","tool_seed":3724278653,"palette":["#dcff3a","#1e1b3a","#3b2a6e","#5a2e7a"],"params":{"streaks":1.2,"cover":0.5,"soft":0.85,"blot":0.69,"grain":0.4,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
         ),
         (
             u64::MAX,
-            r##"{"tirage":0,"tool":"mist","tool_seed":3565986084,"palette":["#dcff3a","#1e1b3a","#3b2a6e","#5a2e7a"],"params":{"streaks":0.55,"cover":0.58,"soft":0.81,"blot":0.73,"grain":0.08,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
+            r##"{"tirage":0,"tool":"mist","tool_seed":3565986084,"palette":["#dcff3a","#1e1b3a","#3b2a6e","#5a2e7a"],"params":{"streaks":0.55,"cover":0.58,"soft":0.81,"blot":0.73,"grain":0.4,"ditherTog":false,"dthKinds":"Bayer 8","dthSize":2,"dthLevels":3,"dthAmount":1.0,"grainTog":false,"grnBlends":"Add","grnAmount":0.55,"grnSize":1.0,"grnSpecks":0.5,"grnVignette":0.5}}"##,
         ),
     ];
     for (seed, json) in golden {
@@ -39,12 +39,12 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
     for seed in 0..2000 {
         let recipe = derive(seed, MIST);
         let p = mist(&recipe);
+        assert_eq!(p.grain(), 0.4, "seed {seed}");
         for (value, min, max, unit) in [
             (p.streaks(), 0.4, 2.0, 20.0),
             (p.cover(), 0.3, 0.6, 100.0),
             (p.soft(), 0.1, 1.0, 100.0),
             (p.blot(), 0.2, 1.0, 100.0),
-            (p.grain(), 0.0, 1.0, 100.0),
         ] {
             assert!((min..=max).contains(&value), "seed {seed}: {value}");
             assert_eq!(value, (value * unit).round() / unit, "seed {seed}: {value}");

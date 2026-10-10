@@ -41,4 +41,4 @@ mist  1 frame
   grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `streaks`, `cover`, `soft`, `blot` and `grain`, the Tool's own per-pixel noise. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed. Dither and the grain post-pass stay off. mist takes at most 4 inks: the first is the neon, the other three the ground.
+A Seed draws `streaks`, `cover`, `soft` and `blot`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed. `grain`, the Tool's own per-pixel noise, stays at 0.4. Dither and the grain post-pass stay off. mist takes at most 4 inks: the first is the neon, the other three the ground.

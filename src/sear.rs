@@ -25,12 +25,9 @@ const TEAR: Param = Param {
     ..Param::new(SLUG, "tear", 0, 100, 100)
 };
 const STEPS: Param = Param::new(SLUG, "steps", 2, 24, 1);
-const GRAIN: Param = Param {
-    taste: (0, 70),
-    ..Param::new(SLUG, "grain", 0, 100, 100)
-};
+const GRAIN: Param = Param::new(SLUG, "grain", 0, 100, 100);
 
-pub(crate) const PARAMS: &[Param] = &[SCALE, WARP, DETAIL, SMEAR, DRAG, TEAR, STEPS, GRAIN];
+pub(crate) const PARAMS: &[Param] = &[SCALE, WARP, DETAIL, SMEAR, DRAG, TEAR, STEPS];
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct SearParams {
@@ -222,6 +219,7 @@ pub(crate) fn from_json(params: serde_json::Value) -> Result<SearParams, Error> 
 pub(crate) fn parameters() -> Vec<Parameter> {
     PARAMS
         .iter()
+        .chain([&GRAIN])
         .map(Param::parameter)
         .chain(chassis::parameters())
         .collect()
@@ -241,7 +239,7 @@ pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> SearParams {
         drag: pick(&DRAG),
         tear: pick(&TEAR),
         steps: pick(&STEPS) as u32,
-        grain: pick(&GRAIN),
+        grain: 0.1,
         dither: Dither::default(),
         chassis_grain: Grain::default(),
     }

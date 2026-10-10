@@ -45,4 +45,4 @@ culture  1 frame
   grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter above `ditherTog`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `count` stays within 15..=70, `size` within 0.15..=0.6 and `fuse` within 0..=0.8. `grain` is the Tool's own grain. Dither and the grain post-pass stay off. The first ink is the plate, and every later ink is a ring further in.
+A Seed draws every Parameter above `ditherTog` except `grain`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `count` stays within 15..=70, `size` within 0.15..=0.6 and `fuse` within 0..=0.8. `grain`, the Tool's own grain, stays at 0.62. Dither and the grain post-pass stay off. The first ink is the plate, and every later ink is a ring further in.
