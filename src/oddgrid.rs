@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::param::Param;
+use crate::surface::Cap;
+use crate::surface::Join;
 use crate::surface::Path2D;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -530,7 +532,7 @@ fn mark(surface: &mut Surface, kind: Shape, size: f64, px: i32, py: i32, cw: u32
             let lw = (cs * size * 0.28).max(1.0);
             let mut ring = Path2D::default();
             ring.push_circle(mx, my, (lw * 0.6).max(cs * size / 2.0 - lw / 2.0));
-            surface.stroke(&ring, MARK_INK, lw);
+            surface.stroke(&ring, MARK_INK, lw, Cap::Butt, Join::Round);
         }
         Shape::Square => {
             let side = cs * size;

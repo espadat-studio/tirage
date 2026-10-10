@@ -6,7 +6,7 @@ use crate::chassis::{
     self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, value_noise,
 };
 use crate::param::Param;
-use crate::surface::{Path2D, Surface};
+use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
@@ -773,7 +773,7 @@ fn paint(surface: &mut Surface, params: &FrondParams, palette: &Palette, tool_se
         let cy = height * (0.2 + geometry.next() * 0.6);
         let mut path = Path2D::default();
         path.push_circle(cx, cy, r);
-        surface.stroke(&path, ink, line);
+        surface.stroke(&path, ink, line, Cap::Butt, Join::Round);
     }
     for _ in 0..round_half_up(params.rules * 9.0) as u32 {
         let y = height * (0.05 + geometry.next() * 0.9);
@@ -782,7 +782,7 @@ fn paint(surface: &mut Surface, params: &FrondParams, palette: &Palette, tool_se
         let mut path = Path2D::default();
         path.move_to(x0, y);
         path.line_to(x1, y);
-        surface.stroke(&path, ink, line);
+        surface.stroke(&path, ink, line, Cap::Butt, Join::Round);
         if geometry.next() < 0.35 {
             let side = unit * (0.006 + geometry.next() * 0.008);
             let x = x0 + (x1 - x0) * (0.15 + geometry.next() * 0.7) - side * 0.5;

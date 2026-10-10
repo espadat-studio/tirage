@@ -1,13 +1,33 @@
 use std::f64::consts::PI;
 
 use tiny_skia::{
-    Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineJoin, Paint, Path,
+    Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin, Paint, Path,
     PathBuilder, Pixmap, PixmapPaint, Point, RadialGradient, Rect, SpreadMode, Stroke, Transform,
 };
 
 use crate::Image;
 
 pub(crate) struct Surface(Pixmap);
+
+#[derive(Clone, Copy)]
+pub(crate) enum Cap {
+    Butt,
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "fete is the first Tool to draw it")
+    )]
+    Round,
+}
+
+#[derive(Clone, Copy)]
+pub(crate) enum Join {
+    Round,
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "batches 6, 7 and 10 stroke miter joins")
+    )]
+    Miter,
+}
 
 #[derive(Clone, Copy)]
 pub(crate) enum Smoothing {
@@ -135,10 +155,18 @@ impl Surface {
         );
     }
 
-    pub(crate) fn stroke(&mut self, path: &Path2D, ink: [u8; 3], width: f64) {
+    pub(crate) fn stroke(&mut self, path: &Path2D, ink: [u8; 3], width: f64, cap: Cap, join: Join) {
         let stroke = Stroke {
             width: width as f32,
-            line_join: LineJoin::Round,
+            line_cap: match cap {
+                Cap::Butt => LineCap::Butt,
+                Cap::Round => LineCap::Round,
+            },
+            line_join: match join {
+                Join::Round => LineJoin::Round,
+                Join::Miter => LineJoin::Miter,
+            },
+            miter_limit: 10.0,
             ..Stroke::default()
         };
         let path = path
@@ -284,7 +312,7 @@ impl Surface {
 
 #[cfg(test)]
 mod tests {
-    use super::{Path2D, Smoothing, Surface};
+    use super::{Cap, Join, Path2D, Smoothing, Surface};
 
     #[test]
     fn edit_rgba_hands_out_and_takes_back_straight_alpha() {
@@ -314,5 +342,28 @@ mod tests {
         let red = [255, 0, 0, 255];
         let blue = [0, 0, 255, 255];
         assert_eq!(rgba, [red, red, blue, blue].concat());
+    }
+
+    fn inked(cap: Cap, join: Join, x: u32, y: u32) -> bool {
+        let mut surface = Surface::new(40, 40);
+        let mut path = Path2D::default();
+        path.move_to(10.0, 30.0);
+        path.line_to(10.0, 10.0);
+        path.line_to(30.0, 10.0);
+        surface.stroke(&path, [255, 255, 255], 10.0, cap, join);
+        let image = surface.into_image();
+        image.rgba()[((y * 40 + x) * 4) as usize] > 128
+    }
+
+    #[test]
+    fn stroke_draws_a_round_cap_past_the_end() {
+        assert!(inked(Cap::Round, Join::Round, 32, 10));
+        assert!(!inked(Cap::Butt, Join::Round, 32, 10));
+    }
+
+    #[test]
+    fn stroke_draws_a_miter_join_into_the_corner() {
+        assert!(inked(Cap::Butt, Join::Miter, 5, 5));
+        assert!(!inked(Cap::Butt, Join::Round, 5, 5));
     }
 }
