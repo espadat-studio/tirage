@@ -50,6 +50,7 @@ registry::tools! {
     Cipher: cipher::{CipherParams, CipherField},
     Riso: riso::{RisoParams},
     Rise: rise::{RiseParams, RiseAnchor},
+    Carve: carve::{CarveParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
