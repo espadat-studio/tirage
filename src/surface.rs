@@ -248,6 +248,10 @@ impl Surface {
         height: u32,
         smoothing: Smoothing,
     ) {
+        if let Smoothing::Nearest = smoothing {
+            self.draw_nearest(rgba, width, height);
+            return;
+        }
         let premultiplied = rgba
             .as_chunks::<4>()
             .0
@@ -264,14 +268,28 @@ impl Surface {
             self.height() as f32 / height as f32,
         );
         let paint = PixmapPaint {
-            quality: match smoothing {
-                Smoothing::Bicubic => FilterQuality::Bicubic,
-                Smoothing::Nearest => FilterQuality::Nearest,
-            },
+            quality: FilterQuality::Bicubic,
             ..PixmapPaint::default()
         };
         self.0
             .draw_pixmap(0, 0, image.as_ref(), &paint, scale, None);
+    }
+
+    fn draw_nearest(&mut self, rgba: &[u8], width: u32, height: u32) {
+        let (columns, rows) = (self.width(), self.height());
+        let source = |at: u32, edge: u32, scaled: u32| {
+            ((f64::from(at) + 0.5) * f64::from(edge) / f64::from(scaled)).ceil() as u32 - 1
+        };
+        let pixels = self.0.pixels_mut();
+        for y in 0..rows {
+            let sy = source(y, height, rows);
+            for x in 0..columns {
+                let sx = source(x, width, columns);
+                let i = ((sy * width + sx) * 4) as usize;
+                let [r, g, b, a] = [rgba[i], rgba[i + 1], rgba[i + 2], rgba[i + 3]];
+                pixels[(y * columns + x) as usize] = ColorU8::from_rgba(r, g, b, a).premultiply();
+            }
+        }
     }
 
     pub(crate) fn edit_rgba(&mut self, edit: impl FnOnce(&mut [u8], u32, u32)) {
@@ -324,6 +342,14 @@ mod tests {
         path.arc_to(10.0, 0.001, 20.0, 0.0, 5.0);
         let end = path.0.last_point().unwrap();
         assert_eq!((end.x, end.y), (10.0, 0.001));
+    }
+
+    #[test]
+    fn draw_smooth_nearest_gives_a_centre_on_a_cell_edge_to_the_left_cell() {
+        let mut surface = Surface::new(5, 1);
+        surface.draw_smooth(&[255, 0, 0, 255, 0, 0, 255, 255], 2, 1, Smoothing::Nearest);
+        let rgba = surface.into_image().rgba().to_vec();
+        assert_eq!(&rgba[8..12], [255, 0, 0, 255]);
     }
 
     #[test]
