@@ -153,10 +153,6 @@ impl Surface {
         self.2 = None;
     }
 
-    #[cfg_attr(
-        not(test),
-        expect(dead_code, reason = "parcel multiplies its hairlines")
-    )]
     pub(crate) fn with_multiply(&mut self, draw: impl FnOnce(&mut Self)) {
         let outer = std::mem::replace(&mut self.3, BlendMode::Multiply);
         draw(self);
