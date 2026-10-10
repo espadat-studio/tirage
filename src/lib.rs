@@ -54,6 +54,7 @@ registry::tools! {
     Specimen: specimen::{SpecimenParams},
     Pane: pane::{PaneParams},
     Modular: modular::{ModularParams},
+    Prism: prism::{PrismParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

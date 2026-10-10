@@ -199,7 +199,7 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(text(&out.stderr).contains(
-        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple, motley, oddgrid, fete, fold, quilt, static, splice, dahlia, hiss, crowd, cipher, riso, rise, carve, specimen, pane, modular"#
+        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple, motley, oddgrid, fete, fold, quilt, static, splice, dahlia, hiss, crowd, cipher, riso, rise, carve, specimen, pane, modular, prism"#
     ));
 }
 
@@ -726,10 +726,18 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"rules","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"ruleW","kind":"range","min":0.5,"max":4.0,"step":0.5},"#,
     );
+    let prism = concat!(
+        r#"{"slug":"prism","frames":1,"params":["#,
+        r#"{"id":"cols","kind":"range","min":24.0,"max":72.0,"step":2.0},"#,
+        r#"{"id":"streams","kind":"range","min":1.0,"max":5.0,"step":1.0},"#,
+        r#"{"id":"reach","kind":"range","min":0.3,"max":0.85,"step":0.01},"#,
+        r#"{"id":"fringe","kind":"range","min":0.5,"max":1.6,"step":0.01},"#,
+        r#"{"id":"dots","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}},{bloom}{CHASSIS_LISTING}]}},{weave}{CHASSIS_LISTING}]}},{warp}{CHASSIS_LISTING}]}},{zig}{CHASSIS_LISTING}]}},{relief}{CHASSIS_LISTING}]}},{atlas}{CHASSIS_LISTING}]}},{sprig}{CHASSIS_LISTING}]}},{stipple}{CHASSIS_LISTING}]}},{motley}{CHASSIS_LISTING}]}},{oddgrid}{CHASSIS_LISTING}]}},{fete}{CHASSIS_LISTING}]}},{fold}{CHASSIS_LISTING}]}},{quilt}{CHASSIS_LISTING}]}},{static_tool}{CHASSIS_LISTING}]}},{splice}{CHASSIS_LISTING}]}},{dahlia}{CHASSIS_LISTING}]}},{hiss}{CHASSIS_LISTING}]}},{crowd}{CHASSIS_LISTING}]}},{cipher}{CHASSIS_LISTING}]}},{riso}{CHASSIS_LISTING}]}},{rise}{CHASSIS_LISTING}]}},{carve}{CHASSIS_LISTING}]}},{specimen}{CHASSIS_LISTING}]}},{pane}{CHASSIS_LISTING}]}},{modular}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}},{bloom}{CHASSIS_LISTING}]}},{weave}{CHASSIS_LISTING}]}},{warp}{CHASSIS_LISTING}]}},{zig}{CHASSIS_LISTING}]}},{relief}{CHASSIS_LISTING}]}},{atlas}{CHASSIS_LISTING}]}},{sprig}{CHASSIS_LISTING}]}},{stipple}{CHASSIS_LISTING}]}},{motley}{CHASSIS_LISTING}]}},{oddgrid}{CHASSIS_LISTING}]}},{fete}{CHASSIS_LISTING}]}},{fold}{CHASSIS_LISTING}]}},{quilt}{CHASSIS_LISTING}]}},{static_tool}{CHASSIS_LISTING}]}},{splice}{CHASSIS_LISTING}]}},{dahlia}{CHASSIS_LISTING}]}},{hiss}{CHASSIS_LISTING}]}},{crowd}{CHASSIS_LISTING}]}},{cipher}{CHASSIS_LISTING}]}},{riso}{CHASSIS_LISTING}]}},{rise}{CHASSIS_LISTING}]}},{carve}{CHASSIS_LISTING}]}},{specimen}{CHASSIS_LISTING}]}},{pane}{CHASSIS_LISTING}]}},{modular}{CHASSIS_LISTING}]}},{prism}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }
@@ -761,6 +769,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nspecimen  1 frame\n"), "{listing}");
     assert!(listing.contains("\npane  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmodular  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nprism  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmotley  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");
@@ -974,6 +983,39 @@ fn derive_rejects_more_inks_than_the_tool_draws_as_a_usage_error() {
         text(&out.stderr)
     );
     assert!(out.stdout.is_empty());
+}
+
+#[test]
+fn derive_rejects_a_palette_for_prism_and_hints_to_pin_a_tool() {
+    assert_eq!(
+        tirage::derive(24, tirage::ToolPin::Any).tool(),
+        tirage::Tool::Prism
+    );
+    for args in [
+        &["derive", "--seed", "24", "--palette", "#000000,#ffffff"][..],
+        &[
+            "derive",
+            "--seed",
+            "24",
+            "--tool",
+            "prism",
+            "--palette",
+            "#000000,#ffffff",
+        ],
+    ] {
+        let out = tirage(args, b"");
+        assert_eq!(out.status.code(), Some(2));
+        let stderr = text(&out.stderr);
+        assert!(
+            stderr.starts_with("error: prism: takes no Palette\n"),
+            "{stderr}"
+        );
+        assert!(
+            stderr.contains("pin a Tool that takes a Palette with --tool <slug>"),
+            "{stderr}"
+        );
+        assert!(out.stdout.is_empty());
+    }
 }
 
 #[test]
