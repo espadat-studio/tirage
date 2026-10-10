@@ -53,7 +53,7 @@ Parameters you leave out keep their shipped bounds. Only slider Parameters take 
 
 ## Palette
 
-`--palette` Pins the inks a Tool paints with. Pass two or more `#rrggbb` colours separated by commas. aura draws at most 4 inks, the other Tools take any number. Uppercase hex is accepted and printed lowercase.
+`--palette` Pins the inks a Tool paints with. Pass two or more `#rrggbb` colours separated by commas. Some Tools cap the inks, as [Pins](/concepts/pins/) lists. prism takes no Palette, so `--palette` fails on it. Uppercase hex is accepted and printed lowercase.
 
 ```sh
 tirage derive --seed 42 --tool sonar --palette '#000000,#ffffff'
@@ -99,7 +99,7 @@ One line of JSON, ending in a newline. Pretty printed, the Recipe for Seed 42 Pi
 | `tirage`    | The derivation major this Recipe was derived under                                                    |
 | `tool`      | The Tool's slug                                                                                       |
 | `tool_seed` | The integer the Tool's own random draws start from, the one typed into its site page                  |
-| `palette`   | The inks, as `#rrggbb`                                                                                |
+| `palette`   | The inks, as `#rrggbb`. Left out for prism, which takes no Palette                                    |
 | `params`    | One value per Parameter: a number for a slider, `true` or `false` for a toggle, a string for a choice |
 
 Editing the file is how you Pin anything derive has no flag for. Change a value under `params`, then render the file. render rejects a value outside its range, an unknown Parameter, a duplicate key, and a Recipe from another major.

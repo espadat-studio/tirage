@@ -5,7 +5,7 @@ description: "How one integer turns into a whole Recipe, and what tirage promise
 
 A _Tool_ is one of the things tirage draws, such as sonar, aura or mist. [`tirage tools`](/cli-reference/tools/) lists them all. Each is named by the slug of its page on the site it reproduces. A Tool has _Parameters_, one per slider, toggle or picker on that page, with the same id and the same range as the control there. It paints with a _Palette_, an ordered list of inks. Its own random draws start from a _Tool seed_, the integer you would type into the seed box on that page.
 
-A _Recipe_ is a Tool, a value for each of its Parameters, a Palette and a Tool seed. That is everything a render needs, so a Recipe fully determines one [Visual](/concepts/still-and-loop/).
+A _Recipe_ is a Tool, a value for each of its Parameters, a Palette where the Tool takes one, and a Tool seed. That is everything a render needs, so a Recipe fully determines one [Visual](/concepts/still-and-loop/).
 
 `tirage derive` prints a Recipe as one line of JSON:
 
