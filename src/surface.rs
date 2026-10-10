@@ -3,13 +3,14 @@ use std::f64::consts::{PI, TAU};
 use kurbo::{Arc, PathEl, Shape, Vec2};
 
 use tiny_skia::{
-    Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin, Paint, Path,
-    PathBuilder, Pixmap, PixmapPaint, Point, RadialGradient, Rect, SpreadMode, Stroke, Transform,
+    Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin, Mask, Paint,
+    Path, PathBuilder, Pixmap, PixmapPaint, Point, RadialGradient, Rect, SpreadMode, Stroke,
+    Transform,
 };
 
 use crate::Image;
 
-pub(crate) struct Surface(Pixmap, f32);
+pub(crate) struct Surface(Pixmap, f32, Option<Mask>);
 
 #[derive(Clone, Copy)]
 pub(crate) enum Cap {
@@ -132,6 +133,7 @@ impl Surface {
         Self(
             Pixmap::new(width, height).expect("frame edges are validated"),
             1.0,
+            None,
         )
     }
 
@@ -139,6 +141,15 @@ impl Surface {
         let outer = std::mem::replace(&mut self.1, alpha);
         draw(self);
         self.1 = outer;
+    }
+
+    pub(crate) fn with_clip(&mut self, clip: &Path2D, draw: impl FnOnce(&mut Self)) {
+        let path = clip.0.clone().finish().expect("a clip has a closed loop");
+        let mut mask = Mask::new(self.width(), self.height()).expect("frame edges are validated");
+        mask.fill_path(&path, FillRule::Winding, true, Transform::identity());
+        assert!(self.2.replace(mask).is_none(), "clips do not nest");
+        draw(self);
+        self.2 = None;
     }
 
     fn solid(&self, [r, g, b]: [u8; 3]) -> Paint<'static> {
@@ -156,8 +167,9 @@ impl Surface {
         self.0.height()
     }
 
-    pub(crate) fn fill(&mut self, [r, g, b]: [u8; 3]) {
-        self.0.fill(Color::from_rgba8(r, g, b, 255));
+    pub(crate) fn fill(&mut self, ink: [u8; 3]) {
+        let (w, h) = (f64::from(self.width()), f64::from(self.height()));
+        self.fill_box(0.0, 0.0, w, h, ink);
     }
 
     pub(crate) fn fill_rect(
@@ -172,7 +184,8 @@ impl Surface {
             .expect("rect sides are at least 1 px");
         let mut paint = self.solid([r, g, b]);
         paint.anti_alias = false;
-        self.0.fill_rect(rect, &paint, Transform::identity(), None);
+        self.0
+            .fill_rect(rect, &paint, Transform::identity(), self.2.as_ref());
     }
 
     pub(crate) fn fill_even_odd(&mut self, path: &Path2D, ink: [u8; 3]) {
@@ -187,7 +200,7 @@ impl Surface {
             &paint,
             FillRule::EvenOdd,
             Transform::identity(),
-            None,
+            self.2.as_ref(),
         );
     }
 
@@ -211,21 +224,32 @@ impl Surface {
             .finish()
             .expect("a stroked path has a closed loop");
         let paint = self.solid(ink);
-        self.0
-            .stroke_path(&path, &paint, &stroke, Transform::identity(), None);
+        self.0.stroke_path(
+            &path,
+            &paint,
+            &stroke,
+            Transform::identity(),
+            self.2.as_ref(),
+        );
     }
 
     pub(crate) fn fill_box(&mut self, x: f64, y: f64, width: f64, height: f64, ink: [u8; 3]) {
         if let Some(rect) = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32) {
             let paint = self.solid(ink);
-            self.0.fill_rect(rect, &paint, Transform::identity(), None);
+            self.0
+                .fill_rect(rect, &paint, Transform::identity(), self.2.as_ref());
         }
     }
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
         let paint = self.solid(ink);
-        self.0
-            .fill_path(path, &paint, FillRule::Winding, Transform::identity(), None);
+        self.0.fill_path(
+            path,
+            &paint,
+            FillRule::Winding,
+            Transform::identity(),
+            self.2.as_ref(),
+        );
     }
 
     pub(crate) fn fill_radial_fade(
@@ -261,10 +285,12 @@ impl Surface {
         let side = (radius * 2.0) as f32;
         let rect = Rect::from_xywh((x - radius) as f32, (y - radius) as f32, side, side)
             .expect("a fade has a positive radius");
-        self.0.fill_rect(rect, &paint, Transform::identity(), None);
+        self.0
+            .fill_rect(rect, &paint, Transform::identity(), self.2.as_ref());
     }
 
     pub(crate) fn set_pixel(&mut self, x: u32, y: u32, [r, g, b]: [u8; 3]) {
+        assert!(self.2.is_none(), "pixel writes ignore a clip");
         let width = self.width();
         self.0.pixels_mut()[(y * width + x) as usize] =
             ColorU8::from_rgba(r, g, b, 255).premultiply();
@@ -279,7 +305,7 @@ impl Surface {
             &paint,
             FillRule::Winding,
             Transform::identity(),
-            None,
+            self.2.as_ref(),
         );
     }
 
@@ -314,10 +340,11 @@ impl Surface {
             ..PixmapPaint::default()
         };
         self.0
-            .draw_pixmap(0, 0, image.as_ref(), &paint, scale, None);
+            .draw_pixmap(0, 0, image.as_ref(), &paint, scale, self.2.as_ref());
     }
 
     fn draw_nearest(&mut self, rgba: &[u8], width: u32, height: u32) {
+        assert!(self.2.is_none(), "pixel writes ignore a clip");
         let (columns, rows) = (self.width(), self.height());
         let source = |at: u32, edge: u32, scaled: u32| {
             ((f64::from(at) + 0.5) * f64::from(edge) / f64::from(scaled)).ceil() as u32 - 1
@@ -335,6 +362,7 @@ impl Surface {
     }
 
     pub(crate) fn edit_rgba(&mut self, edit: impl FnOnce(&mut [u8], u32, u32)) {
+        assert!(self.2.is_none(), "pixel writes ignore a clip");
         let mut rgba = self.rgba();
         edit(&mut rgba, self.width(), self.height());
         for (pixel, &[r, g, b, a]) in self.0.pixels_mut().iter_mut().zip(rgba.as_chunks::<4>().0) {
@@ -392,6 +420,36 @@ mod tests {
             assert!(ours.abs_diff(blended) <= 1, "{rgba:?}");
         }
         assert_eq!(&rgba[4..], [200, 100, 40, 255]);
+    }
+
+    #[test]
+    fn with_clip_draws_only_inside_the_clip_then_restores_the_whole_frame() {
+        let mut surface = Surface::new(3, 1);
+        let mut band = Path2D::default();
+        band.move_to(1.0, 0.0);
+        band.line_to(2.0, 0.0);
+        band.line_to(2.0, 1.0);
+        band.line_to(1.0, 1.0);
+        band.close();
+        surface.with_clip(&band, |surface| surface.fill([255, 0, 0]));
+        let clipped = surface
+            .0
+            .pixels()
+            .iter()
+            .map(|p| p.red())
+            .collect::<Vec<_>>();
+        assert_eq!(clipped, [0, 255, 0]);
+        surface.fill_box(0.0, 0.0, 3.0, 1.0, [0, 0, 255]);
+        assert!(surface.0.pixels().iter().all(|p| p.blue() == 255));
+    }
+
+    #[test]
+    #[should_panic(expected = "clips do not nest")]
+    fn with_clip_refuses_a_nested_clip() {
+        let mut surface = Surface::new(2, 2);
+        let mut clip = Path2D::default();
+        clip.push_circle(1.0, 1.0, 1.0);
+        surface.with_clip(&clip, |surface| surface.with_clip(&clip, |_| {}));
     }
 
     fn stroked_arc(start: f64, end: f64) -> Vec<u8> {

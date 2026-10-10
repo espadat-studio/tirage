@@ -4427,12 +4427,6 @@
       }
     },
     "fete": {
-      "page_sha256": "6031ddc1997e3e060e5a2755de933fbec1e6fb6c507aa587bc0610dd8e16e65c",
-      "chromium": "153.0.8010.12",
-      "fonts_sha256": {
-        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
-        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
       "fixtures": [
         {
           "name": "seed-1",
@@ -4690,15 +4684,15 @@
             }
           }
         }
-      ]
-    },
-    "fold": {
-      "page_sha256": "f00cae548c60c36ea27164b92f7169fc2ce23979016c74f02fd17719a1aad593",
+      ],
+      "page_sha256": "6031ddc1997e3e060e5a2755de933fbec1e6fb6c507aa587bc0610dd8e16e65c",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
+      }
+    },
+    "fold": {
       "fixtures": [
         {
           "name": "seed-1",
@@ -5140,15 +5134,15 @@
             }
           }
         }
-      ]
-    },
-    "quilt": {
-      "page_sha256": "74f59b2b68fd24ea6df4ab0f034e164c4aeb4944ece1bbaf0ef631569ea9b49b",
+      ],
+      "page_sha256": "f00cae548c60c36ea27164b92f7169fc2ce23979016c74f02fd17719a1aad593",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
+      }
+    },
+    "quilt": {
       "fixtures": [
         {
           "name": "seed-1",
@@ -5600,15 +5594,15 @@
             }
           }
         }
-      ]
-    },
-    "static": {
-      "page_sha256": "c0330e93072a0ff2e5aef5cb8a21d7f092bd544ea0dd0b2338618b11de98541a",
+      ],
+      "page_sha256": "74f59b2b68fd24ea6df4ab0f034e164c4aeb4944ece1bbaf0ef631569ea9b49b",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
+      }
+    },
+    "static": {
       "fixtures": [
         {
           "name": "seed-1",
@@ -5694,15 +5688,15 @@
             }
           }
         }
-      ]
-    },
-    "splice": {
-      "page_sha256": "8ec2c58a172f4f5cb22291454cdc49c2f924871fb28e5e9b8ff75aae5e055916",
+      ],
+      "page_sha256": "c0330e93072a0ff2e5aef5cb8a21d7f092bd544ea0dd0b2338618b11de98541a",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
+      }
+    },
+    "splice": {
       "fixtures": [
         {
           "name": "seed-1",
@@ -5872,7 +5866,13 @@
             }
           }
         }
-      ]
+      ],
+      "page_sha256": "8ec2c58a172f4f5cb22291454cdc49c2f924871fb28e5e9b8ff75aae5e055916",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
     },
     "dahlia": {
       "fixtures": [
@@ -6132,12 +6132,6 @@
       }
     },
     "crowd": {
-      "page_sha256": "9f77d83309eb0a8bd8d100dcde43c570b1843cd48fe96af52887ce4c4667291e",
-      "chromium": "153.0.8010.12",
-      "fonts_sha256": {
-        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
-        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
-      },
       "fixtures": [
         {
           "name": "seed-1",
@@ -6241,7 +6235,13 @@
             }
           }
         }
-      ]
+      ],
+      "page_sha256": "9f77d83309eb0a8bd8d100dcde43c570b1843cd48fe96af52887ce4c4667291e",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
     },
     "cipher": {
       "fixtures": [
@@ -6411,6 +6411,555 @@
         }
       ],
       "page_sha256": "a0f0485e862db28d8907c8a28c6ff8df20b2041bbbbf4416d886b30c01ac810c",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
+    },
+    "riso": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "riso",
+            "tool_seed": 9611518,
+            "palette": [
+              "#3a86ff",
+              "#ff006e",
+              "#fb5607",
+              "#1b1b2f",
+              "#ffbe0b",
+              "#f7f3ea"
+            ],
+            "params": {
+              "bands": 2,
+              "rough": 0.85,
+              "scrib": 0.69,
+              "dotp": 0.81,
+              "grain": 0.5,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "riso",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#3a86ff",
+              "#ff006e",
+              "#fb5607",
+              "#1b1b2f",
+              "#ffbe0b",
+              "#f7f3ea"
+            ],
+            "params": {
+              "bands": 5,
+              "rough": 0.96,
+              "scrib": 0.21,
+              "dotp": 0.16,
+              "grain": 0.5,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "riso",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#3a86ff",
+              "#ff006e",
+              "#fb5607",
+              "#1b1b2f",
+              "#ffbe0b",
+              "#f7f3ea"
+            ],
+            "params": {
+              "bands": 4,
+              "rough": 0.77,
+              "scrib": 0.86,
+              "dotp": 0.27,
+              "grain": 0.5,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "57fca60b3b13861c20f565e00447ce629871dd09f8e97544d6410eba5493f72b",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
+    },
+    "rise": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "rise",
+            "tool_seed": 9611518,
+            "palette": [
+              "#ff9f1c",
+              "#2ec4b6",
+              "#011627"
+            ],
+            "params": {
+              "styles": "Left",
+              "count": 17,
+              "weight": 0.55,
+              "bands": 4,
+              "depth": 0.34,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "rise",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#ff9f1c",
+              "#2ec4b6",
+              "#011627"
+            ],
+            "params": {
+              "styles": "Right",
+              "count": 8,
+              "weight": 0.5,
+              "bands": 3,
+              "depth": 0.2,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "rise",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#ff9f1c",
+              "#2ec4b6",
+              "#011627"
+            ],
+            "params": {
+              "styles": "Top",
+              "count": 21,
+              "weight": 0.32,
+              "bands": 2,
+              "depth": 0.35,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-1-bottom",
+          "recipe": {
+            "tirage": 0,
+            "tool": "rise",
+            "tool_seed": 9611518,
+            "palette": [
+              "#ff9f1c",
+              "#2ec4b6",
+              "#011627"
+            ],
+            "params": {
+              "styles": "Bottom",
+              "count": 17,
+              "weight": 0.55,
+              "bands": 4,
+              "depth": 0.34,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-1-centre",
+          "recipe": {
+            "tirage": 0,
+            "tool": "rise",
+            "tool_seed": 9611518,
+            "palette": [
+              "#ff9f1c",
+              "#2ec4b6",
+              "#011627"
+            ],
+            "params": {
+              "styles": "Centre",
+              "count": 17,
+              "weight": 0.55,
+              "bands": 4,
+              "depth": 0.34,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "9791c4bd6e8a30fdcedafad5d339a496236b2e7225411aab7a437fb8bb20598c",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
+    },
+    "carve": {
+      "page_sha256": "dc53ced249a42dbcf4f9de5a8873c599cdc3d878ca43c777b0c0a3928c5ce683",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      },
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "carve",
+            "tool_seed": 9611518,
+            "palette": [
+              "#1a1a1a",
+              "#f5f2ec",
+              "#ff5c00",
+              "#00a3ff",
+              "#ff00a8",
+              "#a8ff00"
+            ],
+            "params": {
+              "cuts": 14,
+              "uneven": 0.86,
+              "gap": 0.07,
+              "mix": 0.04,
+              "pitch": 0.52,
+              "grain": 0.5,
+              "nodes": 0.79,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "carve",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#1a1a1a",
+              "#f5f2ec",
+              "#ff5c00",
+              "#00a3ff",
+              "#ff00a8",
+              "#a8ff00"
+            ],
+            "params": {
+              "cuts": 8,
+              "uneven": 0.87,
+              "gap": 0.4,
+              "mix": 0.64,
+              "pitch": 0.5,
+              "grain": 0.5,
+              "nodes": 0.54,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "carve",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#1a1a1a",
+              "#f5f2ec",
+              "#ff5c00",
+              "#00a3ff",
+              "#ff00a8",
+              "#a8ff00"
+            ],
+            "params": {
+              "cuts": 12,
+              "uneven": 0.76,
+              "gap": 0.98,
+              "mix": 0.48,
+              "pitch": 0.11,
+              "grain": 0.5,
+              "nodes": 0.1,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ]
+    },
+    "specimen": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "specimen",
+            "tool_seed": 9611518,
+            "palette": [
+              "#e63946",
+              "#457b9d",
+              "#f4a261",
+              "#2a9d8f",
+              "#e9c46a",
+              "#8338ec",
+              "#1b1b1b"
+            ],
+            "params": {
+              "cols": 5,
+              "fill": 0.19,
+              "span": 0.37,
+              "gut": 0,
+              "rules": 0.21,
+              "wMarble": 56,
+              "wTendril": 1,
+              "wLoop": 62,
+              "wFlat": 5,
+              "wRing": 92,
+              "wFan": 62,
+              "wArc": 23,
+              "wSpike": 21,
+              "mScale": 2.7,
+              "mBands": 7,
+              "density": 0.6,
+              "lineW": 1.2,
+              "inkMix": 0.2,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "specimen",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#e63946",
+              "#457b9d",
+              "#f4a261",
+              "#2a9d8f",
+              "#e9c46a",
+              "#8338ec",
+              "#1b1b1b"
+            ],
+            "params": {
+              "cols": 8,
+              "fill": 0.79,
+              "span": 0.02,
+              "gut": 0.045,
+              "rules": 0.42,
+              "wMarble": 100,
+              "wTendril": 92,
+              "wLoop": 0,
+              "wFlat": 0,
+              "wRing": 70,
+              "wFan": 17,
+              "wArc": 0,
+              "wSpike": 4,
+              "mScale": 3.4,
+              "mBands": 3,
+              "density": 0.56,
+              "lineW": 7,
+              "inkMix": 0.83,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "specimen",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#e63946",
+              "#457b9d",
+              "#f4a261",
+              "#2a9d8f",
+              "#e9c46a",
+              "#8338ec",
+              "#1b1b1b"
+            ],
+            "params": {
+              "cols": 4,
+              "fill": 0.21,
+              "span": 0.32,
+              "gut": 0.235,
+              "rules": 0.43,
+              "wMarble": 86,
+              "wTendril": 16,
+              "wLoop": 10,
+              "wFlat": 36,
+              "wRing": 72,
+              "wFan": 71,
+              "wArc": 70,
+              "wSpike": 5,
+              "mScale": 4.4,
+              "mBands": 5,
+              "density": 0.42,
+              "lineW": 10,
+              "inkMix": 0.63,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "b8012c40d706abb1ee4ad416ccb50d523072b72bc33b0d3787425a3b34565016",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",

@@ -23,7 +23,7 @@ The result is the Recipe Seed 42 would have given if it had dealt sonar by itsel
 tirage derive --seed 42 --tool sonar --palette '#000000,#ffffff'
 ```
 
-Only `palette` changes. The Tool seed and the Parameters stay as Seed 42 deals them. A Tool reads inks by position and wraps around when the Palette is shorter than it needs. Some Tools cap the Palette at the inks they draw: aura 4, mist 4, warp 5, quilt 4, static 2. Without `--palette` the Palette is the Tool's default, and the Seed never changes it.
+Only `palette` changes. The Tool seed and the Parameters stay as Seed 42 deals them. A Tool reads inks by position and wraps around when the Palette is shorter than it needs. Some Tools cap the Palette at the inks they draw: aura 4, mist 4, warp 5, quilt 4, static 2, rise 3. Without `--palette` the Palette is the Tool's default, and the Seed never changes it.
 
 ## Pin a Parameter or the Tool seed
 
