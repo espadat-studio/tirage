@@ -2992,6 +2992,251 @@
       "page_sha256": "d9c0daecd8fce44b0fb45c67f34b5594b657e59c560b83ddb4c5829118e36511",
       "chromium": "153.0.8010.12",
       "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+    },
+    "zig": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "zig",
+            "tool_seed": 9611518,
+            "palette": [
+              "#1b1b1b",
+              "#f94144",
+              "#f8961e",
+              "#f9c74f",
+              "#43aa8b",
+              "#577590"
+            ],
+            "params": {
+              "styles": "Stairs",
+              "width": 1.8,
+              "depth": 0.48,
+              "tooth": 0.65,
+              "round": 0.12,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "zig",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#1b1b1b",
+              "#f94144",
+              "#f8961e",
+              "#f9c74f",
+              "#43aa8b",
+              "#577590"
+            ],
+            "params": {
+              "styles": "Stairs",
+              "width": 1.45,
+              "depth": 0.62,
+              "tooth": 0.7,
+              "round": 0.33,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "zig",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#1b1b1b",
+              "#f94144",
+              "#f8961e",
+              "#f9c74f",
+              "#43aa8b",
+              "#577590"
+            ],
+            "params": {
+              "styles": "Waves",
+              "width": 0.9,
+              "depth": 1,
+              "tooth": 2,
+              "round": 0.41,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-1-teeth",
+          "recipe": {
+            "tirage": 0,
+            "tool": "zig",
+            "tool_seed": 9611518,
+            "palette": [
+              "#1b1b1b",
+              "#f94144",
+              "#f8961e",
+              "#f9c74f",
+              "#43aa8b",
+              "#577590"
+            ],
+            "params": {
+              "styles": "Teeth",
+              "width": 1.8,
+              "depth": 0.48,
+              "tooth": 0.65,
+              "round": 0.12,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-1-chevron",
+          "recipe": {
+            "tirage": 0,
+            "tool": "zig",
+            "tool_seed": 9611518,
+            "palette": [
+              "#1b1b1b",
+              "#f94144",
+              "#f8961e",
+              "#f9c74f",
+              "#43aa8b",
+              "#577590"
+            ],
+            "params": {
+              "styles": "Chevron",
+              "width": 1.8,
+              "depth": 0.48,
+              "tooth": 0.65,
+              "round": 0.12,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-1-ricrac",
+          "recipe": {
+            "tirage": 0,
+            "tool": "zig",
+            "tool_seed": 9611518,
+            "palette": [
+              "#1b1b1b",
+              "#f94144",
+              "#f8961e",
+              "#f9c74f",
+              "#43aa8b",
+              "#577590"
+            ],
+            "params": {
+              "styles": "Ricrac",
+              "width": 1.8,
+              "depth": 0.48,
+              "tooth": 0.65,
+              "round": 0.12,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-1-scales",
+          "recipe": {
+            "tirage": 0,
+            "tool": "zig",
+            "tool_seed": 9611518,
+            "palette": [
+              "#1b1b1b",
+              "#f94144",
+              "#f8961e",
+              "#f9c74f",
+              "#43aa8b",
+              "#577590"
+            ],
+            "params": {
+              "styles": "Scales",
+              "width": 1.8,
+              "depth": 0.48,
+              "tooth": 0.65,
+              "round": 0.12,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "0b60acfc8485745f0bd907f1f0bf948a83be5c7faea0cedb17aac622809c1ed2",
+      "chromium": "153.0.8010.12",
+      "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
     }
   }
 }
