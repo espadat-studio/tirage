@@ -7438,6 +7438,172 @@
         "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
         "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
       }
+    },
+    "tokens": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "tokens",
+            "tool_seed": 9611518,
+            "palette": [
+              "#1b1b1b",
+              "#e63946",
+              "#3a86ff",
+              "#ffbe0b",
+              "#2a9d8f",
+              "#ff006e",
+              "#8338ec",
+              "#fb5607",
+              "#00b4d8"
+            ],
+            "params": {
+              "cols": 48,
+              "ruleEvery": 6,
+              "grid": 0.19,
+              "count": 30,
+              "wRun": 59,
+              "wBlock": 40,
+              "wPlus": 99,
+              "wOne": 97,
+              "clump": 0.49,
+              "align": 0.22,
+              "runLen": 4,
+              "upright": 0.3,
+              "sizeT": 0.65,
+              "svar": 0.45,
+              "hier": 0.03,
+              "square": 0.59,
+              "strokeW": 4,
+              "hollow": 0.93,
+              "kin": 0.08,
+              "break": 0.23,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "tokens",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#1b1b1b",
+              "#e63946",
+              "#3a86ff",
+              "#ffbe0b",
+              "#2a9d8f",
+              "#ff006e",
+              "#8338ec",
+              "#fb5607",
+              "#00b4d8"
+            ],
+            "params": {
+              "cols": 43,
+              "ruleEvery": 2,
+              "grid": 0.53,
+              "count": 315,
+              "wRun": 82,
+              "wBlock": 31,
+              "wPlus": 83,
+              "wOne": 12,
+              "clump": 0.54,
+              "align": 0.94,
+              "runLen": 2,
+              "upright": 0.51,
+              "sizeT": 0.48,
+              "svar": 0.37,
+              "hier": 0.7,
+              "square": 0.79,
+              "strokeW": 1.5,
+              "hollow": 0.9,
+              "kin": 0.27,
+              "break": 0.29,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "tokens",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#1b1b1b",
+              "#e63946",
+              "#3a86ff",
+              "#ffbe0b",
+              "#2a9d8f",
+              "#ff006e",
+              "#8338ec",
+              "#fb5607",
+              "#00b4d8"
+            ],
+            "params": {
+              "cols": 37,
+              "ruleEvery": 8,
+              "grid": 0.81,
+              "count": 14,
+              "wRun": 64,
+              "wBlock": 35,
+              "wPlus": 2,
+              "wOne": 92,
+              "clump": 0.23,
+              "align": 0.69,
+              "runLen": 12,
+              "upright": 0.42,
+              "sizeT": 0.81,
+              "svar": 0.15,
+              "hier": 0.72,
+              "square": 0.86,
+              "strokeW": 8,
+              "hollow": 0.77,
+              "kin": 0.17,
+              "break": 0.92,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "72e65a29533a7c98bada51805295cec8fca0eeb08d730f822bfc603dc18fff7d",
+      "chromium": "153.0.8010.12",
+      "fonts_sha256": {
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
+      }
     }
   }
 }
