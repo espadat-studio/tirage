@@ -62,6 +62,7 @@ registry::tools! {
     Sampler: sampler::{SamplerParams},
     Totem: totem::{TotemParams},
     Filament: filament::{FilamentParams, FilamentMarks},
+    Chaff: chaff::{ChaffParams, ChaffShape},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
