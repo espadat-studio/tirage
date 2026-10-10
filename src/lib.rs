@@ -32,6 +32,7 @@ registry::tools! {
     Bloom: bloom::{BloomParams},
     Weave: weave::{WeaveParams},
     Warp: warp::{WarpParams, WarpStyle},
+    Zig: zig::{ZigParams, ZigStyle},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
