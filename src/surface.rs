@@ -9,6 +9,16 @@ use crate::Image;
 
 pub(crate) struct Surface(Pixmap);
 
+#[derive(Clone, Copy)]
+pub(crate) enum Smoothing {
+    Bicubic,
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "fete is the first Tool to draw it")
+    )]
+    Nearest,
+}
+
 #[derive(Default)]
 pub(crate) struct Path2D(PathBuilder);
 
@@ -211,7 +221,13 @@ impl Surface {
         );
     }
 
-    pub(crate) fn draw_smooth(&mut self, rgba: &[u8], width: u32, height: u32) {
+    pub(crate) fn draw_smooth(
+        &mut self,
+        rgba: &[u8],
+        width: u32,
+        height: u32,
+        smoothing: Smoothing,
+    ) {
         let premultiplied = rgba
             .as_chunks::<4>()
             .0
@@ -228,7 +244,10 @@ impl Surface {
             self.height() as f32 / height as f32,
         );
         let paint = PixmapPaint {
-            quality: FilterQuality::Bicubic,
+            quality: match smoothing {
+                Smoothing::Bicubic => FilterQuality::Bicubic,
+                Smoothing::Nearest => FilterQuality::Nearest,
+            },
             ..PixmapPaint::default()
         };
         self.0
@@ -265,7 +284,7 @@ impl Surface {
 
 #[cfg(test)]
 mod tests {
-    use super::{Path2D, Surface};
+    use super::{Path2D, Smoothing, Surface};
 
     #[test]
     fn edit_rgba_hands_out_and_takes_back_straight_alpha() {
@@ -285,5 +304,15 @@ mod tests {
         path.arc_to(10.0, 0.001, 20.0, 0.0, 5.0);
         let end = path.0.last_point().unwrap();
         assert_eq!((end.x, end.y), (10.0, 0.001));
+    }
+
+    #[test]
+    fn draw_smooth_nearest_keeps_buffer_pixels_sharp() {
+        let mut surface = Surface::new(4, 1);
+        surface.draw_smooth(&[255, 0, 0, 255, 0, 0, 255, 255], 2, 1, Smoothing::Nearest);
+        let rgba = surface.into_image().rgba().to_vec();
+        let red = [255, 0, 0, 255];
+        let blue = [0, 0, 255, 255];
+        assert_eq!(rgba, [red, red, blue, blue].concat());
     }
 }

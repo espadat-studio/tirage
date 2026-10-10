@@ -4,7 +4,7 @@ use crate::chassis::{
     self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store,
 };
 use crate::param::Param;
-use crate::surface::Surface;
+use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
@@ -427,5 +427,5 @@ fn paint(surface: &mut Surface, params: &CultureParams, palette: &Palette, tool_
             rgba.extend([r, g, b, 255]);
         }
     }
-    surface.draw_smooth(&rgba, w, h);
+    surface.draw_smooth(&rgba, w, h, Smoothing::Bicubic);
 }
