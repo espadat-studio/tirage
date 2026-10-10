@@ -257,7 +257,7 @@ pub(crate) fn render(
 
 const STEP: usize = 5;
 
-fn hash(x: i32, y: i32, z: i32, w: i32, seed: u32) -> f64 {
+pub(crate) fn hash(x: i32, y: i32, z: i32, w: i32, seed: u32) -> f64 {
     let mut n = (x as u32).wrapping_mul(374_761_393)
         ^ (y as u32).wrapping_mul(668_265_263)
         ^ (z as u32).wrapping_mul(1_440_662_683)
@@ -286,7 +286,7 @@ fn noise(x: f64, y: f64, seed: u32) -> f64 {
     )
 }
 
-fn fbm(x: f64, y: f64, seed: u32, octaves: u32) -> f64 {
+pub(crate) fn fbm(x: f64, y: f64, seed: u32, octaves: u32) -> f64 {
     let (mut weight, mut frequency, mut sum, mut total) = (0.5, 1.0, 0.0, 0.0);
     for octave in 0..octaves {
         sum += weight

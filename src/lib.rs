@@ -36,6 +36,7 @@ registry::tools! {
     Relief: relief::{ReliefParams},
     Atlas: atlas::{AtlasParams},
     Sprig: sprig::{SprigParams, MotifSet},
+    Stipple: stipple::{StippleParams, DotMode, Lattice, DotShape, Symmetry},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

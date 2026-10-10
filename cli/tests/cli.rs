@@ -199,7 +199,7 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(text(&out.stderr).contains(
-        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig"#
+        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple"#
     ));
 }
 
@@ -503,10 +503,30 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"wobble","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"detail","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
+    let stipple = concat!(
+        r#"{"slug":"stipple","frames":1,"params":["#,
+        r#"{"id":"modesDot","kind":"choice","choices":["Lattice","Contour"]},"#,
+        r#"{"id":"lattices","kind":"choice","choices":["Square","Hex"]},"#,
+        r#"{"id":"shapes","kind":"choice","choices":["Circle","Square"]},"#,
+        r#"{"id":"res","kind":"range","min":12.0,"max":200.0,"step":1.0},"#,
+        r#"{"id":"dot","kind":"range","min":0.05,"max":1.4,"step":0.01},"#,
+        r#"{"id":"vary","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"cut","kind":"range","min":0.0,"max":0.95,"step":0.01},"#,
+        r#"{"id":"jit","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"edge","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"loose","kind":"range","min":0.0,"max":0.6,"step":0.01},"#,
+        r#"{"id":"zoom","kind":"range","min":0.5,"max":9.0,"step":0.1},"#,
+        r#"{"id":"warp","kind":"range","min":0.0,"max":3.0,"step":0.02},"#,
+        r#"{"id":"oct","kind":"range","min":1.0,"max":7.0,"step":1.0},"#,
+        r#"{"id":"contrast","kind":"range","min":0.4,"max":4.0,"step":0.05},"#,
+        r#"{"id":"syms","kind":"choice","choices":["None","Mirror","Quad","Radial"]},"#,
+        r#"{"id":"folds","kind":"range","min":2.0,"max":16.0,"step":1.0},"#,
+        r#"{"id":"accRate","kind":"range","min":0.0,"max":0.15,"step":0.001},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}},{bloom}{CHASSIS_LISTING}]}},{weave}{CHASSIS_LISTING}]}},{warp}{CHASSIS_LISTING}]}},{zig}{CHASSIS_LISTING}]}},{relief}{CHASSIS_LISTING}]}},{atlas}{CHASSIS_LISTING}]}},{sprig}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}},{bloom}{CHASSIS_LISTING}]}},{weave}{CHASSIS_LISTING}]}},{warp}{CHASSIS_LISTING}]}},{zig}{CHASSIS_LISTING}]}},{relief}{CHASSIS_LISTING}]}},{atlas}{CHASSIS_LISTING}]}},{sprig}{CHASSIS_LISTING}]}},{stipple}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }
@@ -522,6 +542,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     assert!(listing.contains("\natlas  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nstipple  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
