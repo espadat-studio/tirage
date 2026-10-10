@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, fbm, round_half_up};
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -291,20 +291,4 @@ fn edges(n: u32, total: u32) -> Vec<u32> {
             if k <= n - k { near } else { total - near }
         })
         .collect()
-}
-
-fn fbm(x: f64, y: f64, seed: u32, octaves: u32) -> f64 {
-    let (mut sum, mut weight, mut total, mut frequency) = (0.0, 0.5, 0.0, 1.0);
-    for octave in 0..octaves {
-        sum += weight
-            * value_noise(
-                x * frequency,
-                y * frequency,
-                seed.wrapping_add(octave * 131),
-            );
-        total += weight;
-        frequency *= 2.0;
-        weight *= 0.5;
-    }
-    sum / total
 }

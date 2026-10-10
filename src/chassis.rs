@@ -24,6 +24,22 @@ pub(crate) fn value_noise(x: f64, y: f64, seed: u32) -> f64 {
         + (corner(0, 1) * (1.0 - u) + corner(1, 1) * u) * v
 }
 
+pub(crate) fn fbm(x: f64, y: f64, seed: u32, octaves: u32) -> f64 {
+    let (mut sum, mut weight, mut total, mut frequency) = (0.0, 0.5, 0.0, 1.0);
+    for octave in 0..octaves {
+        sum += weight
+            * value_noise(
+                x * frequency,
+                y * frequency,
+                seed.wrapping_add(octave * 131),
+            );
+        total += weight;
+        frequency *= 2.0;
+        weight *= 0.5;
+    }
+    sum / total
+}
+
 pub(crate) struct XorShift(u32);
 
 impl XorShift {

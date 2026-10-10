@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::param::Param;
 use crate::surface::Surface;
@@ -183,28 +184,12 @@ struct Band {
     phase: f64,
 }
 
-struct Stream(u32);
-
-impl Stream {
-    fn new(tool_seed: u32) -> Self {
-        let seed = (f64::from(tool_seed) * 2_654_435_761.0).rem_euclid(4_294_967_296.0) as u32;
-        Self(seed.max(1))
-    }
-
-    fn next(&mut self) -> f64 {
-        self.0 ^= self.0 << 13;
-        self.0 ^= ((self.0 as i32) >> 17) as u32;
-        self.0 ^= self.0 << 5;
-        f64::from(self.0) / 4_294_967_296.0
-    }
-}
-
 fn bands(params: &WeaveParams, inks: usize, view_height: f64, tool_seed: u32) -> Vec<Band> {
-    let mut rng = Stream::new(tool_seed);
+    let mut rng = Xorshift::new(tool_seed);
     let n = params.bands as usize;
     let weights: Vec<f64> = (0..n).map(|_| 0.55 + rng.next() * 1.3).collect();
     let sum: f64 = weights.iter().sum();
-    let pick = |rng: &mut Stream| (rng.next() * inks as f64) as usize;
+    let pick = |rng: &mut Xorshift| (rng.next() * inks as f64) as usize;
     let mut top = 0.0;
     let mut out = Vec::with_capacity(n);
     for (i, weight) in weights.iter().enumerate() {

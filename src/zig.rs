@@ -2,6 +2,7 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
+use crate::aura::hash;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::param::Param;
 use crate::surface::{Path2D, Surface};
@@ -240,17 +241,6 @@ pub(crate) fn render(
 const BOX: f64 = 1000.0;
 
 type Point = (f64, f64);
-
-fn hash(x: i32, y: i32, z: i32, seed: u32) -> f64 {
-    let mut n = (x.wrapping_mul(374_761_393)
-        ^ y.wrapping_mul(668_265_263)
-        ^ z.wrapping_mul(1_440_662_683)
-        ^ (seed as i32).wrapping_mul(1_013_904_223)) as u32;
-    n = (n ^ (n >> 15)).wrapping_mul(2_246_822_519);
-    n = (n ^ (n >> 13)).wrapping_mul(3_266_489_917);
-    n ^= n >> 16;
-    f64::from(n) / 4_294_967_296.0
-}
 
 fn paint(surface: &mut Surface, params: &ZigParams, palette: &Palette, tool_seed: u32) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));

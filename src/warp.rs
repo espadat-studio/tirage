@@ -2,6 +2,7 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
+use crate::aura::{Xorshift, hash};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
 use crate::param::Param;
 use crate::surface::{Path2D, Surface};
@@ -208,14 +209,8 @@ struct Spec {
 }
 
 fn spec(style: WarpStyle, tool_seed: u32) -> Spec {
-    let start = (f64::from(tool_seed) * 2_654_435_761.0) % 4_294_967_296.0;
-    let mut state = (start as u32).max(1);
-    let mut draw = || {
-        state ^= state << 13;
-        state ^= ((state as i32) >> 17) as u32;
-        state ^= state << 5;
-        f64::from(state) / 4_294_967_296.0
-    };
+    let mut rng = Xorshift::new(tool_seed);
+    let mut draw = || rng.next();
     draw();
     let checker = style == WarpStyle::Checker;
     let ink = 1 + (draw() * 4.0) as usize;
@@ -244,17 +239,6 @@ fn spec(style: WarpStyle, tool_seed: u32) -> Spec {
         bars,
         inverted,
     }
-}
-
-fn shift_hash(x: i32, y: i32, z: i32, seed: u32) -> f64 {
-    let mut n = (x as u32).wrapping_mul(374_761_393)
-        ^ (y as u32).wrapping_mul(668_265_263)
-        ^ (z as u32).wrapping_mul(1_440_662_683)
-        ^ seed.wrapping_mul(1_013_904_223);
-    n = (n ^ (n >> 15)).wrapping_mul(2_246_822_519);
-    n = (n ^ (n >> 13)).wrapping_mul(3_266_489_917);
-    n ^= n >> 16;
-    f64::from(n) / 4_294_967_296.0
 }
 
 fn paint(surface: &mut Surface, params: &WarpParams, palette: &Palette, tool_seed: u32) {
@@ -322,7 +306,7 @@ fn paint(surface: &mut Surface, params: &WarpParams, palette: &Palette, tool_see
         let place = |q: f64, r: f64| (q * cos - r * sin, q * sin + r * cos);
         let shift_seed = tool_seed ^ 0x2c1b_3c6d;
         for b in (-reach / band).floor() as i32..(reach / band).ceil() as i32 {
-            let shift = shift_hash(b, 3, 7, shift_seed) * cs * 2.0;
+            let shift = hash(b, 3, 7, shift_seed) * cs * 2.0;
             let (r0, r1) = (f64::from(b) * band, f64::from(b + 1) * band);
             for k in ((-reach - shift) / cs).floor() as i32..((reach - shift) / cs).ceil() as i32 {
                 let q0 = f64::from(k) * cs + shift;
