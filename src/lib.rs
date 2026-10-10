@@ -53,6 +53,7 @@ registry::tools! {
     Carve: carve::{CarveParams},
     Specimen: specimen::{SpecimenParams},
     Pane: pane::{PaneParams},
+    Modular: modular::{ModularParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
