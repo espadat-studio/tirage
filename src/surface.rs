@@ -143,10 +143,6 @@ impl Surface {
         self.1 = outer;
     }
 
-    #[cfg_attr(
-        not(test),
-        expect(dead_code, reason = "riso, rise, carve and specimen draw under a clip")
-    )]
     pub(crate) fn with_clip(&mut self, clip: &Path2D, draw: impl FnOnce(&mut Self)) {
         let path = clip.0.clone().finish().expect("a clip has a closed loop");
         let mut mask = Mask::new(self.width(), self.height()).expect("frame edges are validated");

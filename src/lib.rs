@@ -48,6 +48,7 @@ registry::tools! {
     Hiss: hiss::{HissParams},
     Crowd: crowd::{CrowdParams},
     Cipher: cipher::{CipherParams, CipherField},
+    Riso: riso::{RisoParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
