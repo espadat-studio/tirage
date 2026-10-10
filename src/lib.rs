@@ -59,6 +59,7 @@ registry::tools! {
     Tokens: tokens::{TokensParams},
     Optic: optic::{OpticParams, OpticStyle},
     Vee: vee::{VeeParams, VeeStyle},
+    Sampler: sampler::{SamplerParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

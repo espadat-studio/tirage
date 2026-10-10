@@ -51,7 +51,6 @@ impl Transform {
         Self(self.0.pre_rotate(radians.to_degrees() as f32))
     }
 
-    #[cfg_attr(not(test), expect(dead_code, reason = "sampler is the first caller"))]
     pub(crate) fn scale(self, x: f64, y: f64) -> Self {
         Self(self.0.pre_scale(x as f32, y as f32))
     }
