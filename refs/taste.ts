@@ -73,6 +73,8 @@ async function artSliders(page: Page): Promise<Slider[]> {
 
 async function exportTile(browser: Browser, job: Job, ids: string[]): Promise<Tile> {
   const { context, page } = await openTool(browser, slug, job.toolSeed);
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
   try {
     await setRatio(page, slug, RATIO);
     await setSize(page, await sizeControl(page), WIDTH);
@@ -81,7 +83,9 @@ async function exportTile(browser: Browser, job: Job, ids: string[]): Promise<Ti
       ids => Object.fromEntries(ids.map(id => [id, Number((document.getElementById(id) as HTMLInputElement).value)])),
       ids,
     );
-    const png = await downloadPng(page);
+    const png = await downloadPng(page).catch(error => {
+      throw errors.length ? new Error(`${job.file} threw on the site: ${errors.join("; ")}`) : error;
+    });
     const [w, h] = [png.readUInt32BE(16), png.readUInt32BE(20)];
     if (Math.abs(w / h - WIDTH / HEIGHT) > 0.02) {
       throw new Error(`${slug} exported ${w}x${h}, not at the ${WIDTH}x${HEIGHT} aspect`);
@@ -138,14 +142,23 @@ try {
   await Promise.all(
     Array.from({ length: WORKERS }, async () => {
       for (let i = next++; i < jobs.length; i = next++) {
-        tiles[i] = await exportTile(browser, jobs[i], ids);
+        const tile = await exportTile(browser, jobs[i], ids).catch((error: Error) => {
+          if (!error.message.includes("threw on the site")) throw error;
+          console.log(`${error.message}, skipped`);
+        });
+        if (tile) tiles[i] = tile;
         console.log(`${++done}/${jobs.length} ${jobs[i].file}`);
       }
     }),
   );
 
   const kinds = new Set(jobs.map(j => j.kind));
-  const sheet: Sheet = { slug, sliders, bounds, tiles: [...previousTiles().filter(t => !kinds.has(t.kind)), ...tiles] };
+  const sheet: Sheet = {
+    slug,
+    sliders,
+    bounds,
+    tiles: [...previousTiles().filter(t => !kinds.has(t.kind)), ...tiles.filter(Boolean)],
+  };
   writeFileSync(dataPath, `${PREFIX}${JSON.stringify(sheet)};\n`);
   copyFileSync(join(import.meta.dir, "taste.html"), join(dir, "index.html"));
   console.log(join(dir, "index.html"));
