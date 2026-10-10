@@ -20,10 +20,6 @@ pub(crate) enum Cap {
 #[derive(Clone, Copy)]
 pub(crate) enum Join {
     Round,
-    #[cfg_attr(
-        not(test),
-        expect(dead_code, reason = "batches 6, 7 and 10 stroke miter joins")
-    )]
     Miter,
 }
 

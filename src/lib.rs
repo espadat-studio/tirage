@@ -47,6 +47,7 @@ registry::tools! {
     Dahlia: dahlia::{DahliaParams},
     Hiss: hiss::{HissParams},
     Crowd: crowd::{CrowdParams},
+    Cipher: cipher::{CipherParams, CipherField},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
