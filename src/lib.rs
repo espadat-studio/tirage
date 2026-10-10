@@ -42,6 +42,7 @@ registry::tools! {
     Fete: fete::{FeteParams, FeteMotif},
     Fold: fold::{FoldParams, FoldMirror, FoldKind},
     Quilt: quilt::{QuiltParams, QuiltStyle},
+    Static: r#static::{StaticParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};
