@@ -56,6 +56,7 @@ registry::tools! {
     Modular: modular::{ModularParams},
     Prism: prism::{PrismParams},
     Parcel: parcel::{ParcelParams, LineBlend},
+    Tokens: tokens::{TokensParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

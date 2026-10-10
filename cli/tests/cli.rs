@@ -199,7 +199,7 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(text(&out.stderr).contains(
-        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple, motley, oddgrid, fete, fold, quilt, static, splice, dahlia, hiss, crowd, cipher, riso, rise, carve, specimen, pane, modular, prism, parcel"#
+        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief, atlas, sprig, stipple, motley, oddgrid, fete, fold, quilt, static, splice, dahlia, hiss, crowd, cipher, riso, rise, carve, specimen, pane, modular, prism, parcel, tokens"#
     ));
 }
 
@@ -742,10 +742,33 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grids","kind":"range","min":0.0,"max":8.0,"step":1.0},"#,
         r#"{"id":"blends","kind":"choice","choices":["Multiply","Normal"]},"#,
     );
+    let tokens = concat!(
+        r#"{"slug":"tokens","frames":1,"params":["#,
+        r#"{"id":"cols","kind":"range","min":4.0,"max":120.0,"step":1.0},"#,
+        r#"{"id":"ruleEvery","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
+        r#"{"id":"grid","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"count","kind":"range","min":1.0,"max":400.0,"step":1.0},"#,
+        r#"{"id":"wRun","kind":"range","min":0.0,"max":100.0,"step":1.0},"#,
+        r#"{"id":"wBlock","kind":"range","min":0.0,"max":100.0,"step":1.0},"#,
+        r#"{"id":"wPlus","kind":"range","min":0.0,"max":100.0,"step":1.0},"#,
+        r#"{"id":"wOne","kind":"range","min":0.0,"max":100.0,"step":1.0},"#,
+        r#"{"id":"clump","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"align","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"runLen","kind":"range","min":2.0,"max":12.0,"step":1.0},"#,
+        r#"{"id":"upright","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"sizeT","kind":"range","min":0.03,"max":1.0,"step":0.01},"#,
+        r#"{"id":"svar","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"hier","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"square","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"strokeW","kind":"range","min":0.0,"max":8.0,"step":0.5},"#,
+        r#"{"id":"hollow","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"kin","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"break","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}},{bloom}{CHASSIS_LISTING}]}},{weave}{CHASSIS_LISTING}]}},{warp}{CHASSIS_LISTING}]}},{zig}{CHASSIS_LISTING}]}},{relief}{CHASSIS_LISTING}]}},{atlas}{CHASSIS_LISTING}]}},{sprig}{CHASSIS_LISTING}]}},{stipple}{CHASSIS_LISTING}]}},{motley}{CHASSIS_LISTING}]}},{oddgrid}{CHASSIS_LISTING}]}},{fete}{CHASSIS_LISTING}]}},{fold}{CHASSIS_LISTING}]}},{quilt}{CHASSIS_LISTING}]}},{static_tool}{CHASSIS_LISTING}]}},{splice}{CHASSIS_LISTING}]}},{dahlia}{CHASSIS_LISTING}]}},{hiss}{CHASSIS_LISTING}]}},{crowd}{CHASSIS_LISTING}]}},{cipher}{CHASSIS_LISTING}]}},{riso}{CHASSIS_LISTING}]}},{rise}{CHASSIS_LISTING}]}},{carve}{CHASSIS_LISTING}]}},{specimen}{CHASSIS_LISTING}]}},{pane}{CHASSIS_LISTING}]}},{modular}{CHASSIS_LISTING}]}},{prism}{CHASSIS_LISTING}]}},{parcel}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}},{bloom}{CHASSIS_LISTING}]}},{weave}{CHASSIS_LISTING}]}},{warp}{CHASSIS_LISTING}]}},{zig}{CHASSIS_LISTING}]}},{relief}{CHASSIS_LISTING}]}},{atlas}{CHASSIS_LISTING}]}},{sprig}{CHASSIS_LISTING}]}},{stipple}{CHASSIS_LISTING}]}},{motley}{CHASSIS_LISTING}]}},{oddgrid}{CHASSIS_LISTING}]}},{fete}{CHASSIS_LISTING}]}},{fold}{CHASSIS_LISTING}]}},{quilt}{CHASSIS_LISTING}]}},{static_tool}{CHASSIS_LISTING}]}},{splice}{CHASSIS_LISTING}]}},{dahlia}{CHASSIS_LISTING}]}},{hiss}{CHASSIS_LISTING}]}},{crowd}{CHASSIS_LISTING}]}},{cipher}{CHASSIS_LISTING}]}},{riso}{CHASSIS_LISTING}]}},{rise}{CHASSIS_LISTING}]}},{carve}{CHASSIS_LISTING}]}},{specimen}{CHASSIS_LISTING}]}},{pane}{CHASSIS_LISTING}]}},{modular}{CHASSIS_LISTING}]}},{prism}{CHASSIS_LISTING}]}},{parcel}{CHASSIS_LISTING}]}},{tokens}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }
@@ -779,6 +802,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nmodular  1 frame\n"), "{listing}");
     assert!(listing.contains("\nprism  1 frame\n"), "{listing}");
     assert!(listing.contains("\nparcel  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ntokens  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmotley  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");
