@@ -42,10 +42,14 @@ export async function openTool(
       throw new Error(`${slug} did not apply the Palette`);
     }
     if (palette) {
-      const swatches = await page.$$eval(
-        "#swatches input[type=color]",
-        inputs => inputs.map(input => (input as HTMLInputElement).value.toLowerCase()),
-      );
+      const swatches = await page.evaluate(() => {
+        const row = [...document.querySelectorAll<HTMLInputElement>("#swatches input[type=color]")];
+        const rail = document.querySelector(".z-left") ?? document.body;
+        const loose = [...rail.querySelectorAll<HTMLInputElement>("input[type=color]")].filter(
+          input => !input.closest(".cpick") && !input.closest("#myc"),
+        );
+        return (row.length ? row : loose).map(input => input.value.toLowerCase());
+      });
       const want = palette.map(ink => ink.toLowerCase());
       if (swatches.join() !== want.join()) {
         throw new Error(`${slug} shows swatches ${swatches.join(" ")}, expected the Palette ${want.join(" ")}`);
