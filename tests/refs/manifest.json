@@ -2789,6 +2789,109 @@
       "page_sha256": "3116c2598242961fa976bb133651f65a3be4fa56ae46b46b5a6847c753ec5d02",
       "chromium": "153.0.8010.12",
       "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+    },
+    "weave": {
+      "fixtures": [
+        {
+          "name": "seed-1",
+          "recipe": {
+            "tirage": 0,
+            "tool": "weave",
+            "tool_seed": 9611518,
+            "palette": [
+              "#22223b",
+              "#f2e9e4",
+              "#c9ada7",
+              "#9a8c98",
+              "#4a4e69",
+              "#e63946",
+              "#f4d35e"
+            ],
+            "params": {
+              "bands": 6,
+              "stripe": 2.2,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-2",
+          "recipe": {
+            "tirage": 0,
+            "tool": "weave",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#22223b",
+              "#f2e9e4",
+              "#c9ada7",
+              "#9a8c98",
+              "#4a4e69",
+              "#e63946",
+              "#f4d35e"
+            ],
+            "params": {
+              "bands": 12,
+              "stripe": 0.95,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        },
+        {
+          "name": "seed-3",
+          "recipe": {
+            "tirage": 0,
+            "tool": "weave",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#22223b",
+              "#f2e9e4",
+              "#c9ada7",
+              "#9a8c98",
+              "#4a4e69",
+              "#e63946",
+              "#f4d35e"
+            ],
+            "params": {
+              "bands": 11,
+              "stripe": 0.5,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          }
+        }
+      ],
+      "page_sha256": "2d9a7ab0ff525e20cd1503c6f59d0475d2fb506a22e495f8b9cec8b2c2fb7581",
+      "chromium": "153.0.8010.12",
+      "font_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
     }
   }
 }
