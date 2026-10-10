@@ -10,6 +10,7 @@ Every Tool is written in Rust and drawn through tiny-skia 0.12 + kurbo 0.13, not
 ## Consequences
 
 - Tools draw against our own surface mirroring the Canvas 2D subset; it owns Canvas semantics (straight vs premultiplied alpha) and is the seam if a live WASM Loop forces a rasterizer swap.
-- We hand-write arcs/arcTo, blur and the save/restore stack that tiny-skia lacks.
+- We hand-write arcs/arcTo and blur that tiny-skia lacks.
+- No save/restore stack: tiny-skia takes a clip mask on every draw, so a Tool scopes its draws to the clip it passes.
 - The core stays `wasm32-unknown-unknown`-clean (no threads, filesystem, `std::time` or OS RNG), enforced in CI.
 - Toolchain tracks recordreel: edition 2024, Rust 1.99.0.
