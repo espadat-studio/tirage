@@ -49,6 +49,10 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `stipple` | 1      | Still  |
 | `motley`  | 1      | Still  |
 | `oddgrid` | 1      | Still  |
+| `fete`    | 1      | Still  |
+| `fold`    | 1      | Still  |
+| `quilt`   | 1      | Still  |
+| `static`  | 1      | Still  |
 
 ## Text output
 
