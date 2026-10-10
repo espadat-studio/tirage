@@ -29,6 +29,11 @@ registry::tools! {
     Whorl: whorl::{WhorlParams, WhorlWarp},
     Sear: sear::{SearParams},
     Culture: culture::{CultureParams, CultureTexture},
+    Bloom: bloom::{BloomParams},
+    Weave: weave::{WeaveParams},
+    Warp: warp::{WarpParams, WarpStyle},
+    Zig: zig::{ZigParams, ZigStyle},
+    Relief: relief::{ReliefParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

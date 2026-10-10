@@ -199,7 +199,7 @@ fn usage_errors_exit_2() {
     }
     let out = tirage(&["derive", "--seed", "42", "--tool", "vien"], b"");
     assert!(text(&out.stderr).contains(
-        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture"#
+        r#"unknown tool "vien", expected one of sonar, husk, vein, aura, kiosk, frond, benday, terrain, stitch, pith, mosh, mist, coral, whorl, sear, culture, bloom, weave, warp, zig, relief"#
     ));
 }
 
@@ -443,10 +443,47 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"dot","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
     );
+    let bloom = concat!(
+        r#"{"slug":"bloom","frames":1,"params":["#,
+        r#"{"id":"cols","kind":"range","min":8.0,"max":96.0,"step":1.0},"#,
+        r#"{"id":"rings","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
+        r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"steps","kind":"range","min":2.0,"max":14.0,"step":1.0},"#,
+        r#"{"id":"calm","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
+    let weave = concat!(
+        r#"{"slug":"weave","frames":1,"params":["#,
+        r#"{"id":"bands","kind":"range","min":3.0,"max":12.0,"step":1.0},"#,
+        r#"{"id":"stripe","kind":"range","min":0.5,"max":2.2,"step":0.05},"#,
+    );
+    let warp = concat!(
+        r#"{"slug":"warp","frames":1,"params":["#,
+        r#"{"id":"styles","kind":"choice","choices":["Checker","Slash"]},"#,
+        r#"{"id":"scale","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
+        r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
+    let zig = concat!(
+        r#"{"slug":"zig","frames":1,"params":["#,
+        r#"{"id":"styles","kind":"choice","choices":["Teeth","Chevron","Stairs","Ricrac","Waves","Scales"]},"#,
+        r#"{"id":"width","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
+        r#"{"id":"depth","kind":"range","min":0.2,"max":1.4,"step":0.02},"#,
+        r#"{"id":"tooth","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
+        r#"{"id":"round","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
+    let relief = concat!(
+        r#"{"slug":"relief","frames":1,"params":["#,
+        r#"{"id":"scale","kind":"range","min":12.0,"max":180.0,"step":1.0},"#,
+        r#"{"id":"repeat","kind":"range","min":1.0,"max":12.0,"step":1.0},"#,
+        r#"{"id":"variety","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"solids","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"relief","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+        r#"{"id":"accent","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
+    );
     assert_eq!(
         text(&out.stdout),
         format!(
-            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}}]\n"
+            "[{sonar}{CHASSIS_LISTING}]}},{husk}{CHASSIS_LISTING}]}},{vein}{CHASSIS_LISTING}]}},{aura}{CHASSIS_LISTING}]}},{kiosk}{CHASSIS_LISTING}]}},{frond}{CHASSIS_LISTING}]}},{benday}{CHASSIS_LISTING}]}},{terrain}{CHASSIS_LISTING}]}},{stitch}{CHASSIS_LISTING}]}},{pith}{CHASSIS_LISTING}]}},{mosh}{CHASSIS_LISTING}]}},{mist}{CHASSIS_LISTING}]}},{coral}{CHASSIS_LISTING}]}},{whorl}{CHASSIS_LISTING}]}},{sear}{CHASSIS_LISTING}]}},{culture}{CHASSIS_LISTING}]}},{bloom}{CHASSIS_LISTING}]}},{weave}{CHASSIS_LISTING}]}},{warp}{CHASSIS_LISTING}]}},{zig}{CHASSIS_LISTING}]}},{relief}{CHASSIS_LISTING}]}}]\n"
         )
     );
 }
@@ -466,6 +503,11 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nwhorl  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsear  1 frame\n"), "{listing}");
     assert!(listing.contains("\nculture  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nbloom  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nweave  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nwarp  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nzig  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nrelief  1 frame\n"), "{listing}");
     for line in [
         "  grid        40..=320  step 2\n",
         "  grnVignette 0..=1     step 0.05\n",
