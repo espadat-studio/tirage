@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::param::Param;
-use crate::surface::{Cap, Join, Path2D, Surface};
+use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::terrain::{fbm, hash};
 use crate::{Error, Palette, Parameter};
@@ -698,7 +698,7 @@ fn paint(surface: &mut Surface, p: &SpecimenParams, palette: &Palette, tool_seed
             k,
         );
         clip.close();
-        surface.with_clip(&clip, |surface| {
+        surface.with_clip(&clip, Transform::IDENTITY, |surface| {
             let base = match b.motif {
                 Motif::Marble | Motif::Flat => col(b.ci),
                 _ => ground,

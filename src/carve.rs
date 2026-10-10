@@ -6,7 +6,7 @@ use crate::chassis::{
     self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store,
 };
 use crate::param::Param;
-use crate::surface::{Cap, Join, Path2D, Surface};
+use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
@@ -414,7 +414,7 @@ fn chevron(surface: &mut Surface, panel: &Panel, (x, y, w, h): Area, a: [u8; 3],
     let step = h / rows;
     let (near, far) = if panel.dir { (x, x + w) } else { (x + w, x) };
     let t = 0.42;
-    surface.with_clip(&rect(x, y, w, h), |surface| {
+    surface.with_clip(&rect(x, y, w, h), Transform::IDENTITY, |surface| {
         for j in 0..rows as u32 {
             let y0 = y + f64::from(j) * step;
             let mut path = Path2D::default();
@@ -494,7 +494,7 @@ fn grid(
         at
     };
     let (xs, ys) = (lines(x, x + w), lines(y, y + h));
-    surface.with_clip(&rect(x, y, w, h), |surface| {
+    surface.with_clip(&rect(x, y, w, h), Transform::IDENTITY, |surface| {
         let mut path = Path2D::default();
         for &gx in &xs {
             path.move_to(gx, y);

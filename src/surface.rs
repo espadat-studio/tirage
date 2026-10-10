@@ -5,7 +5,7 @@ use kurbo::{Arc, PathEl, Shape, Vec2};
 use tiny_skia::{
     BlendMode, Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin,
     LinearGradient, Mask, Paint, Path, PathBuilder, Pixmap, PixmapPaint, Point, RadialGradient,
-    Rect, SpreadMode, Stroke, Transform,
+    Rect, SpreadMode, Stroke,
 };
 
 use crate::Image;
@@ -28,6 +28,35 @@ pub(crate) enum Join {
 pub(crate) enum Smoothing {
     Bicubic,
     Nearest,
+}
+
+#[derive(Clone, Copy)]
+pub(crate) struct Transform(tiny_skia::Transform);
+
+impl Transform {
+    pub(crate) const IDENTITY: Self = Self(tiny_skia::Transform {
+        sx: 1.0,
+        kx: 0.0,
+        ky: 0.0,
+        sy: 1.0,
+        tx: 0.0,
+        ty: 0.0,
+    });
+
+    #[cfg_attr(not(test), expect(dead_code, reason = "optic is the first caller"))]
+    pub(crate) fn translate(self, x: f64, y: f64) -> Self {
+        Self(self.0.pre_translate(x as f32, y as f32))
+    }
+
+    #[cfg_attr(not(test), expect(dead_code, reason = "optic is the first caller"))]
+    pub(crate) fn rotate(self, radians: f64) -> Self {
+        Self(self.0.pre_rotate(radians.to_degrees() as f32))
+    }
+
+    #[cfg_attr(not(test), expect(dead_code, reason = "sampler is the first caller"))]
+    pub(crate) fn scale(self, x: f64, y: f64) -> Self {
+        Self(self.0.pre_scale(x as f32, y as f32))
+    }
 }
 
 #[derive(Default)]
@@ -107,6 +136,13 @@ impl Path2D {
         }
     }
 
+    #[cfg_attr(not(test), expect(dead_code, reason = "optic is the first caller"))]
+    pub(crate) fn rect(&mut self, x: f64, y: f64, width: f64, height: f64) {
+        if let Some(rect) = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32) {
+            self.0.push_rect(rect);
+        }
+    }
+
     pub(crate) fn push_circle(&mut self, x: f64, y: f64, radius: f64) {
         self.0.push_circle(x as f32, y as f32, radius as f32);
     }
@@ -144,13 +180,26 @@ impl Surface {
         self.1 = outer;
     }
 
-    pub(crate) fn with_clip(&mut self, clip: &Path2D, draw: impl FnOnce(&mut Self)) {
+    pub(crate) fn with_clip(
+        &mut self,
+        clip: &Path2D,
+        transform: Transform,
+        draw: impl FnOnce(&mut Self),
+    ) {
         let path = clip.0.clone().finish().expect("a clip has a closed loop");
-        let mut mask = Mask::new(self.width(), self.height()).expect("frame edges are validated");
-        mask.fill_path(&path, FillRule::Winding, true, Transform::identity());
-        assert!(self.2.replace(mask).is_none(), "clips do not nest");
+        let mask = if let Some(outer) = &self.2 {
+            let mut mask = outer.clone();
+            mask.intersect_path(&path, FillRule::Winding, true, transform.0);
+            mask
+        } else {
+            let mut mask =
+                Mask::new(self.width(), self.height()).expect("frame edges are validated");
+            mask.fill_path(&path, FillRule::Winding, true, transform.0);
+            mask
+        };
+        let outer = self.2.replace(mask);
         draw(self);
-        self.2 = None;
+        self.2 = outer;
     }
 
     pub(crate) fn with_multiply(&mut self, draw: impl FnOnce(&mut Self)) {
@@ -192,8 +241,12 @@ impl Surface {
             .expect("rect sides are at least 1 px");
         let mut paint = self.solid([r, g, b]);
         paint.anti_alias = false;
-        self.0
-            .fill_rect(rect, &paint, Transform::identity(), self.2.as_ref());
+        self.0.fill_rect(
+            rect,
+            &paint,
+            tiny_skia::Transform::identity(),
+            self.2.as_ref(),
+        );
     }
 
     #[expect(
@@ -223,7 +276,7 @@ impl Surface {
             Point::from_xy(x1 as f32, y1 as f32),
             stops,
             SpreadMode::Pad,
-            Transform::identity(),
+            tiny_skia::Transform::identity(),
         )
         .expect("a ramp has two stops and a line of positive length");
         let paint = Paint {
@@ -231,7 +284,8 @@ impl Surface {
             anti_alias: false,
             ..Paint::default()
         };
-        self.0.fill_rect(rect, &paint, Transform::identity(), None);
+        self.0
+            .fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
     }
 
     pub(crate) fn fill_even_odd(&mut self, path: &Path2D, ink: [u8; 3]) {
@@ -245,7 +299,7 @@ impl Surface {
             &path,
             &paint,
             FillRule::EvenOdd,
-            Transform::identity(),
+            tiny_skia::Transform::identity(),
             self.2.as_ref(),
         );
     }
@@ -274,7 +328,7 @@ impl Surface {
             &path,
             &paint,
             &stroke,
-            Transform::identity(),
+            tiny_skia::Transform::identity(),
             self.2.as_ref(),
         );
     }
@@ -282,8 +336,12 @@ impl Surface {
     pub(crate) fn fill_box(&mut self, x: f64, y: f64, width: f64, height: f64, ink: [u8; 3]) {
         if let Some(rect) = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32) {
             let paint = self.solid(ink);
-            self.0
-                .fill_rect(rect, &paint, Transform::identity(), self.2.as_ref());
+            self.0.fill_rect(
+                rect,
+                &paint,
+                tiny_skia::Transform::identity(),
+                self.2.as_ref(),
+            );
         }
     }
 
@@ -293,7 +351,24 @@ impl Surface {
             path,
             &paint,
             FillRule::Winding,
-            Transform::identity(),
+            tiny_skia::Transform::identity(),
+            self.2.as_ref(),
+        );
+    }
+
+    #[cfg_attr(not(test), expect(dead_code, reason = "optic is the first caller"))]
+    pub(crate) fn fill_transformed(&mut self, path: &Path2D, ink: [u8; 3], transform: Transform) {
+        let path = path
+            .0
+            .clone()
+            .finish()
+            .expect("a filled path has a closed loop");
+        let paint = self.solid(ink);
+        self.0.fill_path(
+            &path,
+            &paint,
+            FillRule::Winding,
+            transform.0,
             self.2.as_ref(),
         );
     }
@@ -321,7 +396,7 @@ impl Surface {
             radius as f32,
             vec![stop(0.0, alpha), stop(1.0, 0.0)],
             SpreadMode::Pad,
-            Transform::identity(),
+            tiny_skia::Transform::identity(),
         )
         .expect("a fade has a positive radius");
         let paint = Paint {
@@ -331,8 +406,12 @@ impl Surface {
         let side = (radius * 2.0) as f32;
         let rect = Rect::from_xywh((x - radius) as f32, (y - radius) as f32, side, side)
             .expect("a fade has a positive radius");
-        self.0
-            .fill_rect(rect, &paint, Transform::identity(), self.2.as_ref());
+        self.0.fill_rect(
+            rect,
+            &paint,
+            tiny_skia::Transform::identity(),
+            self.2.as_ref(),
+        );
     }
 
     pub(crate) fn set_pixel(&mut self, x: u32, y: u32, [r, g, b]: [u8; 3]) {
@@ -350,7 +429,7 @@ impl Surface {
             &path,
             &paint,
             FillRule::Winding,
-            Transform::identity(),
+            tiny_skia::Transform::identity(),
             self.2.as_ref(),
         );
     }
@@ -377,7 +456,7 @@ impl Surface {
             .collect();
         let size = IntSize::from_wh(width, height).expect("buffer edges are at least 1 px");
         let image = Pixmap::from_vec(premultiplied, size).expect("buffer holds width x height");
-        let scale = Transform::from_scale(
+        let scale = tiny_skia::Transform::from_scale(
             self.width() as f32 / width as f32,
             self.height() as f32 / height as f32,
         );
@@ -440,7 +519,7 @@ impl Surface {
 mod tests {
     use std::f64::consts::{PI, TAU};
 
-    use super::{Cap, Join, Path2D, Smoothing, Surface};
+    use super::{Cap, Join, Path2D, Smoothing, Surface, Transform};
 
     #[test]
     fn edit_rgba_hands_out_and_takes_back_straight_alpha() {
@@ -477,7 +556,9 @@ mod tests {
         band.line_to(2.0, 1.0);
         band.line_to(1.0, 1.0);
         band.close();
-        surface.with_clip(&band, |surface| surface.fill([255, 0, 0]));
+        surface.with_clip(&band, Transform::IDENTITY, |surface| {
+            surface.fill([255, 0, 0]);
+        });
         let clipped = surface
             .0
             .pixels()
@@ -490,12 +571,65 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "clips do not nest")]
-    fn with_clip_refuses_a_nested_clip() {
-        let mut surface = Surface::new(2, 2);
-        let mut clip = Path2D::default();
-        clip.push_circle(1.0, 1.0, 1.0);
-        surface.with_clip(&clip, |surface| surface.with_clip(&clip, |_| {}));
+    fn a_nested_clip_draws_only_where_both_clips_cover_then_restores_the_outer() {
+        let mut surface = Surface::new(3, 1);
+        let mut left = Path2D::default();
+        left.rect(0.0, 0.0, 2.0, 1.0);
+        let mut right = Path2D::default();
+        right.rect(1.0, 0.0, 2.0, 1.0);
+        surface.with_clip(&left, Transform::IDENTITY, |surface| {
+            surface.with_clip(&right, Transform::IDENTITY, |surface| {
+                surface.fill([255, 0, 0]);
+            });
+            surface.fill_box(0.0, 0.0, 3.0, 1.0, [0, 0, 255]);
+        });
+        let image = surface.into_image();
+        let pixels = image.rgba().as_chunks::<4>().0;
+        assert_eq!(pixels, [[0, 0, 255, 255], [0, 0, 255, 255], [0, 0, 0, 0]]);
+    }
+
+    #[test]
+    fn with_clip_places_the_clip_path_through_its_transform() {
+        let mut surface = Surface::new(3, 1);
+        let mut cell = Path2D::default();
+        cell.rect(0.0, 0.0, 1.0, 1.0);
+        let shift = Transform::IDENTITY.translate(2.0, 0.0);
+        surface.with_clip(&cell, shift, |surface| surface.fill([255, 0, 0]));
+        let red = |x: usize| surface.0.pixels()[x].red();
+        assert_eq!([red(0), red(1), red(2)], [0, 0, 255]);
+    }
+
+    fn lit_cells(transform: Transform, rect: (f64, f64, f64, f64)) -> Vec<(u32, u32)> {
+        let mut surface = Surface::new(10, 10);
+        let mut path = Path2D::default();
+        path.rect(rect.0, rect.1, rect.2, rect.3);
+        surface.fill_transformed(&path, [255, 255, 255], transform);
+        let image = surface.into_image();
+        (0..100)
+            .filter(|i| image.rgba()[*i as usize * 4] > 128)
+            .map(|i| (i % 10, i / 10))
+            .collect()
+    }
+
+    #[test]
+    fn fill_transformed_turns_a_bar_about_the_translated_origin_as_canvas_does() {
+        let turned = Transform::IDENTITY.translate(5.0, 5.0).rotate(PI / 2.0);
+        let cells = lit_cells(turned, (-5.0, 0.0, 10.0, 1.0));
+        assert_eq!(cells, (0..10).map(|y| (4, y)).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn fill_transformed_mirrors_with_a_negative_scale() {
+        let mirror = Transform::IDENTITY.translate(10.0, 0.0).scale(-1.0, 1.0);
+        let cells = lit_cells(mirror, (0.0, 0.0, 3.0, 1.0));
+        assert_eq!(cells, [(7, 0), (8, 0), (9, 0)]);
+    }
+
+    #[test]
+    fn fill_transformed_scales_unit_space_into_a_cell() {
+        let cell = Transform::IDENTITY.translate(2.0, 4.0).scale(3.0, 2.0);
+        let cells = lit_cells(cell, (0.0, 0.0, 1.0, 1.0));
+        assert_eq!(cells, [(2, 4), (3, 4), (4, 4), (2, 5), (3, 5), (4, 5)]);
     }
 
     fn stroked_arc(start: f64, end: f64) -> Vec<u8> {

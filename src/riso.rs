@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::aura::{Xorshift, hash};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::param::Param;
-use crate::surface::{Cap, Join, Path2D, Surface};
+use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
@@ -458,7 +458,7 @@ fn paint(surface: &mut Surface, p: &RisoParams, palette: &Palette, tool_seed: u3
         clip.line_to(0.0, bottom);
         clip.close();
         let shapes = shapes(band, id as i32, p.rough, sw);
-        surface.with_clip(&clip, |surface| {
+        surface.with_clip(&clip, Transform::IDENTITY, |surface| {
             surface.fill_box(
                 0.0,
                 band.y0 * k - 1.0,
