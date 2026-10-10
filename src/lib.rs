@@ -46,6 +46,7 @@ registry::tools! {
     Splice: splice::{SpliceParams, SpliceCut},
     Dahlia: dahlia::{DahliaParams},
     Hiss: hiss::{HissParams},
+    Crowd: crowd::{CrowdParams},
 }
 
 pub use chassis::{Blend, Dither, DitherKind, Grain};

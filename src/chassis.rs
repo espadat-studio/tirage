@@ -199,6 +199,17 @@ impl Grain {
         }
     }
 
+    pub(crate) fn thermal() -> Self {
+        Self {
+            on: true,
+            blend: Blend::Overlay,
+            amount: 0.35,
+            size: 1.0,
+            specks: 0.3,
+            vignette: 0.2,
+        }
+    }
+
     pub fn on(&self) -> bool {
         self.on
     }
