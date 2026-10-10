@@ -71,6 +71,9 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `vee`      | 1      | Still  |
 | `sampler`  | 1      | Still  |
 | `totem`    | 1      | Still  |
+| `filament` | 1      | Still  |
+| `chaff`    | 1      | Still  |
+| `strand`   | 1      | Still  |
 
 ## Text output
 

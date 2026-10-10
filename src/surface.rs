@@ -204,6 +204,44 @@ impl Surface {
         self.3 = outer;
     }
 
+    pub(crate) fn with_plus(&mut self, draw: impl FnOnce(&mut Self)) {
+        let outer = std::mem::replace(&mut self.3, BlendMode::Plus);
+        draw(self);
+        self.3 = outer;
+    }
+
+    pub(crate) fn with_blur(&mut self, sigma: f64, draw: impl FnOnce(&mut Self)) {
+        let mut layer = Self::new(self.width(), self.height());
+        draw(&mut layer);
+        let (width, height) = (self.width() as usize, self.height() as usize);
+        let mut channels = layer
+            .0
+            .data()
+            .iter()
+            .map(|&c| f64::from(c))
+            .collect::<Vec<_>>();
+        for window in box_windows(sigma) {
+            box_pass(&mut channels, (width, height), (4, width * 4), window);
+            box_pass(&mut channels, (height, width), (width * 4, 4), window);
+        }
+        for (byte, value) in layer.0.data_mut().iter_mut().zip(channels) {
+            *byte = value.round().clamp(0.0, 255.0) as u8;
+        }
+        let paint = PixmapPaint {
+            opacity: self.1,
+            blend_mode: self.3,
+            ..PixmapPaint::default()
+        };
+        self.0.draw_pixmap(
+            0,
+            0,
+            layer.0.as_ref(),
+            &paint,
+            tiny_skia::Transform::identity(),
+            self.2.as_ref(),
+        );
+    }
+
     fn solid(&self, [r, g, b]: [u8; 3]) -> Paint<'static> {
         let [r, g, b] = [r, g, b].map(|c| f32::from(c) / 255.0);
         let mut paint = Paint::default();
@@ -510,6 +548,44 @@ impl Surface {
     }
 }
 
+fn box_windows(sigma: f64) -> [(usize, usize); 3] {
+    let d = (sigma * 3.0 * TAU.sqrt() / 4.0 + 0.5).floor().max(1.0) as usize;
+    let half = d / 2;
+    if d % 2 == 1 {
+        [(half, half); 3]
+    } else {
+        [(half, half - 1), (half - 1, half), (half, half)]
+    }
+}
+
+fn box_pass(
+    channels: &mut [f64],
+    (length, lines): (usize, usize),
+    (step, line_step): (usize, usize),
+    (left, right): (usize, usize),
+) {
+    let size = (left + right + 1) as f64;
+    let mut line = vec![0.0; length];
+    for l in 0..lines {
+        for c in 0..4 {
+            let at = |i: usize| l * line_step + i * step + c;
+            for (i, value) in line.iter_mut().enumerate() {
+                *value = channels[at(i)];
+            }
+            let mut sum: f64 = line[..=right.min(length - 1)].iter().sum();
+            for i in 0..length {
+                channels[at(i)] = sum / size;
+                if i + right + 1 < length {
+                    sum += line[i + right + 1];
+                }
+                if i >= left {
+                    sum -= line[i - left];
+                }
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::f64::consts::{PI, TAU};
@@ -735,5 +811,36 @@ mod tests {
             assert!(ours.abs_diff(multiplied) <= 1, "{rgba:?}");
         }
         assert_eq!(&rgba[4..], [128, 255, 0, 255]);
+    }
+
+    #[test]
+    fn with_plus_adds_the_ink_and_clamps_then_restores_source_over() {
+        let mut surface = Surface::new(2, 1);
+        surface.fill([200, 100, 0]);
+        surface.with_plus(|surface| {
+            surface.fill_box(0.0, 0.0, 1.0, 1.0, [100, 50, 7]);
+        });
+        surface.fill_box(1.0, 0.0, 1.0, 1.0, [100, 50, 7]);
+        let rgba = surface.into_image().rgba().to_vec();
+        assert_eq!(rgba, [255, 150, 7, 255, 100, 50, 7, 255]);
+    }
+
+    #[test]
+    fn with_blur_spreads_a_dot_evenly_and_keeps_its_ink() {
+        let mut surface = Surface::new(21, 21);
+        surface.with_blur(2.0, |surface| {
+            surface.fill_box(10.0, 10.0, 1.0, 1.0, [0, 0, 255]);
+        });
+        let image = surface.into_image();
+        let alpha = |x: usize, y: usize| u32::from(image.rgba()[(y * 21 + x) * 4 + 3]);
+        let total: u32 = (0..21)
+            .flat_map(|y| (0..21).map(move |x| (x, y)))
+            .map(|(x, y)| alpha(x, y))
+            .sum();
+        assert!(total.abs_diff(255) <= 30, "{total}");
+        assert!(alpha(10, 10) > alpha(12, 10) && alpha(12, 10) > alpha(14, 10));
+        assert_eq!(alpha(12, 10), alpha(8, 10));
+        assert_eq!(alpha(10, 12), alpha(10, 8));
+        assert_eq!(alpha(0, 0), 0);
     }
 }
