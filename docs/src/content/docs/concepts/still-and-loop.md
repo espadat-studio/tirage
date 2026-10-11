@@ -3,7 +3,7 @@ title: "Still and Loop"
 description: "One Recipe gives one frame or a short video: the Tool with motion off or on."
 ---
 
-A _Visual_ is what a Recipe renders. It is either a _Still_, a single frame with the Tool's motion off, or a _Loop_, an animation with motion on that ends where it starts: after its last frame, frame 0 plays again. The Tool decides which you get. sonar, husk, kiosk, frond, pith, bloom, warp, mosh and relief draw Loops. Every other Tool draws a Still. `tirage tools` lists the frame count beside each Tool, and a Still Tool has 1.
+A _Visual_ is what a Recipe renders. It is either a _Still_, a single frame with the Tool's motion off, or a _Loop_, an animation with motion on that ends where it starts: after its last frame, frame 0 plays again. The Tool decides which you get. sonar, husk, kiosk, frond, pith, bloom, warp, mosh, relief and atlas draw Loops. Every other Tool draws a Still. `tirage tools` lists the frame count beside each Tool, and a Still Tool has 1.
 
 ## The Still and frame 0
 
@@ -16,7 +16,7 @@ tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 --frame 12
 
 sonar has 24 frames, so `--frame` runs from 0 to 23 and `render` stops on anything higher. A Still Tool accepts only frame 0.
 
-On sonar, kiosk, frond, pith, bloom, mosh and relief, frame 0 is the Still. A page can show the Still while the video loads, or in place of the video when motion is off, and nothing jumps when playback starts. Other Tools start their motion mid-swing, so their frame 0 differs from the Still. Each Tool's page says which kind it is.
+On sonar, kiosk, frond, pith, bloom, mosh, relief and atlas, frame 0 is the Still. A page can show the Still while the video loads, or in place of the video when motion is off, and nothing jumps when playback starts. Other Tools start their motion mid-swing, so their frame 0 differs from the Still. Each Tool's page says which kind it is.
 
 ## Loops are pre-rendered video
 

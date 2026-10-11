@@ -44,7 +44,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `warp`     | 72     | Loop   |
 | `zig`      | 1      | Still  |
 | `relief`   | 24     | Loop   |
-| `atlas`    | 1      | Still  |
+| `atlas`    | 24     | Loop   |
 | `sprig`    | 1      | Still  |
 | `stipple`  | 1      | Still  |
 | `motley`   | 1      | Still  |

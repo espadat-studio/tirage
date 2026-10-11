@@ -1,11 +1,11 @@
 ---
 title: "atlas"
-description: "A map drawn in monospace type. It renders a Still."
+description: "A map drawn in monospace type. It renders a Loop of 24 frames at 8 fps, the map redrawn every frame."
 ---
 
 A map drawn in monospace type. Warped noise splits the page into terraces. Each terrace fills its cells with one ink and scatters characters over them from its own part of a character set, which makes the terraces look like different materials. Higher terraces carry more type.
 
-atlas renders a Still: one frame. Its site page is [playgrnd.tools/atlas](https://www.playgrnd.tools/atlas/).
+atlas renders a Loop: 24 frames at 8 fps, in which the whole map is dealt again every frame: new terraces, new cells carrying type and new characters, on the same grid with the same inks and characters to pick from. Frame 0 is the Still. Its site page is [playgrnd.tools/atlas](https://www.playgrnd.tools/atlas/).
 
 ## Still
 
