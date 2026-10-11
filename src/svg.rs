@@ -1,3 +1,5 @@
+use std::fmt::Write;
+
 pub(crate) struct SvgWriter {
     width: u32,
     height: u32,
@@ -24,27 +26,26 @@ impl SvgWriter {
     }
 
     pub(crate) fn fill(&mut self, ink: [u8; 3]) {
-        let (width, height) = (self.width, self.height);
-        self.markup += &format!(
-            r#"<rect width="{width}" height="{height}" fill="{}"/>"#,
-            hex(ink)
-        );
+        let (width, height, [r, g, b]) = (self.width, self.height, ink);
+        write!(
+            self.markup,
+            r##"<rect width="{width}" height="{height}" fill="#{r:02x}{g:02x}{b:02x}"/>"##
+        )
+        .expect("a String takes any write");
     }
 
     pub(crate) fn fill_rect(&mut self, x: i32, y: i32, width: u32, height: u32, ink: [u8; 3]) {
-        self.markup += &format!(
-            r#"<rect x="{x}" y="{y}" width="{width}" height="{height}" fill="{}" shape-rendering="crispEdges"/>"#,
-            hex(ink)
-        );
+        let [r, g, b] = ink;
+        write!(
+            self.markup,
+            r##"<rect x="{x}" y="{y}" width="{width}" height="{height}" fill="#{r:02x}{g:02x}{b:02x}" shape-rendering="crispEdges"/>"##
+        )
+        .expect("a String takes any write");
     }
 
     pub(crate) fn finish(self) -> String {
         self.markup + "</svg>\n"
     }
-}
-
-fn hex([r, g, b]: [u8; 3]) -> String {
-    format!("#{r:02x}{g:02x}{b:02x}")
 }
 
 #[cfg(test)]
