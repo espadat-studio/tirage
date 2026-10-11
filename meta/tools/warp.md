@@ -16,7 +16,7 @@ Site control ids, slider ranges and site defaults:
 
 Auto picks Checker or Slash from the Tool seed (draw 1 below). A Recipe names the style it draws, so the Choice is Checker and Slash without Auto. The site's Auto is the same as naming the style it picks.
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. warp is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off the bend factor is 1 and the march offset is 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the bend factor is 1 and the march offset is 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 ## Palette
 
@@ -77,6 +77,19 @@ A point `(u, v)` in pixels:
 2. Every bent polygon goes into one path, each closed, and the path is filled once with the other colour under the non-zero rule, anti-aliased.
 
 The ground is the Base and the shapes are ink `ink`, swapped when `inv` is true.
+
+## Motion
+
+The site has two motion modes: Bend and March. Bend is the default and the only one ported: amount 0.8, 72 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`.
+- Bend scales the bend strength by `1 + 0.55 * amount * sin(TAU * T + ph)`, so `WA` becomes `warp · wa` times that factor. At the default the factor swings between 0.56 and 1.44, so the bend deepens and relaxes once per Loop.
+- `ph` is the same seeded phase the wave bend uses, so each Seed starts its swing at its own point. The amount sets the depth of the swing, never the number of cycles.
+- Nothing else moves: style, cells, angle, duty, bars, bend kind and inks hold. Taper and bulge swing as well as wave, since all three read `WA`.
+- The Loop closes on a whole sine period: at `T = 1` the factor returns to its frame 0 value, up to the last bit of `sin(TAU + ph)` against `sin(ph)`. Vertices are stored as 32-bit floats, which absorbs that on the 3 Seeds the closure test renders: the frame after the last is frame 0 byte for byte.
+- Frame 0 is not the Still. At `T = 0` the factor is `1 + 0.44 sin(ph)`, not 1, so frame 0 gets its own motion-on reference export.
+- The mid frame is 36: half a period, the factor mirrored round 1 from frame 0.
+- March is not ported. It slides the pattern along whole periods and is not reachable from a Recipe.
 
 ## Fidelity notes
 
