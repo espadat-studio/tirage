@@ -231,6 +231,7 @@ impl TypedValueParser for ToolParser {
 struct ToolListing {
     slug: &'static str,
     frames: u32,
+    svg: bool,
     params: Vec<Parameter>,
 }
 
@@ -576,6 +577,7 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
                     .map(|tool| ToolListing {
                         slug: tool.slug(),
                         frames: tool.frames(),
+                        svg: tool.supports_svg(),
                         params: tool.parameters(),
                     })
                     .collect();
@@ -734,7 +736,8 @@ fn encode_loop(_: &Recipe) -> Result<Vec<u8>, Failure> {
 fn frames_label(tool: Tool) -> String {
     let frames = tool.frames();
     let unit = if frames == 1 { "frame" } else { "frames" };
-    format!("{}  {frames} {unit}", tool.slug())
+    let svg = if tool.supports_svg() { ", svg" } else { "" };
+    format!("{}  {frames} {unit}{svg}", tool.slug())
 }
 
 fn random_seed() -> u64 {
