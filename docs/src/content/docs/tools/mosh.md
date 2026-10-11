@@ -1,11 +1,11 @@
 ---
 title: "mosh"
-description: "Stacked bands of broken video data. It renders a Still."
+description: "Stacked bands of broken video data. It renders a Loop of 24 frames at 12 fps, each band dealt again every frame."
 ---
 
 A stack of horizontal bands of broken video data, each a different failure: confetti runs, a torn mosaic, long smears, whole scan rows, and a chevron shear. Every band is flat rectangles in a few hard inks, with a share of the frame fallen to the darkest ink.
 
-mosh renders a Still: one frame. Its site page is [playgrnd.tools/mosh](https://www.playgrnd.tools/mosh/).
+mosh renders a Loop: 24 frames at 12 fps, in which every band deals its runs, blocks, tears, rows and chevrons again each frame while the bands keep their heights and kinds. Frame 0 is the Still. Its site page is [playgrnd.tools/mosh](https://www.playgrnd.tools/mosh/).
 
 ## Still
 
