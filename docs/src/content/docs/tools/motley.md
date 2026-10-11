@@ -22,7 +22,7 @@ tirage derive --seed 9 --tool motley | tirage render --size 540x960 -o motley.pn
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-motley  1 frame
+motley  36 frames
   cells       16..=120  step 1
   mark        0.4..=1   step 0.01
   patches     1..=60    step 1

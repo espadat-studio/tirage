@@ -9,9 +9,11 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "motley";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
+
+const FLICKER: u32 = 911;
 
 const DEFAULT_PALETTE: [&str; 9] = [
     "#111111", "#f4f1ea", "#1e7a46", "#e5352b", "#f5c400", "#f28ab8", "#2c7ac2", "#f0801e",
@@ -410,13 +412,14 @@ pub(crate) fn render(
     params: &MotleyParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let flicker = t.unwrap_or(0).wrapping_mul(FLICKER);
+    paint(surface, params, palette, tool_seed, flicker);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
-fn paint(surface: &mut Surface, params: &MotleyParams, palette: &Palette, seed: u32) {
+fn paint(surface: &mut Surface, params: &MotleyParams, palette: &Palette, seed: u32, flicker: u32) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let ground = palette.ink(0);
     let inks = &palette.inks()[1..];
@@ -489,7 +492,11 @@ fn paint(surface: &mut Surface, params: &MotleyParams, palette: &Palette, seed: 
                 match p.sparse {
                     Sparse::Checker if (i + j) & 1 == 1 => continue,
                     Sparse::Rows if j & 1 == 1 => continue,
-                    Sparse::Checker | Sparse::Rows if hash(i, j, p.salt) < 0.12 => continue,
+                    Sparse::Checker | Sparse::Rows
+                        if hash(i, j, p.salt.wrapping_add(flicker)) < 0.12 =>
+                    {
+                        continue;
+                    }
                     _ => {}
                 }
                 surface.fill_box(left, top, cs + 0.5, cs + 0.5, ground);

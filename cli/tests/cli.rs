@@ -524,7 +524,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"accRate","kind":"range","min":0.0,"max":0.15,"step":0.001},"#,
     );
     let motley = concat!(
-        r#"{"slug":"motley","frames":1,"params":["#,
+        r#"{"slug":"motley","frames":36,"params":["#,
         r#"{"id":"cells","kind":"range","min":16.0,"max":120.0,"step":1.0},"#,
         r#"{"id":"mark","kind":"range","min":0.4,"max":1.0,"step":0.01},"#,
         r#"{"id":"patches","kind":"range","min":1.0,"max":60.0,"step":1.0},"#,
@@ -901,7 +901,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nfilament  1 frame\n"), "{listing}");
     assert!(listing.contains("\nchaff  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstrand  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nmotley  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
