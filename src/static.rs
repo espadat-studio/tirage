@@ -175,7 +175,7 @@ pub(crate) fn render(
     params: &StaticParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: u32,
+    _t: Option<u32>,
 ) {
     paint(surface, params, palette, tool_seed);
     chassis::finish(surface, &params.grain, &params.dither);

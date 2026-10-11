@@ -160,7 +160,7 @@ fn runtime_errors_exit_1_with_a_human_message() {
         (
             &["render", "--size", "9x16", "--frame", "24", "-o", "-"],
             &recipe(),
-            "error: frame 24 is outside 0..24\nhint: pass --frame from 0 to 23, or leave it out for frame 0\n",
+            "error: frame 24 is outside 0..24\nhint: pass --frame from 0 to 23, or leave it out for the Still\n",
         ),
         (
             &["render", "missing.json", "--size", "9x16", "-o", "-"],
@@ -270,7 +270,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"spark","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let husk = concat!(
-        r#"{"slug":"husk","frames":1,"params":["#,
+        r#"{"slug":"husk","frames":36,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":70.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"vary","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -366,7 +366,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"stray","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let pith = concat!(
-        r#"{"slug":"pith","frames":1,"params":["#,
+        r#"{"slug":"pith","frames":36,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":60.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"zoom","kind":"range","min":1.0,"max":8.0,"step":0.1},"#,
@@ -444,7 +444,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"dot","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
     );
     let bloom = concat!(
-        r#"{"slug":"bloom","frames":1,"params":["#,
+        r#"{"slug":"bloom","frames":24,"params":["#,
         r#"{"id":"cols","kind":"range","min":8.0,"max":96.0,"step":1.0},"#,
         r#"{"id":"rings","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -458,7 +458,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"stripe","kind":"range","min":0.5,"max":2.2,"step":0.05},"#,
     );
     let warp = concat!(
-        r#"{"slug":"warp","frames":1,"params":["#,
+        r#"{"slug":"warp","frames":72,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Checker","Slash"]},"#,
         r#"{"id":"scale","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -870,7 +870,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert_eq!(out.status.code(), Some(0));
     let listing = text(&out.stdout);
     assert!(listing.starts_with("sonar  24 frames\n"), "{listing}");
-    assert!(listing.contains("\nhusk  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nhusk  36 frames\n"), "{listing}");
     assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
@@ -909,9 +909,9 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nwhorl  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsear  1 frame\n"), "{listing}");
     assert!(listing.contains("\nculture  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nbloom  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nbloom  24 frames\n"), "{listing}");
     assert!(listing.contains("\nweave  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nwarp  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nwarp  72 frames\n"), "{listing}");
     assert!(listing.contains("\nzig  1 frame\n"), "{listing}");
     assert!(listing.contains("\nrelief  1 frame\n"), "{listing}");
     for line in [
@@ -1848,7 +1848,7 @@ mod encode {
                 .contains("→ tirage derive --seed 42 --tool sonar | tirage encode -o sonar-42.mp4"),
             "{screen}"
         );
-        for still in ["husk", "vein", "aura", "deal from Seed"] {
+        for still in ["vein", "aura", "deal from Seed"] {
             assert!(!screen.contains(still), "{still} offered in\n{screen}");
         }
         std::fs::remove_dir_all(dir).unwrap();
@@ -1856,12 +1856,12 @@ mod encode {
 
     #[test]
     fn encode_refuses_a_still_with_a_hint_to_render_it() {
-        let husk = tirage(&["derive", "--seed", "42", "--tool", "husk"], b"").stdout;
-        let out = tirage(&["encode", "-o", "-"], &husk);
+        let vein = tirage(&["derive", "--seed", "42", "--tool", "vein"], b"").stdout;
+        let out = tirage(&["encode", "-o", "-"], &vein);
         assert_eq!(out.status.code(), Some(1));
         assert_eq!(
             text(&out.stderr),
-            "error: husk draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
+            "error: vein draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
         );
         assert!(out.stdout.is_empty());
     }

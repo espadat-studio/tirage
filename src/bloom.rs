@@ -7,9 +7,10 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "bloom";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 8;
 pub(crate) const MAX_INKS: Option<usize> = None;
+const AMOUNT: f64 = 0.6;
 
 const DEFAULT_PALETTE: [&str; 6] = [
     "#1b2a49", "#2e5c8a", "#3f9bc4", "#7fd1d8", "#beefdc", "#f3fbeb",
@@ -230,13 +231,19 @@ pub(crate) fn render(
     params: &BloomParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: u32,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.grain_pass, &params.dither);
 }
 
-fn paint(surface: &mut Surface, params: &BloomParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &BloomParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
     let (width, height) = (surface.width(), surface.height());
     let (w, h) = (f64::from(width), f64::from(height));
     let cols = params.cols.max(4);
@@ -248,6 +255,10 @@ fn paint(surface: &mut Surface, params: &BloomParams, palette: &Palette, tool_se
     let edges_x = edges(cols, width);
     let edges_y = edges(rows, height);
     let inks = palette.len() as i64;
+    let turns = round_half_up(AMOUNT * 2.0).max(1.0);
+    let march = t.map_or(0.0, |t| {
+        f64::from(t) / f64::from(FRAMES) * steps as f64 * turns
+    });
 
     for j in 0..rows {
         for i in 0..cols {
@@ -270,7 +281,7 @@ fn paint(surface: &mut Surface, params: &BloomParams, palette: &Palette, tool_se
                 ) - 0.5)
                     * params.grain
                     * 2.4;
-                (r - calm) / (1.0 - calm) * f64::from(params.rings.max(1)) + rough
+                (r - calm) / (1.0 - calm) * f64::from(params.rings.max(1)) + rough + march
             };
             let k = (level.floor() as i64).rem_euclid(steps);
             let ink = (k as f64 / steps as f64 * inks as f64).floor() as usize;

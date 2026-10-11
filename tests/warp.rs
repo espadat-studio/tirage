@@ -54,13 +54,21 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn warp_is_a_still() {
-    assert_eq!(Tool::Warp.frames(), 1);
+fn warp_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Warp.frames(), Tool::Warp.fps()), (72, 12));
     let recipe = derive(7, WARP);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 72)),
+        "frame 72 is outside 0..72"
     );
+}
+
+#[test]
+fn bend_moves_frame_0_off_the_still() {
+    let recipe = derive(1, WARP);
+    let still = render(&recipe, &Frame::still(270, 480).unwrap());
+    let first = render(&recipe, &Frame::new(&recipe, 270, 480, 0).unwrap());
+    assert!(still.rgba() != first.rgba());
 }
 
 #[test]

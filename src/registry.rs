@@ -89,7 +89,7 @@ macro_rules! tools {
                 surface: &mut $crate::surface::Surface,
                 palette: Option<&$crate::Palette>,
                 tool_seed: u32,
-                t: u32,
+                t: Option<u32>,
             ) {
                 use $crate::registry::Inks;
                 match self {

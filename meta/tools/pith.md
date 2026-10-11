@@ -21,7 +21,7 @@ Site control ids, slider ranges and site defaults:
 | `thick`  | 0..1  | 0.01 | 0.45    | vein width                                   |
 | `grain`  | 0..1  | 0.01 | 0.4     | the Tool's own grain, not chassis            |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. pith is a Still Tool: only frame 0 is rendered, and with motion off boil is 0, grow is 1 and flow is 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. The `dither` and `grain` sliders above are separate from them.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off boil is 0, grow is 1 and flow is 0. The Loop turns it on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. The `dither` and `grain` sliders above are separate from them.
 
 The live page renders its preview smaller and scales it up while a control moves. Exports always render at full size, so that budget is not ported.
 
@@ -87,6 +87,18 @@ Each pixel starts as ground. When the cell field `d < 0`:
 Then, when `grain > 0`, `h = hash(floor(x / gsc), floor(y / gsc), s + 7919)`. Above `1 - 0.016 grain` the pixel is averaged with the fleck ink. Below `0.010 grain` it is scaled by 0.55.
 
 Channels are clamped to 0..255 and stored rounding half to even. Alpha is 255.
+
+## Motion
+
+The site has three motion modes: Boil, Grow and Flow. Boil is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Boil re-deals the texture every frame: `boil = 911f` at frame `f` is added to the paint seed `s` above. That moves the speckle hash, the speckle noise, the band width noise, the core grain noise and the fleck hash, all five.
+- Nothing else moves. The cell layout draws from the Tool seed alone, so the cells, their boxes, the wobble, the veins and both fields hold.
+- The amount does not change Boil.
+- The Loop closes by a cut: the frame after the last is a new deal, not frame 0. A reseed has no closure test.
+- At `f = 0` boil is 0, so frame 0 is the Still, byte for byte. It needs no reference export of its own.
+- The mid frame is 18. Any frame past 0 is a fresh deal, and 18 is half way through.
+- Grow and Flow are not ported. Grow swells every box on a cosine, Flow slides the wobble noise. Neither is reachable from a Recipe.
 
 ## Fidelity notes
 

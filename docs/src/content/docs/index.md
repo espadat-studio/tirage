@@ -11,7 +11,7 @@ Each generator is a _Tool_, named by its site slug: aura, sonar, kiosk and more.
 
 A single integer, the _Seed_, derives a whole _Recipe_: the Tool, a value for each Parameter, a Palette and a _Tool seed_. The same Seed with the same _Pins_ always gives the same Recipe. Any Seed gives an on-brand result, because each Parameter is drawn from its _Taste bounds_, a hand-picked sub-range.
 
-A Recipe renders a _Visual_. That is either a _Still_, one frame, or a _Loop_, an animation that ends where it starts. A Loop's first frame is the Still of the same Recipe.
+A Recipe renders a _Visual_. That is either a _Still_, one frame, or a _Loop_, an animation that ends where it starts. The Still is the Tool with motion off, and the Loop is the Tool with motion on.
 
 ## Install and render
 

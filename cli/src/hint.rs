@@ -32,7 +32,7 @@ pub fn for_error(error: &Error) -> Option<String> {
             format!("pass --size <W>x<H> with each edge in 1..={MAX_EDGE}, like 1080x1920")
         }
         Error::FrameTime { frames, .. } => format!(
-            "pass --frame from 0 to {}, or leave it out for frame 0",
+            "pass --frame from 0 to {}, or leave it out for the Still",
             frames - 1
         ),
         Error::Json(_) => "pass a Recipe printed by 'tirage derive'".to_owned(),
