@@ -22,7 +22,7 @@ tirage derive --seed 2 --tool relief | tirage render --size 540x960 -o relief.pn
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-relief  1 frame
+relief  24 frames
   scale       12..=180  step 1
   repeat      1..=12    step 1
   variety     0..=1     step 0.01

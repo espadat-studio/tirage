@@ -7,9 +7,12 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "relief";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 6;
 pub(crate) const MAX_INKS: Option<usize> = None;
+
+const SHUFFLE: u32 = 7919;
+const CHURN: f64 = 0.3;
 
 const DEFAULT_PALETTE: [&str; 6] = [
     "#1f1f1f", "#f4d35e", "#ee964b", "#f95738", "#0d3b66", "#faf0ca",
@@ -222,9 +225,9 @@ pub(crate) fn render(
     params: &ReliefParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t.unwrap_or(0));
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -234,7 +237,13 @@ struct Cube {
     tones: [[u8; 3]; 3],
 }
 
-fn paint(surface: &mut Surface, params: &ReliefParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &ReliefParams,
+    palette: &Palette,
+    tool_seed: u32,
+    frame: u32,
+) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let sq3 = 3.0_f64.sqrt();
     let repeat = params.repeat.max(1);
@@ -243,7 +252,13 @@ fn paint(surface: &mut Surface, params: &ReliefParams, palette: &Palette, tool_s
     let cubes: Vec<Cube> = (0..repeat)
         .flat_map(|j| (0..repeat).map(move |i| (i as i32, j as i32)))
         .map(|(i, j)| {
-            let draw = |offset: u32| hash(i, j, tool_seed.wrapping_add(offset));
+            let picked = hash(i * 5 + 3, j * 7 + 1, tool_seed.wrapping_add(131)) < CHURN;
+            let seed = if picked {
+                tool_seed.wrapping_add(frame.wrapping_mul(SHUFFLE))
+            } else {
+                tool_seed
+            };
+            let draw = |offset: u32| hash(i, j, seed.wrapping_add(offset));
             let rot = (draw(11) * turns).floor() as usize % 3;
             let solid = draw(29) < params.solids;
             let ink = if !accents.is_empty() && draw(41) < params.accent {

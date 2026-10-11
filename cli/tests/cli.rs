@@ -472,7 +472,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"round","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let relief = concat!(
-        r#"{"slug":"relief","frames":1,"params":["#,
+        r#"{"slug":"relief","frames":24,"params":["#,
         r#"{"id":"scale","kind":"range","min":12.0,"max":180.0,"step":1.0},"#,
         r#"{"id":"repeat","kind":"range","min":1.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"variety","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -913,7 +913,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nweave  1 frame\n"), "{listing}");
     assert!(listing.contains("\nwarp  72 frames\n"), "{listing}");
     assert!(listing.contains("\nzig  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nrelief  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nrelief  24 frames\n"), "{listing}");
     for line in [
         "  grid        40..=320  step 2\n",
         "  grnVignette 0..=1     step 0.05\n",
