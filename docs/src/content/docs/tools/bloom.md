@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool bloom | tirage render --size 540x960 -o bloom.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-bloom  1 frame
+bloom  24 frames
   cols        8..=96    step 1
   rings       1..=14    step 1
   warp        0..=1     step 0.01
