@@ -1,4 +1,4 @@
-use tirage::Tool;
+use tirage::{Error, Tool, ToolPin, derive, render_svg};
 
 #[test]
 fn every_slug_round_trips_through_from_slug() {
@@ -13,4 +13,29 @@ fn all_lists_each_tool_exactly_once() {
         let listed = Tool::ALL.iter().filter(|&&t| t == tool).count();
         assert_eq!(listed, 1, "{tool:?}");
     }
+}
+
+#[test]
+fn render_svg_refuses_a_tool_without_svg() {
+    let recipe = derive(1, ToolPin::Tool(Tool::Husk));
+    assert_eq!(
+        render_svg(&recipe, 540, 960),
+        Err(Error::SvgUnsupported { tool: Tool::Husk })
+    );
+    assert_eq!(
+        Error::SvgUnsupported { tool: Tool::Husk }.to_string(),
+        "husk: renders PNG only, not SVG"
+    );
+}
+
+#[test]
+fn render_svg_checks_the_frame_size() {
+    let recipe = derive(1, ToolPin::Tool(Tool::Sonar));
+    assert_eq!(
+        render_svg(&recipe, 0, 960),
+        Err(Error::FrameSize {
+            width: 0,
+            height: 960
+        })
+    );
 }

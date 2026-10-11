@@ -19,7 +19,7 @@ mod prompt;
 
 use tirage::{
     DERIVATION_MAJOR, Frame, MAX_EDGE, Palette, Parameter, ParameterKind, Recipe, Taste, Tool,
-    ToolPin, VERSION, derive, render,
+    ToolPin, VERSION, derive, render, render_svg,
 };
 
 const EXAMPLES: &str = "Examples:
@@ -100,7 +100,7 @@ enum Command {
     },
     #[command(
         visible_alias = "r",
-        about = "Render a Recipe to a PNG",
+        about = "Render a Recipe to a PNG or an SVG",
         before_help = "Examples:\n  tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png\n  tirage render recipe.json --size 540x960 -o - > still.png"
     )]
     Render {
@@ -125,10 +125,18 @@ enum Command {
         )]
         frame: Option<u32>,
         #[arg(
+            long,
+            value_enum,
+            value_name = "FORMAT",
+            help = "png or svg, else inferred from the -o extension",
+            long_help = "png or svg. Without it, an -o path ending in .svg writes an SVG and anything else, stdout included, writes a PNG. An SVG is the Still only, with no grain or dither, and only for Tools that 'tirage tools' marks svg"
+        )]
+        format: Option<Format>,
+        #[arg(
             short,
             value_name = "FILE",
-            help = "PNG to write, '-' for stdout, prompted on a terminal",
-            long_help = "PNG to write, '-' for stdout. Prompted on a terminal with <tool>-<seed>.png or out.png as default, asking before it overwrites a file"
+            help = "PNG or SVG to write, '-' for stdout, prompted on a terminal",
+            long_help = "PNG or SVG to write, '-' for stdout. Prompted on a terminal with <tool>-<seed>.png or out.png as default, .svg with --format svg, asking before it overwrites a file"
         )]
         output: Option<PathBuf>,
     },
@@ -177,6 +185,25 @@ enum Command {
     },
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+enum Format {
+    Png,
+    Svg,
+}
+
+impl Format {
+    fn of(path: &Path) -> Self {
+        if path
+            .extension()
+            .is_some_and(|extension| extension.eq_ignore_ascii_case("svg"))
+        {
+            Self::Svg
+        } else {
+            Self::Png
+        }
+    }
+}
+
 #[derive(Clone)]
 struct ToolParser;
 
@@ -204,6 +231,7 @@ impl TypedValueParser for ToolParser {
 struct ToolListing {
     slug: &'static str,
     frames: u32,
+    svg: bool,
     params: Vec<Parameter>,
 }
 
@@ -379,11 +407,16 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             input,
             size,
             frame,
+            format,
             output,
         } => {
             let prompt = Prompt::new("render", no_input, stderr_colour());
             let stdio = Path::new("-");
-            if output.as_deref() == Some(stdio) && io::stdout().is_terminal() {
+            let requested = format.or_else(|| output.as_deref().map(Format::of));
+            if output.as_deref() == Some(stdio)
+                && requested == Some(Format::Png)
+                && io::stdout().is_terminal()
+            {
                 return Err(refuse_terminal("render", "a PNG"));
             }
             if size.is_none() {
@@ -395,6 +428,9 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             let mut tools = vec![None];
             tools.extend(Tool::ALL.iter().copied().map(Some));
             let (recipe, seed, pipeline) = read_recipe(input, &prompt, "render", &tools)?;
+            if requested == Some(Format::Svg) {
+                svg_ready(recipe.tool(), frame)?;
+            }
             let mut flags = String::new();
             let (width, height) = match size {
                 Some(size) => size,
@@ -423,8 +459,12 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             let output = match output {
                 Some(output) => output,
                 None => {
+                    let extension = match format {
+                        Some(Format::Svg) => "svg",
+                        _ => "png",
+                    };
                     let (output, flag) =
-                        prompt_output(&prompt, &OUTPUT, recipe.tool(), seed, "png")?;
+                        prompt_output(&prompt, &OUTPUT, recipe.tool(), seed, extension)?;
                     flags += &flag;
                     output
                 }
@@ -432,7 +472,8 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             if !pipeline.is_empty() || !flags.is_empty() {
                 echo(&format!("{pipeline}{}{flags}", rerun()));
             }
-            if output == stdio && io::stdout().is_terminal() {
+            let format = format.unwrap_or_else(|| Format::of(&output));
+            if output == stdio && format == Format::Png && io::stdout().is_terminal() {
                 return Err(refuse_terminal("render", "a PNG"));
             }
             let frame = match frame {
@@ -440,7 +481,16 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
                 None => Frame::still(width, height),
             }
             .map_err(|e| Failure::runtime(&e))?;
-            write_output(&output, &render(&recipe, &frame).to_png())
+            let bytes = match format {
+                Format::Png => render(&recipe, &frame).to_png(),
+                Format::Svg => {
+                    svg_ready(recipe.tool(), frame.t())?;
+                    render_svg(&recipe, width, height)
+                        .map_err(|e| Failure::runtime(&e))?
+                        .into_bytes()
+                }
+            };
+            write_output(&output, &bytes)
         }
         #[cfg(feature = "encode")]
         Command::Encode { input, output } => {
@@ -527,6 +577,7 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
                     .map(|tool| ToolListing {
                         slug: tool.slug(),
                         frames: tool.frames(),
+                        svg: tool.supports_svg(),
                         params: tool.parameters(),
                     })
                     .collect();
@@ -584,6 +635,19 @@ fn refuse_terminal(subcommand: &'static str, format: &str) -> Failure {
         subcommand,
         &format!("refusing to write {format} to a terminal, pass -o FILE or pipe stdout"),
     )
+}
+
+fn svg_ready(tool: Tool, frame: Option<u32>) -> Result<(), Failure> {
+    if frame.is_some() {
+        return Err(usage(
+            "render",
+            "an SVG is the Still, drop --frame or pass --format png",
+        ));
+    }
+    if !tool.supports_svg() {
+        return Err(Failure::runtime(&tirage::Error::SvgUnsupported { tool }));
+    }
+    Ok(())
 }
 
 fn read_recipe(
@@ -672,7 +736,8 @@ fn encode_loop(_: &Recipe) -> Result<Vec<u8>, Failure> {
 fn frames_label(tool: Tool) -> String {
     let frames = tool.frames();
     let unit = if frames == 1 { "frame" } else { "frames" };
-    format!("{}  {frames} {unit}", tool.slug())
+    let svg = if tool.supports_svg() { ", svg" } else { "" };
+    format!("{}  {frames} {unit}{svg}", tool.slug())
 }
 
 fn random_seed() -> u64 {

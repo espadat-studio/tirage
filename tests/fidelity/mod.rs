@@ -1,3 +1,5 @@
+#![allow(dead_code, reason = "each test crate uses part of the harness")]
+
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -59,4 +61,21 @@ pub fn assert_fidelity(name: &str, ours: &RgbaImage, reference: &RgbaImage, ceil
         diff.share * 100.0,
         ceiling * 100.0
     );
+}
+
+pub fn assert_svg_fidelity(name: &str, png: &RgbaImage, svg_raster: &RgbaImage, max_luma: u8) {
+    let diff = luma_diff(svg_raster, png);
+    let worst = diff.heatmap.pixels().map(|luma| luma[0]).max().unwrap_or(0);
+    if worst <= max_luma {
+        return;
+    }
+    let dir = out_dir();
+    fs::create_dir_all(&dir).unwrap();
+    diff.heatmap
+        .save(dir.join(format!("{name}-heatmap.png")))
+        .unwrap();
+    svg_raster
+        .save(dir.join(format!("{name}-ours.png")))
+        .unwrap();
+    panic!("{name}: max luma {worst} > bar {max_luma}");
 }

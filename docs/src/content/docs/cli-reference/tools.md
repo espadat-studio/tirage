@@ -9,7 +9,7 @@ tirage t
 tirage ls
 ```
 
-Lists every Tool with its frame count and its Parameters. For each Parameter it prints the id, then the range and step of a slider, `on/off` for a toggle, or the values a choice can take. The slugs are what [derive](/cli-reference/derive/) Pins a Tool by, and the ids are what a Taste bounds file names.
+Lists every Tool with its frame count, whether it renders SVG, and its Parameters. For each Parameter it prints the id, then the range and step of a slider, `on/off` for a toggle, or the values a choice can take. The slugs are what [derive](/cli-reference/derive/) Pins a Tool by, and the ids are what a Taste bounds file names.
 
 ## Options
 
@@ -77,10 +77,10 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 
 ## Text output
 
-Each Tool heads a block, then one line per Parameter:
+Each Tool heads a block with its frame count, then `, svg` when [render](/cli-reference/render/) can write it as an SVG. One line per Parameter follows:
 
 ```
-sonar  24 frames
+sonar  24 frames, svg
   level       0..=1     step 0.01
   scale       1..=10    step 0.1
   warp        0..=1     step 0.01
@@ -105,13 +105,14 @@ A range like `0..=1 step 0.01` means any value from 0 to 1 in steps of 0.01, bot
 
 ## JSON output
 
-`--json` prints one array with one object per Tool, in the same order as the text. Each object has `slug`, `frames` and `params`. Each Parameter has an `id` and a `kind`: `range` carries `min`, `max` and `step`, `choice` carries `choices`, and `toggle` carries nothing more. The real output is one line and lists every Parameter. Trimmed and pretty printed:
+`--json` prints one array with one object per Tool, in the same order as the text. Each object has `slug`, `frames`, `svg` and `params`. `svg` is `true` when render can write the Tool as an SVG. Each Parameter has an `id` and a `kind`: `range` carries `min`, `max` and `step`, `choice` carries `choices`, and `toggle` carries nothing more. The real output is one line and lists every Parameter. Trimmed and pretty printed:
 
 ```json
 [
   {
     "slug": "sonar",
     "frames": 24,
+    "svg": true,
     "params": [
       { "id": "level", "kind": "range", "min": 0.0, "max": 1.0, "step": 0.01 },
       { "id": "ditherTog", "kind": "toggle" },

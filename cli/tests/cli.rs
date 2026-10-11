@@ -260,7 +260,7 @@ fn tools_json_has_a_stable_shape() {
     let out = tirage(&["tools", "--json"], b"");
     assert_eq!(out.status.code(), Some(0));
     let sonar = concat!(
-        r#"{"slug":"sonar","frames":24,"params":["#,
+        r#"{"slug":"sonar","frames":24,"svg":true,"params":["#,
         r#"{"id":"level","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"scale","kind":"range","min":1.0,"max":10.0,"step":0.1},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -270,7 +270,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"spark","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let husk = concat!(
-        r#"{"slug":"husk","frames":36,"params":["#,
+        r#"{"slug":"husk","frames":36,"svg":false,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":70.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"vary","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -281,7 +281,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let vein = concat!(
-        r#"{"slug":"vein","frames":1,"params":["#,
+        r#"{"slug":"vein","frames":1,"svg":false,"params":["#,
         r#"{"id":"flows","kind":"choice","choices":["Marble","Swirl","Ripple"]},"#,
         r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"curve","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -293,14 +293,14 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"runs","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let aura = concat!(
-        r#"{"slug":"aura","frames":1,"params":["#,
+        r#"{"slug":"aura","frames":1,"svg":false,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Clouds","Mesh","Sweep"]},"#,
         r#"{"id":"scale","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
         r#"{"id":"churn","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"punch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let kiosk = concat!(
-        r#"{"slug":"kiosk","frames":24,"params":["#,
+        r#"{"slug":"kiosk","frames":24,"svg":false,"params":["#,
         r#"{"id":"split","kind":"range","min":0.15,"max":0.95,"step":0.01},"#,
         r#"{"id":"rings","kind":"range","min":4.0,"max":40.0,"step":1.0},"#,
         r#"{"id":"stripes","kind":"range","min":2.0,"max":24.0,"step":1.0},"#,
@@ -313,7 +313,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"blocks","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let frond = concat!(
-        r#"{"slug":"frond","frames":36,"params":["#,
+        r#"{"slug":"frond","frames":36,"svg":false,"params":["#,
         r#"{"id":"dirs","kind":"choice","choices":["Potted","Bouquet","Fronds"]},"#,
         r#"{"id":"masses","kind":"range","min":0.0,"max":6.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -328,7 +328,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"rules","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let benday = concat!(
-        r#"{"slug":"benday","frames":1,"params":["#,
+        r#"{"slug":"benday","frames":1,"svg":false,"params":["#,
         r#"{"id":"turb","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"streak","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"dir","kind":"range","min":-1.0,"max":1.0,"step":0.01},"#,
@@ -342,7 +342,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"bite","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let terrain = concat!(
-        r#"{"slug":"terrain","frames":1,"params":["#,
+        r#"{"slug":"terrain","frames":1,"svg":false,"params":["#,
         r#"{"id":"scale","kind":"range","min":0.6,"max":9.0,"step":0.1},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":3.0,"step":0.02},"#,
         r#"{"id":"oct","kind":"range","min":1.0,"max":7.0,"step":1.0},"#,
@@ -352,7 +352,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"block","kind":"range","min":0.0,"max":14.0,"step":1.0},"#,
     );
     let stitch = concat!(
-        r#"{"slug":"stitch","frames":1,"params":["#,
+        r#"{"slug":"stitch","frames":1,"svg":false,"params":["#,
         r#"{"id":"cols","kind":"range","min":16.0,"max":96.0,"step":1.0},"#,
         r#"{"id":"gutter","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"streak","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -366,7 +366,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"stray","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let pith = concat!(
-        r#"{"slug":"pith","frames":36,"params":["#,
+        r#"{"slug":"pith","frames":36,"svg":false,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":60.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"zoom","kind":"range","min":1.0,"max":8.0,"step":0.1},"#,
@@ -379,7 +379,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let mosh = concat!(
-        r#"{"slug":"mosh","frames":24,"params":["#,
+        r#"{"slug":"mosh","frames":24,"svg":false,"params":["#,
         r#"{"id":"bands","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"cols","kind":"range","min":24.0,"max":420.0,"step":2.0},"#,
         r#"{"id":"mix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -388,7 +388,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"bright","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let mist = concat!(
-        r#"{"slug":"mist","frames":1,"params":["#,
+        r#"{"slug":"mist","frames":1,"svg":false,"params":["#,
         r#"{"id":"streaks","kind":"range","min":0.4,"max":2.0,"step":0.05},"#,
         r#"{"id":"cover","kind":"range","min":0.2,"max":0.85,"step":0.01},"#,
         r#"{"id":"soft","kind":"range","min":0.1,"max":1.0,"step":0.01},"#,
@@ -396,7 +396,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let coral = concat!(
-        r#"{"slug":"coral","frames":1,"params":["#,
+        r#"{"slug":"coral","frames":1,"svg":false,"params":["#,
         r#"{"id":"branches","kind":"range","min":2.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"spacing","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"spread","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -410,7 +410,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"shadow","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let whorl = concat!(
-        r#"{"slug":"whorl","frames":1,"params":["#,
+        r#"{"slug":"whorl","frames":1,"svg":false,"params":["#,
         r#"{"id":"centres","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"pull","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"push","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -421,7 +421,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"detail","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let sear = concat!(
-        r#"{"slug":"sear","frames":1,"params":["#,
+        r#"{"slug":"sear","frames":1,"svg":false,"params":["#,
         r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"detail","kind":"range","min":1.0,"max":5.0,"step":1.0},"#,
@@ -432,7 +432,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let culture = concat!(
-        r#"{"slug":"culture","frames":1,"params":["#,
+        r#"{"slug":"culture","frames":1,"svg":false,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":90.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"fuse","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -444,7 +444,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"dot","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
     );
     let bloom = concat!(
-        r#"{"slug":"bloom","frames":24,"params":["#,
+        r#"{"slug":"bloom","frames":24,"svg":false,"params":["#,
         r#"{"id":"cols","kind":"range","min":8.0,"max":96.0,"step":1.0},"#,
         r#"{"id":"rings","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -453,18 +453,18 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"calm","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let weave = concat!(
-        r#"{"slug":"weave","frames":1,"params":["#,
+        r#"{"slug":"weave","frames":1,"svg":false,"params":["#,
         r#"{"id":"bands","kind":"range","min":3.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"stripe","kind":"range","min":0.5,"max":2.2,"step":0.05},"#,
     );
     let warp = concat!(
-        r#"{"slug":"warp","frames":72,"params":["#,
+        r#"{"slug":"warp","frames":72,"svg":false,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Checker","Slash"]},"#,
         r#"{"id":"scale","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let zig = concat!(
-        r#"{"slug":"zig","frames":1,"params":["#,
+        r#"{"slug":"zig","frames":1,"svg":false,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Teeth","Chevron","Stairs","Ricrac","Waves","Scales"]},"#,
         r#"{"id":"width","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
         r#"{"id":"depth","kind":"range","min":0.2,"max":1.4,"step":0.02},"#,
@@ -472,7 +472,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"round","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let relief = concat!(
-        r#"{"slug":"relief","frames":24,"params":["#,
+        r#"{"slug":"relief","frames":24,"svg":false,"params":["#,
         r#"{"id":"scale","kind":"range","min":12.0,"max":180.0,"step":1.0},"#,
         r#"{"id":"repeat","kind":"range","min":1.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"variety","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -481,7 +481,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"accent","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let atlas = concat!(
-        r#"{"slug":"atlas","frames":24,"params":["#,
+        r#"{"slug":"atlas","frames":24,"svg":false,"params":["#,
         r#"{"id":"scale","kind":"range","min":1.0,"max":9.0,"step":0.1},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.6,"step":0.01},"#,
         r#"{"id":"bands","kind":"range","min":2.0,"max":14.0,"step":1.0},"#,
@@ -492,7 +492,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"weight","kind":"range","min":0.0,"max":1.5,"step":0.01},"#,
     );
     let sprig = concat!(
-        r#"{"slug":"sprig","frames":1,"params":["#,
+        r#"{"slug":"sprig","frames":1,"svg":false,"params":["#,
         r#"{"id":"dirs","kind":"choice","choices":["Garden","Blooms","Leaves"]},"#,
         r#"{"id":"count","kind":"range","min":2.0,"max":120.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -504,7 +504,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"detail","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let stipple = concat!(
-        r#"{"slug":"stipple","frames":1,"params":["#,
+        r#"{"slug":"stipple","frames":1,"svg":false,"params":["#,
         r#"{"id":"modesDot","kind":"choice","choices":["Lattice","Contour"]},"#,
         r#"{"id":"lattices","kind":"choice","choices":["Square","Hex"]},"#,
         r#"{"id":"shapes","kind":"choice","choices":["Circle","Square"]},"#,
@@ -524,7 +524,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"accRate","kind":"range","min":0.0,"max":0.15,"step":0.001},"#,
     );
     let motley = concat!(
-        r#"{"slug":"motley","frames":36,"params":["#,
+        r#"{"slug":"motley","frames":36,"svg":false,"params":["#,
         r#"{"id":"cells","kind":"range","min":16.0,"max":120.0,"step":1.0},"#,
         r#"{"id":"mark","kind":"range","min":0.4,"max":1.0,"step":0.01},"#,
         r#"{"id":"patches","kind":"range","min":1.0,"max":60.0,"step":1.0},"#,
@@ -536,7 +536,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"gaps","kind":"range","min":0.0,"max":0.5,"step":0.01},"#,
     );
     let oddgrid = concat!(
-        r#"{"slug":"oddgrid","frames":1,"params":["#,
+        r#"{"slug":"oddgrid","frames":1,"svg":false,"params":["#,
         r#"{"id":"cols","kind":"range","min":12.0,"max":110.0,"step":1.0},"#,
         r#"{"id":"scale","kind":"range","min":2.0,"max":60.0,"step":0.5},"#,
         r#"{"id":"density","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -551,7 +551,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"balance","kind":"range","min":-1.2,"max":1.2,"step":0.05},"#,
     );
     let fete = concat!(
-        r#"{"slug":"fete","frames":1,"params":["#,
+        r#"{"slug":"fete","frames":1,"svg":false,"params":["#,
         r#"{"id":"motifs","kind":"choice","choices":["Auto","Rings","Spiral","Burst","Atom","Wave","Scribble"]},"#,
         r#"{"id":"scale","kind":"range","min":1.2,"max":6.0,"step":0.1},"#,
         r#"{"id":"res","kind":"range","min":36.0,"max":120.0,"step":4.0},"#,
@@ -559,7 +559,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"dots","kind":"range","min":0.0,"max":80.0,"step":2.0},"#,
     );
     let fold = concat!(
-        r#"{"slug":"fold","frames":1,"params":["#,
+        r#"{"slug":"fold","frames":1,"svg":false,"params":["#,
         r#"{"id":"folds","kind":"choice","choices":["Four ways","Kaleidoscope","Across","Down","None"]},"#,
         r#"{"id":"kinds","kind":"choice","choices":["Mixed","Zebra","Staircases","Dot rows","Bursts","Chevrons","Checks"]},"#,
         r#"{"id":"foldx","kind":"range","min":0.2,"max":0.8,"step":0.01},"#,
@@ -573,19 +573,19 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"px","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let quilt = concat!(
-        r#"{"slug":"quilt","frames":1,"params":["#,
+        r#"{"slug":"quilt","frames":1,"svg":false,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Bands","Tabs","Plaid","Dither","Steps","Zigzag","Diamond","Cross","Basket","Rings","Star","Waves","Gingham","Burst"]},"#,
         r#"{"id":"cells","kind":"range","min":28.0,"max":72.0,"step":2.0},"#,
         r#"{"id":"chunk","kind":"range","min":0.7,"max":1.8,"step":0.05},"#,
     );
     let static_tool = concat!(
-        r#"{"slug":"static","frames":60,"params":["#,
+        r#"{"slug":"static","frames":60,"svg":false,"params":["#,
         r#"{"id":"regions","kind":"range","min":2.0,"max":5.0,"step":1.0},"#,
         r#"{"id":"res","kind":"range","min":48.0,"max":160.0,"step":4.0},"#,
         r#"{"id":"glitch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let splice = concat!(
-        r#"{"slug":"splice","frames":1,"params":["#,
+        r#"{"slug":"splice","frames":1,"svg":false,"params":["#,
         r#"{"id":"dirs","kind":"choice","choices":["Columns","Rows","Blocks"]},"#,
         r#"{"id":"slices","kind":"range","min":1.0,"max":40.0,"step":1.0},"#,
         r#"{"id":"shift","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -600,7 +600,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"bend","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let dahlia = concat!(
-        r#"{"slug":"dahlia","frames":1,"params":["#,
+        r#"{"slug":"dahlia","frames":1,"svg":false,"params":["#,
         r#"{"id":"rays","kind":"range","min":8.0,"max":300.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"ragged","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -613,7 +613,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"caps","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let hiss = concat!(
-        r#"{"slug":"hiss","frames":1,"params":["#,
+        r#"{"slug":"hiss","frames":1,"svg":false,"params":["#,
         r#"{"id":"leaves","kind":"range","min":1.0,"max":5.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.4,"max":1.4,"step":0.01},"#,
         r#"{"id":"overlap","kind":"range","min":0.0,"max":0.5,"step":0.01},"#,
@@ -630,7 +630,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"coarse","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let crowd = concat!(
-        r#"{"slug":"crowd","frames":1,"params":["#,
+        r#"{"slug":"crowd","frames":1,"svg":false,"params":["#,
         r#"{"id":"crowd","kind":"range","min":1.0,"max":48.0,"step":1.0},"#,
         r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"wobble","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -641,7 +641,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"arrowSize","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let cipher = concat!(
-        r#"{"slug":"cipher","frames":1,"params":["#,
+        r#"{"slug":"cipher","frames":1,"svg":false,"params":["#,
         r#"{"id":"cells","kind":"range","min":20.0,"max":140.0,"step":1.0},"#,
         r#"{"id":"bands","kind":"range","min":2.0,"max":7.0,"step":1.0},"#,
         r#"{"id":"fields","kind":"choice","choices":["Figure","Relief","Slope"]},"#,
@@ -655,7 +655,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"dots","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let riso = concat!(
-        r#"{"slug":"riso","frames":1,"params":["#,
+        r#"{"slug":"riso","frames":1,"svg":false,"params":["#,
         r#"{"id":"bands","kind":"range","min":2.0,"max":5.0,"step":1.0},"#,
         r#"{"id":"rough","kind":"range","min":0.1,"max":1.0,"step":0.01},"#,
         r#"{"id":"scrib","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -663,7 +663,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let rise = concat!(
-        r#"{"slug":"rise","frames":1,"params":["#,
+        r#"{"slug":"rise","frames":1,"svg":false,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Bottom","Top","Left","Right","Centre"]},"#,
         r#"{"id":"count","kind":"range","min":6.0,"max":28.0,"step":1.0},"#,
         r#"{"id":"weight","kind":"range","min":0.3,"max":0.7,"step":0.01},"#,
@@ -671,7 +671,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"depth","kind":"range","min":0.1,"max":0.4,"step":0.01},"#,
     );
     let carve = concat!(
-        r#"{"slug":"carve","frames":1,"params":["#,
+        r#"{"slug":"carve","frames":1,"svg":false,"params":["#,
         r#"{"id":"cuts","kind":"range","min":1.0,"max":16.0,"step":1.0},"#,
         r#"{"id":"uneven","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"gap","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -681,7 +681,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"nodes","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let specimen = concat!(
-        r#"{"slug":"specimen","frames":1,"params":["#,
+        r#"{"slug":"specimen","frames":1,"svg":false,"params":["#,
         r#"{"id":"cols","kind":"range","min":2.0,"max":16.0,"step":1.0},"#,
         r#"{"id":"fill","kind":"range","min":0.1,"max":1.0,"step":0.01},"#,
         r#"{"id":"span","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -702,7 +702,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"inkMix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let pane = concat!(
-        r#"{"slug":"pane","frames":1,"params":["#,
+        r#"{"slug":"pane","frames":1,"svg":false,"params":["#,
         r#"{"id":"rows","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
         r#"{"id":"cells","kind":"range","min":1.0,"max":16.0,"step":1.0},"#,
         r#"{"id":"vary","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -711,7 +711,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"spread","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let modular = concat!(
-        r#"{"slug":"modular","frames":1,"params":["#,
+        r#"{"slug":"modular","frames":1,"svg":false,"params":["#,
         r#"{"id":"gcols","kind":"range","min":2.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"unit","kind":"range","min":2.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"merge","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -727,7 +727,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"ruleW","kind":"range","min":0.5,"max":4.0,"step":0.5},"#,
     );
     let prism = concat!(
-        r#"{"slug":"prism","frames":1,"params":["#,
+        r#"{"slug":"prism","frames":1,"svg":false,"params":["#,
         r#"{"id":"cols","kind":"range","min":24.0,"max":72.0,"step":2.0},"#,
         r#"{"id":"streams","kind":"range","min":1.0,"max":5.0,"step":1.0},"#,
         r#"{"id":"reach","kind":"range","min":0.3,"max":0.85,"step":0.01},"#,
@@ -735,7 +735,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"dots","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let parcel = concat!(
-        r#"{"slug":"parcel","frames":1,"params":["#,
+        r#"{"slug":"parcel","frames":1,"svg":false,"params":["#,
         r#"{"id":"cells","kind":"range","min":8.0,"max":28.0,"step":1.0},"#,
         r#"{"id":"cover","kind":"range","min":0.2,"max":0.8,"step":0.01},"#,
         r#"{"id":"chunk","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
@@ -743,7 +743,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"blends","kind":"choice","choices":["Multiply","Normal"]},"#,
     );
     let tokens = concat!(
-        r#"{"slug":"tokens","frames":1,"params":["#,
+        r#"{"slug":"tokens","frames":1,"svg":false,"params":["#,
         r#"{"id":"cols","kind":"range","min":4.0,"max":120.0,"step":1.0},"#,
         r#"{"id":"ruleEvery","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
         r#"{"id":"grid","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -766,7 +766,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"break","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let optic = concat!(
-        r#"{"slug":"optic","frames":1,"params":["#,
+        r#"{"slug":"optic","frames":1,"svg":false,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Diamond","Circle","Peak","Square"]},"#,
         r#"{"id":"count","kind":"range","min":6.0,"max":28.0,"step":1.0},"#,
         r#"{"id":"weight","kind":"range","min":0.3,"max":0.7,"step":0.01},"#,
@@ -774,7 +774,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"levels","kind":"range","min":1.0,"max":3.0,"step":1.0},"#,
     );
     let vee = concat!(
-        r#"{"slug":"vee","frames":1,"params":["#,
+        r#"{"slug":"vee","frames":1,"svg":false,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Chevron","Quad","Diagonal","Cross"]},"#,
         r#"{"id":"angle","kind":"range","min":15.0,"max":75.0,"step":1.0},"#,
         r#"{"id":"width","kind":"range","min":0.4,"max":2.2,"step":0.05},"#,
@@ -782,7 +782,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"bands","kind":"range","min":1.0,"max":4.0,"step":1.0},"#,
     );
     let sampler = concat!(
-        r#"{"slug":"sampler","frames":1,"params":["#,
+        r#"{"slug":"sampler","frames":1,"svg":false,"params":["#,
         r#"{"id":"grid","kind":"range","min":4.0,"max":48.0,"step":1.0},"#,
         r#"{"id":"bands","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"mix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -791,7 +791,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"weight","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let totem = concat!(
-        r#"{"slug":"totem","frames":1,"params":["#,
+        r#"{"slug":"totem","frames":1,"svg":false,"params":["#,
         r#"{"id":"border","kind":"range","min":0.0,"max":0.4,"step":0.005},"#,
         r#"{"id":"mat","kind":"range","min":0.0,"max":0.7,"step":0.01},"#,
         r#"{"id":"matGrain","kind":"range","min":1.0,"max":6.0,"step":1.0},"#,
@@ -804,7 +804,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"coreRings","kind":"range","min":0.0,"max":8.0,"step":1.0},"#,
     );
     let filament = concat!(
-        r#"{"slug":"filament","frames":1,"params":["#,
+        r#"{"slug":"filament","frames":1,"svg":false,"params":["#,
         r#"{"id":"zoom","kind":"range","min":0.3,"max":6.0,"step":0.05},"#,
         r#"{"id":"turn","kind":"range","min":0.2,"max":5.0,"step":0.05},"#,
         r#"{"id":"oct","kind":"range","min":1.0,"max":6.0,"step":1.0},"#,
@@ -827,7 +827,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"msize","kind":"range","min":2.0,"max":26.0,"step":0.5},"#,
     );
     let chaff = concat!(
-        r#"{"slug":"chaff","frames":1,"params":["#,
+        r#"{"slug":"chaff","frames":1,"svg":false,"params":["#,
         r#"{"id":"count","kind":"range","min":4.0,"max":400.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"vary","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -841,7 +841,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let strand = concat!(
-        r#"{"slug":"strand","frames":1,"params":["#,
+        r#"{"slug":"strand","frames":1,"svg":false,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":40.0,"step":1.0},"#,
         r#"{"id":"len","kind":"range","min":3.0,"max":90.0,"step":1.0},"#,
         r#"{"id":"wander","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -869,7 +869,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     let out = tirage(&["tools"], b"");
     assert_eq!(out.status.code(), Some(0));
     let listing = text(&out.stdout);
-    assert!(listing.starts_with("sonar  24 frames\n"), "{listing}");
+    assert!(listing.starts_with("sonar  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nhusk  36 frames\n"), "{listing}");
     assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
@@ -1968,4 +1968,91 @@ fn encode_is_absent_without_the_feature() {
     );
     let help = text(&tirage(&["--help"], b"").stdout);
     assert!(!help.contains("encode"), "{help}");
+}
+
+#[test]
+fn render_refuses_svg_for_a_tool_without_it_whether_flagged_or_inferred() {
+    let husk = tirage(&["derive", "--seed", "1", "--tool", "husk"], b"").stdout;
+    let dir = scratch("svg-refused");
+    let svg = dir.join("out.svg");
+    for args in [
+        vec!["render", "--size", "9x16", "--format", "svg", "-o", "-"],
+        vec!["render", "--size", "9x16", "-o", svg.to_str().unwrap()],
+    ] {
+        let out = tirage(&args, &husk);
+        assert_eq!(
+            (out.status.code(), text(&out.stderr).as_str()),
+            (
+                Some(1),
+                "error: husk: renders PNG only, not SVG\nhint: run 'tirage tools' to see which Tools render SVG, or write a .png\n"
+            ),
+            "{args:?}"
+        );
+        assert!(out.stdout.is_empty());
+    }
+    assert!(!svg.exists());
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn render_format_png_wins_over_an_svg_extension() {
+    let dir = scratch("format-wins");
+    let output = dir.join("out.svg");
+    let out = tirage(
+        &[
+            "render",
+            "--size",
+            "9x16",
+            "--format",
+            "png",
+            "-o",
+            output.to_str().unwrap(),
+        ],
+        &recipe(),
+    );
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+    assert!(std::fs::read(&output).unwrap().starts_with(b"\x89PNG"));
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn render_refuses_an_svg_of_any_frame_even_0() {
+    let out = tirage(
+        &[
+            "render", "--size", "9x16", "--frame", "0", "--format", "svg", "-o", "-",
+        ],
+        &recipe(),
+    );
+    assert_eq!(out.status.code(), Some(2));
+    assert!(
+        text(&out.stderr).contains("an SVG is the Still, drop --frame or pass --format png"),
+        "{}",
+        text(&out.stderr)
+    );
+    assert!(out.stdout.is_empty());
+}
+
+#[test]
+fn render_writes_an_svg_from_its_extension_or_to_stdout_with_format_svg() {
+    let dir = scratch("svg");
+    let output = dir.join("still.svg");
+    let file = tirage(
+        &["render", "--size", "9x16", "-o", output.to_str().unwrap()],
+        &recipe(),
+    );
+    assert_eq!(file.status.code(), Some(0), "{}", text(&file.stderr));
+    let svg = std::fs::read_to_string(&output).unwrap();
+    assert!(
+        svg.starts_with(
+            r#"<svg xmlns="http://www.w3.org/2000/svg" width="9" height="16" viewBox="0 0 9 16">"#
+        ),
+        "{svg}"
+    );
+    let piped = tirage(
+        &["render", "--size", "9x16", "--format", "svg", "-o", "-"],
+        &recipe(),
+    );
+    assert_eq!(piped.status.code(), Some(0), "{}", text(&piped.stderr));
+    assert_eq!(text(&piped.stdout), svg);
+    std::fs::remove_dir_all(dir).unwrap();
 }

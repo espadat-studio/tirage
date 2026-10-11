@@ -110,6 +110,10 @@ impl Tool {
             .find(|tool| tool.slug() == slug)
             .ok_or_else(|| Error::UnknownTool(slug.to_owned()))
     }
+
+    pub fn supports_svg(self) -> bool {
+        matches!(self, Self::Sonar)
+    }
 }
 
 pub(crate) trait Inks<'a> {

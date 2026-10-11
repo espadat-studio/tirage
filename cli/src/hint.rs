@@ -39,6 +39,9 @@ pub fn for_error(error: &Error) -> Option<String> {
         Error::TasteJson(_) => {
             "Taste bounds are a JSON object of a tool and [min, max] per Parameter id".to_owned()
         }
+        Error::SvgUnsupported { .. } => {
+            "run 'tirage tools' to see which Tools render SVG, or write a .png".to_owned()
+        }
         _ => return None,
     };
     Some(hint)
