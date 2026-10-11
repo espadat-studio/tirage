@@ -23,8 +23,11 @@ fn every_fixture_is_within_its_threshold() {
         for fixture in entry["fixtures"].as_array().unwrap() {
             let name = format!("{slug}-{}", fixture["name"].as_str().unwrap());
             let recipe = Recipe::from_json(&fixture["recipe"].to_string()).unwrap();
-            let t = fixture["frame"].as_u64().unwrap_or(0) as u32;
-            let frame = Frame::new(&recipe, WIDTH, HEIGHT, t).unwrap();
+            let frame = match fixture["frame"].as_u64() {
+                Some(t) => Frame::new(&recipe, WIDTH, HEIGHT, t as u32),
+                None => Frame::still(WIDTH, HEIGHT),
+            }
+            .unwrap();
             let image = render(&recipe, &frame);
             let ours = image::RgbaImage::from_raw(WIDTH, HEIGHT, image.rgba().to_vec()).unwrap();
             let reference = image::open(

@@ -19,7 +19,7 @@ Reads a Recipe and writes one frame of its Visual as a PNG. A Still has one fram
 | Option           | Value                                          | Without it                                                                                                                                                                                                    |
 | ---------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--size <W>x<H>` | Frame size in pixels, each edge from 1 to 8192 | Prompted on a terminal with a pick of 1080x1920 story, 1080x1350 portrait, 1080x1080 square, 1920x1080 landscape, or a custom size                                                                            |
-| `--frame <T>`    | A frame of a Loop, counted from 0              | Frame 0, the Still                                                                                                                                                                                            |
+| `--frame <T>`    | A frame of a Loop, counted from 0              | The Still                                                                                                                                                                                                     |
 | `-o <FILE>`      | PNG to write, or `-` for stdout                | Prompted on a terminal, with `<tool>-<seed>.png` as default when render derived the Recipe itself and `out.png` otherwise. The prompt asks before overwriting. An explicit path is overwritten without asking |
 
 `-h`, `--help`, `--no-color` and `--no-input` work here as on every command. See [tirage](/cli-reference/tirage/).
@@ -42,7 +42,7 @@ Any size from 1x1 to 8192x8192 pixels. The prompt offers the four common social 
 
 ## Frame
 
-`--frame` picks one frame of a Loop, from 0 to one less than the Tool's frame count. Frame 0 is the Still. A frame past the end exits 1, and the hint names the last valid frame. To turn every frame into an MP4, see [encode](/cli-reference/encode/).
+`--frame` picks one frame of a Loop, from 0 to one less than the Tool's frame count. Without it, render draws the Still, the Tool with motion off. Frame 0 is the Loop's first frame with motion on, so on some Tools it differs from the Still. A frame past the end exits 1, and the hint names the last valid frame. To turn every frame into an MP4, see [encode](/cli-reference/encode/).
 
 ## Output
 

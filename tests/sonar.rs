@@ -215,6 +215,17 @@ fn frame_checks_edges_and_time() {
 }
 
 #[test]
+fn the_still_is_a_frame_with_motion_off() {
+    let recipe = derive(7, SONAR);
+    assert_eq!(Frame::still(540, 960).unwrap().t(), None);
+    assert_eq!(Frame::new(&recipe, 540, 960, 0).unwrap().t(), Some(0));
+    assert_eq!(
+        error(Frame::still(540, 0)),
+        "frame 540x0 is outside 1..=8192 per edge"
+    );
+}
+
+#[test]
 fn sonar_loops_at_its_site_default_motion() {
     assert_eq!((Tool::Sonar.frames(), Tool::Sonar.fps()), (24, 10));
 }

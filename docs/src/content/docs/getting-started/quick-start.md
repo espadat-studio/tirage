@@ -72,7 +72,7 @@ sonar's Loop is 24 frames at 10 fps: the land keeps its shape while the water le
 tirage render recipe.json --size 720x1280 --frame 6 -o frame-6.png
 ```
 
-Frame 6 is high tide. Frame 0 is the Still of the same Recipe, so leaving out `--frame` gives the same image as `--frame 0`. The tide runs one full cycle per Loop, so the last frame leads back into the first.
+Frame 6 is high tide. On sonar, frame 0 is the Still of the same Recipe, so leaving out `--frame` gives the same image as `--frame 0`. The tide runs one full cycle per Loop, so the last frame leads back into the first.
 
 ## Encode the Loop to MP4
 

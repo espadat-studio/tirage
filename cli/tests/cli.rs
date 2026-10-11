@@ -160,7 +160,7 @@ fn runtime_errors_exit_1_with_a_human_message() {
         (
             &["render", "--size", "9x16", "--frame", "24", "-o", "-"],
             &recipe(),
-            "error: frame 24 is outside 0..24\nhint: pass --frame from 0 to 23, or leave it out for frame 0\n",
+            "error: frame 24 is outside 0..24\nhint: pass --frame from 0 to 23, or leave it out for the Still\n",
         ),
         (
             &["render", "missing.json", "--size", "9x16", "-o", "-"],

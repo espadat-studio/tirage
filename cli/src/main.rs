@@ -121,10 +121,9 @@ enum Command {
         #[arg(
             long,
             value_name = "T",
-            default_value_t = 0,
-            help = "Frame of a Loop, from 0"
+            help = "Frame of a Loop, from 0, the Still without it"
         )]
-        frame: u32,
+        frame: Option<u32>,
         #[arg(
             short,
             value_name = "FILE",
@@ -436,8 +435,11 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             if output == stdio && io::stdout().is_terminal() {
                 return Err(refuse_terminal("render", "a PNG"));
             }
-            let frame =
-                Frame::new(&recipe, width, height, frame).map_err(|e| Failure::runtime(&e))?;
+            let frame = match frame {
+                Some(t) => Frame::new(&recipe, width, height, t),
+                None => Frame::still(width, height),
+            }
+            .map_err(|e| Failure::runtime(&e))?;
             write_output(&output, &render(&recipe, &frame).to_png())
         }
         #[cfg(feature = "encode")]
@@ -496,7 +498,7 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
                 if still { "png" } else { "mp4" }
             ));
             let (command, bytes) = if still {
-                let frame = Frame::new(&recipe, 1080, 1920, 0).map_err(|e| Failure::runtime(&e))?;
+                let frame = Frame::still(1080, 1920).map_err(|e| Failure::runtime(&e))?;
                 ("render --size 1080x1920", render(&recipe, &frame).to_png())
             } else {
                 ("encode", encode_loop(&recipe)?)
