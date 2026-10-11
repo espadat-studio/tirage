@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool static | tirage render --size 540x960 -o static.pn
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-static  1 frame
+static  60 frames
   regions     2..=5     step 1
   res         48..=160  step 4
   glitch      0..=1     step 0.01
