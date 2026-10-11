@@ -19,7 +19,7 @@ Site control ids, slider ranges and site defaults:
 | `tex`   | 0..1          | 0.01 | 0.45    | bite scale: crumble patch size, dot pitch   |
 | `grain` | 0..1          | 0.01 | 0.3     | the Tool's own per-pixel noise, not chassis |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. husk is a Still Tool: only frame 0 is rendered, so its motion modes are never used. Grain and dither are the shared [chassis](chassis.md) post-passes, also off by default. The `grain` slider above is separate from the chassis grain. Default Palette: `#e0c3fc #1b1b1e #f9f871`.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. The Loop turns it on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, also off by default. The `grain` slider above is separate from the chassis grain. Default Palette: `#e0c3fc #1b1b1e #f9f871`.
 
 A Seed deals `count`, `size`, `vary`, `lump`, `eat` and `tex`. `bites` stays at Crumble and `grain` at 0.3, the site defaults: Dots is a different look, and the `grain` slider is grain, which stays at site defaults like the chassis passes.
 
@@ -82,6 +82,19 @@ Dots keeps a pixel when it is inside its screen dot:
 - `v` is `(depth - 0.05) / 0.95`, clamped to 0..1. The pixel is kept when `rad < 0.52 sqrt(v) (1.35 - 0.85 eat)`.
 
 Then the Tool's grain: when `40 * grain` is above 0.002, each channel gets `(hash(x, y, Tool seed + 71) - 0.5) * 40 * grain` added. The channels are stored as bytes, clamped and rounded half to even. Alpha is 255.
+
+## Motion
+
+The site has three motion modes: Drift, Turn and Eat. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, and the phase is `ph = T * π * 2`.
+- Drift moves each husk's centre along its own closed path. The offset is `cos(ph + wobble)` on x and `sin(ph + 1.6 wobble)` on y, both times `0.06 * amount * field width`. The y axis also uses the field width, so the path is not squashed on a tall frame. At the default amount the reach is 0.036 of the field width, about 20 cells.
+- Both axes turn once per Loop but start at different phases, so each path is an ellipse and every husk walks its own. The amount sets the size of the path, never the number of turns.
+- The visit box and the depth sums use the moved centre. Everything else holds: the draws, radius, stretch, rotation, outline harmonics, bite and grain. Crumble noise and grain are read at pixel coordinates, so the husks slide under a fixed crumble.
+- The Loop closes by the circle: at `T = 1` the phase is a whole turn, so every centre is back at its start. `cos(ph + wobble)` at `ph = 2π` may differ from `ph = 0` in the last bit. The 32-bit depth store absorbs it on the 3 Seeds the closure test renders, so the frame after the last is frame 0 byte for byte.
+- Frame 0 is not the Still. At `T = 0` each husk sits at `(cos wobble, sin 1.6 wobble)` times the reach, while the Still has no offset and no frame of the Loop visits it. Frame 0 gets its own motion-on reference export.
+- The mid frame is 18: half a turn, each husk at the far side of its path from frame 0.
+- Turn and Eat are not ported. Turn swings each husk's rotation on a sine, Eat slides the crumble noise across the husks. Neither is reachable from a Recipe.
 
 ## Fidelity notes
 
