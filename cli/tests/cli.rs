@@ -458,7 +458,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"stripe","kind":"range","min":0.5,"max":2.2,"step":0.05},"#,
     );
     let warp = concat!(
-        r#"{"slug":"warp","frames":1,"params":["#,
+        r#"{"slug":"warp","frames":72,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Checker","Slash"]},"#,
         r#"{"id":"scale","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -911,7 +911,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nculture  1 frame\n"), "{listing}");
     assert!(listing.contains("\nbloom  24 frames\n"), "{listing}");
     assert!(listing.contains("\nweave  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nwarp  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nwarp  72 frames\n"), "{listing}");
     assert!(listing.contains("\nzig  1 frame\n"), "{listing}");
     assert!(listing.contains("\nrelief  1 frame\n"), "{listing}");
     for line in [

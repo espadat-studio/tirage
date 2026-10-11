@@ -10,10 +10,11 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "warp";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 72;
 pub(crate) const FPS: u32 = 12;
 const INKS: usize = 5;
 pub(crate) const MAX_INKS: Option<usize> = Some(INKS);
+const AMOUNT: f64 = 0.8;
 
 const DEFAULT_PALETTE: [&str; INKS] = ["#f7f3ea", "#f72585", "#4361ee", "#f7b32b", "#1b1b1b"];
 
@@ -181,9 +182,9 @@ pub(crate) fn render(
     params: &WarpParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -241,11 +242,20 @@ fn spec(style: WarpStyle, tool_seed: u32) -> Spec {
     }
 }
 
-fn paint(surface: &mut Surface, params: &WarpParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &WarpParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
     let spec = spec(params.style, tool_seed);
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let md = w.min(h);
-    let strength = params.warp * spec.strength;
+    let swing = t.map_or(1.0, |t| {
+        1.0 + 0.55 * AMOUNT * (TAU * (f64::from(t) / f64::from(FRAMES)) + spec.phase).sin()
+    });
+    let strength = params.warp * spec.strength * swing;
     let cs = spec.cell * params.scale * md;
     let margin = md * 0.35;
     let bend = |u: f64, v: f64| match spec.bend {

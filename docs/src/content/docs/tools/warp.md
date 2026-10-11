@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool warp | tirage render --size 540x960 -o warp.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-warp  1 frame
+warp  72 frames
   styles      Checker, Slash
   scale       0.5..=2   step 0.05
   warp        0..=1     step 0.01
