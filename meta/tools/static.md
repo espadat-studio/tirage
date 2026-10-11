@@ -14,7 +14,7 @@ Site control ids, slider ranges and site defaults:
 | `res`     | 48..160 | 4    | 84      | grid columns across the frame        |
 | `glitch`  | 0..1    | 0.01 | 0.5     | how many shifts, smears and dropouts |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. static is a Still Tool: only frame 0 is rendered. Motion stays fixed at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. The Loop turns it on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The Palette is `[ink, ground]`: the page's ink field, then its background field, the order My colors fills them in. Default Palette: `#FF3CAC #1B1B2F`. The cap is 2. The colour inputs show other hexes in the page source until touched, but the art reads the page state, whose defaults are these. `#swapColors` is a button that swaps the two, not a Parameter.
 
@@ -88,6 +88,19 @@ From the glitch stream, `amt = glitch`:
 ## Painting
 
 Set bits are the ink, clear bits the ground. The grid is drawn over the frame with image smoothing off.
+
+## Motion
+
+The site has two motion modes: Flicker and Drift. Flicker is the default and the only one ported: amount 0.8, 60 frames at 10 fps.
+
+- Flicker re-deals parts of the grid every frame `f`. A static region hashes its cells on channel `f` in place of 0. A blocks region swaps its small grid's channel 0 for `f`, but only on frames where `h(0, 0, f)` with the region's hash seed is under 0.25, so blocks jump now and then and hold in between.
+- The glitch stream starts at `(s xor 0x9e3779b9) + 2654435761 f`, kept to 32 bits, so every frame deals new shifts, smears and dropouts.
+- The glitch strength is `glitch (0.6 + 0.8 amount)`, 1.24 times the slider at the default amount. That raises the number of shifts, smears and dropouts. The amount does nothing else in Flicker.
+- Nothing else moves. The layout, the band and inset boxes, and the moire, rings, bars and zigzag regions hold. The big blocks grid holds too.
+- The Loop closes by a cut: the frame after the last is a new deal, not frame 0. A reseed has no closure test.
+- At `f = 0` the cells and the glitch stream are the Still's, but the strength is 1.24 times higher, so frame 0 has more glitches than the Still. It gets a reference export of its own.
+- The mid frame is 30. Any frame past 0 is a fresh deal, and 30 is half way through.
+- Drift is not ported. It slides the moire and ring phases, the bars and the zigzag. It is not reachable from a Recipe.
 
 ## Fidelity notes
 
