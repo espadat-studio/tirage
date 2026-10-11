@@ -8,6 +8,7 @@ mod recipe;
 mod registry;
 mod render;
 mod surface;
+mod svg;
 mod taste;
 mod text;
 mod unique_keys;
@@ -72,7 +73,7 @@ pub use error::Error;
 pub use image::Image;
 pub use palette::Palette;
 pub use recipe::{Parameter, ParameterKind, Recipe};
-pub use render::{Frame, MAX_EDGE, render};
+pub use render::{Frame, MAX_EDGE, render, render_svg};
 pub use taste::Taste;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

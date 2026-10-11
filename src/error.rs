@@ -50,6 +50,9 @@ pub enum Error {
     },
     Json(String),
     TasteJson(String),
+    SvgUnsupported {
+        tool: Tool,
+    },
 }
 
 impl fmt::Display for Error {
@@ -122,6 +125,9 @@ impl fmt::Display for Error {
             }
             Self::Json(message) => write!(f, "Recipe JSON: {message}"),
             Self::TasteJson(message) => write!(f, "Taste JSON: {message}"),
+            Self::SvgUnsupported { tool } => {
+                write!(f, "{}: renders PNG only, not SVG", tool.slug())
+            }
         }
     }
 }

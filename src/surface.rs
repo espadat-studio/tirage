@@ -9,8 +9,14 @@ use tiny_skia::{
 };
 
 use crate::Image;
+use crate::svg::SvgWriter;
 
-pub(crate) struct Surface(Pixmap, f32, Option<Mask>, BlendMode);
+pub(crate) struct Surface(Backend, f32, BlendMode);
+
+enum Backend {
+    Raster(Pixmap, Option<Mask>),
+    Svg(SvgWriter),
+}
 
 #[derive(Clone, Copy)]
 pub(crate) enum Cap {
@@ -163,14 +169,32 @@ impl Path2D {
 impl Surface {
     pub(crate) fn new(width: u32, height: u32) -> Self {
         Self(
-            Pixmap::new(width, height).expect("frame edges are validated"),
+            Backend::Raster(
+                Pixmap::new(width, height).expect("frame edges are validated"),
+                None,
+            ),
             1.0,
-            None,
             BlendMode::SourceOver,
         )
     }
 
+    pub(crate) fn svg(width: u32, height: u32) -> Self {
+        Self(
+            Backend::Svg(SvgWriter::new(width, height)),
+            1.0,
+            BlendMode::SourceOver,
+        )
+    }
+
+    fn raster(&mut self, op: &str) -> (&mut Pixmap, &mut Option<Mask>) {
+        match &mut self.0 {
+            Backend::Raster(pixmap, mask) => (pixmap, mask),
+            Backend::Svg(_) => panic!("{op} has no SVG arm"),
+        }
+    }
+
     pub(crate) fn with_alpha(&mut self, alpha: f32, draw: impl FnOnce(&mut Self)) {
+        self.raster("with_alpha");
         let outer = std::mem::replace(&mut self.1, alpha);
         draw(self);
         self.1 = outer;
@@ -182,40 +206,44 @@ impl Surface {
         transform: Transform,
         draw: impl FnOnce(&mut Self),
     ) {
+        let (width, height) = (self.width(), self.height());
+        let (_, slot) = self.raster("with_clip");
         let path = clip.0.clone().finish().expect("a clip has a closed loop");
-        let mask = if let Some(outer) = &self.2 {
+        let mask = if let Some(outer) = slot.as_ref() {
             let mut mask = outer.clone();
             mask.intersect_path(&path, FillRule::Winding, true, transform.0);
             mask
         } else {
-            let mut mask =
-                Mask::new(self.width(), self.height()).expect("frame edges are validated");
+            let mut mask = Mask::new(width, height).expect("frame edges are validated");
             mask.fill_path(&path, FillRule::Winding, true, transform.0);
             mask
         };
-        let outer = self.2.replace(mask);
+        let outer = slot.replace(mask);
+        draw(self);
+        *self.raster("with_clip").1 = outer;
+    }
+
+    pub(crate) fn with_multiply(&mut self, draw: impl FnOnce(&mut Self)) {
+        self.raster("with_multiply");
+        let outer = std::mem::replace(&mut self.2, BlendMode::Multiply);
         draw(self);
         self.2 = outer;
     }
 
-    pub(crate) fn with_multiply(&mut self, draw: impl FnOnce(&mut Self)) {
-        let outer = std::mem::replace(&mut self.3, BlendMode::Multiply);
-        draw(self);
-        self.3 = outer;
-    }
-
     pub(crate) fn with_plus(&mut self, draw: impl FnOnce(&mut Self)) {
-        let outer = std::mem::replace(&mut self.3, BlendMode::Plus);
+        self.raster("with_plus");
+        let outer = std::mem::replace(&mut self.2, BlendMode::Plus);
         draw(self);
-        self.3 = outer;
+        self.2 = outer;
     }
 
     pub(crate) fn with_blur(&mut self, sigma: f64, draw: impl FnOnce(&mut Self)) {
+        self.raster("with_blur");
         let mut layer = Self::new(self.width(), self.height());
         draw(&mut layer);
         let (width, height) = (self.width() as usize, self.height() as usize);
+        let (layer, _) = layer.raster("with_blur");
         let mut channels = layer
-            .0
             .data()
             .iter()
             .map(|&c| f64::from(c))
@@ -224,21 +252,22 @@ impl Surface {
             box_pass(&mut channels, (width, height), (4, width * 4), window);
             box_pass(&mut channels, (height, width), (width * 4, 4), window);
         }
-        for (byte, value) in layer.0.data_mut().iter_mut().zip(channels) {
+        for (byte, value) in layer.data_mut().iter_mut().zip(channels) {
             *byte = value.round().clamp(0.0, 255.0) as u8;
         }
         let paint = PixmapPaint {
             opacity: self.1,
-            blend_mode: self.3,
+            blend_mode: self.2,
             ..PixmapPaint::default()
         };
-        self.0.draw_pixmap(
+        let (pixmap, mask) = self.raster("with_blur");
+        pixmap.draw_pixmap(
             0,
             0,
-            layer.0.as_ref(),
+            layer.as_ref(),
             &paint,
             tiny_skia::Transform::identity(),
-            self.2.as_ref(),
+            mask.as_ref(),
         );
     }
 
@@ -246,16 +275,22 @@ impl Surface {
         let [r, g, b] = [r, g, b].map(|c| f32::from(c) / 255.0);
         let mut paint = Paint::default();
         paint.set_color(Color::from_rgba(r, g, b, self.1).expect("alpha is 0..=1"));
-        paint.blend_mode = self.3;
+        paint.blend_mode = self.2;
         paint
     }
 
     pub(crate) fn width(&self) -> u32 {
-        self.0.width()
+        match &self.0 {
+            Backend::Raster(pixmap, _) => pixmap.width(),
+            Backend::Svg(svg) => svg.width(),
+        }
     }
 
     pub(crate) fn height(&self) -> u32 {
-        self.0.height()
+        match &self.0 {
+            Backend::Raster(pixmap, _) => pixmap.height(),
+            Backend::Svg(svg) => svg.height(),
+        }
     }
 
     pub(crate) fn fill(&mut self, ink: [u8; 3]) {
@@ -275,11 +310,12 @@ impl Surface {
             .expect("rect sides are at least 1 px");
         let mut paint = self.solid([r, g, b]);
         paint.anti_alias = false;
-        self.0.fill_rect(
+        let (pixmap, mask) = self.raster("fill_rect");
+        pixmap.fill_rect(
             rect,
             &paint,
             tiny_skia::Transform::identity(),
-            self.2.as_ref(),
+            mask.as_ref(),
         );
     }
 
@@ -318,8 +354,12 @@ impl Surface {
             anti_alias: false,
             ..Paint::default()
         };
-        self.0
-            .fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
+        self.raster("fill_rect_linear").0.fill_rect(
+            rect,
+            &paint,
+            tiny_skia::Transform::identity(),
+            None,
+        );
     }
 
     pub(crate) fn fill_even_odd(&mut self, path: &Path2D, ink: [u8; 3]) {
@@ -329,12 +369,13 @@ impl Surface {
             .finish()
             .expect("a filled path has a closed loop");
         let paint = self.solid(ink);
-        self.0.fill_path(
+        let (pixmap, mask) = self.raster("fill_even_odd");
+        pixmap.fill_path(
             &path,
             &paint,
             FillRule::EvenOdd,
             tiny_skia::Transform::identity(),
-            self.2.as_ref(),
+            mask.as_ref(),
         );
     }
 
@@ -358,35 +399,38 @@ impl Surface {
             .finish()
             .expect("a stroked path has a closed loop");
         let paint = self.solid(ink);
-        self.0.stroke_path(
+        let (pixmap, mask) = self.raster("stroke");
+        pixmap.stroke_path(
             &path,
             &paint,
             &stroke,
             tiny_skia::Transform::identity(),
-            self.2.as_ref(),
+            mask.as_ref(),
         );
     }
 
     pub(crate) fn fill_box(&mut self, x: f64, y: f64, width: f64, height: f64, ink: [u8; 3]) {
         if let Some(rect) = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32) {
             let paint = self.solid(ink);
-            self.0.fill_rect(
+            let (pixmap, mask) = self.raster("fill_box");
+            pixmap.fill_rect(
                 rect,
                 &paint,
                 tiny_skia::Transform::identity(),
-                self.2.as_ref(),
+                mask.as_ref(),
             );
         }
     }
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
         let paint = self.solid(ink);
-        self.0.fill_path(
+        let (pixmap, mask) = self.raster("fill_path");
+        pixmap.fill_path(
             path,
             &paint,
             FillRule::Winding,
             tiny_skia::Transform::identity(),
-            self.2.as_ref(),
+            mask.as_ref(),
         );
     }
 
@@ -397,13 +441,8 @@ impl Surface {
             .finish()
             .expect("a filled path has a closed loop");
         let paint = self.solid(ink);
-        self.0.fill_path(
-            &path,
-            &paint,
-            FillRule::Winding,
-            transform.0,
-            self.2.as_ref(),
-        );
+        let (pixmap, mask) = self.raster("fill_transformed");
+        pixmap.fill_path(&path, &paint, FillRule::Winding, transform.0, mask.as_ref());
     }
 
     pub(crate) fn fill_radial_fade(
@@ -439,18 +478,20 @@ impl Surface {
         let side = (radius * 2.0) as f32;
         let rect = Rect::from_xywh((x - radius) as f32, (y - radius) as f32, side, side)
             .expect("a fade has a positive radius");
-        self.0.fill_rect(
+        let (pixmap, mask) = self.raster("fill_radial_fade");
+        pixmap.fill_rect(
             rect,
             &paint,
             tiny_skia::Transform::identity(),
-            self.2.as_ref(),
+            mask.as_ref(),
         );
     }
 
     pub(crate) fn set_pixel(&mut self, x: u32, y: u32, [r, g, b]: [u8; 3]) {
-        assert!(self.2.is_none(), "pixel writes ignore a clip");
-        let width = self.width();
-        self.0.pixels_mut()[(y * width + x) as usize] =
+        let (pixmap, mask) = self.raster("set_pixel");
+        assert!(mask.is_none(), "pixel writes ignore a clip");
+        let width = pixmap.width();
+        pixmap.pixels_mut()[(y * width + x) as usize] =
             ColorU8::from_rgba(r, g, b, 255).premultiply();
     }
 
@@ -458,12 +499,13 @@ impl Surface {
         let path = PathBuilder::from_circle(x as f32, y as f32, radius as f32)
             .expect("a circle has a positive radius");
         let paint = self.solid(ink);
-        self.0.fill_path(
+        let (pixmap, mask) = self.raster("fill_circle");
+        pixmap.fill_path(
             &path,
             &paint,
             FillRule::Winding,
             tiny_skia::Transform::identity(),
-            self.2.as_ref(),
+            mask.as_ref(),
         );
     }
 
@@ -497,17 +539,18 @@ impl Surface {
             quality: FilterQuality::Bicubic,
             ..PixmapPaint::default()
         };
-        self.0
-            .draw_pixmap(0, 0, image.as_ref(), &paint, scale, self.2.as_ref());
+        let (pixmap, mask) = self.raster("draw_smooth Bicubic");
+        pixmap.draw_pixmap(0, 0, image.as_ref(), &paint, scale, mask.as_ref());
     }
 
     fn draw_nearest(&mut self, rgba: &[u8], width: u32, height: u32) {
-        assert!(self.2.is_none(), "pixel writes ignore a clip");
-        let (columns, rows) = (self.width(), self.height());
+        let (pixmap, mask) = self.raster("draw_smooth Nearest");
+        assert!(mask.is_none(), "pixel writes ignore a clip");
+        let (columns, rows) = (pixmap.width(), pixmap.height());
         let source = |at: u32, edge: u32, scaled: u32| {
             ((f64::from(at) + 0.5) * f64::from(edge) / f64::from(scaled)).ceil() as u32 - 1
         };
-        let pixels = self.0.pixels_mut();
+        let pixels = pixmap.pixels_mut();
         for y in 0..rows {
             let sy = source(y, height, rows);
             for x in 0..columns {
@@ -520,32 +563,43 @@ impl Surface {
     }
 
     pub(crate) fn edit_rgba(&mut self, edit: impl FnOnce(&mut [u8], u32, u32)) {
-        assert!(self.2.is_none(), "pixel writes ignore a clip");
-        let mut rgba = self.rgba();
-        edit(&mut rgba, self.width(), self.height());
-        for (pixel, &[r, g, b, a]) in self.0.pixels_mut().iter_mut().zip(rgba.as_chunks::<4>().0) {
+        let Backend::Raster(pixmap, mask) = &mut self.0 else {
+            return;
+        };
+        assert!(mask.is_none(), "pixel writes ignore a clip");
+        let mut rgba = rgba(pixmap);
+        edit(&mut rgba, pixmap.width(), pixmap.height());
+        for (pixel, &[r, g, b, a]) in pixmap.pixels_mut().iter_mut().zip(rgba.as_chunks::<4>().0) {
             *pixel = ColorU8::from_rgba(r, g, b, a).premultiply();
         }
     }
 
-    fn rgba(&self) -> Vec<u8> {
-        self.0
-            .pixels()
-            .iter()
-            .flat_map(|pixel| {
-                let c = pixel.demultiply();
-                [c.red(), c.green(), c.blue(), c.alpha()]
-            })
-            .collect()
-    }
-
-    pub(crate) fn into_image(self) -> Image {
+    pub(crate) fn into_image(mut self) -> Image {
+        let (pixmap, _) = self.raster("into_image");
         Image {
-            width: self.width(),
-            height: self.height(),
-            rgba: self.rgba(),
+            width: pixmap.width(),
+            height: pixmap.height(),
+            rgba: rgba(pixmap),
         }
     }
+
+    pub(crate) fn into_svg(self) -> String {
+        let Backend::Svg(svg) = self.0 else {
+            panic!("into_svg reads an SVG Surface");
+        };
+        svg.finish()
+    }
+}
+
+fn rgba(pixmap: &Pixmap) -> Vec<u8> {
+    pixmap
+        .pixels()
+        .iter()
+        .flat_map(|pixel| {
+            let c = pixel.demultiply();
+            [c.red(), c.green(), c.blue(), c.alpha()]
+        })
+        .collect()
 }
 
 fn box_windows(sigma: f64) -> [(usize, usize); 3] {
@@ -593,6 +647,19 @@ mod tests {
     use super::{Cap, Join, Path2D, Smoothing, Surface, Transform};
 
     #[test]
+    #[should_panic(expected = "fill_circle has no SVG arm")]
+    fn an_svg_surface_panics_naming_an_op_without_an_svg_arm() {
+        Surface::svg(4, 4).fill_circle(2.0, 2.0, 1.0, [0, 0, 0]);
+    }
+
+    #[test]
+    fn edit_rgba_leaves_an_svg_surface_untouched() {
+        let mut surface = Surface::svg(4, 4);
+        surface.edit_rgba(|_, _, _| panic!("an SVG has no pixels to edit"));
+        assert!(surface.into_svg().ends_with("></svg>\n"));
+    }
+
+    #[test]
     fn edit_rgba_hands_out_and_takes_back_straight_alpha() {
         let mut surface = Surface::new(1, 1);
         surface.edit_rgba(|rgba, _, _| rgba.copy_from_slice(&[200, 100, 50, 128]));
@@ -631,6 +698,7 @@ mod tests {
             surface.fill([255, 0, 0]);
         });
         let clipped = surface
+            .raster("test")
             .0
             .pixels()
             .iter()
@@ -638,7 +706,14 @@ mod tests {
             .collect::<Vec<_>>();
         assert_eq!(clipped, [0, 255, 0]);
         surface.fill_box(0.0, 0.0, 3.0, 1.0, [0, 0, 255]);
-        assert!(surface.0.pixels().iter().all(|p| p.blue() == 255));
+        assert!(
+            surface
+                .raster("test")
+                .0
+                .pixels()
+                .iter()
+                .all(|p| p.blue() == 255)
+        );
     }
 
     #[test]
@@ -666,7 +741,8 @@ mod tests {
         cell.rect(0.0, 0.0, 1.0, 1.0);
         let shift = Transform::IDENTITY.translate(2.0, 0.0);
         surface.with_clip(&cell, shift, |surface| surface.fill([255, 0, 0]));
-        let red = |x: usize| surface.0.pixels()[x].red();
+        let pixels = surface.raster("test").0.pixels();
+        let red = |x: usize| pixels[x].red();
         assert_eq!([red(0), red(1), red(2)], [0, 0, 255]);
     }
 

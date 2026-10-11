@@ -58,6 +58,22 @@ pub fn render(recipe: &Recipe, frame: &Frame) -> Image {
     surface.into_image()
 }
 
+pub fn render_svg(recipe: &Recipe, width: u32, height: u32) -> Result<String, Error> {
+    let tool = recipe.tool();
+    if !tool.supports_svg() {
+        return Err(Error::SvgUnsupported { tool });
+    }
+    let frame = Frame::new(recipe, width, height, 0)?;
+    let mut surface = Surface::svg(frame.width, frame.height);
+    recipe.params().render(
+        &mut surface,
+        recipe.palette(),
+        recipe.tool_seed().get(),
+        frame.t,
+    );
+    Ok(surface.into_svg())
+}
+
 #[cfg(test)]
 impl Frame {
     pub(crate) fn after_last(recipe: &Recipe, width: u32, height: u32) -> Self {
