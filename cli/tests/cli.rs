@@ -1969,3 +1969,65 @@ fn encode_is_absent_without_the_feature() {
     let help = text(&tirage(&["--help"], b"").stdout);
     assert!(!help.contains("encode"), "{help}");
 }
+
+#[test]
+fn render_refuses_svg_for_a_tool_without_it_whether_flagged_or_inferred() {
+    let husk = tirage(&["derive", "--seed", "1", "--tool", "husk"], b"").stdout;
+    let dir = scratch("svg-refused");
+    let svg = dir.join("out.svg");
+    for args in [
+        vec!["render", "--size", "9x16", "--format", "svg", "-o", "-"],
+        vec!["render", "--size", "9x16", "-o", svg.to_str().unwrap()],
+    ] {
+        let out = tirage(&args, &husk);
+        assert_eq!(
+            (out.status.code(), text(&out.stderr).as_str()),
+            (
+                Some(1),
+                "error: husk: renders PNG only, not SVG\nhint: run 'tirage tools' to see which Tools render SVG, or pass --format png\n"
+            ),
+            "{args:?}"
+        );
+        assert!(out.stdout.is_empty());
+    }
+    assert!(!svg.exists());
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn render_format_png_wins_over_an_svg_extension() {
+    let dir = scratch("format-wins");
+    let output = dir.join("out.svg");
+    let out = tirage(
+        &[
+            "render",
+            "--size",
+            "9x16",
+            "--format",
+            "png",
+            "-o",
+            output.to_str().unwrap(),
+        ],
+        &recipe(),
+    );
+    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+    assert!(std::fs::read(&output).unwrap().starts_with(b"\x89PNG"));
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn render_refuses_an_svg_of_any_frame_even_0() {
+    let out = tirage(
+        &[
+            "render", "--size", "9x16", "--frame", "0", "--format", "svg", "-o", "-",
+        ],
+        &recipe(),
+    );
+    assert_eq!(out.status.code(), Some(2));
+    assert!(
+        text(&out.stderr).contains("an SVG is the Still, drop --frame or pass --format png"),
+        "{}",
+        text(&out.stderr)
+    );
+    assert!(out.stdout.is_empty());
+}

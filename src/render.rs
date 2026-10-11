@@ -63,7 +63,7 @@ pub fn render_svg(recipe: &Recipe, width: u32, height: u32) -> Result<String, Er
     if !tool.supports_svg() {
         return Err(Error::SvgUnsupported { tool });
     }
-    let frame = Frame::new(recipe, width, height, 0)?;
+    let frame = Frame::still(width, height)?;
     let mut surface = Surface::svg(frame.width, frame.height);
     recipe.params().render(
         &mut surface,

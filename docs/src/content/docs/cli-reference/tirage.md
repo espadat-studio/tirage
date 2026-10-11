@@ -12,7 +12,7 @@ One binary, five commands, and a sixth in a build with the `encode` feature. A r
 | Command                                    | Alias     | Does                                                     |
 | ------------------------------------------ | --------- | -------------------------------------------------------- |
 | [derive](/cli-reference/derive/)           | `d`       | Derive a Recipe from a Seed and print it as JSON         |
-| [render](/cli-reference/render/)           | `r`       | Render a Recipe to a PNG                                 |
+| [render](/cli-reference/render/)           | `r`       | Render a Recipe to a PNG or an SVG                       |
 | [encode](/cli-reference/encode/)           | `e`       | Encode a Loop to an H.264 MP4, with the `encode` feature |
 | [roll](/cli-reference/roll/)               |           | Roll a random Seed and write its Visual to a file        |
 | [tools](/cli-reference/tools/)             | `t`, `ls` | List Tools with their frame counts and Parameters        |
