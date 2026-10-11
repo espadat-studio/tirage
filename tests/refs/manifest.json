@@ -2425,12 +2425,127 @@
               "grnVignette": 0.5
             }
           }
+        },
+        {
+          "name": "seed-1-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "mosh",
+            "tool_seed": 9611518,
+            "palette": [
+              "#000000",
+              "#ffffff",
+              "#ff3131",
+              "#31ff6b",
+              "#3164ff",
+              "#31f0ff",
+              "#ff31e0",
+              "#ffee31"
+            ],
+            "params": {
+              "bands": 3,
+              "cols": 284,
+              "mix": 0.01,
+              "tears": 0.1,
+              "runs": 0.74,
+              "bright": 0.86,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 12
+        },
+        {
+          "name": "seed-2-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "mosh",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#000000",
+              "#ffffff",
+              "#ff3131",
+              "#31ff6b",
+              "#3164ff",
+              "#31f0ff",
+              "#ff31e0",
+              "#ffee31"
+            ],
+            "params": {
+              "bands": 9,
+              "cols": 144,
+              "mix": 0.84,
+              "tears": 0.89,
+              "runs": 0.68,
+              "bright": 0.33,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 12
+        },
+        {
+          "name": "seed-3-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "mosh",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#000000",
+              "#ffffff",
+              "#ff3131",
+              "#31ff6b",
+              "#3164ff",
+              "#31f0ff",
+              "#ff31e0",
+              "#ffee31"
+            ],
+            "params": {
+              "bands": 8,
+              "cols": 108,
+              "mix": 0.94,
+              "tears": 0.1,
+              "runs": 0.89,
+              "bright": 0.19,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 12
         }
       ],
       "page_sha256": "3a48aa526b7229beca9037643fb219300ad55859ca7f1d43e6041abe167f0e9b",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
-        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
       }
     },
     "mist": {
@@ -4015,12 +4130,121 @@
               "grnVignette": 0.5
             }
           }
+        },
+        {
+          "name": "seed-1-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "relief",
+            "tool_seed": 9611518,
+            "palette": [
+              "#1f1f1f",
+              "#f4d35e",
+              "#ee964b",
+              "#f95738",
+              "#0d3b66",
+              "#faf0ca"
+            ],
+            "params": {
+              "scale": 120,
+              "repeat": 12,
+              "variety": 0.02,
+              "solids": 0.28,
+              "relief": 0.84,
+              "accent": 0.33,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 12
+        },
+        {
+          "name": "seed-2-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "relief",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#1f1f1f",
+              "#f4d35e",
+              "#ee964b",
+              "#f95738",
+              "#0d3b66",
+              "#faf0ca"
+            ],
+            "params": {
+              "scale": 49,
+              "repeat": 7,
+              "variety": 0.48,
+              "solids": 0.23,
+              "relief": 0.73,
+              "accent": 0.86,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 12
+        },
+        {
+          "name": "seed-3-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "relief",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#1f1f1f",
+              "#f4d35e",
+              "#ee964b",
+              "#f95738",
+              "#0d3b66",
+              "#faf0ca"
+            ],
+            "params": {
+              "scale": 108,
+              "repeat": 6,
+              "variety": 0.17,
+              "solids": 0.36,
+              "relief": 0.91,
+              "accent": 0.95,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 12
         }
       ],
       "page_sha256": "c812ad57a948ee4e1ffb688de3a7ba2855d5c2696439fa8a587b77712529c451",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
-        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
       }
     },
     "atlas": {
@@ -4297,6 +4521,126 @@
               "grnVignette": 0.5
             }
           }
+        },
+        {
+          "name": "seed-1-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "atlas",
+            "tool_seed": 9611518,
+            "palette": [
+              "#0d2b45",
+              "#203c56",
+              "#544e68",
+              "#8d697a",
+              "#d08159",
+              "#ffaa5e",
+              "#ffd4a3",
+              "#ffecd6"
+            ],
+            "params": {
+              "scale": 2.4,
+              "warp": 0.42,
+              "bands": 3,
+              "mix": 0.92,
+              "sets": "DOS",
+              "cols": 115,
+              "density": 0.5,
+              "weight": 1.3,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 12
+        },
+        {
+          "name": "seed-2-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "atlas",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#0d2b45",
+              "#203c56",
+              "#544e68",
+              "#8d697a",
+              "#d08159",
+              "#ffaa5e",
+              "#ffd4a3",
+              "#ffecd6"
+            ],
+            "params": {
+              "scale": 1,
+              "warp": 0.47,
+              "bands": 14,
+              "mix": 0.85,
+              "sets": "Blocks",
+              "cols": 26,
+              "density": 0.31,
+              "weight": 0.57,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 12
+        },
+        {
+          "name": "seed-3-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "atlas",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#0d2b45",
+              "#203c56",
+              "#544e68",
+              "#8d697a",
+              "#d08159",
+              "#ffaa5e",
+              "#ffd4a3",
+              "#ffecd6"
+            ],
+            "params": {
+              "scale": 4.9,
+              "warp": 0.3,
+              "bands": 7,
+              "mix": 0.48,
+              "sets": "DOS",
+              "cols": 112,
+              "density": 0.68,
+              "weight": 0.81,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 12
         }
       ],
       "page_sha256": "ad94526c9d40cd493df9fae30fe908d1edd6aa603138c2a79496a35a194b883b",
@@ -4758,6 +5102,132 @@
               "grnVignette": 0.5
             }
           }
+        },
+        {
+          "name": "seed-1-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "motley",
+            "tool_seed": 9611518,
+            "palette": [
+              "#111111",
+              "#f4f1ea",
+              "#1e7a46",
+              "#e5352b",
+              "#f5c400",
+              "#f28ab8",
+              "#2c7ac2",
+              "#f0801e",
+              "#f3e2b0"
+            ],
+            "params": {
+              "cells": 24,
+              "mark": 0.88,
+              "patches": 10,
+              "size": 0.76,
+              "ragged": 0.48,
+              "blocks": 0.43,
+              "sparse": 0.45,
+              "stitch": 0.98,
+              "gaps": 0.14,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-2-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "motley",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#111111",
+              "#f4f1ea",
+              "#1e7a46",
+              "#e5352b",
+              "#f5c400",
+              "#f28ab8",
+              "#2c7ac2",
+              "#f0801e",
+              "#f3e2b0"
+            ],
+            "params": {
+              "cells": 66,
+              "mark": 0.85,
+              "patches": 3,
+              "size": 0.32,
+              "ragged": 0.46,
+              "blocks": 0.69,
+              "sparse": 0.42,
+              "stitch": 0.86,
+              "gaps": 0.13,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-3-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "motley",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#111111",
+              "#f4f1ea",
+              "#1e7a46",
+              "#e5352b",
+              "#f5c400",
+              "#f28ab8",
+              "#2c7ac2",
+              "#f0801e",
+              "#f3e2b0"
+            ],
+            "params": {
+              "cells": 20,
+              "mark": 0.87,
+              "patches": 4,
+              "size": 0.55,
+              "ragged": 0.19,
+              "blocks": 0.96,
+              "sparse": 0.55,
+              "stitch": 0.36,
+              "gaps": 0.16,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
         }
       ],
       "page_sha256": "238efd3af4f26aef28f247c6772c5e7ba64033992a536984b409c97caea53ec7",
@@ -6318,6 +6788,180 @@
               "grnVignette": 0.5
             }
           }
+        },
+        {
+          "name": "seed-1-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "static",
+            "tool_seed": 9611518,
+            "palette": [
+              "#ff3cac",
+              "#1b1b2f"
+            ],
+            "params": {
+              "regions": 4,
+              "res": 160,
+              "glitch": 0.56,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-1-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "static",
+            "tool_seed": 9611518,
+            "palette": [
+              "#ff3cac",
+              "#1b1b2f"
+            ],
+            "params": {
+              "regions": 4,
+              "res": 160,
+              "glitch": 0.56,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 30
+        },
+        {
+          "name": "seed-2-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "static",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#ff3cac",
+              "#1b1b2f"
+            ],
+            "params": {
+              "regions": 4,
+              "res": 148,
+              "glitch": 0.36,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-2-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "static",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#ff3cac",
+              "#1b1b2f"
+            ],
+            "params": {
+              "regions": 4,
+              "res": 148,
+              "glitch": 0.36,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 30
+        },
+        {
+          "name": "seed-3-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "static",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#ff3cac",
+              "#1b1b2f"
+            ],
+            "params": {
+              "regions": 4,
+              "res": 100,
+              "glitch": 0.06,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-3-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "static",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#ff3cac",
+              "#1b1b2f"
+            ],
+            "params": {
+              "regions": 4,
+              "res": 100,
+              "glitch": 0.06,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 30
         }
       ],
       "page_sha256": "c0330e93072a0ff2e5aef5cb8a21d7f092bd544ea0dd0b2338618b11de98541a",

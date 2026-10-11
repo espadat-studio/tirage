@@ -10,9 +10,12 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "static";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 60;
 pub(crate) const FPS: u32 = 10;
 pub(crate) const MAX_INKS: Option<usize> = Some(2);
+
+const AMOUNT: f64 = 0.8;
+const FLICKER: u32 = 2_654_435_761;
 
 const DEFAULT_PALETTE: [&str; 2] = ["#ff3cac", "#1b1b2f"];
 
@@ -175,9 +178,9 @@ pub(crate) fn render(
     params: &StaticParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -297,7 +300,7 @@ impl Region {
         hash(x as i32, y as i32, channel, self.rs)
     }
 
-    fn on(&self, u: f64, v: f64) -> bool {
+    fn on(&self, u: f64, v: f64, f: u32) -> bool {
         match self.kind {
             Kind::Moire => {
                 let w1 = (u * self.a + (v * self.b).sin() * self.warp + self.ph).sin();
@@ -319,11 +322,12 @@ impl Region {
                 let rows = (self.y1 - self.y0).max(1.0);
                 let d =
                     (self.dens + self.grad * ((v - self.y0) / rows - 0.5) * 2.0).clamp(0.02, 0.95);
-                self.h(u, v, 0) < d
+                self.h(u, v, f) < d
             }
             Kind::Blocks => {
                 let (small, large) = (self.q * 2.0, self.q * 5.0);
-                let a = self.h((u / small).floor(), (v / small).floor(), 0) < 0.5;
+                let key = if hash(0, 0, f, self.rs) < 0.25 { f } else { 0 };
+                let a = self.h((u / small).floor(), (v / small).floor(), key) < 0.5;
                 let b = self.h((u / large).floor(), (v / large).floor(), 3) < 0.5;
                 a != b
             }
@@ -332,7 +336,8 @@ impl Region {
     }
 }
 
-fn bits(params: &StaticParams, gw: usize, gh: usize, tool_seed: u32) -> Vec<bool> {
+fn bits(params: &StaticParams, gw: usize, gh: usize, tool_seed: u32, t: Option<u32>) -> Vec<bool> {
+    let f = t.unwrap_or(0);
     let grid = (gw as f64, gh as f64);
     let mut rng = Xorshift::new(tool_seed);
     let weights: Vec<f64> = (0..params.regions)
@@ -373,15 +378,17 @@ fn bits(params: &StaticParams, gw: usize, gh: usize, tool_seed: u32) -> Vec<bool
                 }
                 _ => band,
             };
-            bits.push(region.on(u, v));
+            bits.push(region.on(u, v, f));
         }
     }
-    glitch(&mut bits, params.glitch, gw, gh, tool_seed);
+    let amount = params.glitch * t.map_or(1.0, |_| 0.6 + 0.8 * AMOUNT);
+    let glitch_seed = (tool_seed ^ 0x9e37_79b9).wrapping_add(f.wrapping_mul(FLICKER));
+    glitch(&mut bits, amount, gw, gh, glitch_seed);
     bits
 }
 
-fn glitch(bits: &mut [bool], amount: f64, gw: usize, gh: usize, tool_seed: u32) {
-    let mut rng = Xorshift::from_state(tool_seed ^ 0x9e37_79b9);
+fn glitch(bits: &mut [bool], amount: f64, gw: usize, gh: usize, seed: u32) {
+    let mut rng = Xorshift::from_state(seed);
     let (w, h) = (gw as f64, gh as f64);
     for _ in 0..round_half_up(h * 0.3 * amount) as u32 {
         let y = (rng.next() * h) as usize;
@@ -412,12 +419,18 @@ fn glitch(bits: &mut [bool], amount: f64, gw: usize, gh: usize, tool_seed: u32) 
     }
 }
 
-fn paint(surface: &mut Surface, params: &StaticParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &StaticParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let columns = params.res;
     let rows = (round_half_up(f64::from(columns) * height / width) as u32).max(8);
     let (ink, ground) = (palette.ink(0), palette.ink(1));
-    let rgba: Vec<u8> = bits(params, columns as usize, rows as usize, tool_seed)
+    let rgba: Vec<u8> = bits(params, columns as usize, rows as usize, tool_seed, t)
         .into_iter()
         .flat_map(|on| {
             let [r, g, b] = if on { ink } else { ground };

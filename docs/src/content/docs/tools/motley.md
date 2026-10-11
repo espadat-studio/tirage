@@ -1,11 +1,11 @@
 ---
 title: "motley"
-description: "A patchwork of glyph fields on a grid. It renders a Still."
+description: "A patchwork of glyph fields on a grid. It renders a Loop of 36 frames at 12 fps, the sparse patches flickering."
 ---
 
 A patchwork of glyph fields on a grid. Ragged blobs and stepped blocks are laid over one another, and each patch fills its cells with one glyph in one ink: discs, pluses, stripes, squares, ringed discs or dots. Some patches keep only every other cell so the one beneath shows through, some are stitched along their edge, and some are left as bare ground.
 
-motley renders a Still: one frame. Its site page is [playgrnd.tools/motley](https://www.playgrnd.tools/motley/).
+motley renders a Loop: 36 frames at 12 fps, in which the patches that keep only some of their cells pick again every frame which cells drop out, while the patches, glyphs, inks and stitched edges stay put. Frame 0 is the Still. Its site page is [playgrnd.tools/motley](https://www.playgrnd.tools/motley/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 9 --tool motley | tirage render --size 540x960 -o motley.pn
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-motley  1 frame
+motley  36 frames
   cells       16..=120  step 1
   mark        0.4..=1   step 0.01
   patches     1..=60    step 1

@@ -1,11 +1,11 @@
 ---
 title: "relief"
-description: "Tumbling blocks: a field of cubes seen from a corner. It renders a Still."
+description: "Tumbling blocks: a field of cubes seen from a corner. It renders a Loop of 24 frames at 6 fps, some cubes turning every frame."
 ---
 
 Tumbling blocks. Cubes seen from a corner tile the frame, each one a hexagon cut into a top, a left and a right face. The three faces are one ink at three lightnesses, so a flat shape reads as a lit solid. A small block of cubes is worked out once and repeated. Some cubes have their three tones turned round, which breaks the plain field into hooks. Some are painted in one flat tone, and some take an accent ink.
 
-relief renders a Still: one frame. Its site page is [playgrnd.tools/relief](https://www.playgrnd.tools/relief/).
+relief renders a Loop: 24 frames at 6 fps, in which about 3 in 10 cubes of the repeated block are dealt again every frame, with a new turn of their tones, a new flat or shaded look and a new accent, while the other cubes stay put. Frame 0 is the Still. Its site page is [playgrnd.tools/relief](https://www.playgrnd.tools/relief/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 2 --tool relief | tirage render --size 540x960 -o relief.pn
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-relief  1 frame
+relief  24 frames
   scale       12..=180  step 1
   repeat      1..=12    step 1
   variety     0..=1     step 0.01

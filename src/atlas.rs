@@ -9,9 +9,11 @@ use crate::text::{Face, Type};
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "atlas";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 8;
 pub(crate) const MAX_INKS: Option<usize> = None;
+
+const SHUFFLE: u32 = 7919;
 
 const DEFAULT_PALETTE: [&str; 8] = [
     "#0d2b45", "#203c56", "#544e68", "#8d697a", "#d08159", "#ffaa5e", "#ffd4a3", "#ffecd6",
@@ -319,9 +321,10 @@ pub(crate) fn render(
     params: &AtlasParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let shuffle = t.unwrap_or(0).wrapping_mul(SHUFFLE);
+    paint(surface, params, palette, tool_seed.wrapping_add(shuffle));
     chassis::finish(surface, &params.grain, &params.dither);
 }
 

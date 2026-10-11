@@ -17,7 +17,7 @@ Site control ids, slider ranges and site defaults:
 | `relief`  | 0..1    | 0.01 | 0.9     | how far apart the three face tones sit     |
 | `accent`  | 0..1    | 0.01 | 0.34    | share of cubes painted in an accent ink    |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. relief is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off no cube is re-dealt, so every cube draws from the Tool seed. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off no cube is re-dealt, so every cube draws from the Tool seed. The Loop turns it on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 ## Palette
 
@@ -68,6 +68,18 @@ Then for each row `j` from -1 to `cubesY + 1` and in each row each column `i` fr
   - Left: `(cx, cy)`, `(cx - hx, cy - hy)`, `(cx - hx, cy + hy)`, `(cx, cy + sy)`.
 - A face's tone is the mid tone on a solid cube. Otherwise it is tone `(k + rot) mod 3` of light, mid, dark.
 - Each face is filled anti-aliased, then stroked 1 px wide in the same tone to close the hairline seams between neighbours. Later faces paint over earlier ones.
+
+## Motion
+
+The site has one motion mode, Shuffle: amount (Churn) 0.6, 24 frames at 6 fps.
+
+- Shuffle re-deals some cubes of the repeating unit every frame. The churn is `min(1, amount/2)`, 0.3 at the default, and it sets how much of the unit moves, not how far anything travels.
+- A unit cell `(i, j)` is picked when `hash(5i + 3, 7j + 1, s + 131) < churn`. The pick reads the Tool seed only, so the same cells move on every frame and the rest hold.
+- A picked cell draws its rot, solid, accent and accent ink hashes from `s + 7919f` at frame `f` in place of `s`. An unpicked cell draws from `s` as in the Still.
+- The lattice, the cube size and the backdrop fill hold. The backdrop is the dark tone of unit cell `(0, 0)`, so it changes with that cell when it is picked.
+- The Loop closes by a cut: the frame after the last is a new deal, not frame 0. A reseed has no closure test.
+- At `f = 0` the deal seed is `s`, so frame 0 is the Still, byte for byte. It needs no reference export of its own.
+- The mid frame is 12. Any frame past 0 is a fresh deal, and 12 is half way through.
 
 ## Fidelity notes
 

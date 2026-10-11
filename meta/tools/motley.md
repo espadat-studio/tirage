@@ -24,7 +24,7 @@ On this page `size` is a Parameter and the export size is `sizePx`.
 
 The site deals every slider from the variation number when it changes, and shows the deal on the sliders. tirage does not port that deal: `derive` deals the Parameters from the Seed instead ([ADR 0003](../adr/0003-seed-derivation-of-recipes.md)). The refs export sets the Tool seed first and every Parameter after it, so the site's deal is overwritten.
 
-Motion: three modes, Flicker (default), Drift and Breathe, off by default. motley is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off the flicker salt and drift are 0 and the glyph size is `mark`. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion: three modes, Flicker (default), Drift and Breathe, off by default and not part of a Still. With motion off the flicker salt and drift are 0 and the glyph size is `mark`. The Loop turns it on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 Default Palette, 9 inks: `#111111 #f4f1ea #1e7a46 #e5352b #f5c400 #f28ab8 #2c7ac2 #f0801e #f3e2b0`. Ink 1 is the ground. The rest are the patch inks, any number of them.
 
@@ -79,6 +79,18 @@ Glyphs at centre `(x, y)`:
 - dot: radius `0.17 g`
 
 All fills are anti-aliased.
+
+## Motion
+
+Flicker is the default and the only mode ported: amount 0.6, 36 frames at 12 fps.
+
+- Flicker re-deals which cells a sparse patch drops: at frame `f` the drop test reads `hash(i, j, salt + 911f)` in place of `hash(i, j, salt)`. The checker and every-other-row skips do not move.
+- Nothing else moves. The patches, their shapes, inks, glyphs, gaps and stitched edges all draw from the Tool seed alone and hold. A Recipe with no sparse patch, or only stitched edges where its sparse cells would be, renders the same frame throughout.
+- The amount does not change Flicker.
+- The Loop closes by a cut: the frame after the last is a new deal, not frame 0. A reseed has no closure test.
+- At `f = 0` the flicker salt is 0, so frame 0 is the Still, byte for byte. It needs no reference export of its own.
+- The mid frame is 18. Any frame past 0 is a fresh deal, and 18 is half way through.
+- Drift and Breathe are not ported. Drift walks every patch round a small circle, Breathe shrinks the glyphs and lets them swell back. Neither is reachable from a Recipe.
 
 ## Fidelity notes
 

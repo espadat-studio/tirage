@@ -52,13 +52,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn static_is_a_still() {
-    assert_eq!(Tool::Static.frames(), 1);
+fn static_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Static.frames(), Tool::Static.fps()), (60, 10));
     let recipe = derive(7, STATIC);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 60)),
+        "frame 60 is outside 0..60"
     );
+}
+
+#[test]
+fn flicker_moves_frame_0_off_the_still_and_deals_later_frames_again() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, STATIC);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() != frame(0).rgba(), "seed {seed}");
+        assert!(frame(0).rgba() != frame(30).rgba(), "seed {seed}");
+    }
 }
 
 #[test]

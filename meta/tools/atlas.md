@@ -21,7 +21,7 @@ Site control ids, slider ranges and site defaults, in page order:
 
 `weight` is labelled Variety on the page. It is a position on the set, not a font weight. The site also has a Custom set with a free text field. tirage drops it, as for [kiosk](kiosk.md) (#24). The six sets are kiosk's, character for character.
 
-Motion: two modes, Shuffle (default) and Drift, off by default. atlas is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off the grid seed is the Tool seed and the drift is 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion: two modes, Shuffle (default) and Drift, off by default and not part of a Still. With motion off the grid seed is the Tool seed and the drift is 0. The Loop turns it on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 Default Palette, 8 inks: `#0d2b45 #203c56 #544e68 #8d697a #d08159 #ffaa5e #ffd4a3 #ffecd6`. Any length works: terraces wrap over it by position.
 
@@ -59,6 +59,18 @@ Rounding goes half up, as `Math.round` does.
 ## Glyphs
 
 As [kiosk](kiosk.md#glyphs), with one change: the canvas font names no weight, so it is 400. The glyph is DejaVu Sans Mono Book 2.37, the face Chromium resolves for atlas's monospace stack when the bundled Book and Bold faces are the only fonts installed. The typo metrics, hinting and position rounding are kiosk's.
+
+## Motion
+
+Shuffle is the default and the only mode ported: amount 0.6, 24 frames at 8 fps.
+
+- Shuffle deals the whole map again every frame: at frame `f` the grid seed is `seed + 7919f`, 32-bit wrapping, in place of `seed` everywhere in [Grid](#grid). The warp, the level noise, the terraces, which cells get a character and which character all move.
+- Nothing else moves. The column and row counts, the Palette and the set hold, and so does the cell layout.
+- The amount does not change Shuffle.
+- The Loop closes by a cut: the frame after the last is a new deal, not frame 0. A reseed has no closure test.
+- At `f = 0` the grid seed is the Tool seed, so frame 0 is the Still, byte for byte. It needs no reference export of its own.
+- The mid frame is 12. Any frame past 0 is a fresh deal, and 12 is half way through.
+- Drift is not ported. It slides the sample point down the page by `2 amount f / frames`. It is not reachable from a Recipe.
 
 ## Fidelity notes
 

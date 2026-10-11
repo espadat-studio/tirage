@@ -379,7 +379,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let mosh = concat!(
-        r#"{"slug":"mosh","frames":1,"params":["#,
+        r#"{"slug":"mosh","frames":24,"params":["#,
         r#"{"id":"bands","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"cols","kind":"range","min":24.0,"max":420.0,"step":2.0},"#,
         r#"{"id":"mix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -472,7 +472,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"round","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let relief = concat!(
-        r#"{"slug":"relief","frames":1,"params":["#,
+        r#"{"slug":"relief","frames":24,"params":["#,
         r#"{"id":"scale","kind":"range","min":12.0,"max":180.0,"step":1.0},"#,
         r#"{"id":"repeat","kind":"range","min":1.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"variety","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -481,7 +481,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"accent","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let atlas = concat!(
-        r#"{"slug":"atlas","frames":1,"params":["#,
+        r#"{"slug":"atlas","frames":24,"params":["#,
         r#"{"id":"scale","kind":"range","min":1.0,"max":9.0,"step":0.1},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.6,"step":0.01},"#,
         r#"{"id":"bands","kind":"range","min":2.0,"max":14.0,"step":1.0},"#,
@@ -524,7 +524,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"accRate","kind":"range","min":0.0,"max":0.15,"step":0.001},"#,
     );
     let motley = concat!(
-        r#"{"slug":"motley","frames":1,"params":["#,
+        r#"{"slug":"motley","frames":36,"params":["#,
         r#"{"id":"cells","kind":"range","min":16.0,"max":120.0,"step":1.0},"#,
         r#"{"id":"mark","kind":"range","min":0.4,"max":1.0,"step":0.01},"#,
         r#"{"id":"patches","kind":"range","min":1.0,"max":60.0,"step":1.0},"#,
@@ -579,7 +579,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"chunk","kind":"range","min":0.7,"max":1.8,"step":0.05},"#,
     );
     let static_tool = concat!(
-        r#"{"slug":"static","frames":1,"params":["#,
+        r#"{"slug":"static","frames":60,"params":["#,
         r#"{"id":"regions","kind":"range","min":2.0,"max":5.0,"step":1.0},"#,
         r#"{"id":"res","kind":"range","min":48.0,"max":160.0,"step":4.0},"#,
         r#"{"id":"glitch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -874,12 +874,12 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
-    assert!(listing.contains("\natlas  1 frame\n"), "{listing}");
+    assert!(listing.contains("\natlas  24 frames\n"), "{listing}");
     assert!(listing.contains("\noddgrid  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfete  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfold  1 frame\n"), "{listing}");
     assert!(listing.contains("\nquilt  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nstatic  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nstatic  60 frames\n"), "{listing}");
     assert!(listing.contains("\nsplice  1 frame\n"), "{listing}");
     assert!(listing.contains("\ndahlia  1 frame\n"), "{listing}");
     assert!(listing.contains("\nhiss  1 frame\n"), "{listing}");
@@ -901,7 +901,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nfilament  1 frame\n"), "{listing}");
     assert!(listing.contains("\nchaff  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstrand  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nmotley  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
@@ -913,7 +913,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nweave  1 frame\n"), "{listing}");
     assert!(listing.contains("\nwarp  72 frames\n"), "{listing}");
     assert!(listing.contains("\nzig  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nrelief  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nrelief  24 frames\n"), "{listing}");
     for line in [
         "  grid        40..=320  step 2\n",
         "  grnVignette 0..=1     step 0.05\n",

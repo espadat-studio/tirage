@@ -1,11 +1,11 @@
 ---
 title: "static"
-description: "A one-bit glitch poster of stacked pattern bands in two inks. It renders a Still."
+description: "A one-bit glitch poster of stacked pattern bands in two inks. It renders a Loop of 60 frames at 10 fps, the noise and glitches flickering."
 ---
 
 A one-bit glitch poster. The frame splits into stacked bands, each with its own pattern: moire, bars, static noise, blocks, rings or zigzags. Sometimes an inset panel sits on top. A glitch pass then shifts rows, smears them and punches out boxes.
 
-static renders a Still: one frame. Its site page is [playgrnd.tools/static](https://www.playgrnd.tools/static/).
+static renders a Loop: 60 frames at 10 fps, in which the static noise, the shifted and smeared rows and the punched-out boxes are dealt again every frame, and the blocks now and then, while the bands and their other patterns stay put. The glitch runs stronger with motion on, so unless glitch is 0, frame 0 differs from the Still. Its site page is [playgrnd.tools/static](https://www.playgrnd.tools/static/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool static | tirage render --size 540x960 -o static.pn
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-static  1 frame
+static  60 frames
   regions     2..=5     step 1
   res         48..=160  step 4
   glitch      0..=1     step 0.01
