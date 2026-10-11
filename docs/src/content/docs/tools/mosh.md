@@ -22,7 +22,7 @@ tirage derive --seed 17 --tool mosh | tirage render --size 540x960 -o mosh.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-mosh  1 frame
+mosh  24 frames
   bands       1..=14    step 1
   cols        24..=420  step 2
   mix         0..=1     step 0.01

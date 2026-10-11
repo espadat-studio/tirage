@@ -1,4 +1,4 @@
-use tirage::{Frame, MoshParams, Palette, Params, Recipe, Tool, ToolPin, derive};
+use tirage::{Frame, MoshParams, Palette, Params, Recipe, Tool, ToolPin, derive, render};
 
 const MOSH: ToolPin = ToolPin::Tool(Tool::Mosh);
 
@@ -86,13 +86,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn mosh_is_a_still() {
-    assert_eq!(Tool::Mosh.frames(), 1);
+fn mosh_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Mosh.frames(), Tool::Mosh.fps()), (24, 12));
     let recipe = derive(7, MOSH);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 24)),
+        "frame 24 is outside 0..24"
     );
+}
+
+#[test]
+fn frame_0_is_the_still_and_shuffle_moves_later_frames() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, MOSH);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() == frame(0).rgba(), "seed {seed}");
+        assert!(still.rgba() != frame(12).rgba(), "seed {seed}");
+    }
 }
 
 #[test]

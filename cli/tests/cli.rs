@@ -379,7 +379,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let mosh = concat!(
-        r#"{"slug":"mosh","frames":1,"params":["#,
+        r#"{"slug":"mosh","frames":24,"params":["#,
         r#"{"id":"bands","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"cols","kind":"range","min":24.0,"max":420.0,"step":2.0},"#,
         r#"{"id":"mix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,

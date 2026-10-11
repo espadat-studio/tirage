@@ -7,9 +7,11 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "mosh";
-pub(crate) const FRAMES: u32 = 1;
-pub(crate) const FPS: u32 = 1;
+pub(crate) const FRAMES: u32 = 24;
+pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
+
+const SHUFFLE: u32 = 7919;
 
 const DEFAULT_PALETTE: [&str; 8] = [
     "#000000", "#ffffff", "#ff3131", "#31ff6b", "#3164ff", "#31f0ff", "#ff31e0", "#ffee31",
@@ -227,9 +229,16 @@ pub(crate) fn render(
     params: &MoshParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let shuffle = t.unwrap_or(0).wrapping_mul(SHUFFLE);
+    paint(
+        surface,
+        params,
+        palette,
+        tool_seed,
+        tool_seed.wrapping_add(shuffle),
+    );
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -451,7 +460,13 @@ impl Sheet<'_> {
     }
 }
 
-fn paint(surface: &mut Surface, params: &MoshParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &MoshParams,
+    palette: &Palette,
+    tool_seed: u32,
+    band_seed: u32,
+) {
     let inks = palette.inks();
     let dark = inks.iter().copied().fold(
         inks[0],
@@ -496,7 +511,7 @@ fn paint(surface: &mut Surface, params: &MoshParams, palette: &Palette, tool_see
             round_half_up(y + bh)
         };
         y += bh;
-        let bs = tool_seed.wrapping_add(b.wrapping_mul(101));
+        let bs = band_seed.wrapping_add(b.wrapping_mul(101));
         sheet.band(y0, y1 - y0, deck[b as usize % deck.len()], b, bs);
     }
 }
