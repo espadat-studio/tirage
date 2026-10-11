@@ -43,7 +43,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `weave`    | 1      | Still  |
 | `warp`     | 72     | Loop   |
 | `zig`      | 1      | Still  |
-| `relief`   | 1      | Still  |
+| `relief`   | 24     | Loop   |
 | `atlas`    | 1      | Still  |
 | `sprig`    | 1      | Still  |
 | `stipple`  | 1      | Still  |
