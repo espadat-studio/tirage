@@ -3,7 +3,7 @@ title: "Still and Loop"
 description: "One Recipe gives one frame or a short video: the Tool with motion off or on."
 ---
 
-A _Visual_ is what a Recipe renders. It is either a _Still_, a single frame with the Tool's motion off, or a _Loop_, an animation with motion on that ends where it starts: after its last frame, frame 0 plays again. The Tool decides which you get. sonar, kiosk and frond draw Loops. Every other Tool draws a Still. `tirage tools` lists the frame count beside each Tool, and a Still Tool has 1.
+A _Visual_ is what a Recipe renders. It is either a _Still_, a single frame with the Tool's motion off, or a _Loop_, an animation with motion on that ends where it starts: after its last frame, frame 0 plays again. The Tool decides which you get. sonar, husk, kiosk and frond draw Loops. Every other Tool draws a Still. `tirage tools` lists the frame count beside each Tool, and a Still Tool has 1.
 
 ## The Still and frame 0
 
@@ -22,4 +22,4 @@ On sonar, kiosk and frond, frame 0 is the Still. A page can show the Still while
 
 tirage does not animate in the browser. Drawing a 1080x1920 frame takes about 97 ms on a desktop CPU, which is 2 to 3 frames per second on a mid-range phone. Instead, tirage renders every frame of a Loop once and encodes them into an H.264 MP4. Any video element plays that with hardware decoding, and it caches as a file. The `tirage-encode` crate in the repository's `encode/` directory does the encoding: it takes a Recipe and returns the MP4 bytes. `tirage encode` does the same from the command line, in a CLI built with the `encode` feature.
 
-A Loop is encoded at 720x1280 with the Tool's own frame count and frame rate: sonar is 24 frames at 10 fps, kiosk 24 at 6 fps, frond 36 at 12 fps. You render the Still at any size up to 8192 pixels an edge. Every Loop has to stay under 1.5 MB. The tests encode fixed Seeds of each Loop Tool and fail when one goes over.
+A Loop is encoded at 720x1280 with the Tool's own frame count and frame rate, which each Tool's page gives. You render the Still at any size up to 8192 pixels an edge. `encode` refuses a Loop of 1.5 MB or more. The tests encode fixed Seeds of sonar, kiosk and frond, the Loops recordreel plays, and fail when one goes over.

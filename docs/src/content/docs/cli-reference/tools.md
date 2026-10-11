@@ -24,7 +24,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | Tool       | Frames | Visual |
 | ---------- | ------ | ------ |
 | `sonar`    | 24     | Loop   |
-| `husk`     | 1      | Still  |
+| `husk`     | 36     | Loop   |
 | `vein`     | 1      | Still  |
 | `aura`     | 1      | Still  |
 | `kiosk`    | 24     | Loop   |

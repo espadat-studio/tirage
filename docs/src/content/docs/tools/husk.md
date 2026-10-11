@@ -1,11 +1,11 @@
 ---
 title: "husk"
-description: "Scattered seed husks on a plain ground. It renders a Still."
+description: "Scattered seed husks on a plain ground. It renders a Loop of 36 frames at 12 fps, each husk drifting round its own small ellipse."
 ---
 
 Scattered seed husks on a plain ground. Each husk is a lumpy oval with a dark rim. Inside the rim a light fill is bitten away, either into ragged islands or into a dot screen that thins toward the edge. Where husks overlap, their dark parts merge but their fills stay apart.
 
-husk renders a Still: one frame. Its site page is [playgrnd.tools/husk](https://www.playgrnd.tools/husk/).
+husk renders a Loop: 36 frames at 12 fps, in which each husk drifts once round its own small ellipse while the crumble stays put. The Still has no drift, so it differs from frame 0. Its site page is [playgrnd.tools/husk](https://www.playgrnd.tools/husk/).
 
 ## Still
 
