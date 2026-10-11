@@ -270,7 +270,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"spark","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let husk = concat!(
-        r#"{"slug":"husk","frames":1,"params":["#,
+        r#"{"slug":"husk","frames":36,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":70.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"vary","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -870,7 +870,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert_eq!(out.status.code(), Some(0));
     let listing = text(&out.stdout);
     assert!(listing.starts_with("sonar  24 frames\n"), "{listing}");
-    assert!(listing.contains("\nhusk  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nhusk  36 frames\n"), "{listing}");
     assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
@@ -1848,7 +1848,7 @@ mod encode {
                 .contains("→ tirage derive --seed 42 --tool sonar | tirage encode -o sonar-42.mp4"),
             "{screen}"
         );
-        for still in ["husk", "vein", "aura", "deal from Seed"] {
+        for still in ["vein", "aura", "deal from Seed"] {
             assert!(!screen.contains(still), "{still} offered in\n{screen}");
         }
         std::fs::remove_dir_all(dir).unwrap();
@@ -1856,12 +1856,12 @@ mod encode {
 
     #[test]
     fn encode_refuses_a_still_with_a_hint_to_render_it() {
-        let husk = tirage(&["derive", "--seed", "42", "--tool", "husk"], b"").stdout;
-        let out = tirage(&["encode", "-o", "-"], &husk);
+        let vein = tirage(&["derive", "--seed", "42", "--tool", "vein"], b"").stdout;
+        let out = tirage(&["encode", "-o", "-"], &vein);
         assert_eq!(out.status.code(), Some(1));
         assert_eq!(
             text(&out.stderr),
-            "error: husk draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
+            "error: vein draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
         );
         assert!(out.stdout.is_empty());
     }

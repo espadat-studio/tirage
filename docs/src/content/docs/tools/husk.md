@@ -22,7 +22,7 @@ tirage derive --seed 2 --tool husk | tirage render --size 540x960 -o husk.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-husk  1 frame
+husk  36 frames
   count       1..=70    step 1
   size        0..=1     step 0.01
   vary        0..=1     step 0.01

@@ -67,13 +67,21 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn husk_is_a_still() {
-    assert_eq!(Tool::Husk.frames(), 1);
+fn husk_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Husk.frames(), Tool::Husk.fps()), (36, 12));
     let recipe = derive(7, HUSK);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 36)),
+        "frame 36 is outside 0..36"
     );
+}
+
+#[test]
+fn drift_moves_frame_0_off_the_still() {
+    let recipe = derive(1, HUSK);
+    let still = render(&recipe, &Frame::still(270, 480).unwrap());
+    let first = render(&recipe, &Frame::new(&recipe, 270, 480, 0).unwrap());
+    assert!(still.rgba() != first.rgba());
 }
 
 #[test]

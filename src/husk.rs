@@ -11,9 +11,10 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "husk";
-pub(crate) const FRAMES: u32 = 1;
-pub(crate) const FPS: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
+pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
+const AMOUNT: f64 = 0.6;
 
 const DEFAULT_PALETTE: [&str; 3] = ["#e0c3fc", "#1b1b1e", "#f9f871"];
 
@@ -282,7 +283,7 @@ impl Xorshift {
     }
 }
 
-fn field(params: &HuskParams, tool_seed: u32, aspect: f64) -> Field {
+fn field(params: &HuskParams, tool_seed: u32, aspect: f64, t: Option<u32>) -> Field {
     let width = if aspect > 1.0 {
         round_half_up(560.0 / aspect).max(8.0)
     } else {
@@ -298,6 +299,10 @@ fn field(params: &HuskParams, tool_seed: u32, aspect: f64) -> Field {
     });
     let base = (0.045 + params.size * 0.115) * (fw * fh).sqrt();
     let lump = params.lump * 0.55;
+    let (phase, drift) = match t {
+        Some(t) => (f64::from(t) / f64::from(FRAMES) * PI * 2.0, AMOUNT * 0.06),
+        None => (0.0, 0.0),
+    };
 
     for _ in 0..params.count.max(1) {
         let cx = (-0.12 + rnd.next() * 1.24) * fw;
@@ -306,13 +311,15 @@ fn field(params: &HuskParams, tool_seed: u32, aspect: f64) -> Field {
         let ex = 0.78 + rnd.next() * 0.5;
         let ey = 0.78 + rnd.next() * 0.5;
         let rot = rnd.next() * PI * 2.0;
-        let _wobble = rnd.next() * PI * 2.0;
+        let wobble = rnd.next() * PI * 2.0;
         let phases = [rnd.next(), rnd.next(), rnd.next()].map(|r| r * PI * 2.0);
         let harmonics = [
             2.0 + (rnd.next() * 2.0).trunc(),
             4.0 + (rnd.next() * 3.0).trunc(),
             7.0 + (rnd.next() * 3.0).trunc(),
         ];
+        let cx = cx + (phase + wobble).cos() * drift * fw;
+        let cy = cy + (phase + wobble * 1.6).sin() * drift * fw;
         let reach = radius * (1.0 + lump) * ex.max(ey) + 2.0;
         let x0 = (cx - reach).floor().max(0.0);
         let x1 = (cx + reach).ceil().min(fw - 1.0);
@@ -360,15 +367,21 @@ pub(crate) fn render(
     params: &HuskParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
-fn paint(surface: &mut Surface, params: &HuskParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &HuskParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
     let (width, height) = (surface.width(), surface.height());
-    let field = field(params, tool_seed, f64::from(height) / f64::from(width));
+    let field = field(params, tool_seed, f64::from(height) / f64::from(width), t);
     let ground = palette.ink(GROUND);
     let silhouette = palette.ink(SILHOUETTE);
     let fill = palette.ink(if palette.len() > FILL {
