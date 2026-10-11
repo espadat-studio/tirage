@@ -294,6 +294,10 @@ impl Surface {
     }
 
     pub(crate) fn fill(&mut self, ink: [u8; 3]) {
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.fill(ink);
+            return;
+        }
         let (w, h) = (f64::from(self.width()), f64::from(self.height()));
         self.fill_box(0.0, 0.0, w, h, ink);
     }

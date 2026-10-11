@@ -23,9 +23,21 @@ impl SvgWriter {
         self.height
     }
 
+    pub(crate) fn fill(&mut self, ink: [u8; 3]) {
+        let (width, height) = (self.width, self.height);
+        self.markup += &format!(
+            r#"<rect width="{width}" height="{height}" fill="{}"/>"#,
+            hex(ink)
+        );
+    }
+
     pub(crate) fn finish(self) -> String {
         self.markup + "</svg>\n"
     }
+}
+
+fn hex([r, g, b]: [u8; 3]) -> String {
+    format!("#{r:02x}{g:02x}{b:02x}")
 }
 
 #[cfg(test)]
@@ -37,6 +49,21 @@ mod tests {
         assert_eq!(
             SvgWriter::new(540, 960).finish(),
             "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"540\" height=\"960\" viewBox=\"0 0 540 960\"></svg>\n"
+        );
+    }
+
+    fn body(svg: String) -> String {
+        let open = svg.find('>').unwrap() + 1;
+        svg[open..].trim_end_matches("</svg>\n").to_owned()
+    }
+
+    #[test]
+    fn fill_covers_the_frame_with_one_rect_in_rrggbb() {
+        let mut svg = SvgWriter::new(3, 2);
+        svg.fill([10, 255, 0]);
+        assert_eq!(
+            body(svg.finish()),
+            r##"<rect width="3" height="2" fill="#0aff00"/>"##
         );
     }
 }
