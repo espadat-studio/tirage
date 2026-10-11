@@ -260,7 +260,7 @@ fn tools_json_has_a_stable_shape() {
     let out = tirage(&["tools", "--json"], b"");
     assert_eq!(out.status.code(), Some(0));
     let sonar = concat!(
-        r#"{"slug":"sonar","frames":24,"svg":false,"params":["#,
+        r#"{"slug":"sonar","frames":24,"svg":true,"params":["#,
         r#"{"id":"level","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"scale","kind":"range","min":1.0,"max":10.0,"step":0.1},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -869,7 +869,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     let out = tirage(&["tools"], b"");
     assert_eq!(out.status.code(), Some(0));
     let listing = text(&out.stdout);
-    assert!(listing.starts_with("sonar  24 frames\n"), "{listing}");
+    assert!(listing.starts_with("sonar  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nhusk  36 frames\n"), "{listing}");
     assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
@@ -2030,4 +2030,29 @@ fn render_refuses_an_svg_of_any_frame_even_0() {
         text(&out.stderr)
     );
     assert!(out.stdout.is_empty());
+}
+
+#[test]
+fn render_writes_an_svg_from_its_extension_or_to_stdout_with_format_svg() {
+    let dir = scratch("svg");
+    let output = dir.join("still.svg");
+    let file = tirage(
+        &["render", "--size", "9x16", "-o", output.to_str().unwrap()],
+        &recipe(),
+    );
+    assert_eq!(file.status.code(), Some(0), "{}", text(&file.stderr));
+    let svg = std::fs::read_to_string(&output).unwrap();
+    assert!(
+        svg.starts_with(
+            r#"<svg xmlns="http://www.w3.org/2000/svg" width="9" height="16" viewBox="0 0 9 16">"#
+        ),
+        "{svg}"
+    );
+    let piped = tirage(
+        &["render", "--size", "9x16", "--format", "svg", "-o", "-"],
+        &recipe(),
+    );
+    assert_eq!(piped.status.code(), Some(0), "{}", text(&piped.stderr));
+    assert_eq!(text(&piped.stdout), svg);
+    std::fs::remove_dir_all(dir).unwrap();
 }

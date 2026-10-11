@@ -56,7 +56,7 @@ fn every_fixture_of_an_svg_tool_rasterizes_to_its_png() {
         for fixture in fixtures {
             let name = format!("svg-{}-{}", tool.slug(), fixture["name"].as_str().unwrap());
             let recipe = without_grain_or_dither(fixture["recipe"].clone());
-            let frame = Frame::new(&recipe, WIDTH, HEIGHT, 0).unwrap();
+            let frame = Frame::still(WIDTH, HEIGHT).unwrap();
             let image = render(&recipe, &frame);
             let png = image::RgbaImage::from_raw(WIDTH, HEIGHT, image.rgba().to_vec()).unwrap();
             let svg = render_svg(&recipe, WIDTH, HEIGHT).unwrap();

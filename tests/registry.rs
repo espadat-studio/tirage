@@ -27,3 +27,15 @@ fn render_svg_refuses_a_tool_without_svg() {
         "husk: renders PNG only, not SVG"
     );
 }
+
+#[test]
+fn render_svg_checks_the_frame_size() {
+    let recipe = derive(1, ToolPin::Tool(Tool::Sonar));
+    assert_eq!(
+        render_svg(&recipe, 0, 960),
+        Err(Error::FrameSize {
+            width: 0,
+            height: 960
+        })
+    );
+}

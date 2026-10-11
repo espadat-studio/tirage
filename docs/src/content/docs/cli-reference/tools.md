@@ -80,7 +80,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 Each Tool heads a block with its frame count, then `, svg` when [render](/cli-reference/render/) can write it as an SVG. One line per Parameter follows:
 
 ```
-sonar  24 frames
+sonar  24 frames, svg
   level       0..=1     step 0.01
   scale       1..=10    step 0.1
   warp        0..=1     step 0.01
@@ -112,7 +112,7 @@ A range like `0..=1 step 0.01` means any value from 0 to 1 in steps of 0.01, bot
   {
     "slug": "sonar",
     "frames": 24,
-    "svg": false,
+    "svg": true,
     "params": [
       { "id": "level", "kind": "range", "min": 0.0, "max": 1.0, "step": 0.01 },
       { "id": "ditherTog", "kind": "toggle" },

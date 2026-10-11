@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool sonar | tirage render --size 540x960 -o sonar.png
 ```
 
+SVG: yes. `-o sonar.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-sonar  24 frames
+sonar  24 frames, svg
   level       0..=1     step 0.01
   scale       1..=10    step 0.1
   warp        0..=1     step 0.01
