@@ -32,7 +32,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `benday`   | 1      | Still  |
 | `terrain`  | 1      | Still  |
 | `stitch`   | 1      | Still  |
-| `pith`     | 1      | Still  |
+| `pith`     | 36     | Loop   |
 | `mosh`     | 1      | Still  |
 | `mist`     | 1      | Still  |
 | `coral`    | 1      | Still  |

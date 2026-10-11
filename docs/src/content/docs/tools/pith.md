@@ -1,11 +1,11 @@
 ---
 title: "pith"
-description: "Cut-tissue cells with veins carved through them. It renders a Still."
+description: "Cut-tissue cells with veins carved through them. It renders a Loop of 36 frames at 12 fps, the speckle and grain boiling."
 ---
 
 Cut-tissue cells on a paper ground. Each cell is a cluster of rounded boxes with a lumpy, ragged outline, banded from its edge inward: an outer band, a thin rim, then a mottled core. Branching veins carve the ground back through each cell, and speckle blurs the bands into one another.
 
-pith renders a Still: one frame. Its site page is [playgrnd.tools/pith](https://www.playgrnd.tools/pith/).
+pith renders a Loop: 36 frames at 12 fps, in which the speckle, band edges, core mottle and flecks are dealt again every frame while the cells and veins stay put. Frame 0 is the Still. Its site page is [playgrnd.tools/pith](https://www.playgrnd.tools/pith/).
 
 ## Still
 
