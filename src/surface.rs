@@ -310,6 +310,10 @@ impl Surface {
         height: u32,
         [r, g, b]: [u8; 3],
     ) {
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.fill_rect(x, y, width, height, [r, g, b]);
+            return;
+        }
         let rect = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32)
             .expect("rect sides are at least 1 px");
         let mut paint = self.solid([r, g, b]);

@@ -31,6 +31,13 @@ impl SvgWriter {
         );
     }
 
+    pub(crate) fn fill_rect(&mut self, x: i32, y: i32, width: u32, height: u32, ink: [u8; 3]) {
+        self.markup += &format!(
+            r#"<rect x="{x}" y="{y}" width="{width}" height="{height}" fill="{}" shape-rendering="crispEdges"/>"#,
+            hex(ink)
+        );
+    }
+
     pub(crate) fn finish(self) -> String {
         self.markup + "</svg>\n"
     }
@@ -64,6 +71,16 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             r##"<rect width="3" height="2" fill="#0aff00"/>"##
+        );
+    }
+
+    #[test]
+    fn fill_rect_writes_a_crisp_edged_rect_at_its_pixel_corner() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_rect(-1, 4, 2, 3, [255, 209, 102]);
+        assert_eq!(
+            body(svg.finish()),
+            r##"<rect x="-1" y="4" width="2" height="3" fill="#ffd166" shape-rendering="crispEdges"/>"##
         );
     }
 }
