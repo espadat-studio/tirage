@@ -481,7 +481,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"accent","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let atlas = concat!(
-        r#"{"slug":"atlas","frames":1,"params":["#,
+        r#"{"slug":"atlas","frames":24,"params":["#,
         r#"{"id":"scale","kind":"range","min":1.0,"max":9.0,"step":0.1},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.6,"step":0.01},"#,
         r#"{"id":"bands","kind":"range","min":2.0,"max":14.0,"step":1.0},"#,
@@ -874,7 +874,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
-    assert!(listing.contains("\natlas  1 frame\n"), "{listing}");
+    assert!(listing.contains("\natlas  24 frames\n"), "{listing}");
     assert!(listing.contains("\noddgrid  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfete  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfold  1 frame\n"), "{listing}");

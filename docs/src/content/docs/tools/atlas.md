@@ -22,7 +22,7 @@ tirage derive --seed 9 --tool atlas | tirage render --size 540x960 -o atlas.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-atlas  1 frame
+atlas  24 frames
   scale       1..=9     step 0.1
   warp        0..=1.6   step 0.01
   bands       2..=14    step 1
