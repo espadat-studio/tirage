@@ -1,6 +1,6 @@
 # Loops as pre-rendered video
 
-A Loop reaches the Reel page as a server-rendered H.264 MP4, not as WASM drawing live in the browser. The core yields raw frames and stays wasm-clean. A separate non-core tirage crate encodes them with `openh264` and an MP4 muxer, so recordreel stays one binary with nothing to install. recordreel renders a Loop lazily on first request and caches it on disk like a Share card. The Still is frame 0 and the `<video poster>`, so reduced motion, blocked autoplay and Low Power Mode all fall back to the Still with no jump. Only the full-bleed backdrops loop (kiosk, frond, sonar). Each Slide holds its own `<video preload="none">`, and only the Slide in view gets a `src` and plays.
+A Loop reaches the Reel page as a server-rendered H.264 MP4, not as WASM drawing live in the browser. The core yields raw frames and stays wasm-clean. A separate non-core tirage crate encodes them with `openh264` and an MP4 muxer, so recordreel stays one binary with nothing to install. recordreel renders a Loop lazily on first request and caches it on disk like a Share card. The poster is the Loop's frame 0, which equals the Still on recordreel's backdrops (kiosk, frond, sonar), so reduced motion, blocked autoplay and Low Power Mode all fall back to the Still with no jump. Only those full-bleed backdrops loop on recordreel. Each Slide holds its own `<video preload="none">`, and only the Slide in view gets a `src` and plays.
 
 ## Considered Options
 
@@ -13,7 +13,9 @@ A Loop reaches the Reel page as a server-rendered H.264 MP4, not as WASM drawing
 ## Consequences
 
 - A Loop is 720x1280 at the Tool's own frame count and fps. The Still keeps full resolution for the poster and the Share card.
-- A Loop must stay under 1.5 MB, checked in tests on fixed Seeds per Tool. A Tool over the cap ships Still-only until it is tuned. Measured with x264 crf28: kiosk 0.71 MB, sonar 1.15 MB, frond 1.34 MB.
+- Every Tool that moves on the site has a Loop in the core, whether or not recordreel loops it.
+- The 1.5 MB cap is recordreel's. Its tests in `tirage-encode` stay on the Tools recordreel loops, on fixed Seeds per Tool. A recordreel backdrop over the cap ships Still-only there until it is tuned. Measured with x264 crf28: kiosk 0.71 MB, sonar 1.15 MB, frond 1.34 MB.
+- A Tool whose frame 0 differs from its Still gets a rendered frame-0 poster if recordreel ever loops it.
 - The fidelity check covers Loop frames as well as the Still.
 - The cache key carries the encoder settings as well as the Seed and Recipe version.
 - ADR 0001's deferred `wasm-bindgen` packaging is not needed for recordreel.
