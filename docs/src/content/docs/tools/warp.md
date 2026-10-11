@@ -1,11 +1,11 @@
 ---
 title: "warp"
-description: "Op-art checks or slanted bars, bent through a wave, a taper or a bulge. It renders a Still."
+description: "Op-art checks or slanted bars, bent through a wave, a taper or a bulge. It renders a Loop of 72 frames at 12 fps, the bend deepening and relaxing."
 ---
 
 Op-art in one ink on one ground. A checkerboard or a field of slanted bars is bent through a wave, a taper or a bulge. The shapes are polygons, filled in one pass.
 
-warp renders a Still: one frame. Its site page is [playgrnd.tools/warp](https://www.playgrnd.tools/warp/).
+warp renders a Loop: 72 frames at 12 fps, in which the bend deepens and relaxes once while the pattern and inks stay put. Each Seed starts the swing at its own point, so frame 0 differs from the Still. Its site page is [playgrnd.tools/warp](https://www.playgrnd.tools/warp/).
 
 ## Still
 

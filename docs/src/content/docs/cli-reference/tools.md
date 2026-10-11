@@ -41,7 +41,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `culture`  | 1      | Still  |
 | `bloom`    | 24     | Loop   |
 | `weave`    | 1      | Still  |
-| `warp`     | 1      | Still  |
+| `warp`     | 72     | Loop   |
 | `zig`      | 1      | Still  |
 | `relief`   | 1      | Still  |
 | `atlas`    | 1      | Still  |
