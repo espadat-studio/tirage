@@ -366,7 +366,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"stray","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let pith = concat!(
-        r#"{"slug":"pith","frames":1,"params":["#,
+        r#"{"slug":"pith","frames":36,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":60.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"zoom","kind":"range","min":1.0,"max":8.0,"step":0.1},"#,

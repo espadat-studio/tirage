@@ -22,7 +22,7 @@ tirage derive --seed 14 --tool pith | tirage render --size 540x960 -o pith.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-pith  1 frame
+pith  36 frames
   count       1..=60    step 1
   size        0..=1     step 0.01
   zoom        1..=8     step 0.1

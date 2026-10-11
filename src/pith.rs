@@ -11,9 +11,11 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "pith";
-pub(crate) const FRAMES: u32 = 1;
-pub(crate) const FPS: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
+pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
+
+const BOIL: u32 = 911;
 
 const DEFAULT_PALETTE: [&str; 5] = ["#fbf8ef", "#f26ca7", "#7b2cbf", "#2b1b4a", "#141414"];
 
@@ -290,9 +292,16 @@ pub(crate) fn render(
     params: &PithParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let boil = t.unwrap_or(0).wrapping_mul(BOIL);
+    paint(
+        surface,
+        params,
+        palette,
+        tool_seed,
+        tool_seed.wrapping_add(boil),
+    );
     chassis::finish(surface, &params.chassis_grain, &params.chassis_dither);
 }
 
@@ -461,7 +470,13 @@ fn span(low: f64, high: f64, last: usize) -> std::ops::Range<usize> {
     low as usize..high as usize + 1
 }
 
-fn paint(surface: &mut Surface, params: &PithParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &PithParams,
+    palette: &Palette,
+    tool_seed: u32,
+    paint_seed: u32,
+) {
     let ink = |slots: &[usize]| {
         let slot = slots
             .iter()
@@ -537,17 +552,17 @@ fn paint(surface: &mut Surface, params: &PithParams, palette: &Palette, tool_see
                 let d = f64::from(depth[i]);
                 if d < 0.0 {
                     let t = -d
-                        + (hash(gx, gy, tool_seed) - 0.5) * dth
+                        + (hash(gx, gy, paint_seed) - 0.5) * dth
                         + (value_noise(
                             xf / (6.5 * gsc),
                             yf / (6.5 * gsc),
-                            tool_seed.wrapping_add(17),
+                            paint_seed.wrapping_add(17),
                         ) - 0.5)
                             * dth
                             * 1.4;
                     let ev = band
                         * (0.40
-                            + value_noise(xf / nb, yf / nb, tool_seed.wrapping_add(101)) * 1.35);
+                            + value_noise(xf / nb, yf / nb, paint_seed.wrapping_add(101)) * 1.35);
                     if vein[i] >= 0.0 && t >= 0.0 {
                         if t < ev {
                             c = edge;
@@ -557,7 +572,7 @@ fn paint(surface: &mut Surface, params: &PithParams, palette: &Palette, tool_see
                             let k = (value_noise(
                                 xf / (2.6 * gsc),
                                 yf / (2.6 * gsc),
-                                tool_seed.wrapping_add(53),
+                                paint_seed.wrapping_add(53),
                             ) - 0.5)
                                 * 46.0
                                 * grain;
@@ -566,7 +581,7 @@ fn paint(surface: &mut Surface, params: &PithParams, palette: &Palette, tool_see
                     }
                 }
                 if grain > 0.0 {
-                    let draw = hash(gx, gy, tool_seed.wrapping_add(7919));
+                    let draw = hash(gx, gy, paint_seed.wrapping_add(7919));
                     if draw > 1.0 - grain * 0.016 {
                         for ch in 0..3 {
                             c[ch] = (c[ch] + fleck[ch]) * 0.5;
