@@ -1,11 +1,11 @@
 ---
 title: "bloom"
-description: "Pixel rings spreading from a quiet centre. It renders a Still."
+description: "Pixel rings spreading from a quiet centre. It renders a Loop of 24 frames at 8 fps, the rings stepping outward."
 ---
 
 Pixel rings. A grid of square cells is coloured by its distance from the middle of the frame, cut into bands that step through the Palette. Noise pushes the rings out of round and roughens their edges, and a quiet disc in the middle keeps the first ink. The grid is mirrored left to right and top to bottom.
 
-bloom renders a Still: one frame. Its site page is [playgrnd.tools/bloom](https://www.playgrnd.tools/bloom/).
+bloom renders a Loop: 24 frames at 8 fps, in which the rings step outward through the Palette once while the quiet centre holds. Frame 0 is the Still. Its site page is [playgrnd.tools/bloom](https://www.playgrnd.tools/bloom/).
 
 ## Still
 

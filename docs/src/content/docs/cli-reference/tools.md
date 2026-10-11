@@ -39,7 +39,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `whorl`    | 1      | Still  |
 | `sear`     | 1      | Still  |
 | `culture`  | 1      | Still  |
-| `bloom`    | 1      | Still  |
+| `bloom`    | 24     | Loop   |
 | `weave`    | 1      | Still  |
 | `warp`     | 1      | Still  |
 | `zig`      | 1      | Still  |
