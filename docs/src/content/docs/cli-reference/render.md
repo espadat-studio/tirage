@@ -64,7 +64,7 @@ Only some Tools write SVG. [tools](/cli-reference/tools/) marks them `svg`. For 
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `0`  | The PNG or SVG was written                                                                                                                                                                                                                      |
 | `1`  | The Recipe could not be read or is not valid: bad JSON, another derivation major, a value out of range, an unknown Parameter. Also a frame size or frame number out of range, an SVG of a Tool without SVG, or a file that could not be written |
-| `2`  | A missing size or output path with prompts off, no Recipe on a terminal with prompts off, a bad flag value, an SVG of a frame past 0, or a PNG aimed at the terminal                                                                            |
+| `2`  | A missing size or output path with prompts off, no Recipe on a terminal with prompts off, a bad flag value, an SVG with `--frame`, or a PNG aimed at the terminal                                                                               |
 
 ## Examples
 
