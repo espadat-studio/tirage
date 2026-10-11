@@ -2187,12 +2187,130 @@
               "grnVignette": 0.5
             }
           }
+        },
+        {
+          "name": "seed-1-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "pith",
+            "tool_seed": 9611518,
+            "palette": [
+              "#fbf8ef",
+              "#f26ca7",
+              "#7b2cbf",
+              "#2b1b4a",
+              "#141414"
+            ],
+            "params": {
+              "count": 40,
+              "size": 0.45,
+              "zoom": 1.1,
+              "round": 0.7,
+              "wobble": 0.33,
+              "band": 0.99,
+              "dither": 0.55,
+              "veins": 0.82,
+              "thick": 0.25,
+              "grain": 0.4,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-2-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "pith",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#fbf8ef",
+              "#f26ca7",
+              "#7b2cbf",
+              "#2b1b4a",
+              "#141414"
+            ],
+            "params": {
+              "count": 57,
+              "size": 0.91,
+              "zoom": 2.6,
+              "round": 0.05,
+              "wobble": 0.31,
+              "band": 0.36,
+              "dither": 0.55,
+              "veins": 0.46,
+              "thick": 0.84,
+              "grain": 0.4,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-3-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "pith",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#fbf8ef",
+              "#f26ca7",
+              "#7b2cbf",
+              "#2b1b4a",
+              "#141414"
+            ],
+            "params": {
+              "count": 22,
+              "size": 0.73,
+              "zoom": 1.1,
+              "round": 0.27,
+              "wobble": 0.53,
+              "band": 0.61,
+              "dither": 0.55,
+              "veins": 0.94,
+              "thick": 0.62,
+              "grain": 0.4,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
         }
       ],
       "page_sha256": "698124f73fb6fd767d79c43d6d15ff12bd9cc77bab3a1f6fe468091346266951",
       "chromium": "153.0.8010.12",
       "fonts_sha256": {
-        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769"
+        "DejaVuSansMono-Bold.ttf": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+        "DejaVuSansMono.ttf": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582"
       }
     },
     "mosh": {
