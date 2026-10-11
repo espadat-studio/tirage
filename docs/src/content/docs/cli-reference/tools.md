@@ -52,7 +52,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `fete`     | 1      | Still  |
 | `fold`     | 1      | Still  |
 | `quilt`    | 1      | Still  |
-| `static`   | 1      | Still  |
+| `static`   | 60     | Loop   |
 | `splice`   | 1      | Still  |
 | `dahlia`   | 1      | Still  |
 | `hiss`     | 1      | Still  |
