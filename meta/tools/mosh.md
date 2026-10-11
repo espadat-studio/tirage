@@ -17,7 +17,7 @@ Site control ids, slider ranges and site defaults:
 | `runs`   | 0..1    | 0.01 | 0.5     | smear run length                                |
 | `bright` | 0..1    | 0.01 | 0.3     | how often ink 1 cuts in on smear and scan bands |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. mosh is a Still Tool: only frame 0 is rendered, and with motion off the shuffle seed is the Tool seed and the roll is 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the shuffle seed is the Tool seed and the roll is 0. The Loop turns it on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The page turns image smoothing off but never draws an image, so there is nothing to port for it.
 
@@ -76,6 +76,18 @@ Chevron:
 - `rows = max(1, round(bh / cw))`. Period `per = max(3, round(4 + 10 hash(b, 17, bs + 83)))`, shift `amp = max(1, round(2 + 6 hash(b, 19, bs + 89)))`.
 - Row `j`: `t = j mod 2 per`, the shift is `round(tri amp / per)` with `tri = t` below `per`, else `2 per - t`.
 - Each column `i`: ink `pick(hash((i + shift) mod per, 0, bs + 97), b)`, at `round(i cw)`, `ceil(cw) + 1` wide.
+
+## Motion
+
+The site has two motion modes: Shuffle and Roll. Shuffle is the default and the only one ported: amount 0.6, 24 frames at 12 fps.
+
+- Shuffle re-deals every band's contents each frame: at frame `f` the band seed is `bs = s + 7919 f + 101 b` instead of `s + 101 b`. Every run, block, tear, row and chevron draw moves with it.
+- The band layout holds. Band weights and the kind deck draw from the Tool seed alone, so each band keeps its height and its kind.
+- The amount does not change Shuffle.
+- The Loop closes by a cut: the frame after the last is a new deal, not frame 0. A reseed has no closure test.
+- At `f = 0` the band seed is the Still's, so frame 0 is the Still, byte for byte. It needs no reference export of its own.
+- The mid frame is 12. Any frame past 0 is a fresh deal, and 12 is half way through.
+- Roll is not ported. It slides every column hash along by a whole number of columns per frame, wrapping at the column count. It is not reachable from a Recipe.
 
 ## Fidelity notes
 
