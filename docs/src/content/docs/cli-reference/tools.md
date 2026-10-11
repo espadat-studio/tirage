@@ -47,7 +47,7 @@ Lists every Tool with its frame count and its Parameters. For each Parameter it 
 | `atlas`    | 24     | Loop   |
 | `sprig`    | 1      | Still  |
 | `stipple`  | 1      | Still  |
-| `motley`   | 1      | Still  |
+| `motley`   | 36     | Loop   |
 | `oddgrid`  | 1      | Still  |
 | `fete`     | 1      | Still  |
 | `fold`     | 1      | Still  |
