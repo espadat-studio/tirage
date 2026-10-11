@@ -1984,7 +1984,7 @@ fn render_refuses_svg_for_a_tool_without_it_whether_flagged_or_inferred() {
             (out.status.code(), text(&out.stderr).as_str()),
             (
                 Some(1),
-                "error: husk: renders PNG only, not SVG\nhint: run 'tirage tools' to see which Tools render SVG, or pass --format png\n"
+                "error: husk: renders PNG only, not SVG\nhint: run 'tirage tools' to see which Tools render SVG, or write a .png\n"
             ),
             "{args:?}"
         );
