@@ -17,7 +17,7 @@ Site control ids, slider ranges and site defaults:
 | `steps` | 2..14 | 1    | 6       | levels before the ramp repeats           |
 | `calm`  | 0..1  | 0.01 | 0.35    | radius of the quiet disc                 |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. bloom is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off the ripple march is 0 and the breathe swell is 1. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. The `grain` slider is bloom's own and has nothing to do with the chassis grain pass. It is grain, not art, so a Seed leaves it at the site default 0.3 and deals `cols`, `rings`, `warp`, `steps` and `calm`.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the ripple march is 0 and the breathe swell is 1. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. The `grain` slider is bloom's own and has nothing to do with the chassis grain pass. It is grain, not art, so a Seed leaves it at the site default 0.3 and deals `cols`, `rings`, `warp`, `steps` and `calm`.
 
 ## Palette
 
@@ -52,6 +52,19 @@ For cell `(i, j)`, the mirrored index is `mi = min(i, cols' - 1 - i)` and `mj = 
 - When `r ≤ c` the level is 0.
 - Otherwise `g = (fbm(21u + 1.3, 21v + 9.1, t + 29, 2 octaves) - 0.5)·grain·2.4` and the level is `(r - c)/(1 - c)·max(1, rings) + g`.
 - The cell's ink is the ramp at `floor(level)`. A negative level wraps to the top of the ramp.
+
+## Motion
+
+The site has two motion modes: Ripple and Breathe. Ripple is the default and the only one ported: amount 0.6, 24 frames at 8 fps.
+
+- Frame `f` sits at `T = f / frames`.
+- The ramp turns `max(1, round(2 * amount))` times per Loop, so once at the default. The amount sets the number of turns and nothing else.
+- Ripple adds `march = T * steps * turns` to the level of every cell outside the calm centre, after the grain term. Bands step outward through the ramp a level at a time, in whole cells.
+- Nothing else moves: the grid, both warp fields, the grain field and the calm centre hold. Calm cells stay at level 0.
+- The Loop closes by whole periods: at `T = 1` the march is `steps * turns`, a whole number of ramp turns, so every cell lands on its frame 0 ink. Float addition could tip a level sitting a hair under a whole number, which the closure test would catch.
+- At `f = 0` the march is 0, so frame 0 is the Still, byte for byte.
+- The mid frame is 12: half a turn of the ramp, the frame furthest from frame 0.
+- Breathe is not ported. It swells the calm centre on a sine and is not reachable from a Recipe.
 
 ## Fidelity notes
 
