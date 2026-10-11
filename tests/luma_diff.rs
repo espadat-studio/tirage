@@ -4,7 +4,7 @@ use std::{fs, panic};
 
 use image::{Rgba, RgbaImage};
 
-use fidelity::{assert_fidelity, luma_diff, out_dir};
+use fidelity::{assert_fidelity, assert_svg_fidelity, luma_diff, out_dir};
 
 const BLACK: Rgba<u8> = Rgba([0, 0, 0, 255]);
 
@@ -68,4 +68,20 @@ fn passing_fidelity_writes_nothing() {
     assert_fidelity(name, &with_region(255, 10, 10), &black(), 0.016);
     assert!(!out_dir().join(format!("{name}-heatmap.png")).exists());
     assert!(!out_dir().join(format!("{name}-ours.png")).exists());
+}
+
+#[test]
+fn svg_fidelity_passes_at_the_bar_and_fails_one_luma_over_writing_heatmap_and_ours() {
+    let name = "svg-fidelity-self-test";
+    for suffix in ["heatmap", "ours"] {
+        let _ = fs::remove_file(out_dir().join(format!("{name}-{suffix}.png")));
+    }
+    assert_svg_fidelity(name, &black(), &with_region(1, 1, 1), 1);
+    assert!(!out_dir().join(format!("{name}-heatmap.png")).exists());
+    let result =
+        panic::catch_unwind(|| assert_svg_fidelity(name, &black(), &with_region(2, 1, 1), 1));
+    let message = *result.unwrap_err().downcast::<String>().unwrap();
+    assert_eq!(message, "svg-fidelity-self-test: max luma 2 > bar 1");
+    assert!(out_dir().join(format!("{name}-heatmap.png")).is_file());
+    assert!(out_dir().join(format!("{name}-ours.png")).is_file());
 }
