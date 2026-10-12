@@ -40,7 +40,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `sear`     | 1      | Still  |
 | `culture`  | 1      | Still  |
 | `bloom`    | 24     | Loop   |
-| `weave`    | 1      | Still  |
+| `weave`    | 120    | Loop   |
 | `warp`     | 72     | Loop   |
 | `zig`      | 1      | Still  |
 | `relief`   | 24     | Loop   |
