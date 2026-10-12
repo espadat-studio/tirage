@@ -24,7 +24,7 @@ SVG: yes. `-o modular.svg` writes this Still as an [SVG](/cli-reference/render/#
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-modular  1 frame, svg
+modular  24 frames, svg
   gcols       2..=12    step 1
   unit        2..=12    step 1
   merge       0..=1     step 0.01

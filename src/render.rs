@@ -123,6 +123,7 @@ mod tests {
         Tool::Stipple,
         Tool::Oddgrid,
         Tool::Specimen,
+        Tool::Modular,
     ];
 
     #[test]

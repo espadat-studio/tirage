@@ -71,13 +71,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn modular_is_a_still() {
-    assert_eq!(Tool::Modular.frames(), 1);
+fn modular_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Modular.frames(), Tool::Modular.fps()), (24, 6));
     let recipe = derive(7, MODULAR);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 24)),
+        "frame 24 is outside 0..24"
     );
+}
+
+#[test]
+fn flow_switches_cells_off_the_still_at_frame_0_and_on_later() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, MODULAR);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() != frame(0).rgba(), "seed {seed}");
+        assert!(frame(0).rgba() != frame(12).rgba(), "seed {seed}");
+    }
 }
 
 #[test]
