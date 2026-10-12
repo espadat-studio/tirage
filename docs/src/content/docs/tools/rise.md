@@ -1,11 +1,11 @@
 ---
 title: "rise"
-description: "Even vertical bars under large concentric bands that rise from one anchor. It renders a Still."
+description: "Even vertical bars under large concentric bands that rise from one anchor. It renders a Loop of 72 frames at 12 fps, the bands swelling and shrinking in turn."
 ---
 
 Even vertical bars fill the frame. Large concentric bands rise from one anchor over them, and each band trades which two inks are its ground and its bars. Every band shares the same bar grid, so the stripes line up from one band to the next.
 
-rise renders a Still: one frame. Its site page is [playgrnd.tools/rise](https://www.playgrnd.tools/rise/).
+rise renders a Loop: 72 frames at 12 fps, in which each band swells and shrinks once, a little after the band inside it, so the swell travels out from the anchor. The bars and inks hold still. At frame 0 only the innermost band sits where the Still has it, so frame 0 differs from the Still unless there is a single band. Its site page is [playgrnd.tools/rise](https://www.playgrnd.tools/rise/).
 
 ## Still
 
