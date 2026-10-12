@@ -1,11 +1,11 @@
 ---
 title: "whorl"
-description: "Op-art stripes round pushing and pulling centres. It renders a Still."
+description: "Op-art stripes round pushing and pulling centres. It renders a Loop of 36 frames at 12 fps, the stripes streaming outward one band."
 ---
 
 Op-art stripes. A handful of centres each add their distance to one field, some counted positive and some negative. The bands of equal total are rings round the centres, curves between them, and pinched eyes where two families meet. A warp bends the field before the bands are read off it.
 
-whorl renders a Still: one frame. Its site page is [playgrnd.tools/whorl](https://www.playgrnd.tools/whorl/).
+whorl renders a Loop: 36 frames at 12 fps, in which every stripe streams outward through the field to where the next one began, while the centres and the warp hold. Frame 0 is the Still. Its site page is [playgrnd.tools/whorl](https://www.playgrnd.tools/whorl/).
 
 ## Still
 
