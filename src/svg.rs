@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use tiny_skia::{Path, PathSegment};
+use tiny_skia::{Path, PathSegment, Transform};
 
 use crate::surface::{Cap, Join};
 
@@ -158,6 +158,24 @@ impl SvgWriter {
         self.markup.push_str(r#"" fill-rule="evenodd"/>"#);
     }
 
+    pub(crate) fn fill_transformed(&mut self, path: &Path, ink: [u8; 3], transform: Transform) {
+        self.group(ink, false);
+        self.open_path(path, false);
+        let Transform {
+            sx,
+            ky,
+            kx,
+            sy,
+            tx,
+            ty,
+        } = transform;
+        write!(
+            self.markup,
+            r#"" transform="matrix({sx} {ky} {kx} {sy} {tx} {ty})"/>"#
+        )
+        .expect("a String takes any write");
+    }
+
     pub(crate) fn stroke(&mut self, path: &Path, ink: [u8; 3], width: f32, cap: Cap, join: Join) {
         self.group(ink, false);
         self.open_path(path, false);
@@ -245,7 +263,7 @@ fn coordinate(v: f32) -> String {
 
 #[cfg(test)]
 mod tests {
-    use tiny_skia::PathBuilder;
+    use tiny_skia::{PathBuilder, Transform};
 
     use super::SvgWriter;
     use crate::surface::{Cap, Join};
@@ -400,6 +418,25 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             r##"<g fill="#010203"><path d="M0 0L4 0L0 3.5Z" fill-rule="evenodd"/></g>"##
+        );
+    }
+
+    #[test]
+    fn fill_transformed_writes_its_matrix_and_keeps_shortest_f32_coordinates() {
+        let mut path = PathBuilder::new();
+        path.move_to(1.0 / 3.0, 0.0);
+        path.line_to(4.0, 0.0);
+        path.line_to(0.0, 3.5);
+        path.close();
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_transformed(
+            &path.finish().unwrap(),
+            [1, 2, 3],
+            Transform::from_row(0.0, 1.0, -1.5, 0.0, 5.0, 1.0 / 3.0),
+        );
+        assert_eq!(
+            body(svg.finish()),
+            r##"<g fill="#010203"><path d="M0.33333334 0L4 0L0 3.5Z" transform="matrix(0 1 -1.5 0 5 0.33333334)"/></g>"##
         );
     }
 

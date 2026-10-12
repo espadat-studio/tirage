@@ -465,6 +465,10 @@ impl Surface {
             .clone()
             .finish()
             .expect("a filled path has a closed loop");
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.fill_transformed(&path, ink, transform.0);
+            return;
+        }
         let paint = self.solid(ink);
         let (pixmap, mask) = self.raster("fill_transformed");
         pixmap.fill_path(&path, &paint, FillRule::Winding, transform.0, mask.as_ref());
@@ -702,6 +706,22 @@ mod tests {
         let svg = surface.into_svg();
         assert!(
             svg.ends_with("<g fill=\"#090807\"><path d=\"M0 0L3 0L0 2.5Z\"/></g></svg>\n"),
+            "{svg}"
+        );
+    }
+
+    #[test]
+    fn fill_transformed_writes_its_path_under_the_transform() {
+        let mut path = Path2D::default();
+        path.rect(0.0, 0.0, 1.0, 1.0);
+        let mut surface = Surface::svg(4, 4);
+        let cell = Transform::IDENTITY.translate(2.0, 1.0).scale(0.5, 2.0);
+        surface.fill_transformed(&path, [9, 8, 7], cell);
+        let svg = surface.into_svg();
+        assert!(
+            svg.ends_with(
+                "<path d=\"M0 0L1 0L1 1L0 1Z\" transform=\"matrix(0.5 0 0 2 2 1)\"/></g></svg>\n"
+            ),
             "{svg}"
         );
     }
