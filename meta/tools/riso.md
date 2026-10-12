@@ -18,7 +18,7 @@ Site control ids, slider ranges and site defaults:
 
 `grain` is the Tool's own speck layer. It is a Parameter, but a Seed always deals the site default 0.5, as for every Tool's own grain.
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. riso is a Still Tool: only frame 0 is rendered. With motion off every tear, flicker and scribble-reveal term is 0 and every scribble is drawn whole. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off every tear, flicker and scribble-reveal term is 0 and every scribble is drawn whole. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The site deals `bands`, `rough` and `scrib` from the seed on every seed change. That deal is not ported: `derive` deals every Parameter (ADR 0003), and a Reference export sets every slider after the seed.
 
@@ -89,6 +89,20 @@ All in pixels, `k` per unit. The canvas starts transparent.
 3. Each scribble as one polyline in `#1a1a1a`, width `max(1, 3.5 k)`, round cap and join.
 4. Each speck a `max(1, 1.6 k)` square at `(x k, y k)`, dark `rgb(10, 10, 10)` at 0.5 or white at 0.4.
 5. The chassis grain, then dither.
+
+## Motion
+
+The site has three motion modes: Tear, Scribble and Flicker. Tear is the default and the only one ported: amount 0.8, 16 frames at 8 fps.
+
+- Frame `f` sits at `T = f / frames`, and `A = min(1.6, amount) = 0.8`.
+- The torn edges breathe. Every torn polygon point moves by `0.45 A g' sin(2π (T + hash(k1, q, e + 50, SW)))` on top of its Still jitter, with `g'` the polygon's own roughness (`g` for blocks, `g / 2` for static dashes) and `k1`, `q`, `e` as in [Torn polygon](#torn-polygon). The phase hash leaves out `k2`.
+- The streaks sway. Each streak point's sway `b` gains `0.3 A cw sin(2π (T + hash(i, q, id + 60, SW)))`.
+- Nothing else moves. Bands, grounds, inks, the dot, the scribbles and the specks hold.
+- Every point runs one sine cycle over the Loop, whatever the amount. The amount only sets how far the edges move, and is capped at 1.6.
+- The Loop closes because each sine has period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the sines sit at their hashed phases, not at 0, so every edge is already off its Still place. Frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 8: half a cycle, where every sine has flipped sign from frame 0, as far from it as the Loop gets.
+- Scribble draws the pen lines on over the Loop and Flicker flips blocks, dashes and specks per frame. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
