@@ -7,9 +7,10 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "whorl";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
+const AMOUNT: f64 = 0.6;
 
 const DEFAULT_PALETTE: [&str; 2] = ["#003049", "#f77f00"];
 
@@ -265,9 +266,9 @@ pub(crate) fn render(
     params: &WhorlParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -277,7 +278,13 @@ struct Centre {
     weight: f64,
 }
 
-fn paint(surface: &mut Surface, params: &WhorlParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &WhorlParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
     let (w, h) = (surface.width(), surface.height());
     let (wf, hf) = (f64::from(w), f64::from(h));
     let seed = tool_seed as i32;
@@ -307,6 +314,8 @@ fn paint(surface: &mut Surface, params: &WhorlParams, palette: &Palette, tool_se
     let soft = 0.36 * (1.0 - params.pull);
     let soft2 = soft * soft;
     let duty = 0.06 + params.weight * 0.88;
+    let cycles = 1.0 + 2.0 * (AMOUNT * 1.5).floor();
+    let flow = t.map_or(0.0, |t| f64::from(t) / f64::from(FRAMES) * cycles);
     let field = |x: f64, y: f64| {
         let (mut wx, mut wy) = (x, y);
         if wamp > 0.001 {
@@ -339,7 +348,7 @@ fn paint(surface: &mut Surface, params: &WhorlParams, palette: &Palette, tool_se
         let mut left: Option<f64> = None;
         for x in 0..w {
             let fx = (f64::from(x) + 0.5) / wf;
-            let u = field(fx, fy) * freq;
+            let u = field(fx, fy) * freq + flow;
             let mut g: f64 = 0.0025;
             if let Some(left) = left {
                 g = g.max((u - left).abs());

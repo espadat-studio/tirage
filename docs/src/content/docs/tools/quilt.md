@@ -1,11 +1,11 @@
 ---
 title: "quilt"
-description: "Pixel quilt cloth in four inks, mirrored about the centre. It renders a Still."
+description: "Pixel quilt cloth in four inks, mirrored about the centre. It renders a Loop of 60 frames at 10 fps, the cloth streaming outward from the centre."
 ---
 
 Pixel quilt cloth. One pattern fills a chunky grid, measured from the centre so the sheet mirrors both ways, and the grid is blown up with hard edges. The patterns are bands, tabs, plaid, dither, steps, zigzag, diamond, cross, basket, rings, star, waves, gingham and burst.
 
-quilt renders a Still: one frame. Its site page is [playgrnd.tools/quilt](https://www.playgrnd.tools/quilt/).
+quilt renders a Loop: 60 frames at 10 fps, in which the pattern streams outward from the centre column by two repeats, still mirrored, while the grid and inks hold. Diamond and star tiles swap their inks, cross tiles deal their pops again and burst rays turn, 8 times each. Frame 0 is the Still. Bands, tabs and cross do not land back on frame 0, so their Loop jumps at the end, as it does on the site. Its site page is [playgrnd.tools/quilt](https://www.playgrnd.tools/quilt/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool quilt | tirage render --size 540x960 -o quilt.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-quilt  1 frame
+quilt  60 frames
   styles      Auto, Bands, Tabs, Plaid, Dither, Steps, Zigzag, Diamond, Cross, Basket, Rings, Star, Waves, Gingham, Burst
   cells       28..=72   step 2
   chunk       0.7..=1.8 step 0.05

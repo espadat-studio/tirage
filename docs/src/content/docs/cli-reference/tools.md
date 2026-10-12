@@ -36,13 +36,13 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `mosh`     | 24     | Loop   |
 | `mist`     | 1      | Still  |
 | `coral`    | 1      | Still  |
-| `whorl`    | 1      | Still  |
+| `whorl`    | 36     | Loop   |
 | `sear`     | 1      | Still  |
 | `culture`  | 1      | Still  |
 | `bloom`    | 24     | Loop   |
-| `weave`    | 1      | Still  |
+| `weave`    | 120    | Loop   |
 | `warp`     | 72     | Loop   |
-| `zig`      | 1      | Still  |
+| `zig`      | 120    | Loop   |
 | `relief`   | 24     | Loop   |
 | `atlas`    | 24     | Loop   |
 | `sprig`    | 1      | Still  |
@@ -51,7 +51,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `oddgrid`  | 1      | Still  |
 | `fete`     | 100    | Loop   |
 | `fold`     | 1      | Still  |
-| `quilt`    | 1      | Still  |
+| `quilt`    | 60     | Loop   |
 | `static`   | 60     | Loop   |
 | `splice`   | 1      | Still  |
 | `dahlia`   | 1      | Still  |

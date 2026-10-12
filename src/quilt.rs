@@ -10,7 +10,7 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "quilt";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 60;
 pub(crate) const FPS: u32 = 10;
 pub(crate) const MAX_INKS: Option<usize> = Some(4);
 
@@ -219,9 +219,9 @@ pub(crate) fn render(
     params: &QuiltParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -241,6 +241,30 @@ const POOL: [QuiltStyle; 14] = [
     QuiltStyle::Gingham,
     QuiltStyle::Burst,
 ];
+
+const AMOUNT: f64 = 0.8;
+
+struct Scroll {
+    time: f64,
+    per_loop: f64,
+}
+
+impl Scroll {
+    fn new(t: Option<u32>) -> Self {
+        Self {
+            time: t.map_or(0.0, |t| f64::from(t) / f64::from(FRAMES)),
+            per_loop: round_half_up(AMOUNT * 3.0).max(1.0),
+        }
+    }
+
+    fn shift(&self, period: f64) -> f64 {
+        (self.time * self.per_loop * period).floor()
+    }
+
+    fn key(&self) -> f64 {
+        (self.time * (self.per_loop * 4.0).max(1.0)).floor()
+    }
+}
 
 const BAYER: [f64; 16] = [
     0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0,
@@ -415,7 +439,14 @@ impl Pattern {
         hash(x as i32, y as i32, channel, self.rs)
     }
 
-    fn role(&self, u: f64, v: f64, (mx, my): (f64, f64), (gw, gh): (f64, f64)) -> u8 {
+    fn role(
+        &self,
+        u: f64,
+        v: f64,
+        (mx, my): (f64, f64),
+        (gw, gh): (f64, f64),
+        scroll: &Scroll,
+    ) -> u8 {
         let (ax, ay) = (u - mx, v - my);
         let (ux, vy) = (ax.abs(), ay.abs());
         let spills = |cx: f64, cy: f64, rx: f64, ry: f64| {
@@ -424,7 +455,7 @@ impl Pattern {
         match self.style {
             QuiltStyle::Bands => {
                 let b = (vy / self.bh).floor();
-                let uu = ux + (self.h(0.0, b, 2) * self.l).floor();
+                let uu = ux + scroll.shift(self.l) + (self.h(0.0, b, 2) * self.l).floor();
                 let k = (uu / self.l).floor();
                 let mut role = (self.h(k, b, 5) * 3.0).floor() as u8;
                 if self.h(k, b, 9) < 0.22 {
@@ -442,7 +473,7 @@ impl Pattern {
                 if vy - row * py >= self.th {
                     return 0;
                 }
-                let uu = ux + if odd(row) { half(px) } else { 0.0 };
+                let uu = ux + scroll.shift(px) + if odd(row) { half(px) } else { 0.0 };
                 if (uu % px + px) % px >= self.tw {
                     return 0;
                 }
@@ -453,7 +484,7 @@ impl Pattern {
                 }
             }
             QuiltStyle::Zigzag => {
-                let uu = (ux % self.zper + self.zper) % self.zper;
+                let uu = ((ux + scroll.shift(self.zper)) % self.zper + self.zper) % self.zper;
                 let tri = (uu * 2.0 - self.zper).abs() / 2.0;
                 lookup(&self.zigzag, (vy + tri * self.zslope).floor())
             }
@@ -465,7 +496,7 @@ impl Pattern {
                 }
                 let du = (ax - tx * self.dw).abs() / (self.dw / 2.0);
                 let dv = (ay - ty * self.dh).abs() / (self.dh / 2.0);
-                let (md, p) = (du + dv, odd(tx + ty));
+                let (md, p) = (du + dv, odd(tx + ty + scroll.key()));
                 if md <= 0.4 {
                     if p { 3 } else { 1 }
                 } else if md <= 0.95 {
@@ -484,7 +515,7 @@ impl Pattern {
                 }
                 let (du, dv) = ((ax - tx * t).abs(), (ay - ty * t).abs());
                 if (du < self.ca && dv <= arm) || (dv < self.ca && du <= arm) {
-                    if self.h(tx.abs(), ty.abs(), 4) < 0.15 {
+                    if self.h(tx.abs(), ty.abs(), 4 + scroll.key() as u32) < 0.15 {
                         3
                     } else if odd(tx + ty) {
                         1
@@ -496,17 +527,21 @@ impl Pattern {
                 }
             }
             QuiltStyle::Basket => {
-                let (bx, by) = ((ux / self.bb).floor(), (vy / self.bb).floor());
+                let s = scroll.shift(self.bb * 2.0);
+                let (bx, by) = (((ux + s) / self.bb).floor(), (vy / self.bb).floor());
                 let stripe = self.bs * 2.0;
                 if odd(bx + by) {
                     u8::from(vy.floor() % stripe < self.bs)
-                } else if ux.floor() % stripe < self.bs {
+                } else if (ux + s).floor() % stripe < self.bs {
                     2
                 } else {
                     0
                 }
             }
-            QuiltStyle::Rings => lookup(&self.rings, (ux * (gh / gw)).max(vy).floor()),
+            QuiltStyle::Rings => lookup(
+                &self.rings,
+                (ux * (gh / gw)).max(vy).floor() - scroll.shift(self.rings.len() as f64),
+            ),
             QuiltStyle::Star => {
                 let t = self.stt;
                 let (tx, ty) = (round_half_up(ax / t), round_half_up(ay / t));
@@ -516,7 +551,7 @@ impl Pattern {
                     return 0;
                 }
                 let (du, dv) = ((ax - tx * t).abs(), (ay - ty * t).abs());
-                let p = odd(tx + ty);
+                let p = odd(tx + ty + scroll.key());
                 if du + dv <= r * 0.95 || du.max(dv) <= r * 0.55 {
                     if du + dv <= r * 0.4 && du.max(dv) <= r * 0.4 {
                         if p { 3 } else { 2 }
@@ -530,14 +565,14 @@ impl Pattern {
                 }
             }
             QuiltStyle::Waves => {
-                let uu = (ux % self.wper + self.wper) % self.wper;
+                let uu = ((ux + scroll.shift(self.wper)) % self.wper + self.wper) % self.wper;
                 let x = uu / self.wper * 2.0 - 1.0;
                 let bump = (1.0 - x * x).max(0.0).sqrt() * self.wamp;
                 lookup(&self.waves, (vy + bump).floor())
             }
             QuiltStyle::Gingham => {
                 let hs = odd((vy / self.gg).floor());
-                let vs = odd((ux / self.gg).floor());
+                let vs = odd(((ux + scroll.shift(self.gg * 2.0)) / self.gg).floor());
                 match (hs, vs) {
                     (true, true) => 2,
                     (false, false) => 0,
@@ -549,11 +584,11 @@ impl Pattern {
                     return 3;
                 }
                 let angle = (vy + 0.5).atan2(ux + 0.5);
-                let k = (angle / FRAC_PI_2 * self.bn).floor();
+                let k = (angle / FRAC_PI_2 * self.bn).floor() + scroll.key();
                 [1, 0, 2, 0][(k as i64).rem_euclid(4) as usize]
             }
             QuiltStyle::Plaid => {
-                let (uu, vv) = (ux % self.per, vy % self.per);
+                let (uu, vv) = ((ux + scroll.shift(self.per)) % self.per, vy % self.per);
                 let (hs, vs) = (vv < self.pw, uu < self.pw);
                 if hs && vs {
                     2
@@ -571,20 +606,33 @@ impl Pattern {
             QuiltStyle::Dither => {
                 let s = 0.5
                     + 0.5
-                        * ((ux + vy) * self.f1 + (ux * self.f2).sin() * self.warp + self.ph0).sin();
+                        * ((ux + vy) * self.f1
+                            + (ux * self.f2 + scroll.time * TAU * scroll.per_loop).sin()
+                                * self.warp
+                            + self.ph0)
+                            .sin();
                 let cell = ((vy.floor() as usize) & 3) * 4 + ((ux.floor() as usize) & 3);
                 u8::from(s > (BAYER[cell] + 0.5) / 16.0)
             }
             QuiltStyle::Auto => unreachable!("Auto resolves to a style"),
             QuiltStyle::Steps => lookup(
                 &self.steps,
-                (vy + ((ux + self.off) / self.rw).floor() * self.rh).floor(),
+                (vy + scroll.shift(self.steps.len() as f64)
+                    + ((ux + self.off) / self.rw).floor() * self.rh)
+                    .floor(),
             ),
         }
     }
 }
 
-fn paint(surface: &mut Surface, params: &QuiltParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &QuiltParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
+    let scroll = Scroll::new(t);
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let columns = params.cells;
     let rows = (round_half_up(f64::from(columns) * height / width) as u32).max(8);
@@ -594,7 +642,7 @@ fn paint(surface: &mut Surface, params: &QuiltParams, palette: &Palette, tool_se
     let mut rgba = Vec::with_capacity((columns * rows * 4) as usize);
     for v in 0..rows {
         for u in 0..columns {
-            let role = pattern.role(f64::from(u), f64::from(v), mid, (gw, gh));
+            let role = pattern.role(f64::from(u), f64::from(v), mid, (gw, gh), &scroll);
             let [r, g, b] = palette.ink(usize::from(role));
             rgba.extend([r, g, b, 255]);
         }

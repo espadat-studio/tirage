@@ -1,11 +1,11 @@
 ---
 title: "weave"
-description: "Horizontal bands of woven cloth, each striped in its own threads. It renders a Still."
+description: "Horizontal bands of woven cloth, each striped in its own threads. It renders a Loop of 120 frames at 24 fps, each band's stripes sliding sideways."
 ---
 
 Bands of woven cloth stacked down the frame. Each band has a ground ink and vertical stripes in one or two thread inks, at its own pitch, width and height. Some bands are fine pinstripes and some are broad bars.
 
-weave renders a Still: one frame. Its site page is [playgrnd.tools/weave](https://www.playgrnd.tools/weave/).
+weave renders a Loop: 120 frames at 24 fps, in which each band's stripes slide left or right by one or two whole repeats, while the bands and their inks hold. Frame 0 is the Still. Its site page is [playgrnd.tools/weave](https://www.playgrnd.tools/weave/).
 
 ## Still
 
@@ -24,7 +24,7 @@ SVG: yes. `-o weave.svg` writes this Still as an [SVG](/cli-reference/render/#sv
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-weave  1 frame, svg
+weave  120 frames, svg
   bands       3..=12    step 1
   stripe      0.5..=2.2 step 0.05
   ditherTog   on/off

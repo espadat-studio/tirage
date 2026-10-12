@@ -58,13 +58,24 @@ fn every_draw_is_on_the_slider_grid_and_every_style_is_dealt() {
 }
 
 #[test]
-fn zig_is_a_still() {
-    assert_eq!(Tool::Zig.frames(), 1);
+fn zig_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Zig.frames(), Tool::Zig.fps()), (120, 24));
     let recipe = derive(7, ZIG);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 120)),
+        "frame 120 is outside 0..120"
     );
+}
+
+#[test]
+fn frame_0_is_the_still_and_crawl_moves_later_frames() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, ZIG);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() == frame(0).rgba(), "seed {seed}");
+        assert!(still.rgba() != frame(30).rgba(), "seed {seed}");
+    }
 }
 
 #[test]

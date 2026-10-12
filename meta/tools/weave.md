@@ -13,7 +13,7 @@ Site control ids, slider ranges and site defaults:
 | `bands`  | 3..12    | 1    | 6       | how many bands stack down the frame |
 | `stripe` | 0.5..2.2 | 0.05 | 1       | scales every band's stripe pitch    |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. weave is a Still Tool: only frame 0 is rendered. Motion stays fixed at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 weave is a palette-family Tool. Its Palette is the swatch row only, read by position, any number of inks from 2. It has no ground, rule or ink fields of its own. The site's colour shuffle only loads swatches and is not a Parameter. Default Palette, 7 inks: `#22223b #f2e9e4 #c9ada7 #9a8c98 #4a4e69 #e63946 #f4d35e`.
 
@@ -42,7 +42,7 @@ Then, per band in order, these draws:
 8. Extent draw `e = r`.
 9. Height share: `1` when `e < 0.55`, else `0.6 + 0.3 r`.
 10. Alignment: `full` when `e < 0.55`. Else one draw: under 0.5 is `top`. Else a second draw: under 0.5 is `bottom`, else `center`.
-11. Three more draws: direction, repeat count and phase. The first two only drive motion, but they are drawn for a Still too. The phase is the third.
+11. Three more draws: direction, repeat count and phase. Direction is `-1` when the draw is under 0.5, else `1`. The repeat count is `1 + floor(2r)`, so 1 or 2. Both only drive motion, but they are drawn for a Still too. The phase is the third.
 
 ## Stripes
 
@@ -60,6 +60,18 @@ Per band in order:
 
 1. Ground: from `floor(y0 k)`, full width, `ceil((y1 - y0) k) + 1` tall. The extra pixel is covered by the next band.
 2. Each stripe, in `k` order: left `round(x k)`, top `round(sy k)`, width `max(1, round(w k))`, height `round(sh k)`, in its thread colour. Rounding goes half up, as JavaScript's `Math.round` does. A stripe can start left of 0 and is clipped.
+
+## Motion
+
+The site has two motion modes: Slide and Blink. Slide is the default and the only one ported: amount 0.8, 120 frames at 24 fps.
+
+- Frame `f` sits at `T = f / frames`.
+- Slide adds `dir * T * speed * period` to each band's offset, before the visible run is worked out. `speed = max(1, round(repeats * amount))`, so a band with 1 repeat slides 1 period per Loop and a band with 2 slides 2. Bands slide left or right by their own direction draw, at their own speed.
+- Nothing else moves: the band heights, grounds, threads, pitches, duties and stripe rects hold.
+- The Loop closes by whole periods: at `T = 1` each offset has moved `speed` periods, so stripe `k` sits where stripe `k - dir * speed * threads` was, and that stripe has the same thread. Every rect lands on its frame 0 pixels, unless the float sum tips a `round` on a stripe edge, which the closure test would catch.
+- At `f = 0` the slide is 0, so frame 0 is the Still, byte for byte.
+- The mid frame is 60: half a Loop, a 1-repeat band half a period along and a 2-repeat band one whole period along.
+- Blink is not ported. It deals each band's inks again at staggered steps and is not reachable from a Recipe.
 
 ## Fidelity notes
 

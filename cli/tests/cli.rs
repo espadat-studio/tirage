@@ -410,7 +410,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"shadow","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let whorl = concat!(
-        r#"{"slug":"whorl","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"whorl","frames":36,"svg":false,"params":["#,
         r#"{"id":"centres","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"pull","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"push","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -453,7 +453,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"calm","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let weave = concat!(
-        r#"{"slug":"weave","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"weave","frames":120,"svg":true,"params":["#,
         r#"{"id":"bands","kind":"range","min":3.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"stripe","kind":"range","min":0.5,"max":2.2,"step":0.05},"#,
     );
@@ -464,7 +464,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let zig = concat!(
-        r#"{"slug":"zig","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"zig","frames":120,"svg":true,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Teeth","Chevron","Stairs","Ricrac","Waves","Scales"]},"#,
         r#"{"id":"width","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
         r#"{"id":"depth","kind":"range","min":0.2,"max":1.4,"step":0.02},"#,
@@ -573,7 +573,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"px","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let quilt = concat!(
-        r#"{"slug":"quilt","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"quilt","frames":60,"svg":false,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Bands","Tabs","Plaid","Dither","Steps","Zigzag","Diamond","Cross","Basket","Rings","Star","Waves","Gingham","Burst"]},"#,
         r#"{"id":"cells","kind":"range","min":28.0,"max":72.0,"step":2.0},"#,
         r#"{"id":"chunk","kind":"range","min":0.7,"max":1.8,"step":0.05},"#,
@@ -878,7 +878,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\noddgrid  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nfete  100 frames\n"), "{listing}");
     assert!(listing.contains("\nfold  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nquilt  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nquilt  60 frames\n"), "{listing}");
     assert!(listing.contains("\nstatic  60 frames\n"), "{listing}");
     assert!(listing.contains("\nsplice  1 frame\n"), "{listing}");
     assert!(listing.contains("\ndahlia  1 frame\n"), "{listing}");
@@ -906,14 +906,14 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nwhorl  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nwhorl  36 frames\n"), "{listing}");
     assert!(listing.contains("\nsear  1 frame\n"), "{listing}");
     assert!(listing.contains("\nculture  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmosh  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nbloom  24 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nweave  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nweave  120 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nwarp  72 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nzig  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nzig  120 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nrelief  24 frames, svg\n"), "{listing}");
     for line in [
         "  grid        40..=320  step 2\n",

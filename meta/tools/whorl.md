@@ -19,7 +19,7 @@ Site control ids, slider ranges and site defaults:
 | `warp`    | 0..1                      | 0.01 | 0.5     | how far it is warped                  |
 | `detail`  | 0..1                      | 0.01 | 0.3     | how fine the warp is                  |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. whorl is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off the flow and orbit are 0 and the breathe factor is 1. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the flow and orbit are 0 and the breathe factor is 1. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 ## Palette
 
@@ -56,6 +56,19 @@ Frame units: `x` runs 0..1 across the width and `y` runs 0..`H/W` down. A pixel 
 - Coverage `a = clamp(0.5 + sd/g, 0, 1)`.
 - The band's ink is stripe ink `floor(u)` modulo their count, taken non-negative.
 - Each channel is `ground + (ink - ground)·a`, stored as a byte, clamped and rounded half to even. Alpha is opaque.
+
+## Motion
+
+The site has three motion modes: Flow, Drift and Breathe. Flow is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`.
+- Flow adds `T * cyc` to `u`, after the stripe scale and before the edge width and band are read. The bands count outward through the field, so the rings stream away from the positive centres and into the negative ones.
+- `cyc = 1 + 2 floor(1.5 amount)`, always odd, so the mid frame sits on half a band rather than back on frame 0. At the default it is 1: one band per Loop.
+- Nothing else moves: the centres, their weights, the warp and the edge width rule hold. The fourth draw per centre, the drift phase, stays unused.
+- The Loop closes by whole bands: at `T = 1` every `u` is one more, so every band lands where the next one was at frame 0. The band index is one more too, so each band takes the next stripe ink. With one stripe ink, as in the default duotone, that is the same ink and the frame after the last is frame 0. With more stripe inks the frame after the last is frame 0 with the stripe inks rotated one step, which is the site's own seam. Adding 1 to `u` can move its last bit, so a band-edge byte can land one level off: on the 3 Seeds the closure test renders, at most 1 byte at 270x480, off by 1. The closure test allows one level on any byte and no more.
+- At `f = 0` the flow is 0, so frame 0 is the Still, byte for byte.
+- The mid frame is 18: half a band, every stripe halfway to the next.
+- Drift and Breathe are not ported. Drift circles each centre on its own phase and Breathe swells the warp on a cosine. Neither is reachable from a Recipe.
 
 ## Fidelity notes
 

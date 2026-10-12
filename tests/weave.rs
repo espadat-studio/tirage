@@ -51,13 +51,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn weave_is_a_still() {
-    assert_eq!(Tool::Weave.frames(), 1);
+fn weave_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Weave.frames(), Tool::Weave.fps()), (120, 24));
     let recipe = derive(7, WEAVE);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 120)),
+        "frame 120 is outside 0..120"
     );
+}
+
+#[test]
+fn frame_0_is_the_still_and_slide_moves_later_frames() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, WEAVE);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() == frame(0).rgba(), "seed {seed}");
+        assert!(still.rgba() != frame(60).rgba(), "seed {seed}");
+    }
 }
 
 #[test]

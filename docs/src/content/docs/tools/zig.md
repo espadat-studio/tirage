@@ -1,11 +1,11 @@
 ---
 title: "zig"
-description: "Two-ink stripes with zigzag, stepped or wavy edges. It renders a Still."
+description: "Two-ink stripes with zigzag, stepped or wavy edges. It renders a Loop of 120 frames at 24 fps, the edges crawling along the stripes."
 ---
 
 Two-ink stripes. The frame is one ink, and every other band between a stack of boundary lines is filled with a second. The lines are teeth, chevrons, stairs, ricrac, waves or scales, and every corner is rounded off.
 
-zig renders a Still: one frame. Its site page is [playgrnd.tools/zig](https://www.playgrnd.tools/zig/).
+zig renders a Loop: 120 frames at 24 fps, in which the teeth, steps or waves crawl two repeats along while the stripes and inks hold. Frame 0 is the Still. Wide Stairs do not land back on frame 0, so their Loop jumps at the end, as it does on the site. Its site page is [playgrnd.tools/zig](https://www.playgrnd.tools/zig/).
 
 ## Still
 
@@ -24,7 +24,7 @@ SVG: yes. `-o zig.svg` writes this Still as an [SVG](/cli-reference/render/#svg)
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-zig  1 frame, svg
+zig  120 frames, svg
   styles      Teeth, Chevron, Stairs, Ricrac, Waves, Scales
   width       0.5..=2   step 0.05
   depth       0.2..=1.4 step 0.02
