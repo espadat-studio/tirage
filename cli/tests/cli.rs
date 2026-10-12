@@ -504,7 +504,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"detail","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let stipple = concat!(
-        r#"{"slug":"stipple","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"stipple","frames":1,"svg":true,"params":["#,
         r#"{"id":"modesDot","kind":"choice","choices":["Lattice","Contour"]},"#,
         r#"{"id":"lattices","kind":"choice","choices":["Square","Hex"]},"#,
         r#"{"id":"shapes","kind":"choice","choices":["Circle","Square"]},"#,
@@ -902,7 +902,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nchaff  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstrand  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
-    assert!(listing.contains("\nstipple  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nstipple  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
