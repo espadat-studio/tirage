@@ -51,7 +51,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `oddgrid`  | 1      | Still  |
 | `fete`     | 100    | Loop   |
 | `fold`     | 1      | Still  |
-| `quilt`    | 1      | Still  |
+| `quilt`    | 60     | Loop   |
 | `static`   | 60     | Loop   |
 | `splice`   | 1      | Still  |
 | `dahlia`   | 1      | Still  |

@@ -1,11 +1,11 @@
 ---
 title: "quilt"
-description: "Pixel quilt cloth in four inks, mirrored about the centre. It renders a Still."
+description: "Pixel quilt cloth in four inks, mirrored about the centre. It renders a Loop of 60 frames at 10 fps, the cloth streaming outward from the centre."
 ---
 
 Pixel quilt cloth. One pattern fills a chunky grid, measured from the centre so the sheet mirrors both ways, and the grid is blown up with hard edges. The patterns are bands, tabs, plaid, dither, steps, zigzag, diamond, cross, basket, rings, star, waves, gingham and burst.
 
-quilt renders a Still: one frame. Its site page is [playgrnd.tools/quilt](https://www.playgrnd.tools/quilt/).
+quilt renders a Loop: 60 frames at 10 fps, in which the pattern streams outward from the centre column by two repeats, still mirrored, while the grid and inks hold. Diamond and star tiles swap their inks, cross tiles deal their pops again and burst rays turn, 8 times each. Frame 0 is the Still. Bands, tabs and cross do not land back on frame 0, so their Loop jumps at the end, as it does on the site. Its site page is [playgrnd.tools/quilt](https://www.playgrnd.tools/quilt/).
 
 ## Still
 
