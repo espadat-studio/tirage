@@ -87,7 +87,7 @@ impl Frame {
 #[cfg(test)]
 mod tests {
     use super::{Frame, render};
-    use crate::{Palette, Params, Tool, ToolPin, ZigStyle, derive};
+    use crate::{Palette, Params, QuiltStyle, Tool, ToolPin, ZigStyle, derive};
 
     const CLOSED: &[Tool] = &[
         Tool::Sonar,
@@ -165,6 +165,33 @@ mod tests {
             }
             for width in [1.0, 1.45, 1.8] {
                 assert!(zig_seam(seed, Stairs, width), "seed {seed}: width {width}");
+            }
+        }
+    }
+
+    fn quilt_seam(seed: u64, style: QuiltStyle) -> bool {
+        let mut recipe = derive(seed, ToolPin::Tool(Tool::Quilt));
+        let Params::Quilt(params) = recipe.params_mut() else {
+            unreachable!()
+        };
+        params.set_style(style);
+        params.set_chunk(1.0).unwrap();
+        let first = render(&recipe, &Frame::new(&recipe, 270, 480, 0).unwrap());
+        let after = render(&recipe, &Frame::after_last(&recipe, 270, 480));
+        first.rgba() != after.rgba()
+    }
+
+    #[test]
+    fn quilt_closes_on_every_style_but_bands_tabs_and_cross() {
+        use QuiltStyle::*;
+        for seed in 1..=3 {
+            for style in [
+                Plaid, Dither, Steps, Zigzag, Diamond, Basket, Rings, Star, Waves, Gingham, Burst,
+            ] {
+                assert!(!quilt_seam(seed, style), "seed {seed}: {style:?}");
+            }
+            for style in [Bands, Tabs, Cross] {
+                assert!(quilt_seam(seed, style), "seed {seed}: {style:?}");
             }
         }
     }

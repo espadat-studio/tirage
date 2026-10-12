@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool quilt | tirage render --size 540x960 -o quilt.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-quilt  1 frame
+quilt  60 frames
   styles      Auto, Bands, Tabs, Plaid, Dither, Steps, Zigzag, Diamond, Cross, Basket, Rings, Star, Waves, Gingham, Burst
   cells       28..=72   step 2
   chunk       0.7..=1.8 step 0.05
