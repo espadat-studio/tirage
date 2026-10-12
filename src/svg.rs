@@ -417,6 +417,41 @@ impl SvgWriter {
             || bounds.top() - reach > self.height as f32
     }
 
+    fn trimmed(&self, path: &Path, reach: f32) -> Option<Path> {
+        let mut runs: Vec<Vec<tiny_skia::Point>> = Vec::new();
+        for segment in path.segments() {
+            match segment {
+                PathSegment::MoveTo(p) => runs.push(vec![p]),
+                PathSegment::LineTo(p) => runs.last_mut().expect("a line follows a move").push(p),
+                _ => return Some(path.clone()),
+            }
+        }
+        let mut trimmed = PathBuilder::new();
+        for points in runs {
+            let seen: Vec<bool> = points
+                .windows(2)
+                .map(|ends| {
+                    let bounds = Rect::from_points(ends).expect("two finite points bound a rect");
+                    !self.misses_frame(bounds, reach)
+                })
+                .collect();
+            let mut open = false;
+            for (i, ends) in points.windows(2).enumerate() {
+                let kept = seen[i] || (i > 0 && seen[i - 1]) || seen.get(i + 1) == Some(&true);
+                if !kept {
+                    open = false;
+                    continue;
+                }
+                if !open {
+                    trimmed.move_to(ends[0].x, ends[0].y);
+                    open = true;
+                }
+                trimmed.line_to(ends[1].x, ends[1].y);
+            }
+        }
+        trimmed.finish()
+    }
+
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
         if self.misses_frame(path.bounds(), 0.0) {
             return;
@@ -464,6 +499,9 @@ impl SvgWriter {
         if self.misses_frame(path.bounds(), reach) {
             return;
         }
+        let Some(path) = &self.trimmed(path, reach) else {
+            return;
+        };
         let (ink, opacity) = self.faded_stroke(ink, width);
         let parts = if self.multiply || (!self.clips.is_empty() && width <= 1.0) {
             subpaths(path)
@@ -1161,6 +1199,49 @@ mod tests {
         svg.stroke(&near, [0, 0, 0], 2.0, Cap::Butt, Join::Round);
         svg.stroke(&near, [0, 0, 0], 1.0, Cap::Butt, Join::Miter);
         assert!(body(svg.finish()).contains("<path"));
+    }
+
+    #[test]
+    fn a_stroke_around_the_frame_whose_every_segment_misses_it_writes_nothing() {
+        let mut corner = PathBuilder::new();
+        corner.move_to(-10.0, -10.0);
+        corner.line_to(20.0, -10.0);
+        corner.line_to(20.0, 20.0);
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(
+            &corner.finish().unwrap(),
+            [0, 0, 0],
+            1.0,
+            Cap::Round,
+            Join::Round,
+        );
+        assert_eq!(body(svg.finish()), "");
+    }
+
+    #[test]
+    fn a_stroke_drops_runs_past_the_frame_but_keeps_one_segment_beyond_each_seen_one() {
+        let mut path = PathBuilder::new();
+        path.move_to(1.0, 1.0);
+        for (x, y) in [
+            (5.0, 1.0),
+            (20.0, 1.0),
+            (30.0, 1.0),
+            (40.0, 1.0),
+            (30.0, 2.0),
+            (20.0, 2.0),
+            (5.0, 2.0),
+        ] {
+            path.line_to(x, y);
+        }
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(
+            &path.finish().unwrap(),
+            [0, 0, 0],
+            1.0,
+            Cap::Round,
+            Join::Round,
+        );
+        assert!(body(svg.finish()).contains(r#"d="M1 1L5 1L20 1L30 1M30 2L20 2L5 2""#));
     }
 
     #[test]
