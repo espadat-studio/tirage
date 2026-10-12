@@ -1,11 +1,11 @@
 ---
 title: "prism"
-description: "Pixel streams of white, hot and cool colour flooding a black dot grid. It renders a Still."
+description: "Pixel streams of white, hot and cool colour flooding a black dot grid. It renders a Loop of 12 frames at 8 fps, the edges of the streams flickering between colours."
 ---
 
 An aurora in coarse pixels. A few streams flow in from the corners and edges of a black field. Each cell of the grid is white near the middle of a stream, then yellow and orange, then pink and red, then blue and violet at the edge, and black beyond it. A faint white dot sits in the centre of every cell.
 
-prism renders a Still: one frame. Its site page is [playgrnd.tools/prism](https://www.playgrnd.tools/prism/).
+prism renders a Loop: 12 frames at 8 fps, in which cells at the edge of each colour band flicker in and out of it, each on its own beat. The streams, their white cores and the dots hold still. The flicker is already under way at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/prism](https://www.playgrnd.tools/prism/).
 
 ## Still
 
