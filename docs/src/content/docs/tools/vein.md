@@ -1,11 +1,11 @@
 ---
 title: "vein"
-description: "Poured paint, cut flat into stacked levels. It renders a Still."
+description: "Poured paint, cut flat into stacked levels. It renders a Loop of 36 frames at 12 fps, the levels flowing as the warp drifts round a circle."
 ---
 
 Poured paint, cut flat. A smooth stripy field is sliced at evenly spaced levels. Each level is the outline of everything at or above it, filled as one shape over the levels below, so the sheet reads as stacked layers of marbled paint. The lowest levels are a dark ground, and stars sit on that ground only.
 
-vein renders a Still: one frame. Its site page is [playgrnd.tools/vein](https://www.playgrnd.tools/vein/).
+vein renders a Loop: 36 frames at 12 fps, in which the warp under the stripes drifts once round a small circle, so the levels bend and flow back. The level inks and the star places hold still, and stars show or hide as the dark ground passes them. The warp is already shifted at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/vein](https://www.playgrnd.tools/vein/).
 
 ## Still
 
