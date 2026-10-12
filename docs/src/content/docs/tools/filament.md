@@ -1,11 +1,11 @@
 ---
 title: "filament"
-description: "Bundles of fine strands traced through a curling flow field, with small symbols riding them. It renders a Still."
+description: "Bundles of fine strands traced through a curling flow field, with small symbols riding them. It renders a Loop of 30 frames at 16 fps, a dash running along about half the strands."
 ---
 
 Bundles of fine strands on a dark ground. Each bundle starts from one spot and follows a curling flow field, so its strands run together like a rope and then fray apart. Most strands are fine and a few are heavy. Small arrows, rings, crosses, hooks and ticks ride along the strands in three accent colours, more of them near the far end. Some strands can also carry a chain of beads.
 
-filament renders a Still: one frame. Its site page is [playgrnd.tools/filament](https://www.playgrnd.tools/filament/).
+filament renders a Loop: 30 frames at 16 fps. About half the strands show only a third of their length at a time, and that piece runs along the strand twice per Loop. The other strands, the symbols and the beads hold still. The moving strands are already cut short at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/filament](https://www.playgrnd.tools/filament/).
 
 ## Still
 

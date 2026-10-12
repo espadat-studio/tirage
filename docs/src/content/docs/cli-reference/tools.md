@@ -71,7 +71,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `vee`      | 72     | Loop   |
 | `sampler`  | 24     | Loop   |
 | `totem`    | 24     | Loop   |
-| `filament` | 1      | Still  |
+| `filament` | 30     | Loop   |
 | `chaff`    | 1      | Still  |
 | `strand`   | 1      | Still  |
 
