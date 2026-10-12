@@ -5313,6 +5313,216 @@
               "grnVignette": 0.5
             }
           }
+        },
+        {
+          "name": "seed-1-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sprig",
+            "tool_seed": 9611518,
+            "palette": [
+              "#f9e4c8",
+              "#2d6a4f"
+            ],
+            "params": {
+              "dirs": "Leaves",
+              "count": 96,
+              "size": 0.49,
+              "vary": 0.01,
+              "solids": 0.2,
+              "weight": 0.4,
+              "rough": 0.55,
+              "wobble": 0.21,
+              "detail": 1,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-1-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sprig",
+            "tool_seed": 9611518,
+            "palette": [
+              "#f9e4c8",
+              "#2d6a4f"
+            ],
+            "params": {
+              "dirs": "Leaves",
+              "count": 96,
+              "size": 0.49,
+              "vary": 0.01,
+              "solids": 0.2,
+              "weight": 0.4,
+              "rough": 0.55,
+              "wobble": 0.21,
+              "detail": 1,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-2-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sprig",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#f9e4c8",
+              "#2d6a4f"
+            ],
+            "params": {
+              "dirs": "Blooms",
+              "count": 33,
+              "size": 0.23,
+              "vary": 0.98,
+              "solids": 0.54,
+              "weight": 0.59,
+              "rough": 0.5,
+              "wobble": 0.96,
+              "detail": 0.87,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-2-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sprig",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#f9e4c8",
+              "#2d6a4f"
+            ],
+            "params": {
+              "dirs": "Blooms",
+              "count": 33,
+              "size": 0.23,
+              "vary": 0.98,
+              "solids": 0.54,
+              "weight": 0.59,
+              "rough": 0.5,
+              "wobble": 0.96,
+              "detail": 0.87,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-3-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sprig",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#f9e4c8",
+              "#2d6a4f"
+            ],
+            "params": {
+              "dirs": "Leaves",
+              "count": 87,
+              "size": 0.58,
+              "vary": 0.01,
+              "solids": 0.5,
+              "weight": 0.37,
+              "rough": 0.23,
+              "wobble": 0.68,
+              "detail": 0.86,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-3-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "sprig",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#f9e4c8",
+              "#2d6a4f"
+            ],
+            "params": {
+              "dirs": "Leaves",
+              "count": 87,
+              "size": 0.58,
+              "vary": 0.01,
+              "solids": 0.5,
+              "weight": 0.37,
+              "rough": 0.23,
+              "wobble": 0.68,
+              "detail": 0.86,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
         }
       ],
       "page_sha256": "58cad1c63fb27541442375767dc054c7c732353ccd59a31f0e549e43e84634dc",
