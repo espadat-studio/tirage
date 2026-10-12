@@ -24,7 +24,7 @@ SVG: yes. `-o vein.svg` writes this Still as an [SVG](/cli-reference/render/#svg
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-vein  1 frame, svg
+vein  36 frames, svg
   flows       Marble, Swirl, Ripple
   scale       0..=1     step 0.01
   curve       0..=1     step 0.01

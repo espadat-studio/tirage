@@ -111,6 +111,7 @@ mod tests {
         Tool::Parcel,
         Tool::Chaff,
         Tool::Strand,
+        Tool::Vein,
     ];
 
     #[test]
