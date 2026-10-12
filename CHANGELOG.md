@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/espadat-studio/tirage/compare/v0.2.0...v0.3.0) - 2026-10-12
+
+### Added
+
+- add loops for coral, sear, cipher and hiss ([#173](https://github.com/espadat-studio/tirage/pull/173))
+- add loops for vein, aura, benday, stitch and mist ([#172](https://github.com/espadat-studio/tirage/pull/172))
+- add loops for crowd, parcel, chaff and strand ([#171](https://github.com/espadat-studio/tirage/pull/171))
+- add loops for culture, sprig, fold and splice ([#170](https://github.com/espadat-studio/tirage/pull/170))
+- add loops for riso, rise, prism and filament ([#169](https://github.com/espadat-studio/tirage/pull/169))
+- add loops for dahlia, carve, tokens, optic and vee ([#168](https://github.com/espadat-studio/tirage/pull/168))
+- *(svg)* shrink svg exports with culling, deltas and stroke classes ([#167](https://github.com/espadat-studio/tirage/pull/167))
+- add svg export for fete, quilt, static and carve ([#166](https://github.com/espadat-studio/tirage/pull/166))
+- add svg export for riso, rise, specimen, optic and vee ([#165](https://github.com/espadat-studio/tirage/pull/165))
+- add loops for whorl, weave, zig and quilt ([#164](https://github.com/espadat-studio/tirage/pull/164))
+- add svg export for pane, modular, prism, parcel and tokens ([#163](https://github.com/espadat-studio/tirage/pull/163))
+- add svg export for kiosk, atlas and sampler ([#162](https://github.com/espadat-studio/tirage/pull/162))
+- add svg export for vein, warp, zig, relief and oddgrid ([#160](https://github.com/espadat-studio/tirage/pull/160))
+- add loops for fete, pane, sampler and totem ([#158](https://github.com/espadat-studio/tirage/pull/158))
+- add svg export for mosh, bloom, weave, stipple and totem ([#157](https://github.com/espadat-studio/tirage/pull/157))
+- add svg export for stills, starting with sonar ([#154](https://github.com/espadat-studio/tirage/pull/154))
+- add loops for mosh, relief, atlas, motley and static ([#155](https://github.com/espadat-studio/tirage/pull/155))
+- add loops for husk, pith, bloom and warp ([#153](https://github.com/espadat-studio/tirage/pull/153))
+- [**breaking**] add filament, chaff and strand as stills ([#123](https://github.com/espadat-studio/tirage/pull/123))
+- [**breaking**] add optic, vee, sampler and totem as stills ([#121](https://github.com/espadat-studio/tirage/pull/121))
+- [**breaking**] add pane, modular, prism, parcel and tokens as stills ([#120](https://github.com/espadat-studio/tirage/pull/120))
+- [**breaking**] add riso, rise, carve and specimen as stills ([#119](https://github.com/espadat-studio/tirage/pull/119))
+- [**breaking**] add splice, dahlia, hiss, crowd and cipher as stills ([#118](https://github.com/espadat-studio/tirage/pull/118))
+- [**breaking**] add fete, fold, quilt and static as stills ([#116](https://github.com/espadat-studio/tirage/pull/116))
+- [**breaking**] add atlas, sprig, stipple, motley and oddgrid as stills ([#115](https://github.com/espadat-studio/tirage/pull/115))
+- [**breaking**] add bloom, weave, warp, zig and relief as stills ([#114](https://github.com/espadat-studio/tirage/pull/114))
+- [**breaking**] add mist, coral, whorl, sear and culture as stills ([#112](https://github.com/espadat-studio/tirage/pull/112))
+
+### Other
+
+- shrink stipple's svg below 10 mb ([#159](https://github.com/espadat-studio/tirage/pull/159))
+- *(glossary)* define loop by repeating frames ([#127](https://github.com/espadat-studio/tirage/pull/127))
+- autogenerate tools sidebar from content directory ([#117](https://github.com/espadat-studio/tirage/pull/117))
+- remove pre-push hook
+
 ## [0.2.0](https://github.com/espadat-studio/tirage/compare/v0.1.1...v0.2.0) - 2026-10-09
 
 ### Added
