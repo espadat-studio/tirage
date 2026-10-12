@@ -418,7 +418,12 @@ impl Surface {
     }
 
     pub(crate) fn fill_box(&mut self, x: f64, y: f64, width: f64, height: f64, ink: [u8; 3]) {
-        if let Some(rect) = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32) {
+        let (x, y, width, height) = (x as f32, y as f32, width as f32, height as f32);
+        if let Some(rect) = Rect::from_xywh(x, y, width, height) {
+            if let Backend::Svg(svg) = &mut self.0 {
+                svg.fill_box(x, y, width, height, ink);
+                return;
+            }
             let paint = self.solid(ink);
             let (pixmap, mask) = self.raster("fill_box");
             pixmap.fill_rect(
@@ -658,6 +663,31 @@ mod tests {
     #[should_panic(expected = "fill_circle has no SVG arm")]
     fn an_svg_surface_panics_naming_an_op_without_an_svg_arm() {
         Surface::svg(4, 4).fill_circle(2.0, 2.0, 1.0, [0, 0, 0]);
+    }
+
+    #[test]
+    fn overlapping_boxes_rasterize_from_svg_within_one_level_of_the_raster() {
+        let draw = |surface: &mut Surface| {
+            surface.fill([138, 182, 255]);
+            surface.fill_box(1.3, 0.6, 3.2, 2.9, [16, 40, 90]);
+            surface.fill_box(2.7, 1.9, 2.55, 3.05, [250, 120, 7]);
+            surface.fill_box(0.45, 2.2, 3.1, 0.7, [77, 201, 33]);
+            surface.fill_box(-0.5, 4.6, 7.5, 2.0, [0, 0, 0]);
+        };
+        let mut raster = Surface::new(6, 6);
+        draw(&mut raster);
+        let mut svg = Surface::svg(6, 6);
+        draw(&mut svg);
+        let tree = resvg::usvg::Tree::from_str(&svg.into_svg(), &Default::default()).unwrap();
+        let mut pixmap = resvg::tiny_skia::Pixmap::new(6, 6).unwrap();
+        resvg::render(&tree, Default::default(), &mut pixmap.as_mut());
+        let raster = raster.raster("test").0.data().to_vec();
+        let worst = pixmap
+            .data()
+            .iter()
+            .zip(&raster)
+            .map(|(a, b)| a.abs_diff(*b));
+        assert!(worst.max() <= Some(1), "{:?}\n{raster:?}", pixmap.data());
     }
 
     #[test]
