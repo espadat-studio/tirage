@@ -1,11 +1,11 @@
 ---
 title: "parcel"
-description: "A two-tone block field with hairline survey grids over it. It renders a Still."
+description: "A two-tone block field with hairline survey grids over it. It renders a Loop of 72 frames at 12 fps, the blocks creeping round in five held steps."
 ---
 
 A survey map. Blocks of one ink spread across a plain ground on a coarse cell grid, the way plots sit on a land registry sheet. A few small grids of hairlines float on top, each a ragged cluster of cells. By default the lines multiply onto what they cross, so they read darker over the blocks than over the ground.
 
-parcel renders a Still: one frame. Its site page is [playgrnd.tools/parcel](https://www.playgrnd.tools/parcel/).
+parcel renders a Loop: 72 frames at 12 fps, in which the block field shifts to a new place five times, each step held for about 14 frames, and comes back round to where it started. The grid, the hairline clusters and the inks hold still. Frame 0 is the first step, so it matches the Still. Its site page is [playgrnd.tools/parcel](https://www.playgrnd.tools/parcel/).
 
 ## Still
 
