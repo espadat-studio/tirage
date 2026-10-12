@@ -281,7 +281,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let vein = concat!(
-        r#"{"slug":"vein","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"vein","frames":1,"svg":true,"params":["#,
         r#"{"id":"flows","kind":"choice","choices":["Marble","Swirl","Ripple"]},"#,
         r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"curve","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -871,7 +871,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     let listing = text(&out.stdout);
     assert!(listing.starts_with("sonar  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nhusk  36 frames\n"), "{listing}");
-    assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nvein  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     assert!(listing.contains("\natlas  24 frames\n"), "{listing}");

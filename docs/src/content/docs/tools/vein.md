@@ -17,12 +17,14 @@ Seed 3, rendered by:
 tirage derive --seed 3 --tool vein | tirage render --size 540x960 -o vein.png
 ```
 
+SVG: yes. `-o vein.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-vein  1 frame
+vein  1 frame, svg
   flows       Marble, Swirl, Ripple
   scale       0..=1     step 0.01
   curve       0..=1     step 0.01
