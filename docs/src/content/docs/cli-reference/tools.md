@@ -57,7 +57,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `dahlia`   | 36     | Loop   |
 | `hiss`     | 1      | Still  |
 | `crowd`    | 36     | Loop   |
-| `cipher`   | 1      | Still  |
+| `cipher`   | 36     | Loop   |
 | `riso`     | 16     | Loop   |
 | `rise`     | 72     | Loop   |
 | `carve`    | 36     | Loop   |

@@ -118,6 +118,7 @@ mod tests {
         Tool::Mist,
         Tool::Coral,
         Tool::Sear,
+        Tool::Cipher,
     ];
 
     #[test]

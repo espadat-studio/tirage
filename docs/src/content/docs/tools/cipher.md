@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool cipher | tirage render --size 540x960 -o cipher.pn
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-cipher  1 frame
+cipher  36 frames
   cells       20..=140  step 1
   bands       2..=7     step 1
   fields      Figure, Relief, Slope

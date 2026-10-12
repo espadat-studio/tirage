@@ -641,7 +641,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"arrowSize","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let cipher = concat!(
-        r#"{"slug":"cipher","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"cipher","frames":36,"svg":false,"params":["#,
         r#"{"id":"cells","kind":"range","min":20.0,"max":140.0,"step":1.0},"#,
         r#"{"id":"bands","kind":"range","min":2.0,"max":7.0,"step":1.0},"#,
         r#"{"id":"fields","kind":"choice","choices":["Figure","Relief","Slope"]},"#,
@@ -884,7 +884,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\ndahlia  36 frames\n"), "{listing}");
     assert!(listing.contains("\nhiss  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncrowd  36 frames\n"), "{listing}");
-    assert!(listing.contains("\ncipher  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ncipher  36 frames\n"), "{listing}");
     assert!(listing.contains("\nriso  16 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nrise  72 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ncarve  36 frames, svg\n"), "{listing}");
