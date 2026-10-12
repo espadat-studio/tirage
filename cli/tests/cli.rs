@@ -782,7 +782,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"bands","kind":"range","min":1.0,"max":4.0,"step":1.0},"#,
     );
     let sampler = concat!(
-        r#"{"slug":"sampler","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"sampler","frames":24,"svg":false,"params":["#,
         r#"{"id":"grid","kind":"range","min":4.0,"max":48.0,"step":1.0},"#,
         r#"{"id":"bands","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"mix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -896,7 +896,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\ntokens  1 frame\n"), "{listing}");
     assert!(listing.contains("\noptic  1 frame\n"), "{listing}");
     assert!(listing.contains("\nvee  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nsampler  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nsampler  24 frames\n"), "{listing}");
     assert!(listing.contains("\ntotem  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nfilament  1 frame\n"), "{listing}");
     assert!(listing.contains("\nchaff  1 frame\n"), "{listing}");

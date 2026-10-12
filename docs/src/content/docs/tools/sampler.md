@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool sampler | tirage render --size 540x960 -o sampler.
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-sampler  1 frame
+sampler  24 frames
   grid        4..=48    step 1
   bands       1..=14    step 1
   mix         0..=1     step 0.01
