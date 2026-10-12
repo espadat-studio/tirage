@@ -42,7 +42,7 @@ impl SvgWriter {
     }
 
     fn opacity(&mut self, paint: &str, opacity: f32) {
-        if self.alpha < 1.0 {
+        if opacity < 1.0 {
             write!(self.markup, r#" {paint}-opacity="{opacity:.4}""#)
                 .expect("a String takes any write");
         }
@@ -71,15 +71,11 @@ impl SvgWriter {
         (self.alpha * 255.0 + 0.5) as i32
     }
 
-    fn premultiplied(&self, ink: [u8; 3]) -> [i32; 3] {
-        ink.map(|c| (f32::from(c) / 255.0 * self.alpha * 255.0 + 0.5) as i32)
-    }
-
     fn faded(&self, ink: [u8; 3]) -> [u8; 3] {
         if self.alpha >= 1.0 {
             return ink;
         }
-        shifted(self.alpha8() as f32 / 255.0, self.premultiplied(ink))
+        shifted(self.alpha8() as f32 / 255.0, premultiplied(ink, self.alpha))
     }
 
     fn faded_stroke(&self, ink: [u8; 3], width: f32) -> ([u8; 3], f32) {
@@ -94,8 +90,10 @@ impl SvgWriter {
             .min_by_key(|o| (o - self.alpha8()).abs())
             .expect("some u8 opacity scales to any hairline alpha") as f32
             / 255.0;
-        let premultiplied = ink.map(|c| (f32::from(c) / 255.0 * alpha * 255.0 + 0.5) as i32);
-        (shifted(opacity * hairline, premultiplied), opacity)
+        (
+            shifted(opacity * hairline, premultiplied(ink, alpha)),
+            opacity,
+        )
     }
 
     fn group(&mut self, ink: [u8; 3], crisp: bool) {
@@ -237,7 +235,10 @@ impl SvgWriter {
             return;
         }
         let (base, opacity) = if self.alpha < 1.0 {
-            (self.premultiplied(ink), (self.alpha8() * alpha + 128) >> 8)
+            (
+                premultiplied(ink, self.alpha),
+                (self.alpha8() * alpha + 128) >> 8,
+            )
         } else {
             (ink.map(i32::from), alpha)
         };
@@ -397,6 +398,10 @@ fn subpaths(path: &Path) -> Vec<Path> {
     }
     parts.extend(part.finish());
     parts
+}
+
+fn premultiplied(ink: [u8; 3], alpha: f32) -> [i32; 3] {
+    ink.map(|c| (f32::from(c) / 255.0 * alpha * 255.0 + 0.5) as i32)
 }
 
 fn shifted(opacity: f32, scaled: [i32; 3]) -> [u8; 3] {
