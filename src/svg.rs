@@ -15,6 +15,7 @@ pub(crate) struct SvgWriter {
     next_clip: u32,
     alpha: f32,
     multiply: bool,
+    strokes: Vec<String>,
     pixels: Vec<(u32, u32, [u8; 3])>,
     xlink: bool,
 }
@@ -33,6 +34,7 @@ impl SvgWriter {
             next_clip: 0,
             alpha: 1.0,
             multiply: false,
+            strokes: Vec::new(),
             pixels: Vec::new(),
             xlink: false,
         }
@@ -63,6 +65,17 @@ impl SvgWriter {
 
     fn open(&mut self, ink: [u8; 3], crisp: bool) {
         self.group(ink, crisp);
+        self.open_wrappers();
+    }
+
+    fn open_smooth(&mut self, ink: [u8; 3]) {
+        match self.group {
+            Some((_, false)) if self.pixels.is_empty() => self.open_wrappers(),
+            _ => self.open(ink, false),
+        }
+    }
+
+    fn open_wrappers(&mut self) {
         if self.multiply {
             self.markup
                 .push_str(r#"<g style="mix-blend-mode:multiply">"#);
@@ -508,25 +521,41 @@ impl SvgWriter {
         } else {
             vec![path.clone()]
         };
+        let class = self.stroke_class(ink, width, opacity, cap, join);
         for part in &parts {
-            self.open(ink, false);
+            self.open_smooth(ink);
             self.open_path(part, false);
-            let [r, g, b] = ink;
-            write!(
-                self.markup,
-                r##"" fill="none" stroke="#{r:02x}{g:02x}{b:02x}" stroke-width="{width}""##
-            )
-            .expect("a String takes any write");
-            self.opacity("stroke", opacity);
-            if let Cap::Round = cap {
-                self.markup.push_str(r#" stroke-linecap="round""#);
-            }
-            self.markup.push_str(match join {
-                Join::Round => r#" stroke-linejoin="round""#,
-                Join::Miter => r#" stroke-miterlimit="10""#,
-            });
+            write!(self.markup, r#"" class="s{class}""#).expect("a String takes any write");
             self.close();
         }
+    }
+
+    fn stroke_class(
+        &mut self,
+        [r, g, b]: [u8; 3],
+        width: f32,
+        opacity: f32,
+        cap: Cap,
+        join: Join,
+    ) -> usize {
+        let mut style = format!("fill:none;stroke:#{r:02x}{g:02x}{b:02x};stroke-width:{width}");
+        if opacity < 1.0 {
+            write!(style, ";stroke-opacity:{opacity:.4}").expect("a String takes any write");
+        }
+        if let Cap::Round = cap {
+            style.push_str(";stroke-linecap:round");
+        }
+        style.push_str(match join {
+            Join::Round => ";stroke-linejoin:round",
+            Join::Miter => ";stroke-miterlimit:10",
+        });
+        self.strokes
+            .iter()
+            .position(|known| *known == style)
+            .unwrap_or_else(|| {
+                self.strokes.push(style);
+                self.strokes.len() - 1
+            })
     }
 
     fn open_path(&mut self, path: &Path, snap: bool) {
@@ -593,6 +622,17 @@ impl SvgWriter {
 
     pub(crate) fn finish(mut self) -> String {
         self.end_group();
+        if !self.strokes.is_empty() {
+            let root = self.markup.find('>').expect("the root tag closes") + 1;
+            let css: String = self
+                .strokes
+                .iter()
+                .enumerate()
+                .map(|(class, style)| format!(".s{class}{{{style}}}"))
+                .collect();
+            self.markup
+                .insert_str(root, &format!("<style>{css}</style>"));
+        }
         if self.xlink {
             let svg = r#"xmlns="http://www.w3.org/2000/svg""#;
             let xlink = r#" xmlns:xlink="http://www.w3.org/1999/xlink""#;
@@ -900,7 +940,35 @@ mod tests {
         svg.stroke(&triangle(), [255, 0, 16], 1.5, Cap::Butt, Join::Miter);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#ff0010"><path d="m0 0 4 0L0 3.5z" fill="none" stroke="#ff0010" stroke-width="1.5" stroke-miterlimit="10"/></g>"##
+            r##"<style>.s0{fill:none;stroke:#ff0010;stroke-width:1.5;stroke-miterlimit:10}</style><g fill="#ff0010"><path d="m0 0 4 0L0 3.5z" class="s0"/></g>"##
+        );
+    }
+
+    #[test]
+    fn strokes_share_a_class_per_paint_and_ride_in_the_open_smooth_group() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_path(&triangle(), [1, 2, 3]);
+        svg.stroke(&triangle(), [255, 0, 16], 1.5, Cap::Round, Join::Round);
+        svg.stroke(&triangle(), [0, 0, 0], 1.5, Cap::Round, Join::Round);
+        svg.stroke(&triangle(), [255, 0, 16], 1.5, Cap::Round, Join::Round);
+        svg.fill_rect(0, 0, 1, 1, [1, 2, 3]);
+        svg.stroke(&triangle(), [0, 0, 0], 1.5, Cap::Round, Join::Round);
+        let round = "stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round";
+        let path = |class| format!(r#"<path d="m0 0 4 0L0 3.5z" class="s{class}"/>"#);
+        assert_eq!(
+            body(svg.finish()),
+            [
+                format!("<style>.s0{{fill:none;stroke:#ff0010;{round}}}.s1{{fill:none;stroke:#000000;{round}}}</style>"),
+                r##"<g fill="#010203"><path d="m0 0 4 0L0 3.5z"/>"##.to_owned(),
+                path(0),
+                path(1),
+                path(0),
+                r##"</g><g fill="#010203" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1"/></g>"##.to_owned(),
+                r##"<g fill="#000000">"##.to_owned(),
+                path(1),
+                "</g>".to_owned(),
+            ]
+            .concat()
         );
     }
 
@@ -910,7 +978,7 @@ mod tests {
         svg.stroke(&triangle(), [0, 0, 0], 0.25, Cap::Round, Join::Round);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#000000"><path d="m0 0 4 0L0 3.5z" fill="none" stroke="#000000" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/></g>"##
+            r##"<style>.s0{fill:none;stroke:#000000;stroke-width:0.25;stroke-linecap:round;stroke-linejoin:round}</style><g fill="#000000"><path d="m0 0 4 0L0 3.5z" class="s0"/></g>"##
         );
     }
 
@@ -972,10 +1040,11 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             [
+                r##"<style>.s0{fill:none;stroke:#000000;stroke-width:1;stroke-opacity:0.8500;stroke-miterlimit:10}</style>"##,
                 r##"<g fill="#000000"><rect width="9" height="9" fill-opacity="0.8500"/></g>"##,
                 r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="1" y="2" width="3" height="4" fill-opacity="0.8500"/></g>"##,
                 r##"<g fill="#000000"><path d="m0 0 4 0L0 3.5z" fill-opacity="0.8500"/>"##,
-                r##"<path d="m0 0 4 0L0 3.5z" fill="none" stroke="#000000" stroke-width="1" stroke-opacity="0.8500" stroke-miterlimit="10"/></g>"##,
+                r#"<path d="m0 0 4 0L0 3.5z" class="s0"/></g>"#,
                 r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1"/></g>"##,
             ]
             .concat()
@@ -991,7 +1060,8 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             [
-                r##"<g fill="#1c1c1c"><path d="m0 0 4 0L0 3.5z" fill="none" stroke="#1c1c1c" stroke-width="1" stroke-opacity="0.3900" stroke-miterlimit="10"/></g>"##,
+                r##"<style>.s0{fill:none;stroke:#1c1c1c;stroke-width:1;stroke-opacity:0.3900;stroke-miterlimit:10}</style>"##,
+                r##"<g fill="#1c1c1c"><path d="m0 0 4 0L0 3.5z" class="s0"/></g>"##,
                 r##"<g fill="#1c1c1c" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1" fill-opacity="0.3900"/></g>"##,
             ]
             .concat()
@@ -1005,7 +1075,7 @@ mod tests {
         svg.stroke(&triangle(), [217, 212, 199], 0.594, Cap::Butt, Join::Miter);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#d9d5c6"><path d="m0 0 4 0L0 3.5z" fill="none" stroke="#d9d5c6" stroke-width="0.594" stroke-opacity="0.8078" stroke-miterlimit="10"/></g>"##
+            r##"<style>.s0{fill:none;stroke:#d9d5c6;stroke-width:0.594;stroke-opacity:0.8078;stroke-miterlimit:10}</style><g fill="#d9d5c6"><path d="m0 0 4 0L0 3.5z" class="s0"/></g>"##
         );
     }
 
@@ -1051,6 +1121,8 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             [
+                r#"<style>.s0{fill:none;stroke:#010203;stroke-width:1;stroke-miterlimit:10}"#,
+                r#".s1{fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:10}</style>"#,
                 r##"<g fill="#010203" shape-rendering="crispEdges">"##,
                 blend,
                 r#"<rect x="0" y="0" width="1" height="1"/></g>"#,
@@ -1058,15 +1130,15 @@ mod tests {
                 r#"<rect x="1" y="0" width="1" height="1"/></g></g>"#,
                 r##"<g fill="#010203">"##,
                 blend,
-                r##"<path d="m0 0 4 0L0 3.5z" fill="none" stroke="#010203" stroke-width="1" stroke-miterlimit="10"/></g></g>"##,
+                r#"<path d="m0 0 4 0L0 3.5z" class="s0"/></g></g>"#,
                 r##"<g fill="#ffffff" shape-rendering="crispEdges">"##,
                 blend,
                 r##"<rect x="0" y="0" width="1" height="1" fill="#fefefe" fill-opacity="0.4980"/></g></g>"##,
                 r##"<g fill="#000000">"##,
                 blend,
-                r##"<path d="m0 1.5 4 0" fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10"/></g>"##,
+                r#"<path d="m0 1.5 4 0" class="s1"/></g>"#,
                 blend,
-                r##"<path d="m1.5 0 0 4" fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10"/></g></g>"##,
+                r#"<path d="m1.5 0 0 4" class="s1"/></g></g>"#,
                 r##"<g fill="#010203" shape-rendering="crispEdges"><rect x="2" y="0" width="1" height="1"/></g>"##,
             ]
             .concat()
@@ -1110,21 +1182,17 @@ mod tests {
         svg.stroke(&cross, [0, 0, 0], 1.5, Cap::Butt, Join::Miter);
         svg.pop_clip();
         let clip = r#"<g clip-path="url(#c0)" filter="url(#frame)">"#;
-        let stroke = |d: &str, width: &str| {
-            format!(
-                r##"<path d="{d}" fill="none" stroke="#000000" stroke-width="{width}" stroke-miterlimit="10"/></g>"##
-            )
-        };
+        let stroke = |d: &str, class: u8| format!(r#"<path d="{d}" class="s{class}"/></g>"#);
         assert!(
             body(svg.finish()).ends_with(
                 &[
                     r##"<g fill="#000000">"##.to_owned(),
                     clip.to_owned(),
-                    stroke("m0 1.5 4 0", "1"),
+                    stroke("m0 1.5 4 0", 0),
                     clip.to_owned(),
-                    stroke("m1.5 0 0 4", "1"),
+                    stroke("m1.5 0 0 4", 0),
                     clip.to_owned(),
-                    stroke("m0 1.5 4 0M1.5 0l0 4", "1.5"),
+                    stroke("m0 1.5 4 0M1.5 0l0 4", 1),
                     "</g>".to_owned(),
                 ]
                 .concat()
