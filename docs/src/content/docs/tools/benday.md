@@ -1,11 +1,11 @@
 ---
 title: "benday"
-description: "A heat map printed through a screen of ringed dots. It renders a Still."
+description: "A heat map printed through a screen of ringed dots. It renders a Loop of 36 frames at 12 fps, the heat drifting round a circle under a fixed screen."
 ---
 
 A turbulent heat field cut into flat bands along a ramp of inks, seen through a turned screen of ringed dots. Dots grow where the field is cold. Each dot is a dark ring around a pale core, so the sheet reads like a cheap thermal print.
 
-benday renders a Still: one frame. Its site page is [playgrnd.tools/benday](https://www.playgrnd.tools/benday/).
+benday renders a Loop: 36 frames at 12 fps, in which the heat field drifts once round a small circle and its fine detail drifts twice as far. The dot screen holds still, so the bands creep under it and the dots grow and shrink in place. The field is already shifted at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/benday](https://www.playgrnd.tools/benday/).
 
 ## Still
 
