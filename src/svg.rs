@@ -141,8 +141,7 @@ impl SvgWriter {
             write!(self.markup, r##" fill="#{r:02x}{g:02x}{b:02x}""##)
                 .expect("a String takes any write");
         }
-        write!(self.markup, r#" fill-opacity="{:.4}"/>"#, opacity)
-            .expect("a String takes any write");
+        write!(self.markup, r#" fill-opacity="{opacity:.4}"/>"#).expect("a String takes any write");
     }
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
@@ -153,7 +152,7 @@ impl SvgWriter {
             && bounds.top() >= 0.0
             && bounds.right() <= self.width as f32
             && bounds.bottom() <= self.height as f32;
-        let coordinate: fn(f32) -> String = if unclipped {
+        let number: fn(f32) -> String = if unclipped {
             coordinate
         } else {
             |v| v.to_string()
@@ -161,30 +160,30 @@ impl SvgWriter {
         for segment in path.segments() {
             match segment {
                 PathSegment::MoveTo(p) => {
-                    write!(self.markup, "M{} {}", coordinate(p.x), coordinate(p.y))
+                    write!(self.markup, "M{} {}", number(p.x), number(p.y))
                 }
                 PathSegment::LineTo(p) => {
-                    write!(self.markup, "L{} {}", coordinate(p.x), coordinate(p.y))
+                    write!(self.markup, "L{} {}", number(p.x), number(p.y))
                 }
                 PathSegment::QuadTo(c, p) => {
                     write!(
                         self.markup,
                         "Q{} {} {} {}",
-                        coordinate(c.x),
-                        coordinate(c.y),
-                        coordinate(p.x),
-                        coordinate(p.y)
+                        number(c.x),
+                        number(c.y),
+                        number(p.x),
+                        number(p.y)
                     )
                 }
                 PathSegment::CubicTo(a, b, p) => write!(
                     self.markup,
                     "C{} {} {} {} {} {}",
-                    coordinate(a.x),
-                    coordinate(a.y),
-                    coordinate(b.x),
-                    coordinate(b.y),
-                    coordinate(p.x),
-                    coordinate(p.y)
+                    number(a.x),
+                    number(a.y),
+                    number(b.x),
+                    number(b.y),
+                    number(p.x),
+                    number(p.y)
                 ),
                 PathSegment::Close => write!(self.markup, "Z"),
             }
