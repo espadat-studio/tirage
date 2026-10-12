@@ -66,7 +66,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `modular`  | 1      | Still  |
 | `prism`    | 1      | Still  |
 | `parcel`   | 1      | Still  |
-| `tokens`   | 1      | Still  |
+| `tokens`   | 36     | Loop   |
 | `optic`    | 1      | Still  |
 | `vee`      | 1      | Still  |
 | `sampler`  | 24     | Loop   |
