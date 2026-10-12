@@ -108,6 +108,7 @@ mod tests {
         Tool::Fold,
         Tool::Splice,
         Tool::Crowd,
+        Tool::Parcel,
     ];
 
     #[test]

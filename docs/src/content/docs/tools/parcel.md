@@ -24,7 +24,7 @@ SVG: yes. `-o parcel.svg` writes this Still as an [SVG](/cli-reference/render/#s
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-parcel  1 frame, svg
+parcel  72 frames, svg
   cells       8..=28    step 1
   cover       0.2..=0.8 step 0.01
   chunk       0.5..=2   step 0.05
