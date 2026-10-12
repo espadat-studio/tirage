@@ -127,6 +127,7 @@ impl Tool {
                 | Self::Oddgrid
                 | Self::Kiosk
                 | Self::Atlas
+                | Self::Sampler
         )
     }
 }
