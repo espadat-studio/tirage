@@ -47,7 +47,7 @@ What a Recipe renders: a Still or a Loop.
 A single-frame Visual: the Tool with motion off.
 
 **Loop**:
-An animated Visual that ends where it starts: the Tool with motion on. Its first frame may differ from the Still of the same Recipe.
+An animated Visual whose frames repeat: the frame after the last is the first. It is the Tool with motion on, in its default site motion mode only. Its first frame may differ from the Still of the same Recipe.
 _Avoid_: GIF, clip
 
 **Reference export**:
