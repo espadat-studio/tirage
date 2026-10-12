@@ -388,7 +388,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"bright","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let mist = concat!(
-        r#"{"slug":"mist","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"mist","frames":72,"svg":false,"params":["#,
         r#"{"id":"streaks","kind":"range","min":0.4,"max":2.0,"step":0.05},"#,
         r#"{"id":"cover","kind":"range","min":0.2,"max":0.85,"step":0.01},"#,
         r#"{"id":"soft","kind":"range","min":0.1,"max":1.0,"step":0.01},"#,
@@ -904,7 +904,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nsprig  36 frames\n"), "{listing}");
-    assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nmist  72 frames\n"), "{listing}");
     assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
     assert!(listing.contains("\nwhorl  36 frames\n"), "{listing}");
     assert!(listing.contains("\nsear  1 frame\n"), "{listing}");

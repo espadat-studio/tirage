@@ -22,7 +22,7 @@ tirage derive --seed 6 --tool mist | tirage render --size 540x960 -o mist.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-mist  1 frame
+mist  72 frames
   streaks     0.4..=2   step 0.05
   cover       0.2..=0.85 step 0.01
   soft        0.1..=1   step 0.01

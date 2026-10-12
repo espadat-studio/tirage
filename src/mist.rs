@@ -1,3 +1,5 @@
+use std::f64::consts::TAU;
+
 use serde::{Deserialize, Serialize};
 
 use crate::aura::{Noise, Xorshift, hash};
@@ -8,13 +10,14 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "mist";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 72;
 pub(crate) const FPS: u32 = 12;
 const BUDGET: f64 = 700.0;
 const INKS: usize = 4;
 pub(crate) const MAX_INKS: Option<usize> = Some(INKS);
 
 const DEFAULT_PALETTE: [&str; INKS] = ["#dcff3a", "#1e1b3a", "#3b2a6e", "#5a2e7a"];
+const AMOUNT: f64 = 0.8;
 
 const STREAKS: Param = Param {
     step: 5,
@@ -213,13 +216,20 @@ pub(crate) fn render(
     params: &MistParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let bleed = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, bleed);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
-fn paint(surface: &mut Surface, params: &MistParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &MistParams,
+    palette: &Palette,
+    tool_seed: u32,
+    bleed: Option<f64>,
+) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let bw = round_half_up(width).clamp(90.0, BUDGET);
     let bh = round_half_up(bw * height / width).max(90.0);
@@ -237,16 +247,20 @@ fn paint(surface: &mut Surface, params: &MistParams, palette: &Palette, tool_see
     let bsc = 0.9 + params.blot * 2.2;
     let gr = params.grain * 13.0;
     let short_edge = bw.min(bh);
+    let (ox, oy) = bleed.map_or((0.0, 0.0), |t| {
+        let (ph, reach) = (TAU * t, AMOUNT * 0.45);
+        (reach * ph.cos(), reach * ph.sin())
+    });
 
     let mut rgba = Vec::with_capacity((bw * bh) as usize * 4);
     for y in 0..bh as u32 {
         let ny = (f64::from(y) - bh / 2.0) / short_edge * 1.7;
         for x in 0..bw as u32 {
             let nx = (f64::from(x) - bw / 2.0) / short_edge * 1.7;
-            let (gx, gy) = (nx * bsc, ny * bsc);
+            let (gx, gy) = (nx * bsc + ox * 0.5, ny * bsc + oy * 0.5);
             let (mut total, mut mix) = (0.0, [0.0; 3]);
-            for (channel, (ink, (ox, oy))) in (60..).zip(&ground) {
-                let nz = noise.fbm2(gx + ox, gy + oy, channel);
+            for (channel, (ink, (ix, iy))) in (60..).zip(&ground) {
+                let nz = noise.fbm2(gx + ix, gy + iy, channel);
                 let weight = nz.max(0.002).powf(3.4);
                 total += weight;
                 for (sum, square) in mix.iter_mut().zip(ink) {
@@ -254,8 +268,8 @@ fn paint(surface: &mut Surface, params: &MistParams, palette: &Palette, tool_see
                 }
             }
             let q = noise.fbm(nx * 1.9 + 3.1, ny * 1.9 + 8.7, 91);
-            let sx = nx * stf + 0.5 * (q - 0.5) + sox;
-            let sy = ny * 0.5 + soy;
+            let sx = nx * stf + 0.5 * (q - 0.5) + sox + ox;
+            let sy = ny * 0.5 + soy + oy * 0.4;
             let st = noise.fbm(sx, sy, 77) * 0.72 + noise.fbm(sx * 2.4, sy * 2.1, 78) * 0.28;
             let m = smoothstep(th - del, th + del, st);
             let g = (hash(x as i32, y as i32, 7, noise.0) - 0.5) * gr;
