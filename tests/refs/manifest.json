@@ -7168,6 +7168,252 @@
               "grnVignette": 0.5
             }
           }
+        },
+        {
+          "name": "seed-1-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "fold",
+            "tool_seed": 9611518,
+            "palette": [
+              "#1a1a1a",
+              "#f5f1e8",
+              "#ff5c39",
+              "#3b5bff",
+              "#ffd23f",
+              "#7b2cbf"
+            ],
+            "params": {
+              "folds": "Four ways",
+              "kinds": "Checks",
+              "foldx": 0.64,
+              "foldy": 0.3,
+              "patches": 4,
+              "size": 0.01,
+              "scale": 0.46,
+              "wave": 0.79,
+              "levels": 4,
+              "tilt": 0.73,
+              "px": 0.61,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-1-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "fold",
+            "tool_seed": 9611518,
+            "palette": [
+              "#1a1a1a",
+              "#f5f1e8",
+              "#ff5c39",
+              "#3b5bff",
+              "#ffd23f",
+              "#7b2cbf"
+            ],
+            "params": {
+              "folds": "Four ways",
+              "kinds": "Checks",
+              "foldx": 0.64,
+              "foldy": 0.3,
+              "patches": 4,
+              "size": 0.01,
+              "scale": 0.46,
+              "wave": 0.79,
+              "levels": 4,
+              "tilt": 0.73,
+              "px": 0.61,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-2-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "fold",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#1a1a1a",
+              "#f5f1e8",
+              "#ff5c39",
+              "#3b5bff",
+              "#ffd23f",
+              "#7b2cbf"
+            ],
+            "params": {
+              "folds": "Down",
+              "kinds": "Bursts",
+              "foldx": 0.39,
+              "foldy": 0.34,
+              "patches": 13,
+              "size": 0.28,
+              "scale": 0.73,
+              "wave": 0.61,
+              "levels": 7,
+              "tilt": 0.97,
+              "px": 0.12,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-2-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "fold",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#1a1a1a",
+              "#f5f1e8",
+              "#ff5c39",
+              "#3b5bff",
+              "#ffd23f",
+              "#7b2cbf"
+            ],
+            "params": {
+              "folds": "Down",
+              "kinds": "Bursts",
+              "foldx": 0.39,
+              "foldy": 0.34,
+              "patches": 13,
+              "size": 0.28,
+              "scale": 0.73,
+              "wave": 0.61,
+              "levels": 7,
+              "tilt": 0.97,
+              "px": 0.12,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-3-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "fold",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#1a1a1a",
+              "#f5f1e8",
+              "#ff5c39",
+              "#3b5bff",
+              "#ffd23f",
+              "#7b2cbf"
+            ],
+            "params": {
+              "folds": "Down",
+              "kinds": "Bursts",
+              "foldx": 0.31,
+              "foldy": 0.79,
+              "patches": 13,
+              "size": 0.55,
+              "scale": 0.67,
+              "wave": 0.35,
+              "levels": 6,
+              "tilt": 0.6,
+              "px": 0.53,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-3-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "fold",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#1a1a1a",
+              "#f5f1e8",
+              "#ff5c39",
+              "#3b5bff",
+              "#ffd23f",
+              "#7b2cbf"
+            ],
+            "params": {
+              "folds": "Down",
+              "kinds": "Bursts",
+              "foldx": 0.31,
+              "foldy": 0.79,
+              "patches": 13,
+              "size": 0.55,
+              "scale": 0.67,
+              "wave": 0.35,
+              "levels": 6,
+              "tilt": 0.6,
+              "px": 0.53,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
         }
       ],
       "page_sha256": "f00cae548c60c36ea27164b92f7169fc2ce23979016c74f02fd17719a1aad593",
