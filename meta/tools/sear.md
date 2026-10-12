@@ -19,7 +19,7 @@ Site control ids, slider ranges and site defaults:
 | `steps`  | 2..24 | 1    | 6       | posterise levels                         |
 | `grain`  | 0..1  | 0.01 | 0.1     | the Tool's own grain, not the chassis    |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. sear is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off every orbit, phase and roll is 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. `size` on this page is the export width, not a Parameter.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off every orbit, phase and roll is 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. `size` on this page is the export width, not a Parameter.
 
 ## Palette
 
@@ -79,6 +79,24 @@ For each pixel `x` on the row:
 - The held value starts unset each row. It takes `v` when unset, when `|v - held| > threshold`, or when the run has reached its length; the run then restarts at 0. Each pixel adds 1 to the run.
 - When `gain > 0.001`, `q = held + (hash(x, y, t + 29) - 0.5)·gain`, else `held`.
 - The ramp entry is `trunc(255·q)` clamped to `0..255`. Alpha is opaque.
+
+## Motion
+
+The site has three motion modes: Drift, Sort and Cycle. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`. The orbit is `orb = 1.4 amount = 0.84` lattice units, and the offsets are `ox = cos ph · orb`, `oy = sin ph · orb`, the orbit taken first.
+- Both warp layers and the heat field walk, each at its own reach:
+  - the first warp reads `fbm(0.55·u + 11.3 + ox, 0.55·v + 4.1 + oy, t + 7, 2)`
+  - the second warp moves along `v` only: `fbm(0.55·u + 2.7, 0.55·v + 19.7 + oy, t + 13, 2)`
+  - the heat reads `fbm(u + k·wx + 0.6·ox, v + k·wy + 0.6·oy, t, oct)`
+  - The sums run left to right, the offset added last.
+- The grid is rebuilt each frame, so `lo`, `hi`, the histogram and the flattening map follow the moving field. The flat blocks keep about the same share of each ink while they change shape.
+- Nothing else moves. The ramp, the bands, the tears, the row pull and the Tool's grain hold: they read rows and pixels, not the field, so the smears drag the same way over a field that slides under them.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the reach.
+- The Loop closes because the offsets have period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the walk sits at `(0.84, 0)`, not at the origin the Still reads, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a lap, the walk at `(-0.84, 0)`, as far from frame 0 as the Loop goes.
+- Sort sways the row pull with `ph` and Cycle rolls the ramp. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
