@@ -135,6 +135,7 @@ impl Tool {
                 | Self::Tokens
                 | Self::Riso
                 | Self::Rise
+                | Self::Specimen
         )
     }
 }
