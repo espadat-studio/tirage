@@ -2,6 +2,7 @@ use std::fmt::Write;
 
 use tiny_skia::{Path, PathBuilder, PathSegment, Transform};
 
+use crate::Image;
 use crate::surface::{Cap, Join, nearest_source};
 
 pub(crate) struct SvgWriter {
@@ -14,6 +15,8 @@ pub(crate) struct SvgWriter {
     next_clip: u32,
     alpha: f32,
     multiply: bool,
+    pixels: Vec<(u32, u32, [u8; 3])>,
+    xlink: bool,
 }
 
 impl SvgWriter {
@@ -30,6 +33,8 @@ impl SvgWriter {
             next_clip: 0,
             alpha: 1.0,
             multiply: false,
+            pixels: Vec::new(),
+            xlink: false,
         }
     }
 
@@ -75,6 +80,43 @@ impl SvgWriter {
         if self.group.take().is_some() {
             self.markup.push_str("</g>");
         }
+        self.flush_pixels();
+    }
+
+    pub(crate) fn set_pixel(&mut self, x: u32, y: u32, ink: [u8; 3]) {
+        assert!(self.clips.is_empty(), "pixel writes ignore a clip");
+        self.pixels.push((x, y, ink));
+    }
+
+    fn flush_pixels(&mut self) {
+        if self.pixels.is_empty() {
+            return;
+        }
+        let pixels = std::mem::take(&mut self.pixels);
+        let (mut left, mut top, mut right, mut bottom) = (u32::MAX, u32::MAX, 0, 0);
+        for &(x, y, _) in &pixels {
+            (left, top) = (left.min(x), top.min(y));
+            (right, bottom) = (right.max(x), bottom.max(y));
+        }
+        let (width, height) = (right - left + 1, bottom - top + 1);
+        let mut rgba = vec![0; (width * height * 4) as usize];
+        for (x, y, [r, g, b]) in pixels {
+            let at = (((y - top) * width + x - left) * 4) as usize;
+            rgba[at..at + 4].copy_from_slice(&[r, g, b, 255]);
+        }
+        let png = Image {
+            width,
+            height,
+            rgba,
+        }
+        .to_png();
+        write!(
+            self.markup,
+            r#"<image x="{left}" y="{top}" width="{width}" height="{height}" image-rendering="optimizeSpeed" xlink:href="data:image/png;base64,{}"/>"#,
+            base64(&png)
+        )
+        .expect("a String takes any write");
+        self.xlink = true;
     }
 
     pub(crate) fn push_clip(&mut self, path: &Path, transform: Transform) {
@@ -166,6 +208,9 @@ impl SvgWriter {
     }
 
     fn group(&mut self, ink: [u8; 3], crisp: bool) {
+        if !self.pixels.is_empty() {
+            self.end_group();
+        }
         if self.group == Some((ink, crisp)) {
             return;
         }
@@ -462,6 +507,11 @@ impl SvgWriter {
 
     pub(crate) fn finish(mut self) -> String {
         self.end_group();
+        if self.xlink {
+            let svg = r#"xmlns="http://www.w3.org/2000/svg""#;
+            let xlink = r#" xmlns:xlink="http://www.w3.org/1999/xlink""#;
+            self.markup.insert_str(svg.len() + 5, xlink);
+        }
         self.markup + "</svg>\n"
     }
 }
@@ -483,6 +533,25 @@ fn subpaths(path: &Path) -> Vec<Path> {
     }
     parts.extend(part.finish());
     parts
+}
+
+fn base64(bytes: &[u8]) -> String {
+    const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut text = String::with_capacity(bytes.len().div_ceil(3) * 4);
+    for chunk in bytes.chunks(3) {
+        let word = chunk
+            .iter()
+            .enumerate()
+            .fold(0, |word, (i, &byte)| word | u32::from(byte) << (16 - 8 * i));
+        for i in 0..4 {
+            text.push(if i <= chunk.len() {
+                char::from(ALPHABET[(word >> (18 - 6 * i) & 63) as usize])
+            } else {
+                '='
+            });
+        }
+    }
+    text
 }
 
 fn premultiplied(ink: [u8; 3], alpha: f32) -> [i32; 3] {
@@ -935,6 +1004,44 @@ mod tests {
     #[should_panic(expected = "a nearest buffer is opaque")]
     fn draw_nearest_refuses_a_translucent_buffer() {
         SvgWriter::new(1, 1).draw_nearest(&[0, 0, 0, 254], 1, 1);
+    }
+
+    #[test]
+    fn pixels_flush_as_one_png_image_over_their_bounds_before_the_next_element() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_rect(0, 0, 1, 1, [0, 0, 0]);
+        svg.set_pixel(3, 2, [255, 0, 0]);
+        svg.set_pixel(1, 4, [0, 255, 0]);
+        svg.fill_rect(0, 0, 1, 1, [0, 0, 0]);
+        let svg = svg.finish();
+        assert!(svg.starts_with(
+            r#"<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="9""#
+        ));
+        let body = body(svg);
+        let image = r#"</g><image x="1" y="2" width="3" height="3" image-rendering="optimizeSpeed" xlink:href="data:image/png;base64,iVBORw0KGgo"#;
+        let at = body.find(image).expect(&body);
+        assert!(body[at..].contains(r##"/><g fill="#000000""##), "{body}");
+        assert_eq!(body.matches("<image").count(), 1);
+    }
+
+    #[test]
+    fn pixels_last_flush_when_the_writer_finishes() {
+        let mut svg = SvgWriter::new(2, 2);
+        svg.set_pixel(1, 1, [1, 2, 3]);
+        assert!(body(svg.finish()).starts_with(r#"<image x="1" y="1" width="1" height="1""#));
+    }
+
+    #[test]
+    fn base64_pads_each_tail_to_four_characters() {
+        let encoded =
+            ["", "f", "fo", "foo", "foob", "fooba", "foobar"].map(|s| super::base64(s.as_bytes()));
+        assert_eq!(
+            encoded,
+            [
+                "", "Zg==", "Zm8=", "Zm9v", "Zm9vYg==", "Zm9vYmE=", "Zm9vYmFy"
+            ]
+        );
+        assert_eq!(super::base64(&[0xfb, 0xff]), "+/8=");
     }
 
     #[test]

@@ -27,7 +27,7 @@ workspace = true
 
 [dev-dependencies]
 image = { version = "0.25", default-features = false, features = ["png"] }
-resvg = { version = "=0.48.1", default-features = false }
+resvg = { version = "=0.48.1", default-features = false, features = ["raster-images"] }
 
 [profile.dev.package."*"]
 opt-level = 3

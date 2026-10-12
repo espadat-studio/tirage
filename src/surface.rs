@@ -547,6 +547,10 @@ impl Surface {
     }
 
     pub(crate) fn set_pixel(&mut self, x: u32, y: u32, [r, g, b]: [u8; 3]) {
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.set_pixel(x, y, [r, g, b]);
+            return;
+        }
         let (pixmap, mask) = self.raster("set_pixel");
         assert!(mask.is_none(), "pixel writes ignore a clip");
         let width = pixmap.width();
@@ -715,9 +719,9 @@ mod tests {
     use super::{Cap, Join, Path2D, Smoothing, Surface, Transform};
 
     #[test]
-    #[should_panic(expected = "set_pixel has no SVG arm")]
+    #[should_panic(expected = "with_plus has no SVG arm")]
     fn an_svg_surface_panics_naming_an_op_without_an_svg_arm() {
-        Surface::svg(4, 4).set_pixel(0, 0, [0, 0, 0]);
+        Surface::svg(4, 4).with_plus(|_| {});
     }
 
     #[test]
@@ -827,6 +831,20 @@ mod tests {
                 surface.stroke(&path, [77, 201, 33], 1.0, Cap::Butt, Join::Miter);
             });
             surface.fill_box(0.5, 0.5, 1.0, 1.0, [16, 40, 90]);
+        };
+        assert_svg_rasterizes_within_one_level(draw);
+    }
+
+    #[test]
+    fn pixels_between_boxes_rasterize_from_svg_within_one_level_of_the_raster() {
+        let draw = |surface: &mut Surface| {
+            surface.fill([138, 182, 255]);
+            surface.fill_box(1.3, 0.6, 3.2, 2.9, [16, 40, 90]);
+            for (x, y) in [(1, 1), (2, 1), (4, 3), (2, 5)] {
+                surface.set_pixel(x, y, [250, 120, x as u8 * 40]);
+            }
+            surface.fill_box(2.7, 1.9, 2.55, 3.05, [77, 201, 33]);
+            surface.set_pixel(0, 0, [0, 0, 0]);
         };
         assert_svg_rasterizes_within_one_level(draw);
     }
