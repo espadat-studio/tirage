@@ -1,11 +1,11 @@
 ---
 title: "specimen"
-description: "A specimen sheet of blocks on a grid, each one a small study in marbling, lines or flat colour. It renders a Still."
+description: "A specimen sheet of blocks on a grid, each one a small study in marbling, lines or flat colour. It renders a Loop of 24 frames at 12 fps, the marbling and tendrils reshaping."
 ---
 
 A specimen sheet on a pale page. Blocks fill some cells of a square grid and leave others bare, and some blocks span two to four cells. Each block shows one motif: marbled bands, wandering tendrils, looped ellipses, flat colour, nested rings, a fan of blades, stacked arcs or scattered spikes. Thin rules mark the grid over the whole sheet.
 
-specimen renders a Still: one frame. Its site page is [playgrnd.tools/specimen](https://www.playgrnd.tools/specimen/).
+specimen renders a Loop: 24 frames at 12 fps, in which the marbled bands and the tendrils reshape and come back. Every other block holds still, so a sheet with neither motif does not move. The marbling and tendrils have already changed at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/specimen](https://www.playgrnd.tools/specimen/).
 
 ## Still
 
