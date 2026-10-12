@@ -17,12 +17,14 @@ Seed 4, rendered by:
 tirage derive --seed 4 --tool oddgrid | tirage render --size 540x960 -o oddgrid.png
 ```
 
+SVG: yes. `-o oddgrid.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-oddgrid  1 frame
+oddgrid  1 frame, svg
   cols        12..=110  step 1
   scale       2..=60    step 0.5
   density     0..=1     step 0.01

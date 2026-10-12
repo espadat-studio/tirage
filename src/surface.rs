@@ -376,6 +376,10 @@ impl Surface {
             .clone()
             .finish()
             .expect("a filled path has a closed loop");
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.fill_even_odd(&path, ink);
+            return;
+        }
         let paint = self.solid(ink);
         let (pixmap, mask) = self.raster("fill_even_odd");
         pixmap.fill_path(
@@ -388,6 +392,15 @@ impl Surface {
     }
 
     pub(crate) fn stroke(&mut self, path: &Path2D, ink: [u8; 3], width: f64, cap: Cap, join: Join) {
+        let path = path
+            .0
+            .clone()
+            .finish()
+            .expect("a stroked path has a closed loop");
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.stroke(&path, ink, width as f32, cap, join);
+            return;
+        }
         let stroke = Stroke {
             width: width as f32,
             line_cap: match cap {
@@ -401,11 +414,6 @@ impl Surface {
             miter_limit: 10.0,
             ..Stroke::default()
         };
-        let path = path
-            .0
-            .clone()
-            .finish()
-            .expect("a stroked path has a closed loop");
         let paint = self.solid(ink);
         let (pixmap, mask) = self.raster("stroke");
         pixmap.stroke_path(
@@ -436,6 +444,10 @@ impl Surface {
     }
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.fill_path(path, ink);
+            return;
+        }
         let paint = self.solid(ink);
         let (pixmap, mask) = self.raster("fill_path");
         pixmap.fill_path(
@@ -676,6 +688,22 @@ mod tests {
         let svg = surface.into_svg();
         assert!(svg.contains(r#"<path d="M3 2Q"#), "{svg}");
         assert!(svg.ends_with("Z\"/></g></svg>\n"), "{svg}");
+    }
+
+    #[test]
+    fn fill_path_writes_its_path_as_an_svg_path() {
+        let mut path = Path2D::default();
+        path.move_to(0.0, 0.0);
+        path.line_to(3.0, 0.0);
+        path.line_to(0.0, 2.5);
+        path.close();
+        let mut surface = Surface::svg(4, 4);
+        surface.fill_path(&path.into_path(), [9, 8, 7]);
+        let svg = surface.into_svg();
+        assert!(
+            svg.ends_with("<g fill=\"#090807\"><path d=\"M0 0L3 0L0 2.5Z\"/></g></svg>\n"),
+            "{svg}"
+        );
     }
 
     #[test]

@@ -17,12 +17,14 @@ Seed 2, rendered by:
 tirage derive --seed 2 --tool relief | tirage render --size 540x960 -o relief.png
 ```
 
+SVG: yes. `-o relief.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-relief  24 frames
+relief  24 frames, svg
   scale       12..=180  step 1
   repeat      1..=12    step 1
   variety     0..=1     step 0.01

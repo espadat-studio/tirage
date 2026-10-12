@@ -281,7 +281,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let vein = concat!(
-        r#"{"slug":"vein","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"vein","frames":1,"svg":true,"params":["#,
         r#"{"id":"flows","kind":"choice","choices":["Marble","Swirl","Ripple"]},"#,
         r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"curve","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -458,13 +458,13 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"stripe","kind":"range","min":0.5,"max":2.2,"step":0.05},"#,
     );
     let warp = concat!(
-        r#"{"slug":"warp","frames":72,"svg":false,"params":["#,
+        r#"{"slug":"warp","frames":72,"svg":true,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Checker","Slash"]},"#,
         r#"{"id":"scale","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let zig = concat!(
-        r#"{"slug":"zig","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"zig","frames":1,"svg":true,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Teeth","Chevron","Stairs","Ricrac","Waves","Scales"]},"#,
         r#"{"id":"width","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
         r#"{"id":"depth","kind":"range","min":0.2,"max":1.4,"step":0.02},"#,
@@ -472,7 +472,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"round","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let relief = concat!(
-        r#"{"slug":"relief","frames":24,"svg":false,"params":["#,
+        r#"{"slug":"relief","frames":24,"svg":true,"params":["#,
         r#"{"id":"scale","kind":"range","min":12.0,"max":180.0,"step":1.0},"#,
         r#"{"id":"repeat","kind":"range","min":1.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"variety","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -536,7 +536,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"gaps","kind":"range","min":0.0,"max":0.5,"step":0.01},"#,
     );
     let oddgrid = concat!(
-        r#"{"slug":"oddgrid","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"oddgrid","frames":1,"svg":true,"params":["#,
         r#"{"id":"cols","kind":"range","min":12.0,"max":110.0,"step":1.0},"#,
         r#"{"id":"scale","kind":"range","min":2.0,"max":60.0,"step":0.5},"#,
         r#"{"id":"density","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -871,11 +871,11 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     let listing = text(&out.stdout);
     assert!(listing.starts_with("sonar  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nhusk  36 frames\n"), "{listing}");
-    assert!(listing.contains("\nvein  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nvein  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     assert!(listing.contains("\natlas  24 frames\n"), "{listing}");
-    assert!(listing.contains("\noddgrid  1 frame\n"), "{listing}");
+    assert!(listing.contains("\noddgrid  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nfete  100 frames\n"), "{listing}");
     assert!(listing.contains("\nfold  1 frame\n"), "{listing}");
     assert!(listing.contains("\nquilt  1 frame\n"), "{listing}");
@@ -912,9 +912,9 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nmosh  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nbloom  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nweave  1 frame, svg\n"), "{listing}");
-    assert!(listing.contains("\nwarp  72 frames\n"), "{listing}");
-    assert!(listing.contains("\nzig  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nrelief  24 frames\n"), "{listing}");
+    assert!(listing.contains("\nwarp  72 frames, svg\n"), "{listing}");
+    assert!(listing.contains("\nzig  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nrelief  24 frames, svg\n"), "{listing}");
     for line in [
         "  grid        40..=320  step 2\n",
         "  grnVignette 0..=1     step 0.05\n",
