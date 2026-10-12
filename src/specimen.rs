@@ -719,6 +719,7 @@ fn paint(surface: &mut Surface, p: &SpecimenParams, palette: &Palette, tool_seed
                             field.push(fbm(
                                 u * p.m_scale * (bw / m) + b.v * 40.0,
                                 v * p.m_scale * (bh / m) + b.v2 * 40.0,
+                                None,
                                 seed,
                                 3,
                             ) as f32);
@@ -764,7 +765,8 @@ fn paint(surface: &mut Surface, p: &SpecimenParams, palette: &Palette, tool_seed
                         let mut y = by + hash(id, i, 0, 2, tool_seed) * bh;
                         let mut points = vec![(x, y)];
                         for _ in 0..steps {
-                            let noise = fbm(x / m * 7.0 + f64::from(i) * 3.0, y / m * 7.0, seed, 3);
+                            let noise =
+                                fbm(x / m * 7.0 + f64::from(i) * 3.0, y / m * 7.0, None, seed, 3);
                             let angle = (noise - 0.5) * 2.6 * TAU;
                             x += angle.cos() * step;
                             y += angle.sin() * step;

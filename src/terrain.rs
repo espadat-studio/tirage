@@ -273,26 +273,40 @@ fn lerp(a: f64, b: f64, t: f64) -> f64 {
     a + (b - a) * t
 }
 
-fn noise(x: f64, y: f64, seed: u32) -> f64 {
+fn noise(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32) -> f64 {
     let (x0, y0) = (x.floor(), y.floor());
     let fade = |t: f64| t * t * (3.0 - 2.0 * t);
     let (u, v) = (fade(x - x0), fade(y - y0));
     let (xi, yi) = (x0 as i32, y0 as i32);
-    let corner = |dx: i32, dy: i32| hash(xi + dx, yi + dy, 0, 0, seed);
+    let face = |z: i32, w: i32| {
+        let corner = |dx: i32, dy: i32| hash(xi + dx, yi + dy, z, w, seed);
+        lerp(
+            lerp(corner(0, 0), corner(1, 0), u),
+            lerp(corner(0, 1), corner(1, 1), u),
+            v,
+        )
+    };
+    let Some((z, w)) = zw else {
+        return face(0, 0);
+    };
+    let (z0, w0) = (z.floor(), w.floor());
+    let (s, t) = (fade(z - z0), fade(w - w0));
+    let (zi, wi) = (z0 as i32, w0 as i32);
     lerp(
-        lerp(corner(0, 0), corner(1, 0), u),
-        lerp(corner(0, 1), corner(1, 1), u),
-        v,
+        lerp(face(zi, wi), face(zi, wi + 1), t),
+        lerp(face(zi + 1, wi), face(zi + 1, wi + 1), t),
+        s,
     )
 }
 
-pub(crate) fn fbm(x: f64, y: f64, seed: u32, octaves: u32) -> f64 {
+pub(crate) fn fbm(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32, octaves: u32) -> f64 {
     let (mut weight, mut frequency, mut sum, mut total) = (0.5, 1.0, 0.0, 0.0);
     for octave in 0..octaves {
         sum += weight
             * noise(
                 x * frequency,
                 y * frequency,
+                zw,
                 seed.wrapping_add(octave * 1319),
             );
         total += weight;
@@ -312,11 +326,12 @@ fn paint(surface: &mut Surface, params: &TerrainParams, palette: &Palette, tool_
         let v = (j * STEP) as f64 / h * params.scale * (h / w);
         for i in 0..fw {
             let u = (i * STEP) as f64 / w * params.scale;
-            let wx = fbm(u + 5.2, v + 1.3, tool_seed.wrapping_add(11), 2);
-            let wy = fbm(u + 9.1, v + 7.7, tool_seed.wrapping_add(29), 2);
+            let wx = fbm(u + 5.2, v + 1.3, None, tool_seed.wrapping_add(11), 2);
+            let wy = fbm(u + 9.1, v + 7.7, None, tool_seed.wrapping_add(29), 2);
             let val = fbm(
                 u + params.warp * (wx - 0.5) * 2.0,
                 v + params.warp * (wy - 0.5) * 2.0,
+                None,
                 tool_seed,
                 params.oct,
             );

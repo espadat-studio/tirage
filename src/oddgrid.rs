@@ -393,14 +393,26 @@ fn grid(params: &OddgridParams, n: usize, seed: u32, cols: u32, rows: u32) -> Ve
             let (xc, yc) = (f64::from(x) + 0.5, f64::from(y) + 0.5);
             let bx = lerp(xc, f64::from(rx) * bf + bf / 2.0, params.block);
             let by = lerp(yc, f64::from(ry) * bf + bf / 2.0, params.block);
-            let smooth = fbm(bx / s, by / s, seed, 2);
+            let smooth = fbm(bx / s, by / s, None, seed, 2);
             let tone = smooth * 0.5 + hash(rx, ry, 0, 13, at(404)) * 0.5;
             let base = stretch(lerp(smooth, tone, params.block), 2.0);
             let mask = stretch(
-                fbm(xc / (s * 1.15) + 91.0, yc / (s * 1.15) - 17.0, at(9111), 3),
+                fbm(
+                    xc / (s * 1.15) + 91.0,
+                    yc / (s * 1.15) - 17.0,
+                    None,
+                    at(9111),
+                    3,
+                ),
                 1.8,
             );
-            let det = fbm(xc / (s * 0.26) + 37.0, yc / (s * 0.26) - 11.0, at(7717), 2);
+            let det = fbm(
+                xc / (s * 0.26) + 37.0,
+                yc / (s * 0.26) - 11.0,
+                None,
+                at(7717),
+                2,
+            );
             let bias = (hash(rx, ry, 0, 11, at(808)) - 0.5) * params.variety * 0.6;
             let level = 0.5 + (params.density - 0.5) * 1.1 + bias;
             let local = params.grain
