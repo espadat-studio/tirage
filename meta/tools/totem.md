@@ -23,7 +23,7 @@ Site control ids, slider ranges and site defaults, in page order:
 
 `grain` here is the grid resolution. It sets the cell size, so it is structure, not a speck or texture layer. Like oddgrid's `grain` it is an art slider: a Parameter that a Seed deals inside Taste bounds.
 
-Motion (`modes` Shuffle or Weave, `amt`, `fps`, `frames`) is off by default and not part of a Still. totem is a Still Tool: only frame 0 is rendered. With motion off the paint stream starts from the Tool seed itself and the pattern phase is 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes` Shuffle or Weave, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the paint stream starts from the Tool seed itself and the pattern phase is 0. The Loop turns it on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The site has no seed deal on this page: a new seed changes only the paint stream.
 
@@ -113,6 +113,18 @@ This runs inside the painter on the paint stream. It is not a seed deal.
 ## Mirror
 
 The twin is drawn in a frame translated to `mx + g.w` and flipped by `scale(-1, 1)`, its rect starting at local `x = 0`. Every coordinate is a whole pixel, so a local rect `(px, py, wd, ht)` is exactly the device rect `(mx + g.w - px - wd, py, wd, ht)`. The port draws it that way, with no transform.
+
+## Motion
+
+Shuffle is the default and the only mode ported: amount 0.6, 24 frames at 8 fps.
+
+- Shuffle restarts the paint stream every frame. At frame `f` the stream starts at `s + 7919 f`, 32-bit wrapping (0 becoming 1), in place of the Tool seed. Every draw in [Painting](#painting) comes off it in the same order, so the mat marks, the bag, the carving, every region's motif, inks and cell, the twins and the emblem's pattern all move.
+- Nothing else moves. The cell size, the border, the panel and keyline boxes and the Palette roles hold. The emblem's height reads `s mod 5` with the Tool seed, not the stream's start, so its box holds too.
+- The amount does not change Shuffle.
+- The Loop closes by a cut: the frame after the last is a new deal, not frame 0. A reseed has no closure test.
+- At `f = 0` the stream starts at the Tool seed, so frame 0 is the Still, byte for byte. It needs no reference export of its own.
+- The mid frame is 12. Any frame past 0 is a fresh deal, and 12 is half way through.
+- Weave is not ported. It shifts every pattern's cell grid by a phase that grows over the Loop. It is not reachable from a Recipe.
 
 ## Fidelity notes
 
