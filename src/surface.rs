@@ -204,6 +204,7 @@ impl Surface {
     fn paint_svg(&mut self) {
         if let Backend::Svg(svg) = &mut self.0 {
             svg.set_alpha(self.1);
+            svg.set_multiply(self.2 == BlendMode::Multiply);
         }
     }
 
@@ -231,10 +232,11 @@ impl Surface {
     }
 
     pub(crate) fn with_multiply(&mut self, draw: impl FnOnce(&mut Self)) {
-        self.raster("with_multiply");
         let outer = std::mem::replace(&mut self.2, BlendMode::Multiply);
+        self.paint_svg();
         draw(self);
         self.2 = outer;
+        self.paint_svg();
     }
 
     pub(crate) fn with_plus(&mut self, draw: impl FnOnce(&mut Self)) {
@@ -786,6 +788,37 @@ mod tests {
             surface.with_alpha(0.3, |surface| {
                 surface.stroke(&path, [255, 255, 255], 1.0, Cap::Butt, Join::Miter);
             });
+        };
+        let mut raster = Surface::new(6, 6);
+        draw(&mut raster);
+        let mut svg = Surface::svg(6, 6);
+        draw(&mut svg);
+        let tree = resvg::usvg::Tree::from_str(&svg.into_svg(), &Default::default()).unwrap();
+        let mut pixmap = resvg::tiny_skia::Pixmap::new(6, 6).unwrap();
+        resvg::render(&tree, Default::default(), &mut pixmap.as_mut());
+        let raster = raster.raster("test").0.data().to_vec();
+        let worst = pixmap
+            .data()
+            .iter()
+            .zip(&raster)
+            .map(|(a, b)| a.abs_diff(*b));
+        assert!(worst.max() <= Some(1), "{:?}\n{raster:?}", pixmap.data());
+    }
+
+    #[test]
+    fn strokes_under_multiply_rasterize_from_svg_within_one_level_of_the_raster() {
+        let draw = |surface: &mut Surface| {
+            surface.fill([138, 182, 255]);
+            surface.fill_rect(0, 3, 6, 3, [250, 120, 7]);
+            let mut path = Path2D::default();
+            path.move_to(0.0, 4.5);
+            path.line_to(6.0, 4.5);
+            path.move_to(3.5, 0.0);
+            path.line_to(3.5, 6.0);
+            surface.with_multiply(|surface| {
+                surface.stroke(&path, [77, 201, 33], 1.0, Cap::Butt, Join::Miter);
+            });
+            surface.fill_box(0.5, 0.5, 1.0, 1.0, [16, 40, 90]);
         };
         let mut raster = Surface::new(6, 6);
         draw(&mut raster);

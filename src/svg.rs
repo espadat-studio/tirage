@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use tiny_skia::{Path, PathSegment, Transform};
+use tiny_skia::{Path, PathBuilder, PathSegment, Transform};
 
 use crate::surface::{Cap, Join};
 
@@ -11,6 +11,7 @@ pub(crate) struct SvgWriter {
     group: Option<([u8; 3], bool)>,
     gradients: u32,
     alpha: f32,
+    multiply: bool,
 }
 
 impl SvgWriter {
@@ -24,6 +25,7 @@ impl SvgWriter {
             group: None,
             gradients: 0,
             alpha: 1.0,
+            multiply: false,
         }
     }
 
@@ -43,6 +45,25 @@ impl SvgWriter {
         if self.alpha < 1.0 {
             write!(self.markup, r#" {paint}-opacity="{:.4}""#, self.alpha)
                 .expect("a String takes any write");
+        }
+    }
+
+    pub(crate) fn set_multiply(&mut self, multiply: bool) {
+        self.multiply = multiply;
+    }
+
+    fn open(&mut self, ink: [u8; 3], crisp: bool) {
+        self.group(ink, crisp);
+        if self.multiply {
+            self.markup
+                .push_str(r#"<g style="mix-blend-mode:multiply">"#);
+        }
+    }
+
+    fn close(&mut self) {
+        self.markup.push_str("/>");
+        if self.multiply {
+            self.markup.push_str("</g>");
         }
     }
 
@@ -79,23 +100,23 @@ impl SvgWriter {
     }
 
     pub(crate) fn fill(&mut self, ink: [u8; 3]) {
-        self.group(self.faded(ink), false);
+        self.open(self.faded(ink), false);
         let (width, height) = (self.width, self.height);
         write!(self.markup, r#"<rect width="{width}" height="{height}""#)
             .expect("a String takes any write");
         self.opacity("fill");
-        self.markup.push_str("/>");
+        self.close();
     }
 
     pub(crate) fn fill_rect(&mut self, x: i32, y: i32, width: u32, height: u32, ink: [u8; 3]) {
-        self.group(self.faded(ink), true);
+        self.open(self.faded(ink), true);
         write!(
             self.markup,
             r#"<rect x="{x}" y="{y}" width="{width}" height="{height}""#
         )
         .expect("a String takes any write");
         self.opacity("fill");
-        self.markup.push_str("/>");
+        self.close();
     }
 
     #[expect(
@@ -208,7 +229,7 @@ impl SvgWriter {
             return;
         }
         let shifted = shifted(opacity, base.map(|c| (c * alpha + 128) >> 8));
-        self.group(ink, true);
+        self.open(ink, true);
         write!(
             self.markup,
             r#"<rect x="{x}" y="{y}" width="{width}" height="{height}""#
@@ -220,27 +241,28 @@ impl SvgWriter {
                 .expect("a String takes any write");
         }
         let opacity = opacity as f32 / 255.0;
-        write!(self.markup, r#" fill-opacity="{opacity:.4}"/>"#).expect("a String takes any write");
+        write!(self.markup, r#" fill-opacity="{opacity:.4}""#).expect("a String takes any write");
+        self.close();
     }
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
-        self.group(self.faded(ink), false);
+        self.open(self.faded(ink), false);
         self.open_path(path, true);
         self.markup.push('"');
         self.opacity("fill");
-        self.markup.push_str("/>");
+        self.close();
     }
 
     pub(crate) fn fill_even_odd(&mut self, path: &Path, ink: [u8; 3]) {
-        self.group(self.faded(ink), false);
+        self.open(self.faded(ink), false);
         self.open_path(path, true);
         self.markup.push_str(r#"" fill-rule="evenodd""#);
         self.opacity("fill");
-        self.markup.push_str("/>");
+        self.close();
     }
 
     pub(crate) fn fill_transformed(&mut self, path: &Path, ink: [u8; 3], transform: Transform) {
-        self.group(self.faded(ink), false);
+        self.open(self.faded(ink), false);
         self.open_path(path, false);
         let Transform {
             sx,
@@ -256,27 +278,35 @@ impl SvgWriter {
         )
         .expect("a String takes any write");
         self.opacity("fill");
-        self.markup.push_str("/>");
+        self.close();
     }
 
     pub(crate) fn stroke(&mut self, path: &Path, ink: [u8; 3], width: f32, cap: Cap, join: Join) {
         let ink = self.faded(ink);
-        self.group(ink, false);
-        self.open_path(path, false);
-        let [r, g, b] = ink;
-        write!(
-            self.markup,
-            r##"" fill="none" stroke="#{r:02x}{g:02x}{b:02x}" stroke-width="{width}""##
-        )
-        .expect("a String takes any write");
-        self.opacity("stroke");
-        if let Cap::Round = cap {
-            self.markup.push_str(r#" stroke-linecap="round""#);
+        let parts = if self.multiply {
+            subpaths(path)
+        } else {
+            vec![path.clone()]
+        };
+        for part in &parts {
+            self.open(ink, false);
+            self.open_path(part, false);
+            let [r, g, b] = ink;
+            write!(
+                self.markup,
+                r##"" fill="none" stroke="#{r:02x}{g:02x}{b:02x}" stroke-width="{width}""##
+            )
+            .expect("a String takes any write");
+            self.opacity("stroke");
+            if let Cap::Round = cap {
+                self.markup.push_str(r#" stroke-linecap="round""#);
+            }
+            self.markup.push_str(match join {
+                Join::Round => r#" stroke-linejoin="round""#,
+                Join::Miter => r#" stroke-miterlimit="10""#,
+            });
+            self.close();
         }
-        self.markup.push_str(match join {
-            Join::Round => r#" stroke-linejoin="round"/>"#,
-            Join::Miter => r#" stroke-miterlimit="10"/>"#,
-        });
     }
 
     fn open_path(&mut self, path: &Path, snap: bool) {
@@ -332,6 +362,25 @@ impl SvgWriter {
         }
         self.markup + "</svg>\n"
     }
+}
+
+fn subpaths(path: &Path) -> Vec<Path> {
+    let mut parts = Vec::new();
+    let mut part = PathBuilder::new();
+    for segment in path.segments() {
+        match segment {
+            PathSegment::MoveTo(p) => {
+                parts.extend(std::mem::take(&mut part).finish());
+                part.move_to(p.x, p.y);
+            }
+            PathSegment::LineTo(p) => part.line_to(p.x, p.y),
+            PathSegment::QuadTo(c, p) => part.quad_to(c.x, c.y, p.x, p.y),
+            PathSegment::CubicTo(a, b, p) => part.cubic_to(a.x, a.y, b.x, b.y, p.x, p.y),
+            PathSegment::Close => part.close(),
+        }
+    }
+    parts.extend(part.finish());
+    parts
 }
 
 fn shifted(alpha: i32, scaled: [i32; 3]) -> [u8; 3] {
@@ -649,6 +698,54 @@ mod tests {
                 r##"<g fill="#ffffff" shape-rendering="crispEdges">"##,
                 r#"<rect x="0" y="0" width="1" height="1" fill-opacity="0.5000"/>"#,
                 r##"<rect x="1" y="0" width="1" height="1" fill="#fefefe" fill-opacity="0.2510"/></g>"##,
+            ]
+            .concat()
+        );
+    }
+
+    #[test]
+    fn under_multiply_each_element_and_each_stroked_subpath_sits_in_its_own_blend_group() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.set_multiply(true);
+        svg.fill_rect(0, 0, 1, 1, [1, 2, 3]);
+        svg.fill_rect(1, 0, 1, 1, [1, 2, 3]);
+        svg.stroke(&triangle(), [1, 2, 3], 1.0, Cap::Butt, Join::Miter);
+        svg.fill_box(0.0, 0.0, 1.0, 0.5, [255, 255, 255]);
+        let mut cross = PathBuilder::new();
+        cross.move_to(0.0, 1.5);
+        cross.line_to(4.0, 1.5);
+        cross.move_to(1.5, 0.0);
+        cross.line_to(1.5, 4.0);
+        svg.stroke(
+            &cross.finish().unwrap(),
+            [0, 0, 0],
+            1.0,
+            Cap::Butt,
+            Join::Miter,
+        );
+        svg.set_multiply(false);
+        svg.fill_rect(2, 0, 1, 1, [1, 2, 3]);
+        let blend = r#"<g style="mix-blend-mode:multiply">"#;
+        assert_eq!(
+            body(svg.finish()),
+            [
+                r##"<g fill="#010203" shape-rendering="crispEdges">"##,
+                blend,
+                r#"<rect x="0" y="0" width="1" height="1"/></g>"#,
+                blend,
+                r#"<rect x="1" y="0" width="1" height="1"/></g></g>"#,
+                r##"<g fill="#010203">"##,
+                blend,
+                r##"<path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#010203" stroke-width="1" stroke-miterlimit="10"/></g></g>"##,
+                r##"<g fill="#ffffff" shape-rendering="crispEdges">"##,
+                blend,
+                r##"<rect x="0" y="0" width="1" height="1" fill="#fefefe" fill-opacity="0.4980"/></g></g>"##,
+                r##"<g fill="#000000">"##,
+                blend,
+                r##"<path d="M0 1.5L4 1.5" fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10"/></g>"##,
+                blend,
+                r##"<path d="M1.5 0L1.5 4" fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10"/></g></g>"##,
+                r##"<g fill="#010203" shape-rendering="crispEdges"><rect x="2" y="0" width="1" height="1"/></g>"##,
             ]
             .concat()
         );
