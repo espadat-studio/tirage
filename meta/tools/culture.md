@@ -20,7 +20,7 @@ Site control ids, slider ranges and site defaults:
 | `grain`    | 0..1          | 0.01 | 0.62    | the Tool's own grain, not the chassis  |
 | `dot`      | 1..10         | 1    | 2       | the stipple dot size, in pixels        |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. culture is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off the drift, growth and colour roll are 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the drift, growth and colour roll are 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 ## Palette
 
@@ -61,6 +61,20 @@ A grid of `FW` by `FH` 32-bit floats, zeroed, `aspect = H/W`:
 - The colour mixes ink `i0` toward ink `i0 + 1` by `fr`, per channel.
 - When `gl > 0.002`, one value `(hash(gx, gy, t + 71) - 0.5)·gl` is added to all three channels.
 - Channels are stored as bytes, clamped and rounded half to even. Alpha is opaque.
+
+## Motion
+
+The site has three motion modes: Drift, Grow and Cycle. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`, and the drift reach is `D = 0.05 amount = 0.03`.
+- Each cell orbits its Still centre on its own beat. The motion phase `wob` it already draws sets the beat: the cell sits at `cx + cos(ph + wob) D FW`, `cy + sin(ph + 1.7 wob) D FW`. Both terms scale by `FW`, so the path is a circle in field nodes when the two phases line up and a tilted ellipse when they do not.
+- The radius holds. Grow's factor is 1 in Drift.
+- Nothing else moves. The rings, the grain and the inks hold, and the field is rebuilt per frame from the moved cells.
+- Every cell runs one orbit over the Loop, whatever the amount. The amount only sets the reach.
+- The Loop closes because both offsets have period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` each cell sits `(cos wob, sin 1.7 wob) D FW` off its Still centre, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half an orbit, where every offset has flipped sign from frame 0, as far from it as the Loop gets.
+- Grow swells each cell's radius and Cycle rolls the inks. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
