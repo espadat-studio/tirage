@@ -122,6 +122,7 @@ impl Tool {
                 | Self::Totem
                 | Self::Vein
                 | Self::Warp
+                | Self::Zig
         )
     }
 }
