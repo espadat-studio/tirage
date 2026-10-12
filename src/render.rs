@@ -98,6 +98,7 @@ mod tests {
         Tool::Dahlia,
         Tool::Tokens,
         Tool::Optic,
+        Tool::Vee,
     ];
 
     #[test]

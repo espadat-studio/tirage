@@ -8,9 +8,11 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "vee";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 72;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = Some(4);
+
+const AMOUNT: f64 = 0.8;
 
 const DEFAULT_PALETTE: [&str; 4] = ["#f4efe3", "#d62828", "#003049", "#1b1b1b"];
 
@@ -221,9 +223,9 @@ pub(crate) fn render(
     params: &VeeParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -272,12 +274,14 @@ fn region_clip((x0, y0, x1, y1): (f64, f64, f64, f64)) -> Path2D {
     clip
 }
 
-fn paint(surface: &mut Surface, p: &VeeParams, palette: &Palette, tool_seed: u32) {
+fn paint(surface: &mut Surface, p: &VeeParams, palette: &Palette, tool_seed: u32, t: Option<u32>) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let per = w.min(h) * 0.055 * p.width;
     let a = f64::from(p.angle).to_radians();
     let ink = |i: usize| palette.ink(1 + i % 3);
     let mut rng = Xorshift::new(tool_seed);
+    let laps = round_half_up(AMOUNT * 2.0).max(1.0);
+    let shift = t.map_or(0.0, |t| per * laps * (f64::from(t) / f64::from(FRAMES)));
 
     let n = p.bands as usize;
     let weights: Vec<f64> = (0..n).map(|_| 0.6 + rng.next() * 0.9).collect();
@@ -310,7 +314,7 @@ fn paint(surface: &mut Surface, p: &VeeParams, palette: &Palette, tool_seed: u32
         let angle = a * flip;
         let (ca, cb, cc) = (ink(base), ink(base + 1), ink(base + 2));
         let single = |surface: &mut Surface, rect: (f64, f64, f64, f64), angle: f64| {
-            let set = stripes(rect, angle, per, p.weight, ph);
+            let set = stripes(rect, angle, per, p.weight, ph + shift);
             surface.with_clip(&region_clip(rect), Transform::IDENTITY, |surface| {
                 fill_stripes(surface, &set, ca);
             });
@@ -331,8 +335,8 @@ fn paint(surface: &mut Surface, p: &VeeParams, palette: &Palette, tool_seed: u32
             Layout::Cross => {
                 for (x0, x1, sign) in [(0.0, mx, 1.0), (mx, w, -1.0)] {
                     let rect = (x0, y0, x1, y1);
-                    let one = stripes(rect, angle * sign, per, p.weight, ph);
-                    let two = stripes(rect, -angle * sign, per, p.weight, ph);
+                    let one = stripes(rect, angle * sign, per, p.weight, ph + shift);
+                    let two = stripes(rect, -angle * sign, per, p.weight, ph - shift);
                     surface.with_clip(&region_clip(rect), Transform::IDENTITY, |surface| {
                         fill_stripes(surface, &one, ca);
                         fill_stripes(surface, &two, cb);
