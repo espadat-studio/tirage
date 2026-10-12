@@ -134,6 +134,7 @@ impl Tool {
                 | Self::Parcel
                 | Self::Tokens
                 | Self::Riso
+                | Self::Rise
         )
     }
 }
