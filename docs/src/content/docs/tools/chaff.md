@@ -1,11 +1,11 @@
 ---
 title: "chaff"
-description: "Curved blades scattered across a sheet in one ink, with edges that break up like ink on rough paper. It renders a Still."
+description: "Curved blades scattered across a sheet in one ink, with edges that break up like ink on rough paper. It renders a Loop of 36 frames at 12 fps, the blades sliding round one small circle under a still mottle."
 ---
 
 Curved blades scattered across a sheet in one ink. Each blade bends along its length and tapers to a point or a blunt end. The edges break up into flecks, and a few flecks land out in the open ground, the way ink takes unevenly on rough paper. Large blades lie underneath and small ones on top.
 
-chaff renders a Still: one frame. Its site page is [playgrnd.tools/chaff](https://www.playgrnd.tools/chaff/).
+chaff renders a Loop: 36 frames at 12 fps, in which the whole set of blades slides once round a small circle, together. The blade shapes, the broken edges and the ink hold still, so the mottle stays put while the blades pass under it. The blades are already shifted at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/chaff](https://www.playgrnd.tools/chaff/).
 
 ## Still
 
