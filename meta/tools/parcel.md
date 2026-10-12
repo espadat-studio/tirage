@@ -18,7 +18,7 @@ Site control ids, slider ranges and site defaults:
 
 `blends` is a picker, so it is a Choice Parameter that `derive` leaves at its site default.
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. parcel is a Still Tool: only frame 0 is rendered, and at frame 0 both motion steps are 0. Motion stays fixed at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, both off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off both motion steps are 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, both off by default.
 
 The page does not deal sliders from the seed. A seed change only moves the noise and the clusters.
 
@@ -64,6 +64,19 @@ Every kept cell adds its four border edges to a set: top and bottom as horizonta
 2. Each grid row, left to right: every run of inked cells is one rect from `round(start cw)` to `round(end cw)` across and `round(v ch)` to `round((v + 1) ch)` down, filled with the block ink.
 3. All line runs form one path. A run from grid point `(x0, y0)` to `(x1, y1)` goes from `(round(x0 cw) + 0.5, round(y0 ch) + 0.5)` to the same for its end. The path is stroked once, 1 px wide, butt caps, miter joins, in the line ink. With `blends` at `Multiply` the stroke is multiplied onto what is under it; with `Normal` it is drawn over.
 4. The chassis grain, then dither.
+
+## Motion
+
+The site has two motion modes: Creep and Trace. Creep is the default and the only one ported: amount 0.8, 72 frames at 12 fps.
+
+- The Loop is cut into `N = max(2, round(6 amount)) = 5` held steps. Frame `f` sits at `T = f / frames` and shows step `k = floor(T N) mod N`, so each step holds for 72 / 5 = 14.4 frames and the step changes on `floor(T N)`, not on a whole frame count.
+- Step `k` moves the block noise origin round a circle of radius 0.9 noise units: `(ox + 0.9 cos a, oy + 0.9 sin a)` with `a = 2π k / N`. Cell `(u, v)` is inked when `fbm(u sc + ox', v sc + oy', 5) > th`, the origin added to the scaled cell as one term.
+- Only the blocks move. The grid, the threshold, the hairline clusters and the inks hold.
+- The walk makes one lap over the Loop. The amount sets how many steps that lap is cut into, not how many laps.
+- The Loop closes because step `N` wraps to step 0: frame `frames` is frame 0.
+- At `f = 0` the step is 0 and the origin is `(ox + 0.9, oy)`, the Still's, so frame 0 is the Still and needs no reference export of its own.
+- The mid frame is 36, which shows step 2 (`floor(2.5)`): the origin is at `a = 4π/5`, nearly opposite frame 0's on the circle, so the blocks are as far from the Still as the Loop takes them.
+- Trace reshuffles the hairline clusters per step instead. It is not ported and not reachable from a Recipe.
 
 ## Fidelity notes
 
