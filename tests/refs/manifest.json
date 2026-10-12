@@ -10291,6 +10291,99 @@
               "grnVignette": 0.5
             }
           }
+        },
+        {
+          "name": "seed-1-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "optic",
+            "tool_seed": 9611518,
+            "palette": [
+              "#f5f0e6",
+              "#7b2cbf"
+            ],
+            "params": {
+              "styles": "Peak",
+              "count": 27,
+              "weight": 0.41,
+              "sizeF": 0.88,
+              "levels": 1,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-2-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "optic",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#f5f0e6",
+              "#7b2cbf"
+            ],
+            "params": {
+              "styles": "Diamond",
+              "count": 14,
+              "weight": 0.42,
+              "sizeF": 0.82,
+              "levels": 2,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-3-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "optic",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#f5f0e6",
+              "#7b2cbf"
+            ],
+            "params": {
+              "styles": "Auto",
+              "count": 10,
+              "weight": 0.31,
+              "sizeF": 0.66,
+              "levels": 1,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
         }
       ],
       "page_sha256": "7a93219faad222b1d77995c25446209be12cc3c61991dd56c8f890f8e0bb2080",
