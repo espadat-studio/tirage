@@ -129,6 +129,7 @@ impl Tool {
                 | Self::Atlas
                 | Self::Sampler
                 | Self::Pane
+                | Self::Modular
         )
     }
 }
