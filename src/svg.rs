@@ -537,42 +537,57 @@ impl SvgWriter {
             && bounds.top() >= 0.0
             && bounds.right() <= self.width as f32
             && bounds.bottom() <= self.height as f32;
-        let number: fn(f32) -> String = if unclipped {
-            coordinate
-        } else {
-            |v| v.to_string()
-        };
+        let lands = if unclipped { on_edge } else { exact };
+        let (mut pen, mut start) = ((0.0, 0.0), (0.0, 0.0));
+        let mut run = ' ';
+        let mut dotted = None;
         for segment in path.segments() {
-            match segment {
-                PathSegment::MoveTo(p) => {
-                    write!(self.markup, "M{} {}", number(p.x), number(p.y))
+            let (command, points) = match segment {
+                PathSegment::MoveTo(p) => ('m', vec![p]),
+                PathSegment::LineTo(p) => ('l', vec![p]),
+                PathSegment::QuadTo(c, p) => ('q', vec![c, p]),
+                PathSegment::CubicTo(a, b, p) => ('c', vec![a, b, p]),
+                PathSegment::Close => {
+                    self.markup.push('z');
+                    (pen, run, dotted) = (start, 'z', None);
+                    continue;
                 }
-                PathSegment::LineTo(p) => {
-                    write!(self.markup, "L{} {}", number(p.x), number(p.y))
-                }
-                PathSegment::QuadTo(c, p) => {
-                    write!(
-                        self.markup,
-                        "Q{} {} {} {}",
-                        number(c.x),
-                        number(c.y),
-                        number(p.x),
-                        number(p.y)
-                    )
-                }
-                PathSegment::CubicTo(a, b, p) => write!(
-                    self.markup,
-                    "C{} {} {} {} {} {}",
-                    number(a.x),
-                    number(a.y),
-                    number(b.x),
-                    number(b.y),
-                    number(p.x),
-                    number(p.y)
-                ),
-                PathSegment::Close => write!(self.markup, "Z"),
+            };
+            let near: Option<Vec<_>> = points
+                .iter()
+                .flat_map(|p| [(pen.0, p.x), (pen.1, p.y)])
+                .map(|(base, v)| relative(base, v, lands))
+                .collect();
+            let far: Vec<_> = points
+                .iter()
+                .flat_map(|p| [p.x, p.y])
+                .map(|v| absolute(v, lands))
+                .collect();
+            let length =
+                |texts: &[(String, f64)]| texts.iter().map(|(text, _)| text.len()).sum::<usize>();
+            let (command, texts) = match near {
+                Some(near) if length(&near) <= length(&far) => (command, near),
+                _ => (command.to_ascii_uppercase(), far),
+            };
+            if command != run {
+                self.markup.push(command);
+                dotted = None;
             }
-            .expect("a String takes any write");
+            for (text, _) in &texts {
+                let joins =
+                    text.starts_with('-') || (text.starts_with('.') && dotted == Some(true));
+                if dotted.is_some() && !joins {
+                    self.markup.push(' ');
+                }
+                dotted = Some(text.contains('.'));
+                self.markup.push_str(text);
+            }
+            pen = (texts[texts.len() - 2].1, texts[texts.len() - 1].1);
+            run = command;
+            if command.eq_ignore_ascii_case(&'m') {
+                start = pen;
+                run = if command == 'm' { 'l' } else { 'L' };
+            }
         }
     }
 
@@ -637,16 +652,52 @@ fn shifted(opacity: f32, scaled: [i32; 3]) -> [u8; 3] {
     })
 }
 
-fn coordinate(v: f32) -> String {
+const MAX_DELTA_DIGITS: i32 = 12;
+
+fn on_edge(sum: f64, v: f32) -> bool {
     let edge = |v: f32| (v * 256.0) as i32;
-    (0..)
+    edge(sum as f32) == edge(v)
+}
+
+fn exact(sum: f64, v: f32) -> bool {
+    sum as f32 == v
+}
+
+fn relative(base: f64, v: f32, lands: fn(f64, f32) -> bool) -> Option<(String, f64)> {
+    shortest(base, v, lands, MAX_DELTA_DIGITS)
+}
+
+fn absolute(v: f32, lands: fn(f64, f32) -> bool) -> (String, f64) {
+    shortest(0.0, v, lands, i32::from(u8::MAX)).expect("v's own digits land on v")
+}
+
+fn shortest(
+    base: f64,
+    v: f32,
+    lands: fn(f64, f32) -> bool,
+    max_digits: i32,
+) -> Option<(String, f64)> {
+    let delta = f64::from(v) - base;
+    let (text, sum) = (0..=max_digits)
         .flat_map(|digits| {
             let scale = 10f64.powi(digits);
-            let scaled = f64::from(v) * scale;
+            let scaled = delta * scale;
             [scaled.floor(), scaled.ceil()].map(|d| format!("{:.*}", digits as usize, d / scale))
         })
-        .find(|text| edge(text.parse::<f64>().expect("a formatted f64 parses") as f32) == edge(v))
-        .expect("v's own digits land on v's edge")
+        .map(|text| {
+            let sum = base + text.parse::<f64>().expect("a formatted f64 parses");
+            (text, sum)
+        })
+        .find(|&(_, sum)| lands(sum, v))?;
+    let digits = text.trim_start_matches('-').trim_start_matches('0');
+    let text = if digits.chars().all(|c| c == '0' || c == '.') {
+        "0".to_owned()
+    } else if text.starts_with('-') {
+        format!("-{digits}")
+    } else {
+        digits.to_owned()
+    };
+    Some((text, sum))
 }
 
 #[cfg(test)]
@@ -761,7 +812,7 @@ mod tests {
     }
 
     #[test]
-    fn fill_path_writes_each_segment_at_the_shortest_decimal_on_tiny_skias_edge() {
+    fn fill_path_writes_each_segment_relative_or_absolute_whichever_is_shorter() {
         let mut path = PathBuilder::new();
         path.move_to(0.5, 1.0);
         path.line_to(2.0, 1.0 / 3.0);
@@ -772,7 +823,7 @@ mod tests {
         svg.fill_path(&path.finish().unwrap(), [0, 128, 255]);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#0080ff"><path d="M0.5 1L2 0.333Q3 0 4 1C5 2 6 3 7 4Z"/></g>"##
+            r##"<g fill="#0080ff"><path d="m.5 1L2 .333Q3 0 4 1c1 1 2 2 3 3z"/></g>"##
         );
     }
 
@@ -786,7 +837,7 @@ mod tests {
         svg.fill_path(&path.finish().unwrap(), [0, 0, 0]);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#000000"><path d="M0.33333334 -1L2 1Z"/></g>"##
+            r##"<g fill="#000000"><path d="m.33333334-1L2 1z"/></g>"##
         );
     }
 
@@ -805,7 +856,7 @@ mod tests {
         svg.fill_even_odd(&triangle(), [1, 2, 3]);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#010203"><path d="M0 0L4 0L0 3.5Z" fill-rule="evenodd"/></g>"##
+            r##"<g fill="#010203"><path d="m0 0 4 0L0 3.5z" fill-rule="evenodd"/></g>"##
         );
     }
 
@@ -824,7 +875,7 @@ mod tests {
         );
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#010203"><path d="M0.33333334 0L4 0L0 3.5Z" transform="matrix(0 1 -1.5 0 5 0.33333334)"/></g>"##
+            r##"<g fill="#010203"><path d="m.33333334 0L4 0 0 3.5z" transform="matrix(0 1 -1.5 0 5 0.33333334)"/></g>"##
         );
     }
 
@@ -839,7 +890,7 @@ mod tests {
         svg.fill_transformed(&path.finish().unwrap(), [1, 2, 3], Transform::identity());
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#010203"><path d="M2.76 0L4 0L0 3.5Z"/></g>"##
+            r##"<g fill="#010203"><path d="m2.76 0L4 0 0 3.5z"/></g>"##
         );
     }
 
@@ -849,7 +900,7 @@ mod tests {
         svg.stroke(&triangle(), [255, 0, 16], 1.5, Cap::Butt, Join::Miter);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#ff0010"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#ff0010" stroke-width="1.5" stroke-miterlimit="10"/></g>"##
+            r##"<g fill="#ff0010"><path d="m0 0 4 0L0 3.5z" fill="none" stroke="#ff0010" stroke-width="1.5" stroke-miterlimit="10"/></g>"##
         );
     }
 
@@ -859,7 +910,7 @@ mod tests {
         svg.stroke(&triangle(), [0, 0, 0], 0.25, Cap::Round, Join::Round);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#000000"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#000000" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/></g>"##
+            r##"<g fill="#000000"><path d="m0 0 4 0L0 3.5z" fill="none" stroke="#000000" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/></g>"##
         );
     }
 
@@ -876,7 +927,7 @@ mod tests {
             Cap::Butt,
             Join::Round,
         );
-        assert!(body(svg.finish()).contains(r#"d="M0.33333334 1L2 1""#));
+        assert!(body(svg.finish()).contains(r#"d="m.33333334 1L2 1""#));
     }
 
     #[test]
@@ -923,8 +974,8 @@ mod tests {
             [
                 r##"<g fill="#000000"><rect width="9" height="9" fill-opacity="0.8500"/></g>"##,
                 r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="1" y="2" width="3" height="4" fill-opacity="0.8500"/></g>"##,
-                r##"<g fill="#000000"><path d="M0 0L4 0L0 3.5Z" fill-opacity="0.8500"/>"##,
-                r##"<path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#000000" stroke-width="1" stroke-opacity="0.8500" stroke-miterlimit="10"/></g>"##,
+                r##"<g fill="#000000"><path d="m0 0 4 0L0 3.5z" fill-opacity="0.8500"/>"##,
+                r##"<path d="m0 0 4 0L0 3.5z" fill="none" stroke="#000000" stroke-width="1" stroke-opacity="0.8500" stroke-miterlimit="10"/></g>"##,
                 r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1"/></g>"##,
             ]
             .concat()
@@ -940,7 +991,7 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             [
-                r##"<g fill="#1c1c1c"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#1c1c1c" stroke-width="1" stroke-opacity="0.3900" stroke-miterlimit="10"/></g>"##,
+                r##"<g fill="#1c1c1c"><path d="m0 0 4 0L0 3.5z" fill="none" stroke="#1c1c1c" stroke-width="1" stroke-opacity="0.3900" stroke-miterlimit="10"/></g>"##,
                 r##"<g fill="#1c1c1c" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1" fill-opacity="0.3900"/></g>"##,
             ]
             .concat()
@@ -954,7 +1005,7 @@ mod tests {
         svg.stroke(&triangle(), [217, 212, 199], 0.594, Cap::Butt, Join::Miter);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#d9d5c6"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#d9d5c6" stroke-width="0.594" stroke-opacity="0.8078" stroke-miterlimit="10"/></g>"##
+            r##"<g fill="#d9d5c6"><path d="m0 0 4 0L0 3.5z" fill="none" stroke="#d9d5c6" stroke-width="0.594" stroke-opacity="0.8078" stroke-miterlimit="10"/></g>"##
         );
     }
 
@@ -1007,15 +1058,15 @@ mod tests {
                 r#"<rect x="1" y="0" width="1" height="1"/></g></g>"#,
                 r##"<g fill="#010203">"##,
                 blend,
-                r##"<path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#010203" stroke-width="1" stroke-miterlimit="10"/></g></g>"##,
+                r##"<path d="m0 0 4 0L0 3.5z" fill="none" stroke="#010203" stroke-width="1" stroke-miterlimit="10"/></g></g>"##,
                 r##"<g fill="#ffffff" shape-rendering="crispEdges">"##,
                 blend,
                 r##"<rect x="0" y="0" width="1" height="1" fill="#fefefe" fill-opacity="0.4980"/></g></g>"##,
                 r##"<g fill="#000000">"##,
                 blend,
-                r##"<path d="M0 1.5L4 1.5" fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10"/></g>"##,
+                r##"<path d="m0 1.5 4 0" fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10"/></g>"##,
                 blend,
-                r##"<path d="M1.5 0L1.5 4" fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10"/></g></g>"##,
+                r##"<path d="m1.5 0 0 4" fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10"/></g></g>"##,
                 r##"<g fill="#010203" shape-rendering="crispEdges"><rect x="2" y="0" width="1" height="1"/></g>"##,
             ]
             .concat()
@@ -1036,9 +1087,9 @@ mod tests {
             [
                 r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1"/></g>"##,
                 r#"<filter id="frame" filterUnits="userSpaceOnUse" x="0" y="0" width="9" height="9" color-interpolation-filters="sRGB"><feOffset/></filter>"#,
-                r#"<clipPath id="c0"><path d="M0 0L4 0L0 3.5Z"/></clipPath>"#,
+                r#"<clipPath id="c0"><path d="m0 0 4 0L0 3.5z"/></clipPath>"#,
                 r##"<g fill="#000000" shape-rendering="crispEdges"><g clip-path="url(#c0)" filter="url(#frame)"><rect x="1" y="0" width="1" height="1"/></g></g>"##,
-                r##"<g fill="#000000"><g clip-path="url(#c0)" filter="url(#frame)"><path d="M0 0L4 0L0 3.5Z"/></g></g>"##,
+                r##"<g fill="#000000"><g clip-path="url(#c0)" filter="url(#frame)"><path d="m0 0 4 0L0 3.5z"/></g></g>"##,
                 r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="2" y="0" width="1" height="1"/></g>"##,
             ]
             .concat()
@@ -1069,11 +1120,11 @@ mod tests {
                 &[
                     r##"<g fill="#000000">"##.to_owned(),
                     clip.to_owned(),
-                    stroke("M0 1.5L4 1.5", "1"),
+                    stroke("m0 1.5 4 0", "1"),
                     clip.to_owned(),
-                    stroke("M1.5 0L1.5 4", "1"),
+                    stroke("m1.5 0 0 4", "1"),
                     clip.to_owned(),
-                    stroke("M0 1.5L4 1.5M1.5 0L1.5 4", "1.5"),
+                    stroke("m0 1.5 4 0M1.5 0l0 4", "1.5"),
                     "</g>".to_owned(),
                 ]
                 .concat()
@@ -1097,8 +1148,8 @@ mod tests {
             body(svg.finish()),
             [
                 r#"<filter id="frame" filterUnits="userSpaceOnUse" x="0" y="0" width="9" height="9" color-interpolation-filters="sRGB"><feOffset/></filter>"#,
-                r#"<clipPath id="c0"><path d="M0 0L4 0L0 3.5Z"/></clipPath>"#,
-                r#"<clipPath id="c1" clip-path="url(#c0)"><path d="M0 0L4 0L0 3.5Z" transform="matrix(0 1 -1.5 0 5 0.33333334)"/></clipPath>"#,
+                r#"<clipPath id="c0"><path d="m0 0 4 0L0 3.5z"/></clipPath>"#,
+                r#"<clipPath id="c1" clip-path="url(#c0)"><path d="m0 0 4 0L0 3.5z" transform="matrix(0 1 -1.5 0 5 0.33333334)"/></clipPath>"#,
                 r##"<g fill="#010203"><g clip-path="url(#c1)" filter="url(#frame)"><rect width="9" height="9"/></g>"##,
                 r#"<g clip-path="url(#c0)" filter="url(#frame)"><rect width="9" height="9"/></g></g>"#,
             ]
@@ -1241,15 +1292,43 @@ mod tests {
             Cap::Round,
             Join::Round,
         );
-        assert!(body(svg.finish()).contains(r#"d="M1 1L5 1L20 1L30 1M30 2L20 2L5 2""#));
+        assert!(body(svg.finish()).contains(r#"d="m1 1 4 0 15 0 10 0m0 1L20 2 5 2""#));
     }
 
     #[test]
-    fn a_coordinate_takes_the_fewest_digits_that_keep_its_256th_of_a_pixel() {
-        assert_eq!(super::coordinate(2.7612965), "2.76");
-        assert_eq!(super::coordinate(0.95035976), "0.95");
-        assert_eq!(super::coordinate(12.0), "12");
-        assert_eq!(super::coordinate(0.0039), "0");
-        assert_eq!(super::coordinate(0.004), "0.004");
+    fn a_delta_takes_the_fewest_digits_whose_sum_keeps_its_256th_of_a_pixel() {
+        let text = |base, v| super::relative(base, v, super::on_edge).unwrap().0;
+        assert_eq!(text(0.0, 2.7612965), "2.76");
+        assert_eq!(text(0.0, 0.95035976), ".95");
+        assert_eq!(text(0.0, 0.0039), "0");
+        assert_eq!(text(10.0, 12.0), "2");
+        assert_eq!(text(12.5, 12.0), "-.5");
+    }
+
+    #[test]
+    fn an_exact_delta_sums_in_f64_back_to_its_f32_as_svgtypes_does() {
+        let (text, sum) = super::relative(1.0, 1.0 / 3.0, super::exact).unwrap();
+        assert_eq!((1.0 + text.parse::<f64>().unwrap()) as f32, 1.0 / 3.0);
+        assert_eq!(sum as f32, 1.0 / 3.0);
+    }
+
+    #[test]
+    fn a_point_past_f64_reach_of_the_pen_is_written_absolute() {
+        assert_eq!(
+            super::relative(-11.394995999999988, 1.5347724e-14, super::exact),
+            None
+        );
+        let mut path = PathBuilder::new();
+        path.move_to(-11.394996, 1.0);
+        path.line_to(1.5347724e-14, 1.0);
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(
+            &path.finish().unwrap(),
+            [0, 0, 0],
+            1.0,
+            Cap::Butt,
+            Join::Round,
+        );
+        assert!(body(svg.finish()).contains(r#"d="m-11.394996 1L.000000000000015347723 1""#));
     }
 }

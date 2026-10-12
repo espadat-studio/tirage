@@ -729,8 +729,8 @@ mod tests {
         let mut surface = Surface::svg(4, 4);
         surface.fill_circle(2.0, 2.0, 1.0, [0, 0, 0]);
         let svg = surface.into_svg();
-        assert!(svg.contains(r#"<path d="M3 2Q"#), "{svg}");
-        assert!(svg.ends_with("Z\"/></g></svg>\n"), "{svg}");
+        assert!(svg.contains(r#"<path d="m3 2q"#), "{svg}");
+        assert!(svg.ends_with("z\"/></g></svg>\n"), "{svg}");
     }
 
     #[test]
@@ -744,7 +744,7 @@ mod tests {
         surface.fill_path(&path.into_path(), [9, 8, 7]);
         let svg = surface.into_svg();
         assert!(
-            svg.ends_with("<g fill=\"#090807\"><path d=\"M0 0L3 0L0 2.5Z\"/></g></svg>\n"),
+            svg.ends_with("<g fill=\"#090807\"><path d=\"m0 0 3 0L0 2.5z\"/></g></svg>\n"),
             "{svg}"
         );
     }
@@ -759,7 +759,7 @@ mod tests {
         let svg = surface.into_svg();
         assert!(
             svg.ends_with(
-                "<path d=\"M0 0L1 0L1 1L0 1Z\" transform=\"matrix(0.5 0 0 2 2 1)\"/></g></svg>\n"
+                "<path d=\"m0 0 1 0 0 1L0 1z\" transform=\"matrix(0.5 0 0 2 2 1)\"/></g></svg>\n"
             ),
             "{svg}"
         );
