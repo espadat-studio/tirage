@@ -11,9 +11,11 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "carve";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
+
+const AMOUNT: f64 = 0.6;
 
 const DEFAULT_PALETTE: [&str; 6] = [
     "#1a1a1a", "#f5f2ec", "#ff5c00", "#00a3ff", "#ff00a8", "#a8ff00",
@@ -232,9 +234,9 @@ pub(crate) fn render(
     params: &CarveParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -334,7 +336,15 @@ fn rect(x: f64, y: f64, w: f64, h: f64) -> Path2D {
     path
 }
 
-fn paint(surface: &mut Surface, p: &CarveParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    p: &CarveParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
+    let turns = round_half_up(AMOUNT * 2.0).max(1.0);
+    let phase = t.map_or(0.0, |t| f64::from(t) / f64::from(FRAMES) * turns);
     let (fw, fh) = (f64::from(surface.width()), f64::from(surface.height()));
     let inks = palette.inks();
     surface.fill(inks[0]);
@@ -347,9 +357,9 @@ fn paint(surface: &mut Surface, p: &CarveParams, palette: &Palette, tool_seed: u
         let (a, b) = (inks[panel.a], inks[panel.b]);
         match panel.kind {
             Kind::Flat => surface.fill_box(x, y, w, h, a),
-            Kind::Stripe => stripe(surface, p, &panel, (x, y, w, h), a, b),
+            Kind::Stripe => stripe(surface, p, &panel, (x, y, w, h), a, b, phase),
             Kind::Chevron => chevron(surface, &panel, (x, y, w, h), a, b),
-            Kind::Ramp => ramp(surface, p, &panel, (x, y, w, h), a, b),
+            Kind::Ramp => ramp(surface, p, &panel, (x, y, w, h), a, b, phase),
             Kind::Grid => grid(surface, p, &panel, (x, y, w, h), a, b),
         }
     }
@@ -364,6 +374,7 @@ fn stripe(
     (x, y, w, h): Area,
     a: [u8; 3],
     b: [u8; 3],
+    phase: f64,
 ) {
     surface.fill_box(x, y, w, h, a);
     let span = if panel.dir { h } else { w };
@@ -372,8 +383,9 @@ fn stripe(
     for pass in 0..2 {
         let pitch = base * if pass == 1 { 1.9 } else { 1.0 };
         let n = (span / (pitch * 2.0)).ceil() as i32 + 2;
+        let off = phase * pitch * 2.0;
         for i in -1..n {
-            let o = f64::from(i) * pitch * 2.0 + f64::from(panel.seed % 7) / 7.0 * pitch;
+            let o = f64::from(i) * pitch * 2.0 + f64::from(panel.seed % 7) / 7.0 * pitch + off;
             if o + pitch < 0.0 {
                 continue;
             }
@@ -437,6 +449,7 @@ fn ramp(
     (x, y, w, h): Area,
     a: [u8; 3],
     b: [u8; 3],
+    phase: f64,
 ) {
     let (bw, bh) = (round_half_up(w).max(1.0), round_half_up(h).max(1.0));
     let (bx, by) = (round_half_up(x), round_half_up(y));
@@ -450,8 +463,8 @@ fn ramp(
             let px = bx + f64::from(i);
             let u = f64::from(i) / bw - 0.5;
             let v = f64::from(j) / bh - 0.5;
-            let mut t = 0.5 + (u * ux + v * uy);
-            t += ((u * uy - v * ux) * 11.0 + sd).sin() * 0.06;
+            let mut t = 0.5 + (u * ux + v * uy) + phase;
+            t += ((u * uy - v * ux) * 11.0 + sd + phase * PI * 2.0).sin() * 0.06;
             let t = t.clamp(0.0, 1.0);
             let noise = if p.grain > 0.002 {
                 (hash(i as i32, j as i32, panel.seed) - 0.5)
@@ -514,4 +527,39 @@ fn grid(
             }
         }
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Kind, layout};
+    use crate::render::{Frame, render};
+    use crate::{Params, Tool, ToolPin, derive};
+
+    #[test]
+    fn the_loop_closes_unless_a_ramp_panel_jumps_at_the_seam() {
+        let (mut ramps, mut closed) = (0, 0);
+        for seed in 1..=12 {
+            let mut recipe = derive(seed, ToolPin::Tool(Tool::Carve));
+            let Params::Carve(params) = recipe.params_mut() else {
+                unreachable!()
+            };
+            params.set_mix(1.0).unwrap();
+            let n = recipe.palette().unwrap().inks().len();
+            let Params::Carve(params) = recipe.params() else {
+                unreachable!()
+            };
+            let ramp = layout(params, n, 480.0 / 270.0, recipe.tool_seed().get())
+                .iter()
+                .any(|panel| panel.kind == Kind::Ramp);
+            let first = render(&recipe, &Frame::new(&recipe, 270, 480, 0).unwrap());
+            let after = render(&recipe, &Frame::after_last(&recipe, 270, 480));
+            assert_eq!(first.rgba() != after.rgba(), ramp, "seed {seed}");
+            if ramp {
+                ramps += 1;
+            } else {
+                closed += 1;
+            }
+        }
+        assert!(ramps > 0 && closed > 0, "{ramps} jump, {closed} close");
+    }
 }
