@@ -22,7 +22,7 @@ Site control ids, slider ranges and site defaults:
 | `angle`  | 0..1  | 0.01 | 0.25    | screen angle, 0° to 80°                      |
 | `bite`   | 0..1  | 0.01 | 0.5     | how fast dots shrink as the band gets hotter |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. benday is a Still Tool: only frame 0 is rendered, and with motion off the drift, churn and heat offsets are all 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the drift, churn and heat offsets are all 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 Default Palette, 8 inks: `#0a0a0c #5b1e9e #2c4be8 #31c6f0 #8fe23a #f5f03a #ff8a1e #ff2a1e`. The Palette is a ramp read by position, cold to hot, and takes any number of inks from 2. The site deals its Palette from the Tool seed together with every slider. We do not port that deal: a Recipe names its Palette, and the refs export sets it through My colors.
 
@@ -72,6 +72,23 @@ Each pixel, after its band colour `C`:
 5. The pixel moves from `C` toward the dot colour by `min(1, edge)`.
 
 Channels are clamped to 0..255 and stored rounding half to even. Alpha is 255.
+
+## Motion
+
+The site has three motion modes: Drift, Churn and Pulse. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps. The site's `fps` is 12, so the port's FPS moves from 1 to 12.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`, and the walk radius is `r = 0.5 amount = 0.3` noise units, with `(dx, dy) = (cos ph, sin ph) r`.
+- Every noise read walks round a circle in its own space, each offset added after the read's fixed offsets:
+  - `q1` reads at `(1.5 ru + 3.1 + dx, 1.5 rv + 7.7 + dy)`.
+  - `q2` reads at `(1.5 ru + 9.2 - dy, 1.5 rv + 1.3 + dx)`: the same circle, a quarter turn ahead.
+  - The coarse octave of `m` reads at `(2 wu + dx, 2 wv + dy)`.
+  - The fine octave reads at `(4.7 wu + 2dx, 4.7 wv + 2dy)`: twice the radius, so the fine detail travels faster than the coarse forms.
+- The bands and rims follow the field, so their edges creep and come back. The dot screen, its angle and cell size, and the ink ramp hold, so the dots stay put and only their size changes under the moving field.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the offsets have period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` every read sits `r` (or `2r`) along its first axis from its Still place, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a lap, every read `2r` (or `4r`) from where it is at frame 0, as far as the Loop takes it.
+- Churn swells the turbulence and Pulse lifts the heat. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
