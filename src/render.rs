@@ -87,7 +87,7 @@ impl Frame {
 #[cfg(test)]
 mod tests {
     use super::{Frame, render};
-    use crate::{Tool, ToolPin, derive};
+    use crate::{Palette, Tool, ToolPin, derive};
 
     const CLOSED: &[Tool] = &[Tool::Sonar, Tool::Husk, Tool::Bloom, Tool::Warp];
 
@@ -104,6 +104,29 @@ mod tests {
                     tool.slug(),
                     tool.frames()
                 );
+            }
+        }
+    }
+
+    #[test]
+    fn whorl_rotates_its_stripe_inks_one_step_at_the_seam() {
+        let inks = ["#000000", "#ff0000", "#00ff00", "#0000ff"];
+        let rotated = ["#000000", "#00ff00", "#0000ff", "#ff0000"];
+        for seed in 1..=3 {
+            for (from, to) in [(&inks[..2], &inks[..2]), (&inks[..], &rotated[..])] {
+                let mut recipe = derive(seed, ToolPin::Tool(Tool::Whorl));
+                recipe
+                    .set_palette(Palette::from_hex(from).unwrap())
+                    .unwrap();
+                let after = render(&recipe, &Frame::after_last(&recipe, 270, 480));
+                recipe.set_palette(Palette::from_hex(to).unwrap()).unwrap();
+                let first = render(&recipe, &Frame::new(&recipe, 270, 480, 0).unwrap());
+                let off = first
+                    .rgba()
+                    .iter()
+                    .zip(after.rgba())
+                    .map(|(a, b)| a.abs_diff(*b));
+                assert!(off.max() <= Some(1), "seed {seed}, {} inks", from.len());
             }
         }
     }

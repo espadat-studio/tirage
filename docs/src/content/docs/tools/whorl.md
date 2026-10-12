@@ -22,7 +22,7 @@ tirage derive --seed 9 --tool whorl | tirage render --size 540x960 -o whorl.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-whorl  1 frame
+whorl  36 frames
   centres     1..=14    step 1
   pull        0..=1     step 0.01
   push        0..=1     step 0.01

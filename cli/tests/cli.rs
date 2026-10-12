@@ -410,7 +410,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"shadow","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let whorl = concat!(
-        r#"{"slug":"whorl","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"whorl","frames":36,"svg":false,"params":["#,
         r#"{"id":"centres","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"pull","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"push","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -906,7 +906,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nwhorl  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nwhorl  36 frames\n"), "{listing}");
     assert!(listing.contains("\nsear  1 frame\n"), "{listing}");
     assert!(listing.contains("\nculture  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmosh  24 frames, svg\n"), "{listing}");
