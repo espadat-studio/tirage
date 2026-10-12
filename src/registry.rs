@@ -117,6 +117,7 @@ impl Tool {
             Self::Sonar
                 | Self::Fete
                 | Self::Quilt
+                | Self::Static
                 | Self::Mosh
                 | Self::Bloom
                 | Self::Weave

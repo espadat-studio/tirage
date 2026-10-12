@@ -579,7 +579,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"chunk","kind":"range","min":0.7,"max":1.8,"step":0.05},"#,
     );
     let static_tool = concat!(
-        r#"{"slug":"static","frames":60,"svg":false,"params":["#,
+        r#"{"slug":"static","frames":60,"svg":true,"params":["#,
         r#"{"id":"regions","kind":"range","min":2.0,"max":5.0,"step":1.0},"#,
         r#"{"id":"res","kind":"range","min":48.0,"max":160.0,"step":4.0},"#,
         r#"{"id":"glitch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -879,7 +879,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nfete  100 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nfold  1 frame\n"), "{listing}");
     assert!(listing.contains("\nquilt  60 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nstatic  60 frames\n"), "{listing}");
+    assert!(listing.contains("\nstatic  60 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nsplice  1 frame\n"), "{listing}");
     assert!(listing.contains("\ndahlia  1 frame\n"), "{listing}");
     assert!(listing.contains("\nhiss  1 frame\n"), "{listing}");
