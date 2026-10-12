@@ -42,7 +42,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `bloom`    | 24     | Loop   |
 | `weave`    | 120    | Loop   |
 | `warp`     | 72     | Loop   |
-| `zig`      | 1      | Still  |
+| `zig`      | 120    | Loop   |
 | `relief`   | 24     | Loop   |
 | `atlas`    | 24     | Loop   |
 | `sprig`    | 1      | Still  |
