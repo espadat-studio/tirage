@@ -1,11 +1,11 @@
 ---
 title: "carve"
-description: "A poster cut into panels of flat ink, stripes, chevrons, grainy ramps and a node grid. It renders a Still."
+description: "A poster cut into panels of flat ink, stripes, chevrons, grainy ramps and a node grid. It renders a Loop of 36 frames at 12 fps, the stripes and ramps drifting."
 ---
 
 A report cover cut into rectangles. Each cut splits one of the larger panels, so the frame fills in evenly. A panel is a flat ink or a pattern in two inks: stripes that change pitch partway across, stacked chevrons, a grainy ramp, or a grid of lines with a few dots on its crossings. A picture has at most one grid.
 
-carve renders a Still: one frame. Its site page is [playgrnd.tools/carve](https://www.playgrnd.tools/carve/).
+carve renders a Loop: 36 frames at 12 fps, in which stripes travel one stripe period along their panel and grainy ramps wash towards one ink while their streaks turn, as the layout, flat, chevron and grid panels hold. Frame 0 is the Still. A ramp does not land back on frame 0, so a picture with one jumps at the end, as it does on the site. Its site page is [playgrnd.tools/carve](https://www.playgrnd.tools/carve/).
 
 ## Still
 
@@ -24,7 +24,7 @@ SVG: yes. `-o carve.svg` writes this Still as an [SVG](/cli-reference/render/#sv
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-carve  1 frame, svg
+carve  36 frames, svg
   cuts        1..=16    step 1
   uneven      0..=1     step 0.01
   gap         0..=1     step 0.01
