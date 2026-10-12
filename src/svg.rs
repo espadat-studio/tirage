@@ -146,6 +146,17 @@ impl SvgWriter {
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
         self.group(ink, false);
+        self.path(path);
+        self.markup.push_str(r#""/>"#);
+    }
+
+    pub(crate) fn fill_even_odd(&mut self, path: &Path, ink: [u8; 3]) {
+        self.group(ink, false);
+        self.path(path);
+        self.markup.push_str(r#"" fill-rule="evenodd"/>"#);
+    }
+
+    fn path(&mut self, path: &Path) {
         self.markup.push_str(r#"<path d=""#);
         let bounds = path.bounds();
         let unclipped = bounds.left() >= 0.0
@@ -189,7 +200,6 @@ impl SvgWriter {
             }
             .expect("a String takes any write");
         }
-        self.markup.push_str(r#""/>"#);
     }
 
     pub(crate) fn finish(mut self) -> String {
@@ -349,6 +359,25 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             r##"<g fill="#000000"><path d="M0.33333334 -1L2 1Z"/></g>"##
+        );
+    }
+
+    fn triangle() -> tiny_skia::Path {
+        let mut path = PathBuilder::new();
+        path.move_to(0.0, 0.0);
+        path.line_to(4.0, 0.0);
+        path.line_to(0.0, 3.5);
+        path.close();
+        path.finish().unwrap()
+    }
+
+    #[test]
+    fn fill_even_odd_writes_the_path_with_an_evenodd_fill_rule() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_even_odd(&triangle(), [1, 2, 3]);
+        assert_eq!(
+            body(svg.finish()),
+            r##"<g fill="#010203"><path d="M0 0L4 0L0 3.5Z" fill-rule="evenodd"/></g>"##
         );
     }
 

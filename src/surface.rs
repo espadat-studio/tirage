@@ -376,6 +376,10 @@ impl Surface {
             .clone()
             .finish()
             .expect("a filled path has a closed loop");
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.fill_even_odd(&path, ink);
+            return;
+        }
         let paint = self.solid(ink);
         let (pixmap, mask) = self.raster("fill_even_odd");
         pixmap.fill_path(
