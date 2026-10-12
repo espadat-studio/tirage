@@ -1,11 +1,11 @@
 ---
 title: "terrain"
-description: "A warped noise field cut into flat bands of colour. It renders a Still."
+description: "A warped noise field cut into flat bands of colour. It renders a Loop of 30 frames at 12 fps, the land shifting shape and coming back."
 ---
 
 A warped noise field cut into flat bands, one band per ink, like a contour map with no lines. Grain shakes each pixel across band edges, and a block size can coarsen the map into square cells.
 
-terrain renders a Still: one frame. Its site page is [playgrnd.tools/terrain](https://www.playgrnd.tools/terrain/).
+terrain renders a Loop: 30 frames at 12 fps, in which the bands swell, split and merge in place, then return to where they began. Nothing slides, and the grain holds still. The land has already changed shape at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/terrain](https://www.playgrnd.tools/terrain/).
 
 ## Still
 
