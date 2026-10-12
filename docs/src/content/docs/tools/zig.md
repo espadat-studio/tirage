@@ -24,7 +24,7 @@ SVG: yes. `-o zig.svg` writes this Still as an [SVG](/cli-reference/render/#svg)
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-zig  1 frame, svg
+zig  120 frames, svg
   styles      Teeth, Chevron, Stairs, Ricrac, Waves, Scales
   width       0.5..=2   step 0.05
   depth       0.2..=1.4 step 0.02

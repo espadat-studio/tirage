@@ -464,7 +464,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let zig = concat!(
-        r#"{"slug":"zig","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"zig","frames":120,"svg":true,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Teeth","Chevron","Stairs","Ricrac","Waves","Scales"]},"#,
         r#"{"id":"width","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
         r#"{"id":"depth","kind":"range","min":0.2,"max":1.4,"step":0.02},"#,
@@ -913,7 +913,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nbloom  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nweave  120 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nwarp  72 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nzig  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nzig  120 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nrelief  24 frames, svg\n"), "{listing}");
     for line in [
         "  grid        40..=320  step 2\n",

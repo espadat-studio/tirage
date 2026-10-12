@@ -10,7 +10,7 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "zig";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 120;
 pub(crate) const FPS: u32 = 24;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
@@ -232,17 +232,25 @@ pub(crate) fn render(
     params: &ZigParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
 const BOX: f64 = 1000.0;
+const AMOUNT: f64 = 0.8;
 
 type Point = (f64, f64);
 
-fn paint(surface: &mut Surface, params: &ZigParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &ZigParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
+    let time = t.map_or(0.0, |t| f64::from(t) / f64::from(FRAMES));
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let tall = BOX * height / width;
     let k = width / BOX;
@@ -253,7 +261,7 @@ fn paint(surface: &mut Surface, params: &ZigParams, palette: &Palette, tool_seed
         stripe = (ground + 1) % n;
     }
     surface.fill(palette.ink(ground));
-    let lines = lines(params, tall);
+    let lines = lines(params, tall, time);
     let radius = corner_radius(params, tall);
     for pair in lines.windows(2).step_by(2) {
         let polygon: Vec<Point> = pair[0]
@@ -271,12 +279,16 @@ fn paint(surface: &mut Surface, params: &ZigParams, palette: &Palette, tool_seed
     }
 }
 
-fn lines(params: &ZigParams, tall: f64) -> Vec<Vec<Point>> {
+fn lines(params: &ZigParams, tall: f64, time: f64) -> Vec<Vec<Point>> {
     match params.style {
-        ZigStyle::Teeth | ZigStyle::Chevron => teeth(params, tall),
-        ZigStyle::Stairs => stairs(params, tall),
-        ZigStyle::Ricrac | ZigStyle::Waves | ZigStyle::Scales => rows(params, tall),
+        ZigStyle::Teeth | ZigStyle::Chevron => teeth(params, tall, time),
+        ZigStyle::Stairs => stairs(params, tall, time),
+        ZigStyle::Ricrac | ZigStyle::Waves | ZigStyle::Scales => rows(params, tall, time),
     }
+}
+
+fn crawl(period: f64, time: f64) -> f64 {
+    period * round_half_up(AMOUNT * 2.0).max(1.0) * time
 }
 
 fn spans(params: &ZigParams, tall: f64) -> (f64, f64) {
@@ -286,12 +298,13 @@ fn spans(params: &ZigParams, tall: f64) -> (f64, f64) {
     }
 }
 
-fn teeth(params: &ZigParams, tall: f64) -> Vec<Vec<Point>> {
+fn teeth(params: &ZigParams, tall: f64, time: f64) -> Vec<Vec<Point>> {
     let (span, cross) = spans(params, tall);
     let stripe = span * 0.125 * params.width;
     let reach = stripe * params.depth * 0.5;
     let half = span * 0.055 * params.tooth;
     let period = 2.0 * half;
+    let shift = crawl(period, time);
     let count = (span / stripe).ceil() as i32 + 3;
     let last = (cross / period).ceil() as i32 + 8;
     (-1..count)
@@ -300,7 +313,7 @@ fn teeth(params: &ZigParams, tall: f64) -> Vec<Vec<Point>> {
             let offset = if j % 2 != 0 { half } else { 0.0 };
             (-8..=last)
                 .flat_map(|i| {
-                    let y0 = f64::from(i) * period + offset;
+                    let y0 = f64::from(i) * period + offset + shift;
                     let x = base + if i.rem_euclid(2) == 0 { reach } else { -reach };
                     [(x, y0), (x, y0 + period)]
                 })
@@ -309,14 +322,15 @@ fn teeth(params: &ZigParams, tall: f64) -> Vec<Vec<Point>> {
         .collect()
 }
 
-fn stairs(params: &ZigParams, tall: f64) -> Vec<Vec<Point>> {
+fn stairs(params: &ZigParams, tall: f64, time: f64) -> Vec<Vec<Point>> {
     let step = BOX * 0.07 * params.tooth * params.width;
     let spacing = round_half_up(2.0 * params.width).max(1.0) * step * 2.0;
+    let shift = crawl(2.0 * step, time);
     let count = ((BOX + tall + spacing * 4.0) / spacing).ceil() as i32 + 2;
     (-2..count)
         .map(|j| {
             let mut points = Vec::new();
-            let mut x = -tall - spacing * 3.0 + f64::from(j) * spacing;
+            let mut x = -tall - spacing * 3.0 + f64::from(j) * spacing + shift;
             let mut y = -step * 4.0;
             while y < tall + step * 4.0 {
                 points.push((x, y));
@@ -329,10 +343,11 @@ fn stairs(params: &ZigParams, tall: f64) -> Vec<Vec<Point>> {
         .collect()
 }
 
-fn rows(params: &ZigParams, tall: f64) -> Vec<Vec<Point>> {
+fn rows(params: &ZigParams, tall: f64, time: f64) -> Vec<Vec<Point>> {
     let style = params.style;
     let row = tall * 0.115 * params.width;
     let period = BOX * 0.14 * params.tooth;
+    let shift = crawl(period, time);
     let amp = match style {
         ZigStyle::Scales => period * 0.5,
         ZigStyle::Ricrac => row * 0.42 * 1.2,
@@ -344,12 +359,12 @@ fn rows(params: &ZigParams, tall: f64) -> Vec<Vec<Point>> {
             let base = f64::from(j) * row;
             if style == ZigStyle::Ricrac {
                 let half = period / 2.0;
-                let first = (-half * 4.0 / half).floor() as i32;
-                let last = ((BOX + half * 4.0) / half).ceil() as i32;
+                let first = ((-half * 4.0 - shift) / half).floor() as i32;
+                let last = ((BOX + half * 4.0 - shift) / half).ceil() as i32;
                 return (first..=last)
                     .map(|i| {
                         let y = if i.rem_euclid(2) == 0 { -amp } else { amp };
-                        (f64::from(i) * half, base + y)
+                        (f64::from(i) * half + shift, base + y)
                     })
                     .collect();
             }
@@ -361,7 +376,7 @@ fn rows(params: &ZigParams, tall: f64) -> Vec<Vec<Point>> {
             let mut points = Vec::new();
             let mut x = -period * 3.0;
             while x <= BOX + period * 3.0 {
-                let u = (x + offset) / period * TAU;
+                let u = (x + shift + offset) / period * TAU;
                 let y = match style {
                     ZigStyle::Waves => u.sin() * amp,
                     _ => -(u / 2.0).sin().abs() * amp,

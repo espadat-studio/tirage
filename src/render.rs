@@ -87,7 +87,7 @@ impl Frame {
 #[cfg(test)]
 mod tests {
     use super::{Frame, render};
-    use crate::{Palette, Tool, ToolPin, derive};
+    use crate::{Palette, Params, Tool, ToolPin, ZigStyle, derive};
 
     const CLOSED: &[Tool] = &[
         Tool::Sonar,
@@ -133,6 +133,38 @@ mod tests {
                     .zip(after.rgba())
                     .map(|(a, b)| a.abs_diff(*b));
                 assert!(off.max() <= Some(1), "seed {seed}, {} inks", from.len());
+            }
+        }
+    }
+
+    fn zig_seam(seed: u64, style: ZigStyle, width: f64) -> bool {
+        let mut recipe = derive(seed, ToolPin::Tool(Tool::Zig));
+        let Params::Zig(params) = recipe.params_mut() else {
+            unreachable!()
+        };
+        params.set_style(style);
+        params.set_width(width).unwrap();
+        let first = render(&recipe, &Frame::new(&recipe, 270, 480, 0).unwrap());
+        let after = render(&recipe, &Frame::after_last(&recipe, 270, 480));
+        first.rgba() != after.rgba()
+    }
+
+    #[test]
+    fn zig_closes_on_every_style_but_wide_stairs() {
+        use ZigStyle::*;
+        for seed in 1..=3 {
+            for (style, width) in [
+                (Teeth, 1.0),
+                (Chevron, 1.0),
+                (Stairs, 0.7),
+                (Ricrac, 1.0),
+                (Waves, 1.0),
+                (Scales, 1.0),
+            ] {
+                assert!(!zig_seam(seed, style, width), "seed {seed}: {style:?}");
+            }
+            for width in [1.0, 1.45, 1.8] {
+                assert!(zig_seam(seed, Stairs, width), "seed {seed}: width {width}");
             }
         }
     }
