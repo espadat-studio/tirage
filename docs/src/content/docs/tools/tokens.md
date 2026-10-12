@@ -1,11 +1,11 @@
 ---
 title: "tokens"
-description: "Round and square counters in clusters on a ruled board. It renders a Still."
+description: "Round and square counters in clusters on a ruled board. It renders a Loop of 36 frames at 14 fps, some clusters rolling their inks through the Palette."
 ---
 
 A board game left mid-play. Round and square counters sit on a faint ruled grid in runs, blocks, plus signs and singles. Each counter is a disc or square of one ink ringed by another, and some are hollow.
 
-tokens renders a Still: one frame. Its site page is [playgrnd.tools/tokens](https://www.playgrnd.tools/tokens/).
+tokens renders a Loop: 36 frames at 14 fps, in which about half the clusters roll each counter's fill and ring through the Palette once, each counter a little ahead of the one before, while every position, size and shape holds. The roll is already under way at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/tokens](https://www.playgrnd.tools/tokens/).
 
 ## Still
 
@@ -24,7 +24,7 @@ SVG: yes. `-o tokens.svg` writes this Still as an [SVG](/cli-reference/render/#s
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-tokens  1 frame, svg
+tokens  36 frames, svg
   cols        4..=120   step 1
   ruleEvery   1..=10    step 1
   grid        0..=1     step 0.01

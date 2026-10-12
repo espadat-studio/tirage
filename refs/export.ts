@@ -38,7 +38,10 @@ async function exportPng(
 
     await setToggle(page, "motionTog", frame !== undefined);
     for (const [id, value] of Object.entries(recipe.params)) await setParam(page, id, value);
-    if (frame !== undefined) await setRange(page, "scrub", frame);
+    if (frame !== undefined) {
+      await setRange(page, "frames", Number(await page.inputValue("#frames")));
+      await setRange(page, "scrub", frame);
+    }
 
     return { png: await downloadPng(page, { width: WIDTH, height: HEIGHT }), pageSha };
   } finally {

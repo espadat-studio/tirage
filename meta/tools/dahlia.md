@@ -21,7 +21,7 @@ Site control ids, slider ranges and site defaults:
 | `bend`   | 0..1     | 0.01 | 0.3     | how far each ray bows                  |
 | `caps`   | 0..1     | 0.01 | 0.8     | chance a dash ends in a bead           |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. dahlia is a Still Tool: only frame 0 is rendered. At frame 0 every motion term is 0. Motion stays fixed at site defaults and is not a Parameter. Dither is the shared [chassis](chassis.md) post-pass, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off every motion term is 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Dither is the shared [chassis](chassis.md) post-pass, off by default.
 
 Grain is the chassis pass too, but this page opens with it on: multiply, amount 0.22, size 1, specks 0.5, vignette 0.15.
 
@@ -68,6 +68,19 @@ For each dash:
 4. `hk = h(i, k + 11)`, `hk2 = h(i, k + 31)`. With `m` ray inks: first ink `0` when `hk < 0.55`, else `floor(hk m)`; layer count `min(m, 1 + floor(2.5 hk2))`
 5. layer `l` uses ray ink `(first + l) mod m`, side offset `0, 0.32 wd, -0.28 wd` and line width `wd, 0.62 wd, 0.36 wd` for `l = 0, 1, 2`. It is a 5-point polyline at `t = t0 + (t1 - t0) q / 4`, `q = 0..=4`: the Bezier point moved by the offset along the left normal `(-dy, dx) / |d|` of the curve's derivative there. A zero derivative counts as length 1. Each layer is stroked on its own, round cap and join
 6. bead: when `h(i, k + 51) < caps`, a filled accent circle at the Bezier point at `t1` with radius `wd 0.5 (0.8 + 0.5 h(i, k + 61))`. Then, when `h(i, k + 71) < 0.35 caps`, a second at `t0` with 0.8 of that radius
+
+## Motion
+
+The site has three motion modes: Pulse, Breathe and Twirl. Pulse is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`.
+- Pulse adds `T * cyc` to each ray's dash phase `h_5` and keeps the fractional part, so the first dash starts at `((h_5 + T cyc) mod 1) P - P`. Every dash runs outward along its ray, and a new one is born at the centre as the outermost runs off the end.
+- `cyc = max(1, round(2 amount))`. At the default it is 1: one dash period per Loop.
+- Nothing else moves: the rays, their bows, the lean, the inks and the beads hold. A dash's inks and beads are dealt by its index `k` along the ray, not by the dash itself, so they stay in place while the dashes pass through them.
+- The Loop closes by whole periods: at `T = 1` the phase is `(h_5 + 1) mod 1`, which is `h_5` again. Adding 1 can round the last bit of `h_5` away, so a dash start can move by a fraction of an ulp. The closure test checks the frame after the last against frame 0.
+- At `f = 0` the pulse is 0 and `h_5 mod 1` is `h_5`, so frame 0 is the Still, byte for byte.
+- The mid frame is 18: half a period, every dash halfway to where the next one began.
+- Breathe and Twirl are not ported. Breathe swells the burst radius on a cosine and Twirl winds the bend one way and back. Neither is reachable from a Recipe.
 
 ## Painting
 

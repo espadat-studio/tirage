@@ -1,11 +1,11 @@
 ---
 title: "optic"
-description: "Even vertical bars that switch direction inside up to three nested figures. It renders a Still."
+description: "Even vertical bars that switch direction inside up to three nested figures. It renders a Loop of 72 frames at 12 fps, the bars sliding against each other."
 ---
 
 Even vertical bars fill the frame. Up to three nested figures sit on its centre, and inside each one the bars run again, moved against the bars around it. They shift half a bar, turn to horizontal, or tilt 45° either way.
 
-optic renders a Still: one frame. Its site page is [playgrnd.tools/optic](https://www.playgrnd.tools/optic/).
+optic renders a Loop: 72 frames at 12 fps, in which the bars slide two repeats along their own direction, each figure against the bars around it, while the figures and inks hold. Frame 0 is the Still. Its site page is [playgrnd.tools/optic](https://www.playgrnd.tools/optic/).
 
 ## Still
 
@@ -24,7 +24,7 @@ SVG: yes. `-o optic.svg` writes this Still as an [SVG](/cli-reference/render/#sv
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-optic  1 frame, svg
+optic  72 frames, svg
   styles      Auto, Diamond, Circle, Peak, Square
   count       6..=28    step 1
   weight      0.3..=0.7 step 0.01

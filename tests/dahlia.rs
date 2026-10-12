@@ -63,13 +63,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn dahlia_is_a_still() {
-    assert_eq!(Tool::Dahlia.frames(), 1);
+fn dahlia_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Dahlia.frames(), Tool::Dahlia.fps()), (36, 12));
     let recipe = derive(7, DAHLIA);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 36)),
+        "frame 36 is outside 0..36"
     );
+}
+
+#[test]
+fn frame_0_is_the_still_and_pulse_moves_later_frames() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, DAHLIA);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() == frame(0).rgba(), "seed {seed}");
+        assert!(still.rgba() != frame(18).rgba(), "seed {seed}");
+    }
 }
 
 #[test]

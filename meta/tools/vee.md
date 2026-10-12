@@ -18,7 +18,7 @@ Site control ids, slider ranges and site defaults:
 
 The picker labels are `Auto`, `Chevron`, `Quad`, `Diagonal` and `Cross`.
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. vee is a Still Tool: only frame 0 is rendered. With motion off the stripe travel and the ink blink are both 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the stripe travel and the ink blink are both 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The site has no seed deal of its own: a new seed only reruns the layout.
 
@@ -69,6 +69,19 @@ A region box `x0, y0, x1, y1` clips to the rect `x0, y0, x1 - x0 + 1, y1 - y0 + 
    1. each set: each of its rects filled separately in the set's ink, through its translate and rotate.
    2. a cross region then clips again, inside the rect clip, to the union of set 1's rects through set 1's transform, and fills set 2's rects in `cC` through set 2's transform. Where the two stripe sets overlap, the cross ink shows.
 3. The chassis grain, then dither.
+
+## Motion
+
+The site has two motion modes: Travel and Blink. Travel is the default and the only one ported: amount 0.8, 72 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`.
+- Travel adds `shift = per laps T` to every stripe set's phase, so each set slides along its own normal. In a cross region set 2 takes `ph - shift` instead, so the two crossing sets slide against each other.
+- `laps = max(1, round(2 amount))`, half up. At the default it is 2: every stripe moves two whole periods per Loop.
+- Nothing else moves: the band cuts, layouts, flips, angles, stripe phases and inks hold. The stream draws are the same on every frame.
+- The Loop closes by whole periods: at `T = 1` the phase is two periods more, so the stripe range starts two stripes later and lands on the same places. Frame 72 is frame 0, byte for byte, on the 3 Seeds the closure test renders.
+- At `f = 0` the shift is 0, so frame 0 is the Still, byte for byte.
+- The mid frame is 18, `frames / 4`: half a lap, every stripe half a period along. `frames / 2` would be one whole lap, which lands back on frame 0 and tests nothing.
+- Blink is not ported. It steps the three stripe inks round on a clock and is not reachable from a Recipe.
 
 ## Fidelity notes
 

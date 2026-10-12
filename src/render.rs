@@ -95,6 +95,10 @@ mod tests {
         Tool::Bloom,
         Tool::Weave,
         Tool::Warp,
+        Tool::Dahlia,
+        Tool::Tokens,
+        Tool::Optic,
+        Tool::Vee,
     ];
 
     #[test]

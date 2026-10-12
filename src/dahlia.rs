@@ -2,16 +2,18 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, hash};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up};
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "dahlia";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
+
+const AMOUNT: f64 = 0.6;
 
 const DEFAULT_PALETTE: [&str; 5] = ["#f6eedc", "#3fd3f0", "#ff6fd8", "#fff23a", "#f52a2a"];
 
@@ -274,13 +276,19 @@ pub(crate) fn render(
     params: &DahliaParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
-fn paint(surface: &mut Surface, p: &DahliaParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    p: &DahliaParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let inks = palette.inks();
     let (paper, accent) = (inks[0], inks[inks.len() - 1]);
@@ -300,6 +308,9 @@ fn paint(surface: &mut Surface, p: &DahliaParams, palette: &Palette, tool_seed: 
     let period = dash + dash * (0.15 + p.gap * 1.1);
     let mut rng = XorShift::new(tool_seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
     let lean = (rng.next() - 0.5) * 0.5;
+    let pulse = t.map_or(0.0, |t| {
+        f64::from(t) / f64::from(FRAMES) * round_half_up(AMOUNT * 2.0).max(1.0)
+    });
     let h = |i: u32, k: u32| hash(i as i32, k as i32, tool_seed);
 
     for i in 0..n {
@@ -320,7 +331,7 @@ fn paint(surface: &mut Surface, p: &DahliaParams, palette: &Palette, tool_seed: 
                 u * u * cy + 2.0 * u * t * my + t * t * ey,
             )
         };
-        let mut s = h(i, 5) * period - period;
+        let mut s = ((h(i, 5) + pulse) % 1.0) * period - period;
         let mut k = 0;
         while s < len {
             let t0 = s.max(0.0) / len;

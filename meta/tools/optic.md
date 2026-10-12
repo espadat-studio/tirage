@@ -18,7 +18,7 @@ Site control ids, slider ranges and site defaults:
 
 Auto is a Choice value of its own. Auto takes a draw for the figure before the level moves, so naming the figure Auto picks shifts every later draw and gives a different Visual.
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. optic is a Still Tool: only frame 0 is rendered, and with motion off the slide offset, turn, breathe and flip terms are all 0. Motion stays at site defaults and is not a Parameter. One motion slider still reaches a Still: `amt`, at its default 0.8, sets the bar overscan below. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the slide offset, turn, breathe and flip terms are all 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). One motion slider still reaches a Still: `amt`, at its default 0.8, sets the bar overscan below. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The site deals `count`, `weight`, `sizeF` and `levels` from the seed on every seed change. That deal is not ported: `derive` deals every Parameter (ADR 0003), and a Reference export sets every slider after the seed.
 
@@ -68,6 +68,20 @@ Figures, all centred on `(cx, cy)` with size `s`:
 2. The field: a turn-0 bar set with phase 0, in Ink.
 3. Each level, outer first, clipped to its figure: fill the frame with the Base, then the level's bar set in Ink. Each clip stands alone; a level paints over the ones before it.
 4. The chassis grain, then dither.
+
+## Motion
+
+The site has four motion modes: Slide, Turn, Breathe and Flip. Slide is the default and the only one ported: amount 0.8, 72 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`.
+- `lap = max(1, round(2 · amount)) = 2`, the same `lap` the overscan reads. It is how many bar periods each bar set travels per Loop.
+- Slide moves every bar set sideways by `off = T · lap · P`. The field takes `off` as its phase. Level `i` adds `-off` to its phase when `i` is even and `+off` when it is odd, so the outer figure runs against the field and each nested figure against the one around it.
+- Turned levels slide along their own turned axis, since the phase is read after the rotation. The overscan of `lap + 2` periods in `R` keeps the bars covering the frame across the whole slide.
+- Nothing else moves: the figure, its sizes, the moves, the turns and the inks hold. Turn, Breathe and Flip terms stay 0.
+- The Loop closes by whole periods: at `T = 1` every bar set has moved 2 periods, so each bar lands where a bar was at frame 0. The bar list shifts by 2 indices with it.
+- At `f = 0` the offset is 0, so frame 0 is the Still, byte for byte.
+- The mid frame is 18, `frames / 4`: every bar set half a period along, so the field and the figures sit in counterphase to frame 0. Frame 36 would be one whole period along, which looks like frame 0, so it tests nothing.
+- Turn, Breathe and Flip are not ported. Turn spins the figure bars by half-turns, Breathe swells the figure sizes on a sine and Flip toggles the half-bar shift on even levels. None is reachable from a Recipe.
 
 ## Fidelity notes
 
