@@ -29,7 +29,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `aura`     | 72     | Loop   |
 | `kiosk`    | 24     | Loop   |
 | `frond`    | 36     | Loop   |
-| `benday`   | 1      | Still  |
+| `benday`   | 36     | Loop   |
 | `terrain`  | 1      | Still  |
 | `stitch`   | 1      | Still  |
 | `pith`     | 36     | Loop   |

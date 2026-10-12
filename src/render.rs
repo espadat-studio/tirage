@@ -113,6 +113,7 @@ mod tests {
         Tool::Strand,
         Tool::Vein,
         Tool::Aura,
+        Tool::Benday,
     ];
 
     #[test]

@@ -328,7 +328,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"rules","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let benday = concat!(
-        r#"{"slug":"benday","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"benday","frames":36,"svg":false,"params":["#,
         r#"{"id":"turb","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"streak","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"dir","kind":"range","min":-1.0,"max":1.0,"step":0.01},"#,

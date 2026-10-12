@@ -22,7 +22,7 @@ tirage derive --seed 6 --tool benday | tirage render --size 540x960 -o benday.pn
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-benday  1 frame
+benday  36 frames
   turb        0..=1     step 0.01
   streak      0..=1     step 0.01
   dir         -1..=1    step 0.01
