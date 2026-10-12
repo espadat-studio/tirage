@@ -20,7 +20,7 @@ Site control ids, slider ranges and site defaults:
 
 `grain` is the Tool's own grain, not the chassis pass. Like every slider named grain it stays at its site default: a Parameter, never dealt.
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. carve is a Still Tool: only frame 0 is rendered, where every phase and colour roll is 0. Motion stays at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. `size` is the export width, not a Parameter.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off every phase and colour roll is 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. `size` is the export width, not a Parameter.
 
 The site has no seed deal: a seed change only moves the layout and the panel treatments.
 
@@ -65,6 +65,19 @@ The frame is filled with ink 0. Gap `g = gap min(W, H) 0.02`. Panel box: `x = px
 - grid: the box in `A`, then, clipped to the box: `step = max(14, min(w, h) / (2 + round(6 nodes)))`. Column lines at `x, x + step, …` while `≤ x + w + 0.5`, rows the same, accumulating the step. One path of every full-height and full-width line, stroked in `B` at `max(1, 0.004 min(w, h))`, butt caps. Then at each crossing `(c, r)` with `h(c, r, seed) > 0.82`, a filled `B` circle of radius `max(1.6, 0.016 min(w, h))`.
 
 Then the chassis grain, then dither.
+
+## Motion
+
+The site has three motion modes: Drift, Cycle and Deal. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`. The phase is `ph = T turns`, with `turns = max(1, round(2 amount))`. At the default that is 1: one turn per Loop.
+- Stripe panels: every stripe offset `o` gains `2 p ph`, in both passes, with `p` that pass's pitch. The stripes travel along the panel by one whole stripe period per turn. The `i = -1` stripe covers the leading edge as they move in.
+- Ramp panels: the ramp value `t` gains `ph` before the streaks, and the streak sine gains `2π ph` inside its argument, after the seed. The ramp washes towards ink `B` as `t` climbs and clamps at 1, while the streaks turn one full sine period per turn.
+- Nothing else moves: the layout, the treatments, the inks, flat, chevron and grid panels all hold.
+- The Loop closes by whole periods on the stripes: at `T = 1` every stripe sits where its neighbour one period along was at frame 0. On the ramps it does not close. `t + 1` clamps to 1 almost everywhere, so the last frames show the panel nearly flat in `B`, and frame 0 jumps back to the full ramp. That seam is the site's own. A picture with no ramp panel closes byte for byte; one with a ramp panel jumps. A test pins both, over 12 Seeds with `mix` 1.
+- At `f = 0` the phase is 0 and adding 0 changes no float, so frame 0 is the Still, byte for byte.
+- The mid frame is 18: half a turn, every stripe one stripe width along, so the stripe inks have swapped places, and every ramp half washed out. A picture with only flat, chevron and grid panels does not move at all: Seed 1 (`mix` 0.04) is one, and its mid frame is its Still.
+- Cycle and Deal are not ported. Cycle rolls the inks through the Palette, and Deal reveals the panels one at a time. Neither is reachable from a Recipe.
 
 ## Fidelity notes
 
