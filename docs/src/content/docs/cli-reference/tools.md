@@ -50,7 +50,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `motley`   | 36     | Loop   |
 | `oddgrid`  | 1      | Still  |
 | `fete`     | 100    | Loop   |
-| `fold`     | 1      | Still  |
+| `fold`     | 36     | Loop   |
 | `quilt`    | 60     | Loop   |
 | `static`   | 60     | Loop   |
 | `splice`   | 1      | Still  |

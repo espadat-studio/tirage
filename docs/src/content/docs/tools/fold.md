@@ -1,11 +1,11 @@
 ---
 title: "fold"
-description: "Pixel op-art patches folded across the sheet like a kaleidoscope. It renders a Still."
+description: "Pixel op-art patches folded across the sheet like a kaleidoscope. It renders a Loop of 36 frames at 12 fps, the patches sliding under fixed folds."
 ---
 
 A collage of pixel op-art patches over a stepped burst ground, folded across the sheet so it mirrors like a kaleidoscope. Patches come as zebra stripes, staircases, dot rows, bursts, chevrons or checks.
 
-fold renders a Still: one frame. Its site page is [playgrnd.tools/fold](https://www.playgrnd.tools/fold/).
+fold renders a Loop: 36 frames at 12 fps, in which the patches and the ground slide once round a small circle under the folded view. The fold lines stay put, so the patches flow into and out of each mirror. The patches are already off their places at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/fold](https://www.playgrnd.tools/fold/).
 
 ## Still
 
