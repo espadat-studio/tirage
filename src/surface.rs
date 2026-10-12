@@ -444,6 +444,10 @@ impl Surface {
     }
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.fill_path(path, ink);
+            return;
+        }
         let paint = self.solid(ink);
         let (pixmap, mask) = self.raster("fill_path");
         pixmap.fill_path(
@@ -684,6 +688,22 @@ mod tests {
         let svg = surface.into_svg();
         assert!(svg.contains(r#"<path d="M3 2Q"#), "{svg}");
         assert!(svg.ends_with("Z\"/></g></svg>\n"), "{svg}");
+    }
+
+    #[test]
+    fn fill_path_writes_its_path_as_an_svg_path() {
+        let mut path = Path2D::default();
+        path.move_to(0.0, 0.0);
+        path.line_to(3.0, 0.0);
+        path.line_to(0.0, 2.5);
+        path.close();
+        let mut surface = Surface::svg(4, 4);
+        surface.fill_path(&path.into_path(), [9, 8, 7]);
+        let svg = surface.into_svg();
+        assert!(
+            svg.ends_with("<g fill=\"#090807\"><path d=\"M0 0L3 0L0 2.5Z\"/></g></svg>\n"),
+            "{svg}"
+        );
     }
 
     #[test]
