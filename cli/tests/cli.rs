@@ -492,7 +492,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"weight","kind":"range","min":0.0,"max":1.5,"step":0.01},"#,
     );
     let sprig = concat!(
-        r#"{"slug":"sprig","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"sprig","frames":36,"svg":false,"params":["#,
         r#"{"id":"dirs","kind":"choice","choices":["Garden","Blooms","Leaves"]},"#,
         r#"{"id":"count","kind":"range","min":2.0,"max":120.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -903,7 +903,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nstrand  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame, svg\n"), "{listing}");
-    assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nsprig  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
     assert!(listing.contains("\nwhorl  36 frames\n"), "{listing}");

@@ -22,7 +22,7 @@ tirage derive --seed 4 --tool sprig | tirage render --size 540x960 -o sprig.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-sprig  1 frame
+sprig  36 frames
   dirs        Garden, Blooms, Leaves
   count       2..=120   step 1
   size        0..=1     step 0.01

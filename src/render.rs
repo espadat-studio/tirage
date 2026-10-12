@@ -104,6 +104,7 @@ mod tests {
         Tool::Prism,
         Tool::Filament,
         Tool::Culture,
+        Tool::Sprig,
     ];
 
     #[test]
