@@ -702,7 +702,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"inkMix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let pane = concat!(
-        r#"{"slug":"pane","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"pane","frames":24,"svg":false,"params":["#,
         r#"{"id":"rows","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
         r#"{"id":"cells","kind":"range","min":1.0,"max":16.0,"step":1.0},"#,
         r#"{"id":"vary","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -889,7 +889,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nrise  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncarve  1 frame\n"), "{listing}");
     assert!(listing.contains("\nspecimen  1 frame\n"), "{listing}");
-    assert!(listing.contains("\npane  1 frame\n"), "{listing}");
+    assert!(listing.contains("\npane  24 frames\n"), "{listing}");
     assert!(listing.contains("\nmodular  1 frame\n"), "{listing}");
     assert!(listing.contains("\nprism  1 frame\n"), "{listing}");
     assert!(listing.contains("\nparcel  1 frame\n"), "{listing}");
