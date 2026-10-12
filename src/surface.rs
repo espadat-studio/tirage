@@ -607,17 +607,18 @@ impl Surface {
     }
 
     fn draw_nearest(&mut self, rgba: &[u8], width: u32, height: u32) {
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.draw_nearest(rgba, width, height);
+            return;
+        }
         let (pixmap, mask) = self.raster("draw_smooth Nearest");
         assert!(mask.is_none(), "pixel writes ignore a clip");
         let (columns, rows) = (pixmap.width(), pixmap.height());
-        let source = |at: u32, edge: u32, scaled: u32| {
-            ((f64::from(at) + 0.5) * f64::from(edge) / f64::from(scaled)).ceil() as u32 - 1
-        };
         let pixels = pixmap.pixels_mut();
         for y in 0..rows {
-            let sy = source(y, height, rows);
+            let sy = nearest_source(y, height, rows);
             for x in 0..columns {
-                let sx = source(x, width, columns);
+                let sx = nearest_source(x, width, columns);
                 let i = ((sy * width + sx) * 4) as usize;
                 let [r, g, b, a] = [rgba[i], rgba[i + 1], rgba[i + 2], rgba[i + 3]];
                 pixels[(y * columns + x) as usize] = ColorU8::from_rgba(r, g, b, a).premultiply();
@@ -652,6 +653,10 @@ impl Surface {
         };
         svg.finish()
     }
+}
+
+pub(crate) fn nearest_source(at: u32, edge: u32, scaled: u32) -> u32 {
+    ((f64::from(at) + 0.5) * f64::from(edge) / f64::from(scaled)).ceil() as u32 - 1
 }
 
 fn rgba(pixmap: &Pixmap) -> Vec<u8> {

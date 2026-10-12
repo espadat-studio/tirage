@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use tiny_skia::{Path, PathBuilder, PathSegment, Transform};
 
-use crate::surface::{Cap, Join};
+use crate::surface::{Cap, Join, nearest_source};
 
 pub(crate) struct SvgWriter {
     width: u32,
@@ -239,6 +239,37 @@ impl SvgWriter {
             r#"</linearGradient><rect x="{x}" y="{y}" width="{width}" height="{height}" fill="url(#r{id})" shape-rendering="crispEdges"/>"#
         )
         .expect("a String takes any write");
+    }
+
+    pub(crate) fn draw_nearest(&mut self, rgba: &[u8], width: u32, height: u32) {
+        assert!(self.clips.is_empty(), "pixel writes ignore a clip");
+        let edges = |edge: u32, scaled: u32| {
+            (0..=edge)
+                .map(|cell| {
+                    (0..scaled)
+                        .find(|&at| nearest_source(at, edge, scaled) >= cell)
+                        .unwrap_or(scaled)
+                })
+                .collect::<Vec<_>>()
+        };
+        let (xs, ys) = (edges(width, self.width), edges(height, self.height));
+        let pixels = rgba.as_chunks::<4>().0;
+        for (row, cells) in pixels.chunks(width as usize).enumerate() {
+            let (y, rows) = (ys[row], ys[row + 1] - ys[row]);
+            let mut start = 0;
+            for end in 1..=cells.len() {
+                if end < cells.len() && cells[end] == cells[start] {
+                    continue;
+                }
+                let [r, g, b, a] = cells[start];
+                assert_eq!(a, 255, "a nearest buffer is opaque");
+                let columns = xs[end] - xs[start];
+                if columns > 0 && rows > 0 {
+                    self.fill_rect(xs[start] as i32, y as i32, columns, rows, [r, g, b]);
+                }
+                start = end;
+            }
+        }
     }
 
     pub(crate) fn fill_box(&mut self, x: f32, y: f32, width: f32, height: f32, ink: [u8; 3]) {
@@ -882,6 +913,28 @@ mod tests {
             ]
             .concat()
         );
+    }
+
+    #[test]
+    fn draw_nearest_writes_a_crisp_rect_per_cell_merges_ink_runs_and_gives_edge_ties_left() {
+        let (red, blue) = ([255, 0, 0, 255], [0, 0, 255, 255]);
+        let mut svg = SvgWriter::new(10, 2);
+        svg.draw_nearest(&[red, blue, blue, red].concat(), 4, 1);
+        assert_eq!(
+            body(svg.finish()),
+            [
+                r##"<g fill="#ff0000" shape-rendering="crispEdges"><rect x="0" y="0" width="3" height="2"/></g>"##,
+                r##"<g fill="#0000ff" shape-rendering="crispEdges"><rect x="3" y="0" width="5" height="2"/></g>"##,
+                r##"<g fill="#ff0000" shape-rendering="crispEdges"><rect x="8" y="0" width="2" height="2"/></g>"##,
+            ]
+            .concat()
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "a nearest buffer is opaque")]
+    fn draw_nearest_refuses_a_translucent_buffer() {
+        SvgWriter::new(1, 1).draw_nearest(&[0, 0, 0, 254], 1, 1);
     }
 
     #[test]
