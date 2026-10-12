@@ -10,6 +10,7 @@ use tirage::{Frame, Recipe, Tool, render, render_svg};
 use fidelity::assert_svg_fidelity;
 
 const MAX_LUMA: u8 = 1;
+const MAX_BYTES: usize = 10_000_000;
 const OVERRIDES: &[(Tool, u8)] = &[];
 const WIDTH: u32 = 540;
 const HEIGHT: u32 = 960;
@@ -60,6 +61,7 @@ fn every_fixture_of_an_svg_tool_rasterizes_to_its_png() {
             let image = render(&recipe, &frame);
             let png = image::RgbaImage::from_raw(WIDTH, HEIGHT, image.rgba().to_vec()).unwrap();
             let svg = render_svg(&recipe, WIDTH, HEIGHT).unwrap();
+            assert!(svg.len() <= MAX_BYTES, "{name}: {} bytes", svg.len());
             assert_svg_fidelity(&name, &png, &rasterize(&svg), bar);
         }
     }
