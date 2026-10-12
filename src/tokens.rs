@@ -8,9 +8,13 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "tokens";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 14;
 pub(crate) const MAX_INKS: Option<usize> = None;
+
+const ACTIVE: f64 = 0.45;
+const STAGGER: f64 = 0.55;
+const TOKEN_LAG: f64 = 0.06;
 
 const DEFAULT_PALETTE: [&str; 9] = [
     "#1b1b1b", "#e63946", "#3a86ff", "#ffbe0b", "#2a9d8f", "#ff006e", "#8338ec", "#fb5607",
@@ -469,9 +473,9 @@ pub(crate) fn render(
     params: &TokensParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -494,6 +498,7 @@ struct Token {
 
 struct Cluster {
     size: f64,
+    active: bool,
     tokens: Vec<Token>,
 }
 
@@ -683,13 +688,23 @@ fn place(p: &TokensParams, board: &Board, palette: &Palette, tool_seed: u32) -> 
             .collect();
         r();
         r();
-        r();
-        clusters.push(Cluster { size, tokens });
+        let active = r() < ACTIVE;
+        clusters.push(Cluster {
+            size,
+            active,
+            tokens,
+        });
     }
     clusters
 }
 
-fn paint(surface: &mut Surface, p: &TokensParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    p: &TokensParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let k = w / VB;
     let board = board(p, w, h);
@@ -715,9 +730,18 @@ fn paint(surface: &mut Surface, p: &TokensParams, palette: &Palette, tool_seed: 
     }
     let cell = board.cell;
     let room = 0.05_f64.max(cell / 2.0 - p.stroke_w.max(0.0));
-    for cluster in place(p, &board, palette, tool_seed) {
+    let clusters = place(p, &board, palette, tool_seed);
+    let (n, placed) = (palette.len(), clusters.len() as f64);
+    for (c, cluster) in clusters.iter().enumerate() {
         let radius = 0.05_f64.max((cluster.size * cell / 2.0).min(room));
-        for token in &cluster.tokens {
+        for (i, token) in cluster.tokens.iter().enumerate() {
+            let step = match t {
+                Some(t) if cluster.active => {
+                    let lag = (c as f64 / placed + i as f64 * TOKEN_LAG) * STAGGER;
+                    ((f64::from(t) / f64::from(FRAMES) + lag) * n as f64).floor() as usize
+                }
+                _ => 0,
+            };
             let (cx, cy) = (
                 (f64::from(token.x) + 0.5) * cell * k,
                 (f64::from(token.y) + 0.5) * cell * k,
@@ -731,12 +755,16 @@ fn paint(surface: &mut Surface, p: &TokensParams, palette: &Palette, tool_seed: 
                 }
             };
             if p.stroke_w > 0.0 {
-                shape(surface, radius + p.stroke_w, palette.ink(token.outline));
+                shape(
+                    surface,
+                    radius + p.stroke_w,
+                    palette.ink((token.outline + step) % n),
+                );
             }
             let fill = if token.hollow {
                 BOARD
             } else {
-                palette.ink(token.fill)
+                palette.ink((token.fill + step) % n)
             };
             shape(surface, radius, fill);
         }

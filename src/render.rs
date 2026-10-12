@@ -96,6 +96,7 @@ mod tests {
         Tool::Weave,
         Tool::Warp,
         Tool::Dahlia,
+        Tool::Tokens,
     ];
 
     #[test]
