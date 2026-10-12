@@ -10,6 +10,7 @@ pub(crate) struct SvgWriter {
     markup: String,
     group: Option<([u8; 3], bool)>,
     gradients: u32,
+    alpha: f32,
 }
 
 impl SvgWriter {
@@ -22,6 +23,7 @@ impl SvgWriter {
             ),
             group: None,
             gradients: 0,
+            alpha: 1.0,
         }
     }
 
@@ -31,6 +33,32 @@ impl SvgWriter {
 
     pub(crate) fn height(&self) -> u32 {
         self.height
+    }
+
+    pub(crate) fn set_alpha(&mut self, alpha: f32) {
+        self.alpha = alpha;
+    }
+
+    fn opacity(&mut self, paint: &str) {
+        if self.alpha < 1.0 {
+            write!(self.markup, r#" {paint}-opacity="{:.4}""#, self.alpha)
+                .expect("a String takes any write");
+        }
+    }
+
+    fn alpha8(&self) -> i32 {
+        (self.alpha * 255.0 + 0.5) as i32
+    }
+
+    fn premultiplied(&self, ink: [u8; 3]) -> [i32; 3] {
+        ink.map(|c| (f32::from(c) / 255.0 * self.alpha * 255.0 + 0.5) as i32)
+    }
+
+    fn faded(&self, ink: [u8; 3]) -> [u8; 3] {
+        if self.alpha >= 1.0 {
+            return ink;
+        }
+        shifted(self.alpha8(), self.premultiplied(ink))
     }
 
     fn group(&mut self, ink: [u8; 3], crisp: bool) {
@@ -51,19 +79,23 @@ impl SvgWriter {
     }
 
     pub(crate) fn fill(&mut self, ink: [u8; 3]) {
-        self.group(ink, false);
+        self.group(self.faded(ink), false);
         let (width, height) = (self.width, self.height);
-        write!(self.markup, r#"<rect width="{width}" height="{height}"/>"#)
+        write!(self.markup, r#"<rect width="{width}" height="{height}""#)
             .expect("a String takes any write");
+        self.opacity("fill");
+        self.markup.push_str("/>");
     }
 
     pub(crate) fn fill_rect(&mut self, x: i32, y: i32, width: u32, height: u32, ink: [u8; 3]) {
-        self.group(ink, true);
+        self.group(self.faded(ink), true);
         write!(
             self.markup,
-            r#"<rect x="{x}" y="{y}" width="{width}" height="{height}"/>"#
+            r#"<rect x="{x}" y="{y}" width="{width}" height="{height}""#
         )
         .expect("a String takes any write");
+        self.opacity("fill");
+        self.markup.push_str("/>");
     }
 
     #[expect(
@@ -167,13 +199,15 @@ impl SvgWriter {
             self.fill_rect(x, y, width, height, ink);
             return;
         }
-        let opacity = alpha as f32 / 255.0;
-        let shifted = ink.map(|c| {
-            let scaled = (i32::from(c) * alpha + 128) >> 8;
-            (0..=255u8)
-                .find(|&v| (f32::from(v) / 255.0 * opacity * 255.0 + 0.5) as i32 == scaled)
-                .expect("ink 255 at this opacity reaches past any scaled ink")
-        });
+        let (base, opacity) = if self.alpha < 1.0 {
+            (self.premultiplied(ink), (self.alpha8() * alpha + 128) >> 8)
+        } else {
+            (ink.map(i32::from), alpha)
+        };
+        if opacity <= 0 {
+            return;
+        }
+        let shifted = shifted(opacity, base.map(|c| (c * alpha + 128) >> 8));
         self.group(ink, true);
         write!(
             self.markup,
@@ -185,23 +219,28 @@ impl SvgWriter {
             write!(self.markup, r##" fill="#{r:02x}{g:02x}{b:02x}""##)
                 .expect("a String takes any write");
         }
+        let opacity = opacity as f32 / 255.0;
         write!(self.markup, r#" fill-opacity="{opacity:.4}"/>"#).expect("a String takes any write");
     }
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
-        self.group(ink, false);
+        self.group(self.faded(ink), false);
         self.open_path(path, true);
-        self.markup.push_str(r#""/>"#);
+        self.markup.push('"');
+        self.opacity("fill");
+        self.markup.push_str("/>");
     }
 
     pub(crate) fn fill_even_odd(&mut self, path: &Path, ink: [u8; 3]) {
-        self.group(ink, false);
+        self.group(self.faded(ink), false);
         self.open_path(path, true);
-        self.markup.push_str(r#"" fill-rule="evenodd"/>"#);
+        self.markup.push_str(r#"" fill-rule="evenodd""#);
+        self.opacity("fill");
+        self.markup.push_str("/>");
     }
 
     pub(crate) fn fill_transformed(&mut self, path: &Path, ink: [u8; 3], transform: Transform) {
-        self.group(ink, false);
+        self.group(self.faded(ink), false);
         self.open_path(path, false);
         let Transform {
             sx,
@@ -213,12 +252,15 @@ impl SvgWriter {
         } = transform;
         write!(
             self.markup,
-            r#"" transform="matrix({sx} {ky} {kx} {sy} {tx} {ty})"/>"#
+            r#"" transform="matrix({sx} {ky} {kx} {sy} {tx} {ty})""#
         )
         .expect("a String takes any write");
+        self.opacity("fill");
+        self.markup.push_str("/>");
     }
 
     pub(crate) fn stroke(&mut self, path: &Path, ink: [u8; 3], width: f32, cap: Cap, join: Join) {
+        let ink = self.faded(ink);
         self.group(ink, false);
         self.open_path(path, false);
         let [r, g, b] = ink;
@@ -227,6 +269,7 @@ impl SvgWriter {
             r##"" fill="none" stroke="#{r:02x}{g:02x}{b:02x}" stroke-width="{width}""##
         )
         .expect("a String takes any write");
+        self.opacity("stroke");
         if let Cap::Round = cap {
             self.markup.push_str(r#" stroke-linecap="round""#);
         }
@@ -289,6 +332,15 @@ impl SvgWriter {
         }
         self.markup + "</svg>\n"
     }
+}
+
+fn shifted(alpha: i32, scaled: [i32; 3]) -> [u8; 3] {
+    let opacity = alpha as f32 / 255.0;
+    scaled.map(|scaled| {
+        (0..=255u8)
+            .find(|&v| (f32::from(v) / 255.0 * opacity * 255.0 + 0.5) as i32 == scaled)
+            .expect("ink 255 at this opacity reaches past any scaled ink")
+    })
 }
 
 fn coordinate(v: f32) -> String {
@@ -542,6 +594,61 @@ mod tests {
                 r#"<linearGradient id="r1" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0">"#,
                 r##"<stop offset="1" stop-color="#010203"/></linearGradient>"##,
                 r#"<rect x="0" y="0" width="1" height="1" fill="url(#r1)" shape-rendering="crispEdges"/>"#,
+            ]
+            .concat()
+        );
+    }
+
+    #[test]
+    fn under_an_alpha_each_fill_and_stroke_writes_its_own_paint_opacity() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.set_alpha(0.85);
+        svg.fill([0, 0, 0]);
+        svg.fill_rect(1, 2, 3, 4, [0, 0, 0]);
+        svg.fill_path(&triangle(), [0, 0, 0]);
+        svg.stroke(&triangle(), [0, 0, 0], 1.0, Cap::Butt, Join::Miter);
+        svg.set_alpha(1.0);
+        svg.fill_rect(0, 0, 1, 1, [0, 0, 0]);
+        assert_eq!(
+            body(svg.finish()),
+            [
+                r##"<g fill="#000000"><rect width="9" height="9" fill-opacity="0.8500"/></g>"##,
+                r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="1" y="2" width="3" height="4" fill-opacity="0.8500"/></g>"##,
+                r##"<g fill="#000000"><path d="M0 0L4 0L0 3.5Z" fill-opacity="0.8500"/>"##,
+                r##"<path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#000000" stroke-width="1" stroke-opacity="0.8500" stroke-miterlimit="10"/></g>"##,
+                r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1"/></g>"##,
+            ]
+            .concat()
+        );
+    }
+
+    #[test]
+    fn under_an_alpha_an_ink_shifts_so_resvgs_u8_opacity_premultiplies_to_tiny_skias() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.set_alpha(0.39);
+        svg.stroke(&triangle(), [27, 27, 27], 1.0, Cap::Butt, Join::Miter);
+        svg.fill_rect(0, 0, 1, 1, [27, 27, 27]);
+        assert_eq!(
+            body(svg.finish()),
+            [
+                r##"<g fill="#1c1c1c"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#1c1c1c" stroke-width="1" stroke-opacity="0.3900" stroke-miterlimit="10"/></g>"##,
+                r##"<g fill="#1c1c1c" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1" fill-opacity="0.3900"/></g>"##,
+            ]
+            .concat()
+        );
+    }
+
+    #[test]
+    fn under_an_alpha_a_box_scales_its_pixel_coverage_by_the_alpha() {
+        let mut svg = SvgWriter::new(2, 1);
+        svg.set_alpha(0.5);
+        svg.fill_box(0.0, 0.0, 1.5, 1.0, [255, 255, 255]);
+        assert_eq!(
+            body(svg.finish()),
+            [
+                r##"<g fill="#ffffff" shape-rendering="crispEdges">"##,
+                r#"<rect x="0" y="0" width="1" height="1" fill-opacity="0.5000"/>"#,
+                r##"<rect x="1" y="0" width="1" height="1" fill="#fefefe" fill-opacity="0.2510"/></g>"##,
             ]
             .concat()
         );
