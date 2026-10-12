@@ -109,6 +109,7 @@ mod tests {
         Tool::Splice,
         Tool::Crowd,
         Tool::Parcel,
+        Tool::Chaff,
     ];
 
     #[test]

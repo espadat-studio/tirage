@@ -9,7 +9,7 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "chaff";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 const INKS: usize = 2;
 pub(crate) const MAX_INKS: Option<usize> = Some(INKS);
@@ -17,6 +17,7 @@ pub(crate) const MAX_INKS: Option<usize> = Some(INKS);
 const DEFAULT_PALETTE: [&str; INKS] = ["#0e3b43", "#f2c14e"];
 const BLADE_CAP: f64 = 1200.0;
 const STEPS: usize = 26;
+const AMOUNT: f64 = 0.6;
 
 const COUNT: Param = Param {
     taste: (4, 250),
@@ -318,9 +319,10 @@ pub(crate) fn render(
     params: &ChaffParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.grain_pass, &params.dither);
 }
 
@@ -437,10 +439,24 @@ fn mask(p: &ChaffParams, blades: &[Blade], width: u32, height: u32) -> Vec<u8> {
     mask.into_image().rgba().chunks(4).map(|px| px[1]).collect()
 }
 
-fn paint(surface: &mut Surface, p: &ChaffParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    p: &ChaffParams,
+    palette: &Palette,
+    tool_seed: u32,
+    drift: Option<f64>,
+) {
     let (w, h) = (surface.width(), surface.height());
     let (ground, ink) = (palette.ink(0), palette.ink(1));
-    let blades = blades(p, f64::from(h) / f64::from(w), tool_seed);
+    let mut blades = blades(p, f64::from(h) / f64::from(w), tool_seed);
+    if let Some(t) = drift {
+        let (ph, reach) = (TAU * t, AMOUNT * 0.06);
+        let (ox, oy) = (ph.cos() * reach, ph.sin() * reach);
+        for blade in &mut blades {
+            blade.x += ox;
+            blade.y += oy;
+        }
+    }
     let half = |edge: u32| (f64::from(edge) * 0.5).round().max(2.0) as u32;
     let (mw, mh) = (half(w), half(h));
     let green = mask(p, &blades, mw, mh);

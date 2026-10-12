@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool chaff | tirage render --size 540x960 -o chaff.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-chaff  1 frame
+chaff  36 frames
   count       4..=400   step 1
   size        0..=1     step 0.01
   vary        0..=1     step 0.01
