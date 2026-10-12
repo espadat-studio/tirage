@@ -26,7 +26,7 @@ The Tool's own `grain` is a grain pass, not art: it stays at its site default an
 
 The site has no seed deal: changing the seed leaves every slider where it is.
 
-Motion: Drift, Spin and Swell, off by default. chaff is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off the drift offset and the spin are 0 and the swell scale is 1. Grain and dither are the shared chassis post-passes, off by default.
+Motion: Drift, Spin and Swell, off by default and not part of a Still. With motion off the drift offset and the spin are 0 and the swell scale is 1. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared chassis post-passes, off by default.
 
 ## Palette
 
@@ -82,6 +82,19 @@ Profiles, with `tp = taper`:
 5. The pixel is the ink when `G + n > 0.5`, else the ground.
 6. When `52 grain > 0.002`, add `(h(x, y, seed + 71) - 0.5) · 52 grain` to all three channels. Store clamped to 0..255, rounding half to even.
 7. The chassis grain, then dither.
+
+## Motion
+
+The site has three motion modes: Drift, Spin and Swell. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`, and the drift reach is `D = 0.06 amount = 0.036` area units.
+- Every blade shifts by the same offset `(cos ph, sin ph) D`, added to its centre in area units before the scale to mask pixels. The whole blade set walks one circle of radius `D U` mask pixels. The offset is not snapped, so the blades land between pixels and the mask's antialiasing carries the sub-pixel part.
+- Nothing else moves. The blade shapes, the sort order, the edge noise and the grain are all fixed to the frame, so the mottle stays put while the blades slide under it.
+- The set runs one circle over the Loop, whatever the amount. The amount only sets the reach.
+- The Loop closes because the offset has period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the offset is `(D, 0)`, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a circle, where the offset is `(-D, 0)`, as far from frame 0 as the Loop gets.
+- Spin turns every blade on its own heading and Swell grows and shrinks them. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
