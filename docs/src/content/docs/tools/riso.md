@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool riso | tirage render --size 540x960 -o riso.png
 ```
 
+SVG: yes. `-o riso.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-riso  1 frame
+riso  1 frame, svg
   bands       2..=5     step 1
   rough       0.1..=1   step 0.01
   scrib       0..=1     step 0.01

@@ -133,6 +133,7 @@ impl Tool {
                 | Self::Prism
                 | Self::Parcel
                 | Self::Tokens
+                | Self::Riso
         )
     }
 }
