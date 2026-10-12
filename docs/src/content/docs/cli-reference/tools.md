@@ -38,7 +38,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `coral`    | 1      | Still  |
 | `whorl`    | 36     | Loop   |
 | `sear`     | 1      | Still  |
-| `culture`  | 1      | Still  |
+| `culture`  | 36     | Loop   |
 | `bloom`    | 24     | Loop   |
 | `weave`    | 120    | Loop   |
 | `warp`     | 72     | Loop   |

@@ -1,11 +1,11 @@
 ---
 title: "culture"
-description: "Colonies on a culture plate. It renders a Still."
+description: "Colonies on a culture plate. It renders a Loop of 36 frames at 12 fps, each cell circling on its own beat."
 ---
 
 Colonies on a culture plate. Each cell drops a soft bump into one field and the bumps add up, so cells that meet fuse into one colony. The field is cut into rings, the plate outside them and each later ink a ring further in, with a grain that bites into the ring edges.
 
-culture renders a Still: one frame. Its site page is [playgrnd.tools/culture](https://www.playgrnd.tools/culture/).
+culture renders a Loop: 36 frames at 12 fps, in which every cell circles once around its place, each on its own beat, and the colonies merge and part as their cells pass. The rings, grain and inks hold still. The cells are already off their places at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/culture](https://www.playgrnd.tools/culture/).
 
 ## Still
 
