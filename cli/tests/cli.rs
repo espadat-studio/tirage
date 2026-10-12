@@ -421,7 +421,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"detail","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let sear = concat!(
-        r#"{"slug":"sear","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"sear","frames":36,"svg":false,"params":["#,
         r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"detail","kind":"range","min":1.0,"max":5.0,"step":1.0},"#,
@@ -907,7 +907,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nmist  72 frames\n"), "{listing}");
     assert!(listing.contains("\ncoral  36 frames\n"), "{listing}");
     assert!(listing.contains("\nwhorl  36 frames\n"), "{listing}");
-    assert!(listing.contains("\nsear  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nsear  36 frames\n"), "{listing}");
     assert!(listing.contains("\nculture  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmosh  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nbloom  24 frames, svg\n"), "{listing}");

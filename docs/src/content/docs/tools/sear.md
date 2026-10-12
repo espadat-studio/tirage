@@ -22,7 +22,7 @@ tirage derive --seed 12 --tool sear | tirage render --size 540x960 -o sear.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-sear  1 frame
+sear  36 frames
   scale       0..=1     step 0.01
   warp        0..=1     step 0.01
   detail      1..=5     step 1

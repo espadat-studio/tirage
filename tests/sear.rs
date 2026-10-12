@@ -60,13 +60,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn sear_is_a_still() {
-    assert_eq!(Tool::Sear.frames(), 1);
+fn sear_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Sear.frames(), Tool::Sear.fps()), (36, 12));
     let recipe = derive(7, SEAR);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 36)),
+        "frame 36 is outside 0..36"
     );
+}
+
+#[test]
+fn drift_moves_the_field_off_the_still_at_frame_0_and_on_later() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, SEAR);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() != frame(0).rgba(), "seed {seed}");
+        assert!(frame(0).rgba() != frame(18).rgba(), "seed {seed}");
+    }
 }
 
 #[test]
@@ -97,7 +108,7 @@ fn two_steps_print_only_the_ends_of_the_ramp() {
     recipe
         .set_palette(Palette::from_hex(&["#000000", "#808080", "#ffffff"]).unwrap())
         .unwrap();
-    let image = render(&recipe, &Frame::new(&recipe, 90, 160, 0).unwrap());
+    let image = render(&recipe, &Frame::still(90, 160).unwrap());
     assert!(
         image
             .rgba()

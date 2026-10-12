@@ -117,6 +117,7 @@ mod tests {
         Tool::Stitch,
         Tool::Mist,
         Tool::Coral,
+        Tool::Sear,
     ];
 
     #[test]
