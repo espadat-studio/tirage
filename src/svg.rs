@@ -432,7 +432,7 @@ impl SvgWriter {
 
     pub(crate) fn stroke(&mut self, path: &Path, ink: [u8; 3], width: f32, cap: Cap, join: Join) {
         let (ink, opacity) = self.faded_stroke(ink, width);
-        let parts = if self.multiply {
+        let parts = if self.multiply || (!self.clips.is_empty() && width <= 1.0) {
             subpaths(path)
         } else {
             vec![path.clone()]
@@ -956,6 +956,42 @@ mod tests {
                 r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="2" y="0" width="1" height="1"/></g>"##,
             ]
             .concat()
+        );
+    }
+
+    #[test]
+    fn a_clipped_hairline_writes_each_subpath_in_its_own_clip_group_and_a_wider_stroke_one() {
+        let mut cross = PathBuilder::new();
+        cross.move_to(0.0, 1.5);
+        cross.line_to(4.0, 1.5);
+        cross.move_to(1.5, 0.0);
+        cross.line_to(1.5, 4.0);
+        let cross = cross.finish().unwrap();
+        let mut svg = SvgWriter::new(9, 9);
+        svg.push_clip(&triangle(), Transform::identity());
+        svg.stroke(&cross, [0, 0, 0], 1.0, Cap::Butt, Join::Miter);
+        svg.stroke(&cross, [0, 0, 0], 1.5, Cap::Butt, Join::Miter);
+        svg.pop_clip();
+        let clip = r#"<g clip-path="url(#c0)" filter="url(#frame)">"#;
+        let stroke = |d: &str, width: &str| {
+            format!(
+                r##"<path d="{d}" fill="none" stroke="#000000" stroke-width="{width}" stroke-miterlimit="10"/></g>"##
+            )
+        };
+        assert!(
+            body(svg.finish()).ends_with(
+                &[
+                    r##"<g fill="#000000">"##.to_owned(),
+                    clip.to_owned(),
+                    stroke("M0 1.5L4 1.5", "1"),
+                    clip.to_owned(),
+                    stroke("M1.5 0L1.5 4", "1"),
+                    clip.to_owned(),
+                    stroke("M0 1.5L4 1.5M1.5 0L1.5 4", "1.5"),
+                    "</g>".to_owned(),
+                ]
+                .concat()
+            )
         );
     }
 

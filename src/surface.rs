@@ -836,6 +836,26 @@ mod tests {
     }
 
     #[test]
+    fn clipped_hairlines_crossing_on_the_clip_edge_rasterize_from_svg_within_one_level() {
+        let draw = |surface: &mut Surface| {
+            surface.fill([245, 242, 236]);
+            let mut clip = Path2D::default();
+            clip.rect(1.29, 1.29, 4.0, 4.0);
+            surface.with_clip(&clip, Transform::IDENTITY, |surface| {
+                let mut grid = Path2D::default();
+                for at in [1.292, 3.5] {
+                    grid.move_to(at, 1.292);
+                    grid.line_to(at, 6.0);
+                    grid.move_to(1.292, at);
+                    grid.line_to(6.0, at);
+                }
+                surface.stroke(&grid, [0, 163, 255], 1.0, Cap::Butt, Join::Miter);
+            });
+        };
+        assert_svg_rasterizes_within_one_level(draw);
+    }
+
+    #[test]
     fn pixels_between_boxes_rasterize_from_svg_within_one_level_of_the_raster() {
         let draw = |surface: &mut Surface| {
             surface.fill([138, 182, 255]);
