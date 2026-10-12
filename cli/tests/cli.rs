@@ -663,7 +663,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let rise = concat!(
-        r#"{"slug":"rise","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"rise","frames":72,"svg":true,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Bottom","Top","Left","Right","Centre"]},"#,
         r#"{"id":"count","kind":"range","min":6.0,"max":28.0,"step":1.0},"#,
         r#"{"id":"weight","kind":"range","min":0.3,"max":0.7,"step":0.01},"#,
@@ -886,7 +886,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\ncrowd  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncipher  1 frame\n"), "{listing}");
     assert!(listing.contains("\nriso  16 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nrise  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nrise  72 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ncarve  36 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nspecimen  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\npane  24 frames, svg\n"), "{listing}");

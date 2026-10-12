@@ -100,6 +100,7 @@ mod tests {
         Tool::Optic,
         Tool::Vee,
         Tool::Riso,
+        Tool::Rise,
     ];
 
     #[test]

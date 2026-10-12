@@ -24,7 +24,7 @@ SVG: yes. `-o rise.svg` writes this Still as an [SVG](/cli-reference/render/#svg
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-rise  1 frame, svg
+rise  72 frames, svg
   styles      Bottom, Top, Left, Right, Centre
   count       6..=28    step 1
   weight      0.3..=0.7 step 0.01

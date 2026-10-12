@@ -1,3 +1,5 @@
+use std::f64::consts::TAU;
+
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
@@ -7,7 +9,7 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "rise";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 72;
 pub(crate) const FPS: u32 = 12;
 const INKS: usize = 3;
 pub(crate) const MAX_INKS: Option<usize> = Some(INKS);
@@ -218,20 +220,23 @@ pub(crate) fn render(
     params: &RiseParams,
     palette: &Palette,
     _tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette);
+    let ripple = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, ripple);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
 const PAIRS: [(usize, usize); 4] = [(1, 2), (2, 0), (1, 0), (2, 1)];
+const AMOUNT: f64 = 0.8;
 
-fn paint(surface: &mut Surface, p: &RiseParams, palette: &Palette) {
+fn paint(surface: &mut Surface, p: &RiseParams, palette: &Palette, ripple: Option<f64>) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let md = w.min(h);
     let period = md / f64::from(p.count.max(4));
     let bar = period * p.weight;
     let band = p.depth * md;
+    let cycles = round_half_up(AMOUNT).max(1.0);
     let (ax, ay) = match p.anchor {
         RiseAnchor::Bottom => (w / 2.0, h),
         RiseAnchor::Top => (w / 2.0, 0.0),
@@ -254,7 +259,10 @@ fn paint(surface: &mut Surface, p: &RiseParams, palette: &Palette) {
     for i in (0..p.bands.max(1)).rev() {
         let (ground, ink) = PAIRS[i as usize % 4];
         let mut disc = Path2D::default();
-        disc.push_circle(ax, ay, (f64::from(i) + 0.8) * band);
+        let swell = ripple.map_or(0.0, |t| {
+            band * 0.3 * AMOUNT * (TAU * (cycles * t - f64::from(i) * 0.35)).sin()
+        });
+        disc.push_circle(ax, ay, (f64::from(i) + 0.8) * band + swell);
         surface.with_clip(&disc, Transform::IDENTITY, |surface| {
             surface.fill(palette.ink(ground));
             bars(surface, palette.ink(ink));
