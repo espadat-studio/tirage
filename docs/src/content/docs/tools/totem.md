@@ -24,7 +24,7 @@ SVG: yes. `-o totem.svg` writes this Still as an [SVG](/cli-reference/render/#sv
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-totem  1 frame, svg
+totem  24 frames, svg
   border      0..=0.4   step 0.005
   mat         0..=0.7   step 0.01
   matGrain    1..=6     step 1

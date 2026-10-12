@@ -8,9 +8,11 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "totem";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 8;
 pub(crate) const MAX_INKS: Option<usize> = None;
+
+const SHUFFLE: u32 = 7919;
 
 const DEFAULT_PALETTE: [&str; 5] = ["#1b1b1b", "#ff6b35", "#f7b32b", "#2e86ab", "#f72585"];
 
@@ -296,9 +298,10 @@ pub(crate) fn render(
     params: &TotemParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let stream = tool_seed.wrapping_add(t.unwrap_or(0).wrapping_mul(SHUFFLE));
+    paint(surface, params, palette, tool_seed, stream);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -479,7 +482,7 @@ fn luma([r, g, b]: [u8; 3]) -> f64 {
     f64::from(r) * 0.299 + f64::from(g) * 0.587 + f64::from(b) * 0.114
 }
 
-fn paint(surface: &mut Surface, p: &TotemParams, palette: &Palette, tool_seed: u32) {
+fn paint(surface: &mut Surface, p: &TotemParams, palette: &Palette, tool_seed: u32, stream: u32) {
     let (w, h) = (surface.width() as i32, surface.height() as i32);
     let all = palette.inks();
     let mut di = 0;
@@ -504,7 +507,7 @@ fn paint(surface: &mut Surface, p: &TotemParams, palette: &Palette, tool_seed: u
     } else {
         dark
     };
-    let mut rng = Xorshift::from_state(tool_seed);
+    let mut rng = Xorshift::from_state(stream);
 
     let short = w.min(h);
     let u = (round_half_up(f64::from(short) / f64::from(p.grain)) as i32).max(2);
