@@ -10,13 +10,14 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "fete";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 100;
 pub(crate) const FPS: u32 = 20;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 4] = ["#7b2cbf", "#ff6d00", "#00bbf9", "#ffd60a"];
 const LINE: [u8; 3] = [0xff, 0xff, 0xff];
 const DOT: [u8; 3] = [0x0a, 0x0a, 0x0a];
+const DRAWN_BY: f64 = 0.82;
 
 const SCALE: Param = Param::new(SLUG, "scale", 12, 60, 10);
 const RES: Param = Param {
@@ -238,9 +239,12 @@ pub(crate) fn render(
     params: &FeteParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let reveal = t.map_or(f64::INFINITY, |f| {
+        (f64::from(f) / f64::from(FRAMES) / DRAWN_BY).clamp(0.0, 1.0)
+    });
+    paint(surface, params, palette, tool_seed, reveal);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -422,11 +426,31 @@ fn doodle(motif: FeteMotif, view_height: f64, tool_seed: u32) -> Vec<Vec<Point>>
     lines
 }
 
-fn dots(count: u32, lines: &[Vec<Point>], view_height: f64, tool_seed: u32) -> Vec<Point> {
+fn segment(a: Point, b: Point) -> f64 {
+    (b.0 - a.0).hypot(b.1 - a.1)
+}
+
+fn length(line: &[Point]) -> f64 {
+    line.windows(2).map(|s| segment(s[0], s[1])).sum()
+}
+
+fn dots(
+    count: u32,
+    lines: &[Vec<Point>],
+    total: f64,
+    view_height: f64,
+    tool_seed: u32,
+) -> Vec<(Point, f64)> {
     let mut rng = Xorshift::from_state(tool_seed ^ 0x2545_f491);
-    let vertices: Vec<Point> = lines
+    let total = total.max(1.0);
+    let mut walked = 0.0;
+    let vertices: Vec<(Point, f64)> = lines
         .iter()
-        .flat_map(|line| line.iter().skip(1).copied())
+        .flat_map(|line| line.windows(2))
+        .map(|s| {
+            walked += segment(s[0], s[1]);
+            (s[1], walked / total)
+        })
         .collect();
     (0..count)
         .map(|_| {
@@ -434,13 +458,19 @@ fn dots(count: u32, lines: &[Vec<Point>], view_height: f64, tool_seed: u32) -> V
                 vertices[(rng.next() * vertices.len() as f64) as usize]
             } else {
                 let x = VIEW * (0.04 + rng.next() * 0.92);
-                (x, view_height * (0.04 + rng.next() * 0.92))
+                ((x, view_height * (0.04 + rng.next() * 0.92)), 0.0)
             }
         })
         .collect()
 }
 
-fn paint(surface: &mut Surface, params: &FeteParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &FeteParams,
+    palette: &Palette,
+    tool_seed: u32,
+    reveal: f64,
+) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let columns = params.res;
     let rows = (round_half_up(f64::from(columns) * height / width) as u32).max(8);
@@ -451,16 +481,32 @@ fn paint(surface: &mut Surface, params: &FeteParams, palette: &Palette, tool_see
     let k = width / VIEW;
     let lines = doodle(params.motif, view_height, tool_seed);
     let line_width = VIEW * 0.009 * params.lw * k;
+    let total: f64 = lines.iter().map(|line| length(line)).sum();
+    let mut budget = reveal * total;
     for line in &lines {
+        if budget <= 0.0 {
+            break;
+        }
         let mut path = Path2D::default();
         path.move_to(line[0].0 * k, line[0].1 * k);
-        for &(x, y) in &line[1..] {
-            path.line_to(x * k, y * k);
+        for s in line.windows(2) {
+            let (a, b) = (s[0], s[1]);
+            let segment = segment(a, b);
+            if segment >= budget {
+                let u = budget / segment;
+                path.line_to(lerp(a.0, b.0, u) * k, lerp(a.1, b.1, u) * k);
+                budget = 0.0;
+                break;
+            }
+            path.line_to(b.0 * k, b.1 * k);
+            budget -= segment;
         }
         surface.stroke(&path, LINE, line_width, Cap::Round, Join::Round);
     }
     let radius = VIEW * 0.0085 * k;
-    for (x, y) in dots(params.dots, &lines, view_height, tool_seed) {
-        surface.fill_circle(x * k, y * k, radius, DOT);
+    for ((x, y), share) in dots(params.dots, &lines, total, view_height, tool_seed) {
+        if share <= reveal {
+            surface.fill_circle(x * k, y * k, radius, DOT);
+        }
     }
 }

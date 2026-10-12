@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool fete | tirage render --size 540x960 -o fete.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-fete  1 frame
+fete  100 frames
   motifs      Auto, Rings, Spiral, Burst, Atom, Wave, Scribble
   scale       1.2..=6   step 0.1
   res         36..=120  step 4

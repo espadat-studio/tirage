@@ -60,13 +60,28 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn fete_is_a_still() {
-    assert_eq!(Tool::Fete.frames(), 1);
+fn fete_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Fete.frames(), Tool::Fete.fps()), (100, 20));
     let recipe = derive(7, FETE);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 100)),
+        "frame 100 is outside 0..100"
     );
+}
+
+#[test]
+fn draw_starts_on_the_bare_grid_and_sketches_the_doodle_on() {
+    let white = |rgba: &[u8]| rgba.chunks(4).filter(|px| px[..3] == [255; 3]).count();
+    for seed in 1..=3 {
+        let recipe = derive(seed, FETE);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        let (first, mid, held) = (frame(0), frame(50), frame(99));
+        assert!(still.rgba() != first.rgba(), "seed {seed}");
+        assert_eq!(white(first.rgba()), 0, "seed {seed}");
+        assert!(white(mid.rgba()) > 0, "seed {seed}");
+        assert!(white(mid.rgba()) < white(held.rgba()), "seed {seed}");
+    }
 }
 
 #[test]
@@ -112,7 +127,7 @@ fn every_motif_draws_a_white_line_and_black_dots_over_the_palette() {
         };
         params.set_motif(motif);
         params.set_dots(80).unwrap();
-        let image = render(&recipe, &Frame::new(&recipe, 270, 480, 0).unwrap());
+        let image = render(&recipe, &Frame::still(270, 480).unwrap());
         for ink in [[255, 0, 0], [0, 255, 0], [255, 255, 255], [10, 10, 10]] {
             assert!(
                 image.rgba().chunks(4).any(|px| px[..3] == ink),
