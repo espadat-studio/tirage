@@ -506,8 +506,8 @@ impl SvgWriter {
 
     pub(crate) fn stroke(&mut self, path: &Path, ink: [u8; 3], width: f32, cap: Cap, join: Join) {
         let reach = match join {
-            Join::Round => width,
-            Join::Miter => width * 5.0,
+            Join::Round => width.max(1.0) + 0.5,
+            Join::Miter => width.max(1.0) * 5.0 + 0.5,
         };
         if self.misses_frame(path.bounds(), reach) {
             return;
@@ -1306,6 +1306,22 @@ mod tests {
         svg.fill_transformed(&far, [0, 0, 0], Transform::from_translate(0.0, 20.0));
         svg.stroke(&far, [0, 0, 0], 1.0, Cap::Round, Join::Round);
         assert_eq!(body(svg.finish()), "");
+    }
+
+    #[test]
+    fn a_hairline_whose_anti_aliased_pixel_reaches_the_frame_is_kept() {
+        let mut line = PathBuilder::new();
+        line.move_to(1.0, -0.3);
+        line.line_to(5.0, -0.3);
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(
+            &line.finish().unwrap(),
+            [0, 0, 0],
+            0.25,
+            Cap::Round,
+            Join::Round,
+        );
+        assert!(body(svg.finish()).contains("<path"));
     }
 
     #[test]
