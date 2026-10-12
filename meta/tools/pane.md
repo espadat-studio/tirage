@@ -17,7 +17,7 @@ Site control ids, slider ranges and site defaults:
 | `soft`   | 0..1  | 0.01 | 0.85    | how much of a cell is blend rather than flat   |
 | `spread` | 0..1  | 0.01 | 0.55    | how far apart in the Palette a cell's inks sit |
 
-Motion (`modes` Shuffle or Turn, `amt`, `fps` 8, `frames` 24) is off by default and not part of a Still. pane is a Still Tool: only frame 0 is rendered, and at frame 0 with motion off the cell seed is the Tool seed and the direction turn is 0. Motion stays fixed at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, both off by default.
+Motion (`modes` Shuffle or Turn, `amt`, `fps` 8, `frames` 24) is off by default and not part of a Still. With motion off the cell seed is the Tool seed and the direction turn is 0. The Loop turns it on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, both off by default.
 
 The seed does not move any slider: a new seed only redraws.
 
@@ -73,6 +73,18 @@ Each walked stop is turned back into an 8-bit `#rrggbb`: hue taken mod 360 into 
 
 1. Rows top to bottom, cells left to right, each a gradient-filled rect. The cells tile the frame, so no ground is painted.
 2. The chassis grain, then dither.
+
+## Motion
+
+Shuffle is the default and the only mode ported: amount 0.6, 24 frames at 8 fps.
+
+- Shuffle deals every cell again each frame. At frame `f` the cell seed is `s + 7919 f`, 32-bit wrapping, in place of `s` in the six cell draws of [Random numbers](#random-numbers), salts 13 to 31. The family, the direction, both inks and the ramp ends all move.
+- Nothing else moves. The row weights, the cell counts and the cell weights keep the Tool seed, so every cell keeps its rect. The Palette holds.
+- The amount does not change Shuffle.
+- The Loop closes by a cut: the frame after the last is a new deal, not frame 0. A reseed has no closure test.
+- At `f = 0` the cell seed is the Tool seed, so frame 0 is the Still, byte for byte. It needs no reference export of its own.
+- The mid frame is 12. Any frame past 0 is a fresh deal, and 12 is half way through.
+- Turn is not ported. It steps every cell's direction round the eight, a whole number of times per Loop. It is not reachable from a Recipe.
 
 ## Fidelity notes
 
