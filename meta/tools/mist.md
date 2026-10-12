@@ -16,7 +16,7 @@ Site control ids, slider ranges and site defaults:
 | `blot`    | 0.2..1    | 0.01 | 0.5     | how small the ground blots are                  |
 | `grain`   | 0..1      | 0.01 | 0.4     | the Tool's own per-pixel grain, not the chassis |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. mist is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off every motion offset is zero. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. Default Palette: `#dcff3a #1e1b3a #3b2a6e #5a2e7a`.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off every motion offset is zero. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. Default Palette: `#dcff3a #1e1b3a #3b2a6e #5a2e7a`.
 
 The site has 4 ink swatches with fixed roles: Ink 1 is the neon, Inks 2 to 4 are the ground. A Palette of more than 4 inks is refused, as with aura. A shorter Palette wraps by position over the 4 slots. The site fills missing slots with derived tints instead, so a Palette under 4 inks does not replay on the site.
 
@@ -51,6 +51,23 @@ As aura: width `max(90, min(700, round(W)))`, height `max(90, round(bw · H / W)
 - The grain is `g = (hash(x, y, 7, noise seed) - 0.5)·gr`, aura's hash at the integer buffer pixel, channel 7.
 - Each channel is `sqrt(c) + g`, stored as a byte, clamped and rounded half to even. Alpha is opaque.
 - One `g` per pixel, added to all three channels.
+
+## Motion
+
+The site has three motion modes: Bleed, Drift and Pulse. Bleed is the default and the only one ported: amount 0.8, 72 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`. The amount is capped at 1.6 before use, which 0.8 never reaches. The walk radius is `r = 0.45 amount = 0.36` noise units, with `(zx, zy) = (cos 2πT, sin 2πT) r`.
+- Both layers walk round circles in noise space, at different reaches:
+  - The ground reads at `gx = bsc·nx + zx / 2`, `gy = bsc·ny + zy / 2`: half the radius.
+  - The curtain's streak point gains the offset after `sox` and `soy`: `sx = ... + sox + zx`, `sy = 0.5·ny + soy + 0.4 zy`. The full radius across, 0.4 of it down, so the streaks sway sideways more than they rise.
+  - The curtain's warp `q` does not move.
+- So the neon bleeds across a ground that drifts more slowly beneath it. The random draws, the threshold and the grain hold.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the offsets have period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` both layers sit shifted along `x` from their Still place, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 36: half a lap, both layers twice their reach from where they are at frame 0, as far as the Loop takes them.
+- A Loop frame uses the same 700 px budget as the Still: the PNG export draws the scrubbed frame at 700. The smaller budget the preview uses while playing is ignored.
+- Drift slides the curtain alone on an ellipse and Pulse moves its threshold. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
