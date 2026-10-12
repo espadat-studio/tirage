@@ -7201,6 +7201,99 @@
               "grnVignette": 0.5
             }
           }
+        },
+        {
+          "name": "seed-1-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "quilt",
+            "tool_seed": 9611518,
+            "palette": [
+              "#f3e9dc",
+              "#2a6f97",
+              "#c8553d",
+              "#f4d35e"
+            ],
+            "params": {
+              "styles": "Burst",
+              "cells": 48,
+              "chunk": 1.55,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 15
+        },
+        {
+          "name": "seed-2-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "quilt",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#f3e9dc",
+              "#2a6f97",
+              "#c8553d",
+              "#f4d35e"
+            ],
+            "params": {
+              "styles": "Zigzag",
+              "cells": 30,
+              "chunk": 1.2,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 15
+        },
+        {
+          "name": "seed-3-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "quilt",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#f3e9dc",
+              "#2a6f97",
+              "#c8553d",
+              "#f4d35e"
+            ],
+            "params": {
+              "styles": "Bands",
+              "cells": 56,
+              "chunk": 1.4,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 15
         }
       ],
       "page_sha256": "74f59b2b68fd24ea6df4ab0f034e164c4aeb4944ece1bbaf0ef631569ea9b49b",
