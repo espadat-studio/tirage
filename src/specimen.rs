@@ -12,7 +12,7 @@ use crate::terrain::{fbm, hash};
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "specimen";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
@@ -21,6 +21,7 @@ const DEFAULT_PALETTE: [&str; 7] = [
 ];
 const PAGE: [u8; 3] = [0xf5, 0xf1, 0xe8];
 const INK: [u8; 3] = [0x1b, 0x1b, 0x1b];
+const AMOUNT: f64 = 0.8;
 
 const COLS: Param = Param::new(SLUG, "cols", 2, 16, 1);
 const FILL: Param = Param::new(SLUG, "fill", 10, 100, 100);
@@ -437,9 +438,10 @@ pub(crate) fn render(
     params: &SpecimenParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let flow = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, flow);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -667,7 +669,14 @@ fn polyline(points: impl IntoIterator<Item = (f64, f64)>, k: f64) -> Path2D {
     path
 }
 
-fn paint(surface: &mut Surface, p: &SpecimenParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    p: &SpecimenParams,
+    palette: &Palette,
+    tool_seed: u32,
+    flow: Option<f64>,
+) {
+    let zw = flow.map(|t| ((TAU * t).cos() * AMOUNT, (TAU * t).sin() * AMOUNT));
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let k = w / 1000.0;
     let sheet = 1000.0 * h / w;
@@ -719,7 +728,7 @@ fn paint(surface: &mut Surface, p: &SpecimenParams, palette: &Palette, tool_seed
                             field.push(fbm(
                                 u * p.m_scale * (bw / m) + b.v * 40.0,
                                 v * p.m_scale * (bh / m) + b.v2 * 40.0,
-                                None,
+                                zw,
                                 seed,
                                 3,
                             ) as f32);
@@ -766,7 +775,7 @@ fn paint(surface: &mut Surface, p: &SpecimenParams, palette: &Palette, tool_seed
                         let mut points = vec![(x, y)];
                         for _ in 0..steps {
                             let noise =
-                                fbm(x / m * 7.0 + f64::from(i) * 3.0, y / m * 7.0, None, seed, 3);
+                                fbm(x / m * 7.0 + f64::from(i) * 3.0, y / m * 7.0, zw, seed, 3);
                             let angle = (noise - 0.5) * 2.6 * TAU;
                             x += angle.cos() * step;
                             y += angle.sin() * step;

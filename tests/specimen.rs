@@ -71,13 +71,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn specimen_is_a_still() {
-    assert_eq!(Tool::Specimen.frames(), 1);
+fn specimen_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Specimen.frames(), Tool::Specimen.fps()), (24, 12));
     let recipe = derive(7, SPECIMEN);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 24)),
+        "frame 24 is outside 0..24"
     );
+}
+
+#[test]
+fn flow_morphs_the_marble_and_tendrils_and_holds_a_sheet_without_them() {
+    for (seed, moves) in [(1, true), (2, true), (3, false)] {
+        let recipe = derive(seed, SPECIMEN);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert_eq!(still.rgba() != frame(0).rgba(), moves, "seed {seed}");
+        assert_eq!(frame(0).rgba() != frame(12).rgba(), moves, "seed {seed}");
+    }
 }
 
 #[test]

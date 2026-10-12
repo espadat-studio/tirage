@@ -24,7 +24,7 @@ SVG: yes. `-o specimen.svg` writes this Still as an [SVG](/cli-reference/render/
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-specimen  1 frame, svg
+specimen  24 frames, svg
   cols        2..=16    step 1
   fill        0.1..=1   step 0.01
   span        0..=1     step 0.01

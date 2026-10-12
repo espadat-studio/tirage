@@ -681,7 +681,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"nodes","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let specimen = concat!(
-        r#"{"slug":"specimen","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"specimen","frames":24,"svg":true,"params":["#,
         r#"{"id":"cols","kind":"range","min":2.0,"max":16.0,"step":1.0},"#,
         r#"{"id":"fill","kind":"range","min":0.1,"max":1.0,"step":0.01},"#,
         r#"{"id":"span","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -888,7 +888,10 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nriso  16 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nrise  72 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ncarve  36 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nspecimen  1 frame, svg\n"), "{listing}");
+    assert!(
+        listing.contains("\nspecimen  24 frames, svg\n"),
+        "{listing}"
+    );
     assert!(listing.contains("\npane  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nmodular  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nprism  12 frames, svg\n"), "{listing}");
@@ -1849,7 +1852,7 @@ mod encode {
                 .contains("→ tirage derive --seed 42 --tool sonar | tirage encode -o sonar-42.mp4"),
             "{screen}"
         );
-        for still in ["specimen", "modular", "deal from Seed"] {
+        for still in ["modular", "deal from Seed"] {
             assert!(!screen.contains(still), "{still} offered in\n{screen}");
         }
         std::fs::remove_dir_all(dir).unwrap();
@@ -1857,12 +1860,12 @@ mod encode {
 
     #[test]
     fn encode_refuses_a_still_with_a_hint_to_render_it() {
-        let specimen = tirage(&["derive", "--seed", "42", "--tool", "specimen"], b"").stdout;
-        let out = tirage(&["encode", "-o", "-"], &specimen);
+        let modular = tirage(&["derive", "--seed", "42", "--tool", "modular"], b"").stdout;
+        let out = tirage(&["encode", "-o", "-"], &modular);
         assert_eq!(out.status.code(), Some(1));
         assert_eq!(
             text(&out.stderr),
-            "error: specimen draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
+            "error: modular draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
         );
         assert!(out.stdout.is_empty());
     }

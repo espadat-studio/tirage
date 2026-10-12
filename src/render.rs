@@ -122,6 +122,7 @@ mod tests {
         Tool::Terrain,
         Tool::Stipple,
         Tool::Oddgrid,
+        Tool::Specimen,
     ];
 
     #[test]

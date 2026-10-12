@@ -61,7 +61,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `riso`     | 16     | Loop   |
 | `rise`     | 72     | Loop   |
 | `carve`    | 36     | Loop   |
-| `specimen` | 1      | Still  |
+| `specimen` | 24     | Loop   |
 | `pane`     | 24     | Loop   |
 | `modular`  | 1      | Still  |
 | `prism`    | 12     | Loop   |
