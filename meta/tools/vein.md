@@ -20,7 +20,7 @@ Site control ids, slider ranges and site defaults:
 | `tints`  | 0..1                  | 0.01 | 0.5     | how far each level's ink is lightened/shaded      |
 | `runs`   | 0..1                  | 0.01 | 0.5     | how long one ink repeats over neighbouring levels |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. vein is a Still: only frame 0 is ported. Dither is the shared [chassis](chassis.md) post-pass, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the warp offset is 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Dither is the shared [chassis](chassis.md) post-pass, off by default.
 
 Grain is the shared chassis grain, but vein opens with it on: on, Overlay, amount 0.4, size 1, specks 0.4, vignette 0.25.
 
@@ -110,6 +110,20 @@ Since each loop is a closed cycle, its start point and direction do not change t
    - The light ink is the brightest of inks `1..n` by `0.2126 r + 0.7152 g + 0.0722 b`, the first on a tie. A star takes it when `h(k, 13) < 0.7`, else ink `1 + floor(h(k, 14) * (n - 1))`, lightened by 0.4.
    - A filled anti-aliased circle of radius `U * (0.0012 + 0.002 h(k, 15))`.
 4. Grain, then dither, as the chassis does.
+
+## Motion
+
+The site has three motion modes: Drift, Breathe and Turn. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`, and the walk radius is `r = 0.25 amount = 0.15` field units.
+- Only the warp noise walks. Its origin moves round a circle in noise space: the read for `wu` gains `(ox, oy) = (cos ph, sin ph) r`, added after the `1.3` scale and before the fixed offsets. The read for `wv` gains the same pair swapped, `(oy, ox)`.
+- The stripes bend as the warp moves, so the cut levels flow and come back. Swirl reads the warp only through its detail noise, so it moves less than Marble and Ripple.
+- Nothing else moves. The sheet draws, the detail and tiger noise, the level inks and outlines, and the star places hold. A star still shows only on the ground, so stars wink in and out as the ground edges pass them.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the offset has period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the warp origin sits `r` along `u` from its Still place, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a lap, the origin `2r` from where it is at frame 0, as far as the Loop takes it.
+- Breathe winds the curve up and back and Turn runs the stripe phase round. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
