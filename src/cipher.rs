@@ -1,3 +1,5 @@
+use std::f64::consts::TAU;
+
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{
@@ -9,13 +11,15 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "cipher";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 7] = [
     "#2a0a14", "#dce0f0", "#f5d20a", "#7cc4f0", "#f58a1e", "#e8412c", "#2e6bc0",
 ];
+
+const AMOUNT: f64 = 0.6;
 
 const CELLS: Param = Param::new(SLUG, "cells", 20, 140, 1);
 const BANDS: Param = Param::new(SLUG, "bands", 2, 7, 1);
@@ -312,9 +316,10 @@ pub(crate) fn render(
     params: &CipherParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -332,44 +337,53 @@ struct Shape {
     spine: f64,
     fx2: f64,
     fy2: f64,
+    ox: f64,
+    oy: f64,
 }
 
 fn field(params: &CipherParams, shape: &Shape, seed: u32, u: f64, v: f64) -> f64 {
     let (wave, tilt) = (params.wave, params.tilt);
     let det = 1.0 + params.detail * 3.0;
     let noise = |x: f64, y: f64, k: u32| value_noise(x, y, seed.wrapping_mul(7).wrapping_add(k));
+    let (ox, oy) = (shape.ox, shape.oy);
     match params.field {
         CipherField::Figure => {
             let wv = 0.16
                 + 0.5
                     * wave
                     * (0.3
-                        + noise(v * det * 1.6 + 3.0, 0.5, 1) * 1.0
-                        + 0.35 * noise(v * det * 4.0 + 9.0, 1.5, 1));
+                        + noise(v * det * 1.6 + ox + 3.0, 0.5 + oy, 1) * 1.0
+                        + 0.35 * noise(v * det * 4.0 + oy + 9.0, 1.5 + ox, 1));
             let centre = shape.spine + tilt * (v - 0.5);
             let s1 = (u - centre).abs() / wv;
-            let wv2 = 0.12 + 0.36 * wave * (0.4 + noise(v * det * 1.9 + 13.0, 2.5, 1));
+            let wv2 = 0.12 + 0.36 * wave * (0.4 + noise(v * det * 1.9 + ox + 13.0, 2.5 + oy, 1));
             let (dx, dy) = ((u - shape.fx2) / wv2, (v - shape.fy2) / (wv2 * 1.6));
             let s2 = (dx * dx + dy * dy).sqrt() * 0.9;
             1f64.min(s1.min(s2))
         }
         CipherField::Relief => {
             let w = v + tilt * u;
-            let n = 0.65 * noise(u * det * 1.3 + 5.0, w * det * 1.3 + 2.0, 2)
-                + 0.35 * noise(u * det * 3.1 + 8.0, w * det * 3.1 + 4.0, 2);
+            let n = 0.65 * noise(u * det * 1.3 + ox + 5.0, w * det * 1.3 + oy + 2.0, 2)
+                + 0.35 * noise(u * det * 3.1 + oy + 8.0, w * det * 3.1 + ox + 4.0, 2);
             1f64.min(0f64.max((n - 0.2) / 0.6 * (0.6 + wave * 0.6)))
         }
         CipherField::Slope => {
             let s = v
                 + tilt * (u - 0.5)
-                + wave * 0.35 * (noise(u * det * 1.5 + 7.0, 0.5, 3) - 0.5) * 2.0
-                + wave * 0.08 * (noise(u * det * 6.0 + 3.0, 1.5, 3) - 0.5) * 2.0;
+                + wave * 0.35 * (noise(u * det * 1.5 + ox + 7.0, 0.5 + oy, 3) - 0.5) * 2.0
+                + wave * 0.08 * (noise(u * det * 6.0 + oy + 3.0, 1.5 + ox, 3) - 0.5) * 2.0;
             1f64.min(0f64.max(s))
         }
     }
 }
 
-fn paint(surface: &mut Surface, params: &CipherParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &CipherParams,
+    palette: &Palette,
+    tool_seed: u32,
+    drift: Option<f64>,
+) {
     let seed = tool_seed;
     let inks = palette.inks();
     let ground = inks[0];
@@ -397,7 +411,17 @@ fn paint(surface: &mut Surface, params: &CipherParams, palette: &Palette, tool_s
     let spine = 0.5 + (rng.next() - 0.5) * 0.2;
     let fy2 = 0.55 + rng.next() * 0.3;
     let fx2 = 0.3 + rng.next() * 0.4;
-    let shape = Shape { spine, fx2, fy2 };
+    let (ox, oy) = drift.map_or((0.0, 0.0), |t| {
+        let ph = TAU * t;
+        (ph.cos() * AMOUNT * 0.4, ph.sin() * AMOUNT * 0.4)
+    });
+    let shape = Shape {
+        spine,
+        fx2,
+        fy2,
+        ox,
+        oy,
+    };
 
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let cols = params.cells as usize;

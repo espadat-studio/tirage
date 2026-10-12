@@ -22,7 +22,7 @@ Site control ids, slider ranges and site defaults:
 | `dots`     | 0..1   | 0.01 | 0.7     | dot screen size                                 |
 | `shadow`   | 0..1   | 0.01 | 0.6     | how dark and long the shadows are               |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. coral is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off every motion offset is zero.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off every motion offset is zero. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion).
 
 The [chassis](chassis.md) grain is on by default on this page, a printed textile: blend Multiply, amount 0.45, size 1, specks 0.4, vignette 0.3. Dither is off.
 
@@ -113,6 +113,23 @@ Mixing toward a colour by `k` is `c + (target - c)·k` per channel.
 8. On paper and `dots > 0`: `ddx`, `ddy` are the fractional parts of `x/cell` and `y/cell` minus 0.5. `edge = clamp((thr + 0.13 - fv)/0.13, 0, 1)`. `rad = 0.5·dots·(0.3 + 0.4·edge + 0.3·w)` with `w` the dot weight here. Inside `ddx² + ddy² < rad²` the pixel is the dot ink.
 
 Channels are stored as bytes, clamped and rounded half to even. Alpha is opaque. Then the chassis grain, then dither.
+
+## Motion
+
+The site has three motion modes: Sway, Grow and Drift. Sway is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`. The sway offsets are `swx = 0.7 amount cos ph` and `swy = 0.7 amount sin ph`, so a circle of radius 0.42 in noise space.
+- Only the wobble moves. Both bends read their noise at shifted inputs, the second with the offsets swapped:
+  - the first reads `vn(r/(0.38·U) + swx + 7, 1.4·θ + swy, sd1)`
+  - the second reads `vn(r/(0.16·U) + swy + 3, 4.2·θ + swx + 5, sd1)`
+  - The sums run left to right, the offset added before the constant on the radius input and after the angle term on the other.
+- Nothing else moves. The root, the fan, the branch count and widths, the ribs, the paper, its shadow and the dot screen hold. The branches lean under the paper and come back.
+- With `wobble = 0` neither bend runs, so every frame is the Still. That Loop does not move, and it is still a valid Loop.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the offsets have period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the walk sits at `(0.42, 0)`, not at the origin the Still reads, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a lap, the walk at `(-0.42, 0)`, as far from frame 0 as the Loop goes.
+- Grow runs the ribs along the branches and swells the tubes; Drift walks the paper lobes round a circle. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 

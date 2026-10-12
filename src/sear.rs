@@ -1,3 +1,5 @@
+use std::f64::consts::TAU;
+
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up, value_noise};
@@ -7,9 +9,11 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "sear";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
+
+const AMOUNT: f64 = 0.6;
 
 const DEFAULT_PALETTE: [&str; 6] = [
     "#03071e", "#370617", "#9d0208", "#e85d04", "#faa307", "#ffe066",
@@ -250,9 +254,10 @@ pub(crate) fn render(
     params: &SearParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -275,7 +280,7 @@ struct Heat {
     height: usize,
 }
 
-fn heat(params: &SearParams, seed: i32, aspect: f64) -> Heat {
+fn heat(params: &SearParams, seed: i32, aspect: f64, drift: Option<f64>) -> Heat {
     let width = if aspect > 1.0 {
         round_half_up(640.0 / aspect).max(8.0)
     } else {
@@ -286,15 +291,29 @@ fn heat(params: &SearParams, seed: i32, aspect: f64) -> Heat {
     let octaves = params.detail.clamp(1, 5);
     let span = 0.7 + (1.0 - params.scale) * 7.5;
     let k = params.warp * 2.6;
+    let (ox, oy) = drift.map_or((0.0, 0.0), |t| {
+        let (ph, reach) = (TAU * t, AMOUNT * 1.4);
+        (ph.cos() * reach, ph.sin() * reach)
+    });
     let (mut lo, mut hi) = (1.0_f64, 0.0_f64);
     let mut grid = Vec::with_capacity(width * height);
     for j in 0..height {
         let v = (j as f64 / height as f64) * span * aspect;
         for i in 0..width {
             let u = (i as f64 / width as f64) * span;
-            let wx = fbm(u * 0.55 + 11.3, v * 0.55 + 4.1, seed.wrapping_add(7), 2) - 0.5;
-            let wy = fbm(u * 0.55 + 2.7, v * 0.55 + 19.7, seed.wrapping_add(13), 2) - 0.5;
-            let t = fbm(u + wx * k, v + wy * k, seed, octaves);
+            let wx = fbm(
+                u * 0.55 + 11.3 + ox,
+                v * 0.55 + 4.1 + oy,
+                seed.wrapping_add(7),
+                2,
+            ) - 0.5;
+            let wy = fbm(
+                u * 0.55 + 2.7,
+                v * 0.55 + 19.7 + oy,
+                seed.wrapping_add(13),
+                2,
+            ) - 0.5;
+            let t = fbm(u + wx * k + ox * 0.6, v + wy * k + oy * 0.6, seed, octaves);
             grid.push(t as f32);
             lo = lo.min(t);
             hi = hi.max(t);
@@ -345,7 +364,13 @@ fn ramp(palette: &Palette, steps: u32) -> [[u8; 3]; 256] {
     })
 }
 
-fn paint(surface: &mut Surface, params: &SearParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &SearParams,
+    palette: &Palette,
+    tool_seed: u32,
+    drift: Option<f64>,
+) {
     let (w, h) = (surface.width(), surface.height());
     let (wf, hf) = (f64::from(w), f64::from(h));
     let seed = tool_seed as i32;
@@ -355,7 +380,7 @@ fn paint(surface: &mut Surface, params: &SearParams, palette: &Palette, tool_see
         grid,
         width: fw,
         height: fh,
-    } = heat(params, seed, hf / wf);
+    } = heat(params, seed, hf / wf, drift);
     let fwf = fw as f64;
 
     let max_run = round_half_up((0.02 + params.smear * params.smear * 1.2) * wf).max(2.0) as u32;

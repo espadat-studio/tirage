@@ -66,13 +66,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn cipher_is_a_still() {
-    assert_eq!(Tool::Cipher.frames(), 1);
+fn cipher_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Cipher.frames(), Tool::Cipher.fps()), (36, 12));
     let recipe = derive(7, CIPHER);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 36)),
+        "frame 36 is outside 0..36"
     );
+}
+
+#[test]
+fn drift_moves_the_bands_off_the_still_at_frame_0_and_on_later() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, CIPHER);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() != frame(0).rgba(), "seed {seed}");
+        assert!(frame(0).rgba() != frame(18).rgba(), "seed {seed}");
+    }
 }
 
 #[test]
@@ -116,7 +127,7 @@ fn every_field_draws_the_ground_and_marks_from_the_palette() {
         };
         params.set_field(field);
         params.set_bands(4).unwrap();
-        let image = render(&recipe, &Frame::new(&recipe, 270, 480, 0).unwrap());
+        let image = render(&recipe, &Frame::still(270, 480).unwrap());
         for ink in [[0, 0, 0], [255, 0, 0], [0, 255, 0]] {
             assert!(
                 image.rgba().chunks(4).any(|px| px[..3] == ink),

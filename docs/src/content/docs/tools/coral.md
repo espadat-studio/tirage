@@ -1,11 +1,11 @@
 ---
 title: "coral"
-description: "A sea fan printed on textile. It renders a Still."
+description: "A sea fan printed on textile. It renders a Loop of 36 frames at 12 fps, the branches swaying round one small circle."
 ---
 
 A sea fan printed on textile. Ribbed branches grow from a root off the edge of the frame and fork as they spread, so they stay evenly spaced. Torn paper lobes lie over and under them, with a dot screen printed on the paper.
 
-coral renders a Still: one frame. Its site page is [playgrnd.tools/coral](https://www.playgrnd.tools/coral/).
+coral renders a Loop: 36 frames at 12 fps, in which the wobble that bends the branches walks once round a small circle, so they lean and come back. The root, the paper and the dot screen hold still. The branches already lean at frame 0, so frame 0 differs from the Still. With `wobble` at 0 nothing bends, and every frame is the Still. Its site page is [playgrnd.tools/coral](https://www.playgrnd.tools/coral/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 8 --tool coral | tirage render --size 540x960 -o coral.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-coral  1 frame
+coral  36 frames
   branches    2..=12    step 1
   spacing     0..=1     step 0.01
   spread      0..=1     step 0.01

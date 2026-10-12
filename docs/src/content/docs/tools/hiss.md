@@ -1,11 +1,11 @@
 ---
 title: "hiss"
-description: "Pointed leaves full of television snow over a marbled colour field. It renders a Still."
+description: "Pointed leaves full of television snow over a marbled colour field. It renders a Loop of 36 frames at 12 fps, the snow boiling over a drifting marble."
 ---
 
 Pointed leaves full of television snow, stacked down a marbled colour field. Black blots break up the marble, thin comb stripes fringe two corners, checkered lenses sit on the seams between leaves, and small white asterisks are scattered on top.
 
-hiss renders a Still: one frame. Its site page is [playgrnd.tools/hiss](https://www.playgrnd.tools/hiss/).
+hiss renders a Loop: 36 frames at 12 fps, in which the television snow is dealt afresh every frame while the marble beneath drifts once round a small circle. The leaves, the lenses, the comb and the marks hold still. The marble has already moved at frame 0, so frame 0 differs from the Still unless black covers it all. Its site page is [playgrnd.tools/hiss](https://www.playgrnd.tools/hiss/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool hiss | tirage render --size 540x960 -o hiss.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-hiss  1 frame
+hiss  36 frames
   leaves      1..=5     step 1
   size        0.4..=1.4 step 0.01
   overlap     0..=0.5   step 0.01

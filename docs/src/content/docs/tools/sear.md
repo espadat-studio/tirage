@@ -1,11 +1,11 @@
 ---
 title: "sear"
-description: "A smeared thermal image. It renders a Still."
+description: "A smeared thermal image. It renders a Loop of 36 frames at 12 fps, the heat drifting round one small circle."
 ---
 
 A smeared thermal image. A warped noise field is spread flat so each ink of the ramp covers about the same share of the frame, then cut into flat blocks. Each row holds a colour until the field changes enough, so edges drag into streaks, and some bands of rows tear sideways.
 
-sear renders a Still: one frame. Its site page is [playgrnd.tools/sear](https://www.playgrnd.tools/sear/).
+sear renders a Loop: 36 frames at 12 fps, in which the heat field drifts once round a small circle under the smears, so the blocks of colour change shape while each ink keeps about the same share of the frame. The smears, the torn bands and the grain hold still. The field has already moved at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/sear](https://www.playgrnd.tools/sear/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 12 --tool sear | tirage render --size 540x960 -o sear.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-sear  1 frame
+sear  36 frames
   scale       0..=1     step 0.01
   warp        0..=1     step 0.01
   detail      1..=5     step 1

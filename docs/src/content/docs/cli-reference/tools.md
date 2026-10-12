@@ -35,9 +35,9 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `pith`     | 36     | Loop   |
 | `mosh`     | 24     | Loop   |
 | `mist`     | 72     | Loop   |
-| `coral`    | 1      | Still  |
+| `coral`    | 36     | Loop   |
 | `whorl`    | 36     | Loop   |
-| `sear`     | 1      | Still  |
+| `sear`     | 36     | Loop   |
 | `culture`  | 36     | Loop   |
 | `bloom`    | 24     | Loop   |
 | `weave`    | 120    | Loop   |
@@ -55,9 +55,9 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `static`   | 60     | Loop   |
 | `splice`   | 36     | Loop   |
 | `dahlia`   | 36     | Loop   |
-| `hiss`     | 1      | Still  |
+| `hiss`     | 36     | Loop   |
 | `crowd`    | 36     | Loop   |
-| `cipher`   | 1      | Still  |
+| `cipher`   | 36     | Loop   |
 | `riso`     | 16     | Loop   |
 | `rise`     | 72     | Loop   |
 | `carve`    | 36     | Loop   |
