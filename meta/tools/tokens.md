@@ -31,7 +31,7 @@ Site control ids, slider ranges and site defaults:
 | `kin`       | 0..1    | 0.01 | 0.2     | how far in hue an outline ink may sit from its fill    |
 | `break`     | 0..1    | 0.01 | 0.3     | chance a counter takes its own inks                    |
 
-Motion (`modes`, `active`, `stag`, `fps`, `frames`) is off by default and not part of a Still. tokens is a Still Tool: only frame 0 is rendered. With motion off no counter cycles or blinks. Motion stays fixed at site defaults and is not a Parameter. `active` still takes one draw per cluster, see below. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `active`, `stag`, `fps`, `frames`) is off by default and not part of a Still. With motion off no counter cycles or blinks. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). `active` takes one draw per cluster in the Still too, see below. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The page has no seed deal: a new seed only reshuffles the layout.
 
@@ -77,7 +77,7 @@ Then up to `140 count` tries, stopping once `count` clusters are placed. Each tr
 7. shape: square when `r < square`, else circle
 8. `big = r^(1 + 3.2 hier)`, then `size = sizeT (1 - svar / 2 + svar r) (1 + 2.6 hier big)`
 9. per cell in footprint order: when `r < break` it draws its own fill `floor(r n)` and an outline for it. Then the shape flips when `r < 0.12`, the counter is hollow when `r < hollow`, and one more draw (phase)
-10. three more draws for the cluster: phase, direction and `active`
+10. three more draws for the cluster: phase, direction and active, which is `r < 0.45`, the site's default moving share. Only active is used, by the Loop
 
 ## Painting
 
@@ -85,6 +85,20 @@ Then up to `140 count` tries, stopping once `count` clusters are placed. Each tr
 2. When `grid > 0`, one path stroked once in the rule ink at alpha `grid`, line width `max(0.5, 1.1 k)`: a vertical line at `round(i cell k) + 0.5` for `i = step, 2 step, … < C` with `step = max(1, ruleEvery)`, and a horizontal line at `round(j cell k) + 0.5` for every `j = 1..R-1`, each across the whole frame. Overlaps do not stack the alpha.
 3. Counters in placing order. Radius `rad = max(0.05, min(size cell / 2, max(0.05, cell / 2 - strokeW)))` board units, centre `((x + 0.5) cell, (y + 0.5) cell)`. When `strokeW > 0`, fill the shape at radius `rad + strokeW` in the outline ink, then fill it at `rad` in the fill ink, or the board ink when hollow. Everything scales by `k`. A square is the axis-aligned square of half side the radius.
 4. The chassis grain, then dither.
+
+## Motion
+
+The site has two motion modes: Cycle and Blink. Cycle is the default and the only one ported: moving share 0.45, stagger 0.55, 36 frames at 14 fps. tokens has no amount slider.
+
+- Frame `f` sits at `T = f / frames`.
+- Only active clusters move. Each of their counters rolls both its inks through the Palette by the same step `floor((T + lag) n)`, fill and outline alike, mod `n`. Hollow counters keep the board ink inside; only their ring rolls.
+- The lag staggers the roll: `lag = 0.55 (c / m + 0.06 i)` for cluster `c` of `m` placed clusters and counter `i` within it. So later clusters and later counters in a cluster run ahead.
+- Fill and outline move by the same step, so they never meet: the outline is never the fill in the Still, and stays apart.
+- Nothing else moves. Positions, sizes, shapes, hollows and the inactive clusters hold.
+- The Loop closes by one whole Palette turn: at `T = 1` every step is `n` more, which is the same ink mod `n`. `(1 + lag) n` could round across a whole number where `lag n` does not, but on the 3 Seeds the closure test renders, frame `frames` is frame 0, byte for byte.
+- At `f = 0` the step is `floor(lag n)`, which is above 0 for most active counters. So frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a turn, every active ink about `n / 2` steps on from frame 0, as far from it as the Loop gets.
+- Blink is not ported. It flips the hollow of active counters on a staggered sine. It is not reachable from a Recipe.
 
 ## Fidelity notes
 
