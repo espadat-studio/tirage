@@ -14,7 +14,7 @@ Site control ids, slider ranges and site defaults:
 | `cells`  | 28..72                                                                                                      | 2    | 44      | grid columns across the frame          |
 | `chunk`  | 0.7..1.8                                                                                                    | 0.05 | 1       | scales every motif size                |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. quilt is a Still Tool: only frame 0 is rendered. Motion stays fixed at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 quilt is fixed-role. Its Palette is four inks by role, the swatch row in order: Base, Weave A, Weave B, Pop. Default Palette: `#F3E9DC #2A6F97 #C8553D #F4D35E`. The cap is 4.
 
@@ -67,6 +67,34 @@ Every style's draws happen whatever the style, so the stream position does not d
 - steps: run at `floor(vy + floor((ux + off) / rw) rh)`.
 
 Rounding of tile indices is JavaScript's `Math.round`, half toward positive infinity, including for negative values.
+
+## Motion
+
+The site has two motion modes: Scroll and Cycle. Scroll is the default and the only one ported: amount 0.8, 60 frames at 10 fps.
+
+- Frame `f` sits at `T = f / frames`.
+- `perLoop = max(1, round(3 amount))`, 2 at the default: the number of periods a style travels per Loop.
+- A sliding style adds `sh(p) = floor(T perLoop p)` cells to `ux` before its period is read, with `p` its own period. Since `ux` is measured from the centre column, the cloth streams outward from the centre on both sides and stays mirror-symmetric.
+  - bands: `uu = ux + sh(L) + shift`. tabs: `uu = ux + sh(px) + offset`. zigzag `sh(zper)`, waves `sh(wper)`, plaid `sh(per)`: `uu = (ux + sh) mod period`. basket: `ux + sh(2 bb)` in both the block and the stripe test. gingham: `ux + sh(2 gg)` in `vs`.
+  - rings: the run is read at `floor(q) - sh(rPT)`, so the frames move inward. steps: `vy + sh(PT)` inside the floor, so the diagonals step through the run.
+- Tiled styles step a key `key = floor(T max(1, 4 perLoop))`, 8 times per Loop:
+  - diamond and star: parity `p = (tX + tY + key) & 1`, so the inner and outer inks swap on each step.
+  - cross: the pop hash reads channel `4 + key`, so the pops are dealt again on each step. The 1 and 2 parity holds.
+  - burst: `k = floor(angle / (π/2) bn) + floor(4 T perLoop)`, so the rays rotate one ink per step.
+- dither: the inner sine gains a phase, `sin(f2 ux + 2π T perLoop)`, so the dither field flows.
+- Nothing else moves: the grid, the style, every size and every run hold.
+- Most styles close by whole periods: at `T = 1` every `sh(p)` is `2p` and the key is 8.
+  - zigzag, waves, plaid, rings, steps, gingham: the shift is a whole number of periods, read mod the period or with the same parity.
+  - diamond, star: 8 is even, so the parity is back. burst: 8 is a multiple of 4.
+  - basket: the blocks keep their parity, and the vertical stripes, period `2 bs`, close when `2 bs` divides `4 bb`. At chunk 1, `bs = 1`, so they always do.
+  - dither: the phase is `4π`, so `sin` is back up to its last bit, which the closure test would catch.
+- Three styles do not close, as on the site:
+  - bands: each block's ink is hashed from its index, and the shift moves two whole blocks, so the frame after the last shows each block's colours two blocks further in. The Loop jumps at the seam.
+  - tabs: the tab layout closes, but the rare role-2 tabs are hashed from the tab index, two tabs further in, so they jump.
+  - cross: the pops are hashed on channel 12, not 4, so they are dealt again at the seam.
+- At `f = 0` every shift and the key are 0 and the dither phase is 0, so frame 0 is the Still, byte for byte.
+- The mid frame is 15, `frames / 4`: half a period along on the sliding styles. Frame 30 is a whole period, which on most styles is frame 0 again. At frame 15 the key is 2, so diamond and star show frame 0's parity there.
+- Cycle is not ported. It rotates the three ink roles through fixed steps and is not reachable from a Recipe.
 
 ## Painting
 
