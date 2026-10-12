@@ -126,6 +126,7 @@ impl Tool {
                 | Self::Relief
                 | Self::Oddgrid
                 | Self::Kiosk
+                | Self::Atlas
         )
     }
 }
