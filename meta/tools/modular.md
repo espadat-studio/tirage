@@ -24,7 +24,7 @@ Site control ids, slider ranges and site defaults:
 | `rules`     | 0..1     | 0.01 | 0.22    | opacity of the grid rules                       |
 | `ruleW`     | 0.5..4   | 0.5  | 1       | line width of every rule, in px                 |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. modular is a Still Tool: only frame 0 is rendered, and with motion off the noise has no time terms. Motion stays fixed at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the noise has no time terms. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The page opens on seed 1842; a Reference export sets the seed first. The site deals nothing from the seed beyond the layout below, so every slider keeps the value it is given.
 
@@ -90,6 +90,19 @@ Block fields use the module number as the key, dot clusters the module number pl
    - lines: unless `onBg`, the rect in `col2`. One path of vertical lines at each inner unit column edge plus 0.5, from the module top to bottom, and horizontal lines at each inner unit row edge plus 0.5, across the module. Stroked once in `col` at alpha 0.85, width `ruleW`, butt caps.
 3. When `rules > 0`: one path of vertical lines at each inner column edge plus 0.5 over the full height, and horizontal lines at each inner row edge plus 0.5 over the full width, stroked once in the rule colour at alpha `rules`, width `ruleW`.
 4. The chassis grain, then dither.
+
+## Motion
+
+The site has four motion modes: Flow, Sweep, Blink and Shift. Flow is the default and the only one ported: amount 0.6, 24 frames at 6 fps.
+
+- Frame `f` sits at `T = f / frames`. The walk point is `(z, w) = (cos 2πT, sin 2πT) amount`, a circle of radius 0.6 in the noise's two extra axes.
+- The cell noise `vn` turns 4D at that point, in both octaves: [terrain](terrain.md)'s 4D noise, 16 corners lerped over `z` and `w`, read at the same `(z, w)` by both octaves. The two-octave sum is [terrain](terrain.md)'s fbm with 2 octaves, which is what step 2 of the cell noise already computes.
+- The noise only feeds the `v < blockFill` threshold, so unit cells in block and dot modules switch on and off as the field drifts past the threshold, then come back. The layout, the module types and inks, solids, lines, gradients and rules hold.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the walk has period 1 in `T`: frame `frames` is frame 0, up to the last bit of `sin 2π`, which reads the same corners from the other side.
+- Frame 0 is not the Still. At `T = 0` the walk sits at `(0.6, 0)`, off the `z = w = 0` slice the Still reads, and no frame of the Loop visits that slice. Frame 0 gets its own motion-on reference export. A Recipe with no block or dot module holds still on every frame.
+- The mid frame is 12: half a lap, the walk at `(-0.6, 0)`, as far from frame 0 as the Loop goes.
+- Sweep pushes the threshold with a travelling sine, Blink reseeds every cell each frame and Shift slides the noise along `x` over a period of 8. None is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 

@@ -1,11 +1,11 @@
 ---
 title: "stipple"
-description: "A dot print of a noise field. It renders a Still."
+description: "A dot print of a noise field. It renders a Loop of 30 frames at 14 fps, the dots growing, shrinking and fading as the field shifts."
 ---
 
 A dot print of a noise field. A warped field is sampled on a square or hex grid, and each sample may become a dot on a dark ground. In Lattice mode the high ground of the field gets dots, larger the higher it is. In Contour mode the dots gather where the field changes fastest, so they trace its contours. The field can be mirrored or folded round the centre, and a few dots take a bright accent.
 
-stipple renders a Still: one frame. Its site page is [playgrnd.tools/stipple](https://www.playgrnd.tools/stipple/).
+stipple renders a Loop: 30 frames at 14 fps, in which the field shifts shape and comes back. Each dot stays on its grid cell but grows, shrinks, changes ink or fades out as the field moves under it. The field has already shifted at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/stipple](https://www.playgrnd.tools/stipple/).
 
 ## Still
 
@@ -24,7 +24,7 @@ SVG: yes. `-o stipple.svg` writes this Still as an [SVG](/cli-reference/render/#
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-stipple  1 frame, svg
+stipple  30 frames, svg
   modesDot    Lattice, Contour
   lattices    Square, Hex
   shapes      Circle, Square

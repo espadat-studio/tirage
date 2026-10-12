@@ -1,4 +1,4 @@
-use tirage::{Frame, Palette, Params, Recipe, TerrainParams, Tool, ToolPin, derive};
+use tirage::{Frame, Palette, Params, Recipe, TerrainParams, Tool, ToolPin, derive, render};
 
 const TERRAIN: ToolPin = ToolPin::Tool(Tool::Terrain);
 
@@ -89,13 +89,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn terrain_is_a_still() {
-    assert_eq!(Tool::Terrain.frames(), 1);
+fn terrain_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Terrain.frames(), Tool::Terrain.fps()), (30, 12));
     let recipe = derive(7, TERRAIN);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 30)),
+        "frame 30 is outside 0..30"
     );
+}
+
+#[test]
+fn drift_morphs_the_land_off_the_still_at_frame_0_and_on_later() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, TERRAIN);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() != frame(0).rgba(), "seed {seed}");
+        assert!(frame(0).rgba() != frame(15).rgba(), "seed {seed}");
+    }
 }
 
 #[test]

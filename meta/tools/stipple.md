@@ -30,7 +30,7 @@ Site control ids, slider ranges and site defaults, in page order:
 
 `cut` only acts in Lattice mode, `edge` and `loose` only in Contour mode, `folds` only with Radial.
 
-Motion: four modes, Drift (default), Turn, Breathe and Twinkle, off by default. stipple is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off the field's two extra noise axes are 0, the field is not turned, and the twinkle salt is 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion: four modes, Drift (default), Turn, Breathe and Twinkle, off by default. With motion off the field's two extra noise axes are 0, the field is not turned, and the twinkle salt is 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 Default Palette, the 3 swatches: `#3a86ff #8ab6ff #d6e6ff`. The site's palette family also sets a ground and an accent, which are Tool constants at the site defaults: ground `#0b132b`, accent `#ffd166`. The family picker is not a Parameter. The Palette is uncapped and painted with every ink it has.
 
@@ -71,6 +71,20 @@ Second pass, same order. `v = (L - low) / max(1e-6, high - low)`.
 ## Painting
 
 Fill the frame with the ground. Scale `k = W / 1000`. Each dot in order, in its ink: a Circle is a disc at `(x k, y k)` with radius `r k`; a Square is the rect from `((x - r) k, (y - r) k)`, `2 r k` on a side. Both are anti-aliased.
+
+## Motion
+
+Drift is the default mode and the only one ported: amount 0.3, 30 frames at 14 fps.
+
+- Frame `f` sits at `T = f / frames`. The walk point is `(z, w) = (cos 2πT, sin 2πT) amount`, a circle of radius 0.3 in the noise's two extra axes.
+- Every field read is 4D at that point: both warps and the main fbm, at the centre of each lattice cell and, in contour mode, at the four gradient taps. The 4D noise is [terrain](terrain.md)'s: 16 corners lerped over `z` and `w`, which octaves do not scale.
+- So the field morphs in place and the dots follow it. A dot grows, shrinks, changes ink, or drops out where the field falls under the keep threshold, then comes back. The lattice, the symmetry fold, the jitter and the twinkle salt hold, so no dot moves off its cell.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the walk has period 1 in `T`: frame `frames` is frame 0, up to the last bit of `sin 2π`, which reads the same corners from the other side.
+- Frame 0 is not the Still. At `T = 0` the walk sits at `(0.3, 0)`, off the `z = w = 0` slice the Still reads, and no frame of the Loop visits that slice. Frame 0 gets its own motion-on reference export.
+- The mid frame is 15: half a lap, the walk at `(-0.3, 0)`, as far from frame 0 as the Loop goes.
+- With motion off the site reads 4D noise at `z = w = 0`, which is the 2D noise exactly. The port keeps 2D noise for the Still.
+- Turn rotates the field by whole symmetry periods, Breathe swells the dots on a sine and Twinkle reseeds the jitter each frame. None is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 

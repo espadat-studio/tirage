@@ -342,7 +342,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"bite","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let terrain = concat!(
-        r#"{"slug":"terrain","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"terrain","frames":30,"svg":false,"params":["#,
         r#"{"id":"scale","kind":"range","min":0.6,"max":9.0,"step":0.1},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":3.0,"step":0.02},"#,
         r#"{"id":"oct","kind":"range","min":1.0,"max":7.0,"step":1.0},"#,
@@ -504,7 +504,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"detail","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let stipple = concat!(
-        r#"{"slug":"stipple","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"stipple","frames":30,"svg":true,"params":["#,
         r#"{"id":"modesDot","kind":"choice","choices":["Lattice","Contour"]},"#,
         r#"{"id":"lattices","kind":"choice","choices":["Square","Hex"]},"#,
         r#"{"id":"shapes","kind":"choice","choices":["Circle","Square"]},"#,
@@ -536,7 +536,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"gaps","kind":"range","min":0.0,"max":0.5,"step":0.01},"#,
     );
     let oddgrid = concat!(
-        r#"{"slug":"oddgrid","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"oddgrid","frames":32,"svg":true,"params":["#,
         r#"{"id":"cols","kind":"range","min":12.0,"max":110.0,"step":1.0},"#,
         r#"{"id":"scale","kind":"range","min":2.0,"max":60.0,"step":0.5},"#,
         r#"{"id":"density","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -681,7 +681,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"nodes","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let specimen = concat!(
-        r#"{"slug":"specimen","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"specimen","frames":24,"svg":true,"params":["#,
         r#"{"id":"cols","kind":"range","min":2.0,"max":16.0,"step":1.0},"#,
         r#"{"id":"fill","kind":"range","min":0.1,"max":1.0,"step":0.01},"#,
         r#"{"id":"span","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -711,7 +711,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"spread","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let modular = concat!(
-        r#"{"slug":"modular","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"modular","frames":24,"svg":true,"params":["#,
         r#"{"id":"gcols","kind":"range","min":2.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"unit","kind":"range","min":2.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"merge","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -875,7 +875,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\naura  72 frames\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     assert!(listing.contains("\natlas  24 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\noddgrid  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\noddgrid  32 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nfete  100 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nfold  36 frames\n"), "{listing}");
     assert!(listing.contains("\nquilt  60 frames, svg\n"), "{listing}");
@@ -888,9 +888,12 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nriso  16 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nrise  72 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ncarve  36 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nspecimen  1 frame, svg\n"), "{listing}");
+    assert!(
+        listing.contains("\nspecimen  24 frames, svg\n"),
+        "{listing}"
+    );
     assert!(listing.contains("\npane  24 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nmodular  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nmodular  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nprism  12 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nparcel  72 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ntokens  36 frames, svg\n"), "{listing}");
@@ -902,7 +905,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nchaff  36 frames\n"), "{listing}");
     assert!(listing.contains("\nstrand  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
-    assert!(listing.contains("\nstipple  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nstipple  30 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nsprig  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmist  72 frames\n"), "{listing}");
     assert!(listing.contains("\ncoral  36 frames\n"), "{listing}");
@@ -1639,9 +1642,9 @@ fn shell_blocks(markdown: &str) -> Vec<&str> {
     lines
 }
 
-fn first_seed(still: bool) -> u64 {
+fn loop_seed() -> u64 {
     (0..)
-        .find(|&seed| (tirage::derive(seed, tirage::ToolPin::Any).tool().frames() == 1) == still)
+        .find(|&seed| tirage::derive(seed, tirage::ToolPin::Any).tool().frames() > 1)
         .unwrap()
 }
 
@@ -1679,9 +1682,10 @@ fn files_in(dir: &Path) -> Vec<String> {
     names
 }
 
+#[cfg(not(feature = "encode"))]
 #[test]
-fn roll_writes_a_still_as_a_story_png_its_reproduce_line_remakes() {
-    let seed = first_seed(true);
+fn roll_without_encode_writes_the_still_of_a_loop_as_a_story_png_its_reproduce_line_remakes() {
+    let seed = loop_seed();
     let tool = tirage::derive(seed, tirage::ToolPin::Any).tool().slug();
     let name = format!("{tool}-{seed}.png");
     let dir = scratch("roll-still");
@@ -1705,15 +1709,20 @@ fn roll_writes_a_still_as_a_story_png_its_reproduce_line_remakes() {
 
 #[test]
 fn roll_refuses_an_existing_target_and_writes_nothing() {
-    let seed = first_seed(true);
+    let seed = loop_seed();
     let tool = tirage::derive(seed, tirage::ToolPin::Any).tool().slug();
-    let name = format!("{tool}-{seed}.png");
+    let extension = if cfg!(feature = "encode") {
+        "mp4"
+    } else {
+        "png"
+    };
+    let name = format!("{tool}-{seed}.{extension}");
     let dir = scratch("roll-exists");
     std::fs::write(dir.join(&name), b"mine").unwrap();
     let out = roll_in(&dir, &[], seed);
     assert_eq!(out.status.code(), Some(1), "{}", text(&out.stderr));
     assert!(
-        text(&out.stderr).starts_with(&format!("error: {name} exists\nhint: ")),
+        text(&out.stderr).contains(&format!("error: {name} exists\nhint: ")),
         "{}",
         text(&out.stderr)
     );
@@ -1724,13 +1733,14 @@ fn roll_refuses_an_existing_target_and_writes_nothing() {
 
 #[test]
 fn roll_never_prompts() {
-    let seed = first_seed(true);
+    let seed = loop_seed();
     let dir = scratch("roll-no-input");
     let quiet = roll_in(&dir, &["--no-input"], seed);
     assert_eq!(quiet.status.code(), Some(0), "{}", text(&quiet.stderr));
     let piped = scratch("roll-piped");
     let out = roll_in(&piped, &[], seed);
-    assert_eq!(out.stderr, quiet.stderr);
+    let last = |stderr: &[u8]| text(stderr).lines().last().map(str::to_owned);
+    assert_eq!(last(&out.stderr), last(&quiet.stderr));
     assert_eq!(files_in(&piped), files_in(&dir));
     let tty = scratch("roll-tty");
     let out = on_tty_typing("tirage roll", "", &tty);
@@ -1749,29 +1759,6 @@ fn roll_shows_in_help_with_examples() {
     assert!(help.starts_with("Examples:\n  tirage roll\n"), "{help}");
     let script = text(&tirage(&["completions", "bash"], b"").stdout);
     assert!(script.contains("roll"), "{script}");
-}
-
-#[cfg(not(feature = "encode"))]
-#[test]
-fn roll_without_encode_deals_past_a_loop_to_a_still() {
-    let dir = scratch("roll-past-loop");
-    let out = roll_in(&dir, &[], first_seed(false));
-    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
-    let names = files_in(&dir);
-    assert_eq!(names.len(), 1);
-    assert!(names[0].ends_with(".png"), "{names:?}");
-    let seed: u64 = names[0]
-        .trim_end_matches(".png")
-        .rsplit_once('-')
-        .unwrap()
-        .1
-        .parse()
-        .unwrap();
-    assert_eq!(
-        tirage::derive(seed, tirage::ToolPin::Any).tool().frames(),
-        1
-    );
-    std::fs::remove_dir_all(dir).unwrap();
 }
 
 #[cfg(feature = "encode")]
@@ -1849,22 +1836,8 @@ mod encode {
                 .contains("→ tirage derive --seed 42 --tool sonar | tirage encode -o sonar-42.mp4"),
             "{screen}"
         );
-        for still in ["terrain", "oddgrid", "deal from Seed"] {
-            assert!(!screen.contains(still), "{still} offered in\n{screen}");
-        }
+        assert!(!screen.contains("deal from Seed"), "{screen}");
         std::fs::remove_dir_all(dir).unwrap();
-    }
-
-    #[test]
-    fn encode_refuses_a_still_with_a_hint_to_render_it() {
-        let terrain = tirage(&["derive", "--seed", "42", "--tool", "terrain"], b"").stdout;
-        let out = tirage(&["encode", "-o", "-"], &terrain);
-        assert_eq!(out.status.code(), Some(1));
-        assert_eq!(
-            text(&out.stderr),
-            "error: terrain draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
-        );
-        assert!(out.stdout.is_empty());
     }
 
     #[test]
@@ -1919,7 +1892,7 @@ mod encode {
 
     #[test]
     fn roll_encodes_a_loop_its_reproduce_line_remakes() {
-        let seed = first_seed(false);
+        let seed = loop_seed();
         let recipe = tirage::derive(seed, tirage::ToolPin::Any);
         let name = format!("{}-{seed}.mp4", recipe.tool().slug());
         let dir = scratch("roll-loop");

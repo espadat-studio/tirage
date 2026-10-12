@@ -15,7 +15,7 @@ roll has no options of its own. `-h`, `--help`, `--no-color` and `--no-input` wo
 
 ## Output
 
-A Still is rendered at 1080x1920 and written to `<tool>-<seed>.png`. A Loop is encoded as [encode](/cli-reference/encode/) does and written to `<tool>-<seed>.mp4`. Without the `encode` feature, roll deals Seeds until one gives a Still, so it never writes an MP4.
+A Loop is encoded as [encode](/cli-reference/encode/) does and written to `<tool>-<seed>.mp4`. A Still is rendered at 1080x1920 and written to `<tool>-<seed>.png`. Without the `encode` feature, roll renders the Still of whichever Tool the Seed picks, so it never writes an MP4.
 
 stdout stays empty. stderr gets the line that makes the same file again:
 

@@ -26,9 +26,9 @@ encode is in the binary only when it was built with the `encode` feature. See [I
 
 ## Input
 
-encode takes a Recipe from a path, as in `tirage encode recipe.json`, or from stdin, as in `tirage derive --seed 42 --tool sonar | tirage encode`. Alone on a terminal it asks for a Seed, with a random one as default, then for a Tool. That list has only the Tools with a Loop: sonar, kiosk and frond.
+encode takes a Recipe from a path, as in `tirage encode recipe.json`, or from stdin, as in `tirage derive --seed 42 --tool sonar | tirage encode`. Alone on a terminal it asks for a Seed, with a random one as default, then for a Tool. That list has only the Tools with a Loop, which is every Tool.
 
-A Recipe of a Still Tool, husk, vein or aura, has no Loop to encode. encode exits 1 and the hint says to render it as a PNG.
+Every Tool has a Loop. A Recipe of a Tool with 1 frame would have none to encode: encode exits 1 and the hint says to render it as a PNG.
 
 When encode derived the Recipe by prompts, it prints the whole pipeline on stderr so you can rerun it without the prompts:
 

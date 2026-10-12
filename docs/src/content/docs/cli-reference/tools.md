@@ -30,7 +30,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `kiosk`    | 24     | Loop   |
 | `frond`    | 36     | Loop   |
 | `benday`   | 36     | Loop   |
-| `terrain`  | 1      | Still  |
+| `terrain`  | 30     | Loop   |
 | `stitch`   | 36     | Loop   |
 | `pith`     | 36     | Loop   |
 | `mosh`     | 24     | Loop   |
@@ -46,9 +46,9 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `relief`   | 24     | Loop   |
 | `atlas`    | 24     | Loop   |
 | `sprig`    | 36     | Loop   |
-| `stipple`  | 1      | Still  |
+| `stipple`  | 30     | Loop   |
 | `motley`   | 36     | Loop   |
-| `oddgrid`  | 1      | Still  |
+| `oddgrid`  | 32     | Loop   |
 | `fete`     | 100    | Loop   |
 | `fold`     | 36     | Loop   |
 | `quilt`    | 60     | Loop   |
@@ -61,9 +61,9 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `riso`     | 16     | Loop   |
 | `rise`     | 72     | Loop   |
 | `carve`    | 36     | Loop   |
-| `specimen` | 1      | Still  |
+| `specimen` | 24     | Loop   |
 | `pane`     | 24     | Loop   |
-| `modular`  | 1      | Still  |
+| `modular`  | 24     | Loop   |
 | `prism`    | 12     | Loop   |
 | `parcel`   | 72     | Loop   |
 | `tokens`   | 36     | Loop   |

@@ -1,11 +1,11 @@
 ---
 title: "terrain"
-description: "A warped noise field cut into flat bands of colour. It renders a Still."
+description: "A warped noise field cut into flat bands of colour. It renders a Loop of 30 frames at 12 fps, the land shifting shape and coming back."
 ---
 
 A warped noise field cut into flat bands, one band per ink, like a contour map with no lines. Grain shakes each pixel across band edges, and a block size can coarsen the map into square cells.
 
-terrain renders a Still: one frame. Its site page is [playgrnd.tools/terrain](https://www.playgrnd.tools/terrain/).
+terrain renders a Loop: 30 frames at 12 fps, in which the bands swell, split and merge in place, then return to where they began. Nothing slides, and the grain holds still. The land has already changed shape at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/terrain](https://www.playgrnd.tools/terrain/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 7 --tool terrain | tirage render --size 540x960 -o terrain.
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-terrain  1 frame
+terrain  30 frames
   scale       0.6..=9   step 0.1
   warp        0..=3     step 0.02
   oct         1..=7     step 1

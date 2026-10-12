@@ -1,4 +1,4 @@
-use tirage::{Frame, Motif, OddgridParams, Params, Recipe, Tool, ToolPin, derive};
+use tirage::{Frame, Motif, OddgridParams, Params, Recipe, Tool, ToolPin, derive, render};
 
 const PIN: ToolPin = ToolPin::Tool(Tool::Oddgrid);
 
@@ -64,13 +64,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn oddgrid_is_a_still() {
-    assert_eq!(Tool::Oddgrid.frames(), 1);
+fn oddgrid_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Oddgrid.frames(), Tool::Oddgrid.fps()), (32, 8));
     let recipe = derive(7, PIN);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 32)),
+        "frame 32 is outside 0..32"
     );
+}
+
+#[test]
+fn flow_morphs_the_fields_off_the_still_at_frame_0_and_on_later() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, PIN);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() != frame(0).rgba(), "seed {seed}");
+        assert!(frame(0).rgba() != frame(16).rgba(), "seed {seed}");
+    }
 }
 
 #[test]

@@ -1,20 +1,24 @@
+use std::f64::consts::TAU;
+
 use serde::{Deserialize, Serialize};
 
-use crate::aura::{Xorshift, hash};
+use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
+use crate::terrain::fbm;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "modular";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 6;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 4] = ["#e63946", "#1d3557", "#f1c40f", "#1b1b1b"];
 const GROUND: [u8; 3] = [0xf4, 0xef, 0xe3];
 const RULE: [u8; 3] = [0x1b, 0x1b, 0x1b];
+const AMOUNT: f64 = 0.6;
 
 const GCOLS: Param = Param::new(SLUG, "gcols", 2, 12, 1);
 const UNIT: Param = Param::new(SLUG, "unit", 2, 12, 1);
@@ -280,9 +284,10 @@ pub(crate) fn render(
     params: &ModularParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let flow = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, flow);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -310,26 +315,18 @@ struct Module {
     angle: u32,
 }
 
-fn noise(x: f64, y: f64, key: u32) -> f64 {
-    let (x0, y0) = (x.floor(), y.floor());
-    let smooth = |t: f64| t * t * (3.0 - 2.0 * t);
-    let (u, v) = (smooth(x - x0), smooth(y - y0));
-    let (xi, yi) = (x0 as i32, y0 as i32);
-    let lerp = |a: f64, b: f64, t: f64| a + (b - a) * t;
-    let corner = |dx: i32, dy: i32| hash(xi + dx, yi + dy, 0, key);
-    lerp(
-        lerp(corner(0, 0), corner(1, 0), u),
-        lerp(corner(0, 1), corner(1, 1), u),
-        v,
-    )
-}
-
-fn lit(gx: u32, gy: u32, key: u32, block_fill: f64, tool_seed: u32) -> bool {
+fn lit(
+    gx: u32,
+    gy: u32,
+    key: u32,
+    block_fill: f64,
+    tool_seed: u32,
+    zw: Option<(f64, f64)>,
+) -> bool {
     let q = tool_seed
         .wrapping_add(key.wrapping_mul(131))
         .wrapping_add(9);
-    let (x, y) = (f64::from(gx) * 0.55, f64::from(gy) * 0.55);
-    let v = (0.5 * noise(x, y, q) + 0.25 * noise(x * 2.0, y * 2.0, q.wrapping_add(1319))) / 0.75;
+    let v = fbm(f64::from(gx) * 0.55, f64::from(gy) * 0.55, zw, q, 2);
     ((v - 0.5) * 1.9 + 0.5).clamp(0.0, 1.0) < block_fill
 }
 
@@ -435,7 +432,14 @@ fn rules(xs: &[i32], ys: &[i32], (x0, y0, x1, y1): (i32, i32, i32, i32)) -> Path
     path
 }
 
-fn paint(surface: &mut Surface, p: &ModularParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    p: &ModularParams,
+    palette: &Palette,
+    tool_seed: u32,
+    flow: Option<f64>,
+) {
+    let zw = flow.map(|t| ((TAU * t).cos() * AMOUNT, (TAU * t).sin() * AMOUNT));
     let (width, height) = (surface.width() as i32, surface.height() as i32);
     let inks = palette.inks();
     let columns = p.gcols;
@@ -482,6 +486,7 @@ fn paint(surface: &mut Surface, p: &ModularParams, palette: &Palette, tool_seed:
                         idx,
                         p.block_fill,
                         tool_seed,
+                        zw,
                     )
                 };
                 for j in 0..uh {
@@ -522,6 +527,7 @@ fn paint(surface: &mut Surface, p: &ModularParams, palette: &Palette, tool_seed:
                             idx + 77,
                             p.block_fill,
                             tool_seed,
+                            zw,
                         ) {
                             continue;
                         }

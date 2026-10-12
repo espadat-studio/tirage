@@ -29,7 +29,7 @@ Site control ids, slider ranges and site defaults:
 | `lineW`    | 0.4..10 | 0.2   | 2       | stroke width, in sheet units               |
 | `inkMix`   | 0..1    | 0.01  | 0.35    | chance a block's ground is the ink         |
 
-The square-cells toggle opens on and stays on, so the row count follows the canvas and the `rows` slider is disabled. `rows` is not a Parameter. Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. specimen is a Still Tool: only frame 0 is rendered, where every motion term is 0. Grain and dither are the shared [chassis](chassis.md) post-passes, both off by default.
+The square-cells toggle opens on and stays on, so the row count follows the canvas and the `rows` slider is disabled. `rows` is not a Parameter. Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off every motion term is 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, both off by default.
 
 The seed does not deal the sliders on this page.
 
@@ -85,6 +85,21 @@ Polylines (tendril, loop, arc) are stroked at `max(0.3, lineW k)` px (tendril `0
 2. Blocks in id order, each clipped to its box: the box fill, then its motif.
 3. When `rules > 0`: vertical rules at `x = i cw`, `i = 1 .. C - 1`, and horizontal at `y = j ch`, `j = 1 .. R - 1`, positions rounded to 1 decimal, full length, stroked as one path in the ink at width `max(0.5, k)` px and opacity `rules`, butt cap, unclipped.
 4. The chassis grain, then dither.
+
+## Motion
+
+The site has four motion modes: Flow, Spin, Pulse and Cycle. Flow is the default and the only one ported: amount 0.8, 24 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`. The walk point is `(z, w) = (cos 2πT, sin 2πT) amount`, a circle of radius 0.8 in the noise's two extra axes.
+- Only the two noise motifs move. Every fbm read in a marble block and in a tendril block is 4D at that point: [terrain](terrain.md)'s 4D noise, 16 corners lerped over `z` and `w`, which octaves do not scale.
+  - Marble resamples its grid, so the min and max, the band levels and the iso contours all follow. The contour points keep the Still's rounding to 1 decimal.
+  - Tendrils start from the same hashed points and take the same number of steps, but every step reads its angle from the moving field, so each strand curls a new way.
+- The layout, the block inks, flat blocks, loops, type and every other motif hold, as do the rules.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the walk has period 1 in `T`: frame `frames` is frame 0, up to the last bit of `sin 2π`, which reads the same corners from the other side.
+- Frame 0 is not the Still. At `T = 0` the walk sits at `(0.8, 0)`, off the `z = w = 0` slice the Still reads, and no frame of the Loop visits that slice. Frame 0 gets its own motion-on reference export. A Recipe with no marble or tendril block holds still on every frame, so its frame 0 is its Still. Seed 3 deals none, so it gets no frame-0 export, only the mid one.
+- The mid frame is 12: half a lap, the walk at `(-0.8, 0)`, as far from frame 0 as the Loop goes.
+- Spin turns the motifs by whole turns, Pulse swells them on a sine and Cycle steps the block inks along the Palette. None is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
