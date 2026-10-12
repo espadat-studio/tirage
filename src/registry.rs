@@ -132,6 +132,7 @@ impl Tool {
                 | Self::Modular
                 | Self::Prism
                 | Self::Parcel
+                | Self::Tokens
         )
     }
 }

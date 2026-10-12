@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool tokens | tirage render --size 540x960 -o tokens.png
 ```
 
+SVG: yes. `-o tokens.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-tokens  1 frame
+tokens  1 frame, svg
   cols        4..=120   step 1
   ruleEvery   1..=10    step 1
   grid        0..=1     step 0.01
