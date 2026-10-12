@@ -136,6 +136,7 @@ impl Tool {
                 | Self::Riso
                 | Self::Rise
                 | Self::Specimen
+                | Self::Optic
         )
     }
 }
