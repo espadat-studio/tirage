@@ -379,7 +379,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let mosh = concat!(
-        r#"{"slug":"mosh","frames":24,"svg":false,"params":["#,
+        r#"{"slug":"mosh","frames":24,"svg":true,"params":["#,
         r#"{"id":"bands","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"cols","kind":"range","min":24.0,"max":420.0,"step":2.0},"#,
         r#"{"id":"mix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -444,7 +444,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"dot","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
     );
     let bloom = concat!(
-        r#"{"slug":"bloom","frames":24,"svg":false,"params":["#,
+        r#"{"slug":"bloom","frames":24,"svg":true,"params":["#,
         r#"{"id":"cols","kind":"range","min":8.0,"max":96.0,"step":1.0},"#,
         r#"{"id":"rings","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -453,7 +453,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"calm","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let weave = concat!(
-        r#"{"slug":"weave","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"weave","frames":1,"svg":true,"params":["#,
         r#"{"id":"bands","kind":"range","min":3.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"stripe","kind":"range","min":0.5,"max":2.2,"step":0.05},"#,
     );
@@ -504,7 +504,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"detail","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let stipple = concat!(
-        r#"{"slug":"stipple","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"stipple","frames":1,"svg":true,"params":["#,
         r#"{"id":"modesDot","kind":"choice","choices":["Lattice","Contour"]},"#,
         r#"{"id":"lattices","kind":"choice","choices":["Square","Hex"]},"#,
         r#"{"id":"shapes","kind":"choice","choices":["Circle","Square"]},"#,
@@ -791,7 +791,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"weight","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let totem = concat!(
-        r#"{"slug":"totem","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"totem","frames":1,"svg":true,"params":["#,
         r#"{"id":"border","kind":"range","min":0.0,"max":0.4,"step":0.005},"#,
         r#"{"id":"mat","kind":"range","min":0.0,"max":0.7,"step":0.01},"#,
         r#"{"id":"matGrain","kind":"range","min":1.0,"max":6.0,"step":1.0},"#,
@@ -897,20 +897,21 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\noptic  1 frame\n"), "{listing}");
     assert!(listing.contains("\nvee  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsampler  1 frame\n"), "{listing}");
-    assert!(listing.contains("\ntotem  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ntotem  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nfilament  1 frame\n"), "{listing}");
     assert!(listing.contains("\nchaff  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstrand  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
-    assert!(listing.contains("\nstipple  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nstipple  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
     assert!(listing.contains("\nwhorl  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsear  1 frame\n"), "{listing}");
     assert!(listing.contains("\nculture  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nbloom  24 frames\n"), "{listing}");
-    assert!(listing.contains("\nweave  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nmosh  24 frames, svg\n"), "{listing}");
+    assert!(listing.contains("\nbloom  24 frames, svg\n"), "{listing}");
+    assert!(listing.contains("\nweave  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nwarp  72 frames\n"), "{listing}");
     assert!(listing.contains("\nzig  1 frame\n"), "{listing}");
     assert!(listing.contains("\nrelief  24 frames\n"), "{listing}");

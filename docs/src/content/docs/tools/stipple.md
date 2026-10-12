@@ -17,12 +17,14 @@ Seed 15, rendered by:
 tirage derive --seed 15 --tool stipple | tirage render --size 540x960 -o stipple.png
 ```
 
+SVG: yes. `-o stipple.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-stipple  1 frame
+stipple  1 frame, svg
   modesDot    Lattice, Contour
   lattices    Square, Hex
   shapes      Circle, Square
