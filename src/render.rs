@@ -101,6 +101,7 @@ mod tests {
         Tool::Vee,
         Tool::Riso,
         Tool::Rise,
+        Tool::Prism,
     ];
 
     #[test]

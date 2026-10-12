@@ -24,7 +24,7 @@ SVG: yes. `-o prism.svg` writes this Still as an [SVG](/cli-reference/render/#sv
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-prism  1 frame, svg
+prism  12 frames, svg
   cols        24..=72   step 2
   streams     1..=5     step 1
   reach       0.3..=0.85 step 0.01

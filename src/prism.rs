@@ -1,4 +1,4 @@
-use std::f64::consts::PI;
+use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
@@ -10,7 +10,7 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "prism";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 12;
 pub(crate) const FPS: u32 = 8;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
@@ -35,6 +35,7 @@ const RAMP: [&[[u8; 3]]; 5] = [
 ];
 const RINGS: [f64; 5] = [0.55, 0.75, 0.95, 1.12, 1.24];
 const SPINE: usize = 29;
+const AMOUNT: f64 = 0.8;
 
 const COLS: Param = Param {
     step: 2,
@@ -224,9 +225,10 @@ pub(crate) fn render(
     params: &PrismParams,
     _palette: Option<&Palette>,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, tool_seed, drift);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -305,7 +307,14 @@ fn streams(p: &PrismParams, w: f64, h: f64, rng: &mut Xorshift) -> Vec<Stream> {
         .collect()
 }
 
-fn cell(streams: &[Stream], (cx, cy): (f64, f64), gx: i32, gy: i32, key: u32) -> Option<[u8; 3]> {
+fn cell(
+    streams: &[Stream],
+    (cx, cy): (f64, f64),
+    gx: i32,
+    gy: i32,
+    key: u32,
+    drift: Option<f64>,
+) -> Option<[u8; 3]> {
     let (mut best, mut bq, mut bi) = (1e9, 0, 0);
     for (i, stream) in streams.iter().enumerate() {
         for (q, &(px, py)) in stream.spine.iter().enumerate() {
@@ -317,7 +326,11 @@ fn cell(streams: &[Stream], (cx, cy): (f64, f64), gx: i32, gy: i32, key: u32) ->
         }
     }
     let h = |x: i32, y: i32, z: u32| hash(x, y, z, key);
-    let jitter = (h(gx, gy, 1) - 0.5) * 0.32 + (h(gx >> 1, gy >> 1, 15) - 0.5) * 0.42;
+    let fine = h(gx, gy, 1);
+    let mut jitter = (fine - 0.5) * 0.32 + (h(gx >> 1, gy >> 1, 15) - 0.5) * 0.42;
+    if let Some(t) = drift {
+        jitter += 0.18 * AMOUNT * (TAU * t + fine * TAU).sin();
+    }
     let dn = best + jitter;
     let ring = match RINGS.iter().position(|&edge| dn < edge) {
         Some(ring) => ring,
@@ -337,7 +350,7 @@ fn cell(streams: &[Stream], (cx, cy): (f64, f64), gx: i32, gy: i32, key: u32) ->
     }))
 }
 
-fn paint(surface: &mut Surface, p: &PrismParams, tool_seed: u32) {
+fn paint(surface: &mut Surface, p: &PrismParams, tool_seed: u32, drift: Option<f64>) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let mut rng = Xorshift::new(tool_seed);
     let streams = streams(p, w, h, &mut rng);
@@ -351,7 +364,7 @@ fn paint(surface: &mut Surface, p: &PrismParams, tool_seed: u32) {
         for gx in 0..gw {
             let (fx, fy) = (f64::from(gx), f64::from(gy));
             let centre = ((fx + 0.5) * cw, (fy + 0.5) * ch);
-            let Some(ink) = cell(&streams, centre, gx as i32, gy as i32, key) else {
+            let Some(ink) = cell(&streams, centre, gx as i32, gy as i32, key, drift) else {
                 continue;
             };
             let (x0, x1) = ((fx * cw).round(), ((fx + 1.0) * cw).round());
