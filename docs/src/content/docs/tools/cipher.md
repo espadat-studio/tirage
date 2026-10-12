@@ -1,11 +1,11 @@
 ---
 title: "cipher"
-description: "A grid of small glyphs whose bands trace a figure, a relief or a slope. It renders a Still."
+description: "A grid of small glyphs whose bands trace a figure, a relief or a slope. It renders a Loop of 36 frames at 12 fps, the bands drifting round one small circle."
 ---
 
 A coded sheet. A grid of small glyphs sits on a dark ground: squares, diamonds, ringed squares and x's. A field is cut into bands, and every cell takes the glyph and ink of its band, so the bands draw a figure, a contour relief or a slope. Stray squares in other inks, x's along the band edges and smeared rows break up the grid.
 
-cipher renders a Still: one frame. Its site page is [playgrnd.tools/cipher](https://www.playgrnd.tools/cipher/).
+cipher renders a Loop: 36 frames at 12 fps, in which the field under the grid drifts once round a small circle, so the band edges ripple and cells swap glyph and ink as they cross into another band. The grid, the flecks and the smeared rows hold still. The field has already moved at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/cipher](https://www.playgrnd.tools/cipher/).
 
 ## Still
 
