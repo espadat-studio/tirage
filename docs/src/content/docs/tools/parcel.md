@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool parcel | tirage render --size 540x960 -o parcel.png
 ```
 
+SVG: yes. `-o parcel.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-parcel  1 frame
+parcel  1 frame, svg
   cells       8..=28    step 1
   cover       0.2..=0.8 step 0.01
   chunk       0.5..=2   step 0.05

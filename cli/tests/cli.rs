@@ -702,7 +702,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"inkMix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let pane = concat!(
-        r#"{"slug":"pane","frames":24,"svg":false,"params":["#,
+        r#"{"slug":"pane","frames":24,"svg":true,"params":["#,
         r#"{"id":"rows","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
         r#"{"id":"cells","kind":"range","min":1.0,"max":16.0,"step":1.0},"#,
         r#"{"id":"vary","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -711,7 +711,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"spread","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let modular = concat!(
-        r#"{"slug":"modular","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"modular","frames":1,"svg":true,"params":["#,
         r#"{"id":"gcols","kind":"range","min":2.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"unit","kind":"range","min":2.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"merge","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -727,7 +727,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"ruleW","kind":"range","min":0.5,"max":4.0,"step":0.5},"#,
     );
     let prism = concat!(
-        r#"{"slug":"prism","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"prism","frames":1,"svg":true,"params":["#,
         r#"{"id":"cols","kind":"range","min":24.0,"max":72.0,"step":2.0},"#,
         r#"{"id":"streams","kind":"range","min":1.0,"max":5.0,"step":1.0},"#,
         r#"{"id":"reach","kind":"range","min":0.3,"max":0.85,"step":0.01},"#,
@@ -735,7 +735,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"dots","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let parcel = concat!(
-        r#"{"slug":"parcel","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"parcel","frames":1,"svg":true,"params":["#,
         r#"{"id":"cells","kind":"range","min":8.0,"max":28.0,"step":1.0},"#,
         r#"{"id":"cover","kind":"range","min":0.2,"max":0.8,"step":0.01},"#,
         r#"{"id":"chunk","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
@@ -743,7 +743,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"blends","kind":"choice","choices":["Multiply","Normal"]},"#,
     );
     let tokens = concat!(
-        r#"{"slug":"tokens","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"tokens","frames":1,"svg":true,"params":["#,
         r#"{"id":"cols","kind":"range","min":4.0,"max":120.0,"step":1.0},"#,
         r#"{"id":"ruleEvery","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
         r#"{"id":"grid","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -889,11 +889,11 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nrise  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncarve  1 frame\n"), "{listing}");
     assert!(listing.contains("\nspecimen  1 frame\n"), "{listing}");
-    assert!(listing.contains("\npane  24 frames\n"), "{listing}");
-    assert!(listing.contains("\nmodular  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nprism  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nparcel  1 frame\n"), "{listing}");
-    assert!(listing.contains("\ntokens  1 frame\n"), "{listing}");
+    assert!(listing.contains("\npane  24 frames, svg\n"), "{listing}");
+    assert!(listing.contains("\nmodular  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nprism  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nparcel  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\ntokens  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\noptic  1 frame\n"), "{listing}");
     assert!(listing.contains("\nvee  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsampler  24 frames, svg\n"), "{listing}");

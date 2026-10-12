@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool modular | tirage render --size 540x960 -o modular.png
 ```
 
+SVG: yes. `-o modular.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-modular  1 frame
+modular  1 frame, svg
   gcols       2..=12    step 1
   unit        2..=12    step 1
   merge       0..=1     step 0.01

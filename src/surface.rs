@@ -194,10 +194,18 @@ impl Surface {
     }
 
     pub(crate) fn with_alpha(&mut self, alpha: f32, draw: impl FnOnce(&mut Self)) {
-        self.raster("with_alpha");
         let outer = std::mem::replace(&mut self.1, alpha);
+        self.sync_svg();
         draw(self);
         self.1 = outer;
+        self.sync_svg();
+    }
+
+    fn sync_svg(&mut self) {
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.set_alpha(self.1);
+            svg.set_multiply(self.2 == BlendMode::Multiply);
+        }
     }
 
     pub(crate) fn with_clip(
@@ -224,10 +232,11 @@ impl Surface {
     }
 
     pub(crate) fn with_multiply(&mut self, draw: impl FnOnce(&mut Self)) {
-        self.raster("with_multiply");
         let outer = std::mem::replace(&mut self.2, BlendMode::Multiply);
+        self.sync_svg();
         draw(self);
         self.2 = outer;
+        self.sync_svg();
     }
 
     pub(crate) fn with_plus(&mut self, draw: impl FnOnce(&mut Self)) {
@@ -341,6 +350,18 @@ impl Surface {
         (x1, y1): (f64, f64),
         stops: &[(f64, [u8; 3])],
     ) {
+        assert!(
+            self.1 == 1.0 && self.2 == BlendMode::SourceOver,
+            "a ramp is opaque and source-over"
+        );
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.fill_rect_linear(x, y, width, height, (x0, y0), (x1, y1), stops);
+            return;
+        }
+        assert!(
+            self.raster("fill_rect_linear").1.is_none(),
+            "a ramp ignores a clip"
+        );
         let rect = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32)
             .expect("rect sides are at least 1 px");
         let stops = stops
@@ -726,15 +747,7 @@ mod tests {
         );
     }
 
-    #[test]
-    fn overlapping_boxes_rasterize_from_svg_within_one_level_of_the_raster() {
-        let draw = |surface: &mut Surface| {
-            surface.fill([138, 182, 255]);
-            surface.fill_box(1.3, 0.6, 3.2, 2.9, [16, 40, 90]);
-            surface.fill_box(2.7, 1.9, 2.55, 3.05, [250, 120, 7]);
-            surface.fill_box(0.45, 2.2, 3.1, 0.7, [77, 201, 33]);
-            surface.fill_box(-0.5, 4.6, 7.5, 2.0, [0, 0, 0]);
-        };
+    fn assert_svg_rasterizes_within_one_level(draw: impl Fn(&mut Surface)) {
         let mut raster = Surface::new(6, 6);
         draw(&mut raster);
         let mut svg = Surface::svg(6, 6);
@@ -749,6 +762,59 @@ mod tests {
             .zip(&raster)
             .map(|(a, b)| a.abs_diff(*b));
         assert!(worst.max() <= Some(1), "{:?}\n{raster:?}", pixmap.data());
+    }
+
+    #[test]
+    fn overlapping_boxes_rasterize_from_svg_within_one_level_of_the_raster() {
+        let draw = |surface: &mut Surface| {
+            surface.fill([138, 182, 255]);
+            surface.fill_box(1.3, 0.6, 3.2, 2.9, [16, 40, 90]);
+            surface.fill_box(2.7, 1.9, 2.55, 3.05, [250, 120, 7]);
+            surface.fill_box(0.45, 2.2, 3.1, 0.7, [77, 201, 33]);
+            surface.fill_box(-0.5, 4.6, 7.5, 2.0, [0, 0, 0]);
+        };
+        assert_svg_rasterizes_within_one_level(draw);
+    }
+
+    #[test]
+    fn boxes_and_strokes_under_an_alpha_rasterize_from_svg_within_one_level_of_the_raster() {
+        let draw = |surface: &mut Surface| {
+            surface.fill([138, 182, 255]);
+            surface.with_alpha(0.56, |surface| {
+                surface.fill_box(1.3, 0.6, 3.2, 2.9, [16, 40, 90]);
+                surface.fill_box(2.7, 1.9, 2.55, 3.05, [250, 120, 7]);
+            });
+            let mut path = Path2D::default();
+            path.move_to(0.0, 4.5);
+            path.line_to(6.0, 4.5);
+            path.move_to(3.5, 0.0);
+            path.line_to(3.5, 6.0);
+            surface.with_alpha(0.3, |surface| {
+                surface.stroke(&path, [255, 255, 255], 1.0, Cap::Butt, Join::Miter);
+            });
+            surface.with_alpha(0.81, |surface| {
+                surface.stroke(&path, [217, 212, 199], 0.594, Cap::Butt, Join::Miter);
+            });
+        };
+        assert_svg_rasterizes_within_one_level(draw);
+    }
+
+    #[test]
+    fn strokes_under_multiply_rasterize_from_svg_within_one_level_of_the_raster() {
+        let draw = |surface: &mut Surface| {
+            surface.fill([138, 182, 255]);
+            surface.fill_rect(0, 3, 6, 3, [250, 120, 7]);
+            let mut path = Path2D::default();
+            path.move_to(0.0, 4.5);
+            path.line_to(6.0, 4.5);
+            path.move_to(3.5, 0.0);
+            path.line_to(3.5, 6.0);
+            surface.with_multiply(|surface| {
+                surface.stroke(&path, [77, 201, 33], 1.0, Cap::Butt, Join::Miter);
+            });
+            surface.fill_box(0.5, 0.5, 1.0, 1.0, [16, 40, 90]);
+        };
+        assert_svg_rasterizes_within_one_level(draw);
     }
 
     #[test]
