@@ -9,6 +9,7 @@ pub(crate) struct SvgWriter {
     height: u32,
     markup: String,
     group: Option<([u8; 3], bool)>,
+    gradients: u32,
 }
 
 impl SvgWriter {
@@ -20,6 +21,7 @@ impl SvgWriter {
                 r#"<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">"#
             ),
             group: None,
+            gradients: 0,
         }
     }
 
@@ -60,6 +62,46 @@ impl SvgWriter {
         write!(
             self.markup,
             r#"<rect x="{x}" y="{y}" width="{width}" height="{height}"/>"#
+        )
+        .expect("a String takes any write");
+    }
+
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "a rect, a gradient line and its stops"
+    )]
+    pub(crate) fn fill_rect_linear(
+        &mut self,
+        x: i32,
+        y: i32,
+        width: u32,
+        height: u32,
+        (x0, y0): (f64, f64),
+        (x1, y1): (f64, f64),
+        stops: &[(f64, [u8; 3])],
+    ) {
+        if self.group.take().is_some() {
+            self.markup.push_str("</g>");
+        }
+        let id = self.gradients;
+        self.gradients += 1;
+        let [x0, y0, x1, y1] = [x0, y0, x1, y1].map(|v| v as f32);
+        write!(
+            self.markup,
+            r#"<linearGradient id="r{id}" gradientUnits="userSpaceOnUse" x1="{x0}" y1="{y0}" x2="{x1}" y2="{y1}">"#
+        )
+        .expect("a String takes any write");
+        for &(offset, [r, g, b]) in stops {
+            write!(
+                self.markup,
+                r##"<stop offset="{}" stop-color="#{r:02x}{g:02x}{b:02x}"/>"##,
+                offset as f32
+            )
+            .expect("a String takes any write");
+        }
+        write!(
+            self.markup,
+            r#"</linearGradient><rect x="{x}" y="{y}" width="{width}" height="{height}" fill="url(#r{id})" shape-rendering="crispEdges"/>"#
         )
         .expect("a String takes any write");
     }
@@ -474,6 +516,35 @@ mod tests {
             Join::Round,
         );
         assert!(body(svg.finish()).contains(r#"d="M0.33333334 1L2 1""#));
+    }
+
+    #[test]
+    fn fill_rect_linear_writes_a_user_space_gradient_and_a_crisp_rect_outside_any_ink_group() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_rect(0, 0, 1, 1, [0, 0, 0]);
+        svg.fill_rect_linear(
+            1,
+            2,
+            3,
+            4,
+            (1.0, 2.0),
+            (4.0, 1.0 / 3.0),
+            &[(0.0, [255, 0, 16]), (0.25, [0, 0, 0])],
+        );
+        svg.fill_rect_linear(0, 0, 1, 1, (0.0, 0.0), (1.0, 0.0), &[(1.0, [1, 2, 3])]);
+        assert_eq!(
+            body(svg.finish()),
+            [
+                r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1"/></g>"##,
+                r#"<linearGradient id="r0" gradientUnits="userSpaceOnUse" x1="1" y1="2" x2="4" y2="0.33333334">"#,
+                r##"<stop offset="0" stop-color="#ff0010"/><stop offset="0.25" stop-color="#000000"/></linearGradient>"##,
+                r#"<rect x="1" y="2" width="3" height="4" fill="url(#r0)" shape-rendering="crispEdges"/>"#,
+                r#"<linearGradient id="r1" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0">"#,
+                r##"<stop offset="1" stop-color="#010203"/></linearGradient>"##,
+                r#"<rect x="0" y="0" width="1" height="1" fill="url(#r1)" shape-rendering="crispEdges"/>"#,
+            ]
+            .concat()
+        );
     }
 
     #[test]

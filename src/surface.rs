@@ -341,6 +341,18 @@ impl Surface {
         (x1, y1): (f64, f64),
         stops: &[(f64, [u8; 3])],
     ) {
+        assert!(
+            self.1 == 1.0 && self.2 == BlendMode::SourceOver,
+            "a ramp is opaque and source-over"
+        );
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.fill_rect_linear(x, y, width, height, (x0, y0), (x1, y1), stops);
+            return;
+        }
+        assert!(
+            self.raster("fill_rect_linear").1.is_none(),
+            "a ramp ignores a clip"
+        );
         let rect = Rect::from_xywh(x as f32, y as f32, width as f32, height as f32)
             .expect("rect sides are at least 1 px");
         let stops = stops
