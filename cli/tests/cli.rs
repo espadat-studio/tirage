@@ -791,7 +791,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"weight","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let totem = concat!(
-        r#"{"slug":"totem","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"totem","frames":1,"svg":true,"params":["#,
         r#"{"id":"border","kind":"range","min":0.0,"max":0.4,"step":0.005},"#,
         r#"{"id":"mat","kind":"range","min":0.0,"max":0.7,"step":0.01},"#,
         r#"{"id":"matGrain","kind":"range","min":1.0,"max":6.0,"step":1.0},"#,
@@ -897,7 +897,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\noptic  1 frame\n"), "{listing}");
     assert!(listing.contains("\nvee  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsampler  1 frame\n"), "{listing}");
-    assert!(listing.contains("\ntotem  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ntotem  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nfilament  1 frame\n"), "{listing}");
     assert!(listing.contains("\nchaff  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstrand  1 frame\n"), "{listing}");

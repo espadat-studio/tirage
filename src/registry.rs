@@ -114,7 +114,7 @@ impl Tool {
     pub fn supports_svg(self) -> bool {
         matches!(
             self,
-            Self::Sonar | Self::Mosh | Self::Bloom | Self::Weave | Self::Stipple
+            Self::Sonar | Self::Mosh | Self::Bloom | Self::Weave | Self::Stipple | Self::Totem
         )
     }
 }
