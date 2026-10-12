@@ -11,13 +11,14 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "splice";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 7] = [
     "#1b1b1b", "#ff6b35", "#004e89", "#f7c59f", "#efefd0", "#1a936f", "#ff3cac",
 ];
+const AMOUNT: f64 = 0.6;
 
 const SLICES: Param = Param::new(SLUG, "slices", 1, 40, 1);
 const SHIFT: Param = Param::new(SLUG, "shift", 0, 100, 100);
@@ -328,9 +329,10 @@ pub(crate) fn render(
     params: &SpliceParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -464,12 +466,22 @@ fn cuts(params: &SpliceParams, tool_seed: u32) -> (Vec<Column>, Vec<Arc>) {
     (columns, arcs)
 }
 
-fn paint(surface: &mut Surface, params: &SpliceParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &SpliceParams,
+    palette: &Palette,
+    tool_seed: u32,
+    drift: Option<f64>,
+) {
     let (w, h) = (surface.width(), surface.height());
     let (width, height) = (f64::from(w), f64::from(h));
     let (columns, arcs) = cuts(params, tool_seed);
     let inks = palette.len();
     let u = (width * height).sqrt();
+    let (ox, oy) = drift.map_or((0.0, 0.0), |t| {
+        let (ph, reach) = (TAU * t, AMOUNT * 0.09);
+        (ph.cos() * reach * u, ph.sin() * reach * u)
+    });
     let tones = params.tones;
     let fs = u * (0.09 + params.scale * 0.42);
     let shift = params.shift * 0.55 * u;
@@ -504,8 +516,8 @@ fn paint(surface: &mut Surface, params: &SpliceParams, palette: &Palette, tool_s
                 .find(|piece| v < piece.bottom)
                 .expect("the last piece ends at 1");
             let (sx, sy) = match params.cut {
-                SpliceCut::Rows => (fx + pc.off * shift, fy),
-                _ => (fx, fy + pc.off * shift),
+                SpliceCut::Rows => (fx + ox + pc.off * shift, fy + oy),
+                _ => (fx + ox, fy + oy + pc.off * shift),
             };
             let field: f64 = octaves
                 .iter()

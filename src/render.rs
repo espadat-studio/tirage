@@ -106,6 +106,7 @@ mod tests {
         Tool::Culture,
         Tool::Sprig,
         Tool::Fold,
+        Tool::Splice,
     ];
 
     #[test]

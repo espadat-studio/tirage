@@ -22,7 +22,7 @@ tirage derive --seed 2 --tool splice | tirage render --size 540x960 -o splice.pn
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-splice  1 frame
+splice  36 frames
   dirs        Columns, Rows, Blocks
   slices      1..=40    step 1
   shift       0..=1     step 0.01

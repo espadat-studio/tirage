@@ -585,7 +585,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"glitch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let splice = concat!(
-        r#"{"slug":"splice","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"splice","frames":36,"svg":false,"params":["#,
         r#"{"id":"dirs","kind":"choice","choices":["Columns","Rows","Blocks"]},"#,
         r#"{"id":"slices","kind":"range","min":1.0,"max":40.0,"step":1.0},"#,
         r#"{"id":"shift","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -880,7 +880,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nfold  36 frames\n"), "{listing}");
     assert!(listing.contains("\nquilt  60 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nstatic  60 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nsplice  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nsplice  36 frames\n"), "{listing}");
     assert!(listing.contains("\ndahlia  36 frames\n"), "{listing}");
     assert!(listing.contains("\nhiss  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncrowd  1 frame\n"), "{listing}");
