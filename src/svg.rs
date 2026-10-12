@@ -288,6 +288,10 @@ impl SvgWriter {
 
     pub(crate) fn draw_nearest(&mut self, rgba: &[u8], width: u32, height: u32) {
         assert!(self.clips.is_empty(), "pixel writes ignore a clip");
+        assert!(
+            self.alpha >= 1.0 && !self.multiply,
+            "pixel writes are opaque and source-over"
+        );
         let edges = |edge: u32, scaled: u32| {
             (0..=edge)
                 .map(|cell| {
@@ -1040,6 +1044,14 @@ mod tests {
     #[should_panic(expected = "a nearest buffer is opaque")]
     fn draw_nearest_refuses_a_translucent_buffer() {
         SvgWriter::new(1, 1).draw_nearest(&[0, 0, 0, 254], 1, 1);
+    }
+
+    #[test]
+    #[should_panic(expected = "pixel writes are opaque and source-over")]
+    fn draw_nearest_refuses_an_alpha() {
+        let mut svg = SvgWriter::new(1, 1);
+        svg.set_alpha(0.5);
+        svg.draw_nearest(&[0, 0, 0, 255], 1, 1);
     }
 
     #[test]
