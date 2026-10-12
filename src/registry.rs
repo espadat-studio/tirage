@@ -118,6 +118,7 @@ impl Tool {
                 | Self::Fete
                 | Self::Quilt
                 | Self::Static
+                | Self::Carve
                 | Self::Mosh
                 | Self::Bloom
                 | Self::Weave

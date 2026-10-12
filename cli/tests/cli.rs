@@ -671,7 +671,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"depth","kind":"range","min":0.1,"max":0.4,"step":0.01},"#,
     );
     let carve = concat!(
-        r#"{"slug":"carve","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"carve","frames":1,"svg":true,"params":["#,
         r#"{"id":"cuts","kind":"range","min":1.0,"max":16.0,"step":1.0},"#,
         r#"{"id":"uneven","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"gap","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -887,7 +887,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\ncipher  1 frame\n"), "{listing}");
     assert!(listing.contains("\nriso  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nrise  1 frame, svg\n"), "{listing}");
-    assert!(listing.contains("\ncarve  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ncarve  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nspecimen  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\npane  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nmodular  1 frame, svg\n"), "{listing}");

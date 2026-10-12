@@ -17,12 +17,14 @@ Seed 2, rendered by:
 tirage derive --seed 2 --tool carve | tirage render --size 540x960 -o carve.png
 ```
 
+SVG: yes. `-o carve.svg` writes this Still as an [SVG](/cli-reference/render/#svg). It is partly raster: ramp panels are drawn pixel by pixel, so the SVG holds them as embedded PNG images.
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-carve  1 frame
+carve  1 frame, svg
   cuts        1..=16    step 1
   uneven      0..=1     step 0.01
   gap         0..=1     step 0.01
