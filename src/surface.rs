@@ -511,6 +511,10 @@ impl Surface {
     pub(crate) fn fill_circle(&mut self, x: f64, y: f64, radius: f64, ink: [u8; 3]) {
         let path = PathBuilder::from_circle(x as f32, y as f32, radius as f32)
             .expect("a circle has a positive radius");
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.fill_path(&path, ink);
+            return;
+        }
         let paint = self.solid(ink);
         let (pixmap, mask) = self.raster("fill_circle");
         pixmap.fill_path(
@@ -660,9 +664,18 @@ mod tests {
     use super::{Cap, Join, Path2D, Smoothing, Surface, Transform};
 
     #[test]
-    #[should_panic(expected = "fill_circle has no SVG arm")]
+    #[should_panic(expected = "set_pixel has no SVG arm")]
     fn an_svg_surface_panics_naming_an_op_without_an_svg_arm() {
-        Surface::svg(4, 4).fill_circle(2.0, 2.0, 1.0, [0, 0, 0]);
+        Surface::svg(4, 4).set_pixel(0, 0, [0, 0, 0]);
+    }
+
+    #[test]
+    fn fill_circle_writes_tiny_skias_circle_quads_as_an_svg_path() {
+        let mut surface = Surface::svg(4, 4);
+        surface.fill_circle(2.0, 2.0, 1.0, [0, 0, 0]);
+        let svg = surface.into_svg();
+        assert!(svg.contains(r#"<path d="M3 2Q"#), "{svg}");
+        assert!(svg.ends_with("Z\" fill=\"#000000\"/></svg>\n"), "{svg}");
     }
 
     #[test]

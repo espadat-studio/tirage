@@ -1,5 +1,7 @@
 use std::fmt::Write;
 
+use tiny_skia::{Path, PathSegment};
+
 pub(crate) struct SvgWriter {
     width: u32,
     height: u32,
@@ -118,6 +120,29 @@ impl SvgWriter {
         .expect("a String takes any write");
     }
 
+    pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
+        self.markup.push_str(r#"<path d=""#);
+        for segment in path.segments() {
+            match segment {
+                PathSegment::MoveTo(p) => write!(self.markup, "M{} {}", p.x, p.y),
+                PathSegment::LineTo(p) => write!(self.markup, "L{} {}", p.x, p.y),
+                PathSegment::QuadTo(c, p) => {
+                    write!(self.markup, "Q{} {} {} {}", c.x, c.y, p.x, p.y)
+                }
+                PathSegment::CubicTo(a, b, p) => write!(
+                    self.markup,
+                    "C{} {} {} {} {} {}",
+                    a.x, a.y, b.x, b.y, p.x, p.y
+                ),
+                PathSegment::Close => write!(self.markup, "Z"),
+            }
+            .expect("a String takes any write");
+        }
+        let [r, g, b] = ink;
+        write!(self.markup, r##"" fill="#{r:02x}{g:02x}{b:02x}"/>"##)
+            .expect("a String takes any write");
+    }
+
     pub(crate) fn finish(self) -> String {
         self.markup + "</svg>\n"
     }
@@ -125,6 +150,8 @@ impl SvgWriter {
 
 #[cfg(test)]
 mod tests {
+    use tiny_skia::PathBuilder;
+
     use super::SvgWriter;
 
     #[test]
@@ -206,6 +233,22 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             [row(0, 1, "0.49803922"), row(1, 1, "0.24705882")].concat()
+        );
+    }
+
+    #[test]
+    fn fill_path_writes_each_segment_as_path_data_at_shortest_f32_coordinates() {
+        let mut path = PathBuilder::new();
+        path.move_to(0.5, 1.0);
+        path.line_to(2.0, 1.0 / 3.0);
+        path.quad_to(3.0, 0.0, 4.0, 1.0);
+        path.cubic_to(5.0, 2.0, 6.0, 3.0, 7.0, 4.0);
+        path.close();
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_path(&path.finish().unwrap(), [0, 128, 255]);
+        assert_eq!(
+            body(svg.finish()),
+            r##"<path d="M0.5 1L2 0.33333334Q3 0 4 1C5 2 6 3 7 4Z" fill="#0080ff"/>"##
         );
     }
 }
