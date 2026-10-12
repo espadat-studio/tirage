@@ -8,7 +8,7 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "weave";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 120;
 pub(crate) const FPS: u32 = 24;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
@@ -158,13 +158,14 @@ pub(crate) fn render(
     params: &WeaveParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
 const VIEW: f64 = 1000.0;
+const AMOUNT: f64 = 0.8;
 
 enum Align {
     Top,
@@ -181,6 +182,8 @@ struct Band {
     duty: f64,
     share: f64,
     align: Align,
+    direction: f64,
+    repeats: f64,
     phase: f64,
 }
 
@@ -233,8 +236,8 @@ fn bands(params: &WeaveParams, inks: usize, view_height: f64, tool_seed: u32) ->
         } else {
             Align::Centre
         };
-        rng.next();
-        rng.next();
+        let direction = if rng.next() < 0.5 { -1.0 } else { 1.0 };
+        let repeats = 1.0 + (rng.next() * 2.0).floor();
         let phase = rng.next();
         out.push(Band {
             top,
@@ -245,6 +248,8 @@ fn bands(params: &WeaveParams, inks: usize, view_height: f64, tool_seed: u32) ->
             duty,
             share,
             align,
+            direction,
+            repeats,
             phase,
         });
         top = bottom;
@@ -252,7 +257,14 @@ fn bands(params: &WeaveParams, inks: usize, view_height: f64, tool_seed: u32) ->
     out
 }
 
-fn paint(surface: &mut Surface, params: &WeaveParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &WeaveParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
+    let time = t.map_or(0.0, |t| f64::from(t) / f64::from(FRAMES));
     let (width, height) = (surface.width(), surface.height());
     let view_height = VIEW * f64::from(height) / f64::from(width);
     let k = f64::from(width) / VIEW;
@@ -277,7 +289,9 @@ fn paint(surface: &mut Surface, params: &WeaveParams, palette: &Palette, tool_se
         }
         let y = round_half_up(stripe_top * k) as i32;
         let threads = band.threads.len() as i64;
-        let offset = band.phase * band.pitch * threads as f64;
+        let period = band.pitch * threads as f64;
+        let speed = round_half_up(band.repeats * AMOUNT).max(1.0);
+        let offset = band.direction * time * speed * period + band.phase * period;
         let stripe_width = band.pitch * band.duty;
         let cols = (round_half_up(stripe_width * k) as u32).max(1);
         let first = ((-offset - stripe_width) / band.pitch).floor() as i64 - 1;

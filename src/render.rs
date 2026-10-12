@@ -89,7 +89,13 @@ mod tests {
     use super::{Frame, render};
     use crate::{Palette, Tool, ToolPin, derive};
 
-    const CLOSED: &[Tool] = &[Tool::Sonar, Tool::Husk, Tool::Bloom, Tool::Warp];
+    const CLOSED: &[Tool] = &[
+        Tool::Sonar,
+        Tool::Husk,
+        Tool::Bloom,
+        Tool::Weave,
+        Tool::Warp,
+    ];
 
     #[test]
     fn the_frame_after_the_last_is_frame_0_on_continuous_loops() {
