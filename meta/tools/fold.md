@@ -22,7 +22,7 @@ Site control ids, slider ranges and site defaults:
 | `tilt`    | 0..1                                                         | 0.01 | 0.3       | random turn added to each patch        |
 | `px`      | 0..1                                                         | 0.01 | 0.35      | grid cell size                         |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. fold is a Still Tool: only frame 0 is rendered. Motion stays fixed at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. `sizePx` is the export size, not a Parameter.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. `sizePx` is the export size, not a Parameter.
 
 fold is a palette-family Tool: the Palette is the swatch row, any number of inks from 2, read by position and by brightness. Default Palette, 6 inks: `#1A1A1A #F5F1E8 #FF5C39 #3B5BFF #FFD23F #7B2CBF`.
 
@@ -83,6 +83,20 @@ On is `a`, off is `b`. A tone `t` paints `a + (b - a) floor(t L) / (L - 1)` per 
 No patch: the ground burst. `d = hypot(u, v) / hypot(aw, ah)`, and the colour is `others[0] + (ground - others[0]) floor(min(0.999, d) L) / (L - 1)`.
 
 Channels are stored to bytes rounding half to even and clamping, as a canvas `ImageData` does. The grid is drawn over the frame with image smoothing off.
+
+## Motion
+
+The site has three motion modes: Drift, Wave and Breathe. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`, and the drift reach is `D = 0.12 amount = 0.072`.
+- The source point slides round a circle. After the fold, each cell reads from `(u, v) = (sx aw + D cos ph, sy ah + D sin ph)`, so every patch and the ground burst slide under the folded view together.
+- The mirrors stay fixed. The fold lines, the grid and the cell size hold, so the slide shows as patches flowing toward or away from each fold line, mirrored on the far side.
+- Nothing else moves. Patch shapes, angles, inks, frequencies and phases hold.
+- The source runs one lap over the Loop, whatever the amount. The amount only sets the reach.
+- The Loop closes because both offsets have period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the offset is `(D, 0)`, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a lap, where the offset is `(-D, 0)`, as far from frame 0 as the Loop gets.
+- Wave rolls the zebra stripes and Breathe swells the dots and bursts. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
