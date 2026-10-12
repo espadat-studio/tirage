@@ -9,9 +9,11 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "sampler";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 6;
 pub(crate) const MAX_INKS: Option<usize> = None;
+
+const SHUFFLE: u32 = 7919;
 
 const DEFAULT_PALETTE: [&str; 7] = [
     "#101010", "#d6ff3c", "#6f6a1c", "#ff7a1f", "#f4786e", "#c9c4ca", "#a2218e",
@@ -220,9 +222,10 @@ pub(crate) fn render(
     params: &SamplerParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let shuffle = t.unwrap_or(0).wrapping_mul(SHUFFLE);
+    paint(surface, params, palette, tool_seed.wrapping_add(shuffle));
     chassis::finish(surface, &params.grain, &params.dither);
 }
 

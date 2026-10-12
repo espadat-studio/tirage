@@ -1,11 +1,11 @@
 ---
 title: "totem"
-description: "A screenprinted emblem whose right half mirrors its left, framed by a mat of clotted marks. It renders a Still."
+description: "A screenprinted emblem whose right half mirrors its left, framed by a mat of clotted marks. It renders a Loop of 24 frames at 8 fps, the mat and prints dealt again each frame."
 ---
 
 A screenprinted emblem. A mat of clotted marks frames a dark panel. Inside the panel, the left half is cut into rectangles, each printed with a flat two-ink pattern such as checks, stripes, bricks or nested rings. Every rectangle has a twin reflected across the centre line, and a small nested emblem sits in the middle. Every edge lands on one square grid, so nothing is blurred.
 
-totem renders a Still: one frame. Its site page is [playgrnd.tools/totem](https://www.playgrnd.tools/totem/).
+totem renders a Loop: 24 frames at 8 fps, in which every frame deals a new mat, a new cut of the panel and new patterns and inks in each rectangle and the emblem, while the border, the panel and the emblem's size stay put. Frame 0 is the Still. Its site page is [playgrnd.tools/totem](https://www.playgrnd.tools/totem/).
 
 ## Still
 
@@ -24,7 +24,7 @@ SVG: yes. `-o totem.svg` writes this Still as an [SVG](/cli-reference/render/#sv
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-totem  1 frame, svg
+totem  24 frames, svg
   border      0..=0.4   step 0.005
   mat         0..=0.7   step 0.01
   matGrain    1..=6     step 1

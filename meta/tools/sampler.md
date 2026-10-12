@@ -19,7 +19,7 @@ Site control ids, slider ranges and site defaults, in page order:
 
 The site has no seed deal: changing the seed leaves every slider where it is.
 
-Motion: two modes, Shuffle (default) and Turn, off by default. sampler is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off the band seed is the Tool seed and the extra spin is 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion: two modes, Shuffle (default) and Turn, off by default and not part of a Still. With motion off the band seed is the Tool seed and the extra spin is 0. The Loop turns it on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 ## Palette
 
@@ -84,6 +84,18 @@ Each shape is a closed polygon in the unit square:
 1. Fill the frame in the ground.
 2. Each tile, in the order above, fills its polygon nonzero under the transform: translate to `(x cw, (ry mod rows) ch)`, scale by `(cw, ch)`, translate `(0.5, 0.5)`, rotate `q π/2`, translate `(-0.5, -0.5)`. Scaling before the turn keeps a turned tile inside its own cell on a non-square cell.
 3. The chassis grain, then dither.
+
+## Motion
+
+Shuffle is the default and the only mode ported: amount 0.6, 24 frames at 6 fps.
+
+- Shuffle deals the whole sampler again every frame. At frame `f`, `s` is `seed + 7919 f`, 32-bit wrapping, everywhere in [Bands](#bands) and [Tiles](#tiles). The run's start row, the band heights, shapes and inks, and every tile's presence, shape, turn and ink all move.
+- Nothing else moves. The grid, the ground and the tile inks hold.
+- The amount does not change Shuffle.
+- The Loop closes by a cut: the frame after the last is a new deal, not frame 0. A reseed has no closure test.
+- At `f = 0`, `s` is the Tool seed, so frame 0 is the Still, byte for byte. It needs no reference export of its own.
+- The mid frame is 12. Any frame past 0 is a fresh deal, and 12 is half way through.
+- Turn is not ported. It adds quarter turns to every tile over the Loop. It is not reachable from a Recipe.
 
 ## Fidelity notes
 

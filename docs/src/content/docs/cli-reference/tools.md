@@ -49,7 +49,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `stipple`  | 1      | Still  |
 | `motley`   | 36     | Loop   |
 | `oddgrid`  | 1      | Still  |
-| `fete`     | 1      | Still  |
+| `fete`     | 100    | Loop   |
 | `fold`     | 1      | Still  |
 | `quilt`    | 1      | Still  |
 | `static`   | 60     | Loop   |
@@ -62,15 +62,15 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `rise`     | 1      | Still  |
 | `carve`    | 1      | Still  |
 | `specimen` | 1      | Still  |
-| `pane`     | 1      | Still  |
+| `pane`     | 24     | Loop   |
 | `modular`  | 1      | Still  |
 | `prism`    | 1      | Still  |
 | `parcel`   | 1      | Still  |
 | `tokens`   | 1      | Still  |
 | `optic`    | 1      | Still  |
 | `vee`      | 1      | Still  |
-| `sampler`  | 1      | Still  |
-| `totem`    | 1      | Still  |
+| `sampler`  | 24     | Loop   |
+| `totem`    | 24     | Loop   |
 | `filament` | 1      | Still  |
 | `chaff`    | 1      | Still  |
 | `strand`   | 1      | Still  |

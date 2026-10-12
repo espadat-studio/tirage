@@ -551,7 +551,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"balance","kind":"range","min":-1.2,"max":1.2,"step":0.05},"#,
     );
     let fete = concat!(
-        r#"{"slug":"fete","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"fete","frames":100,"svg":false,"params":["#,
         r#"{"id":"motifs","kind":"choice","choices":["Auto","Rings","Spiral","Burst","Atom","Wave","Scribble"]},"#,
         r#"{"id":"scale","kind":"range","min":1.2,"max":6.0,"step":0.1},"#,
         r#"{"id":"res","kind":"range","min":36.0,"max":120.0,"step":4.0},"#,
@@ -702,7 +702,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"inkMix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let pane = concat!(
-        r#"{"slug":"pane","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"pane","frames":24,"svg":false,"params":["#,
         r#"{"id":"rows","kind":"range","min":1.0,"max":10.0,"step":1.0},"#,
         r#"{"id":"cells","kind":"range","min":1.0,"max":16.0,"step":1.0},"#,
         r#"{"id":"vary","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -782,7 +782,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"bands","kind":"range","min":1.0,"max":4.0,"step":1.0},"#,
     );
     let sampler = concat!(
-        r#"{"slug":"sampler","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"sampler","frames":24,"svg":false,"params":["#,
         r#"{"id":"grid","kind":"range","min":4.0,"max":48.0,"step":1.0},"#,
         r#"{"id":"bands","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"mix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -791,7 +791,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"weight","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let totem = concat!(
-        r#"{"slug":"totem","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"totem","frames":24,"svg":true,"params":["#,
         r#"{"id":"border","kind":"range","min":0.0,"max":0.4,"step":0.005},"#,
         r#"{"id":"mat","kind":"range","min":0.0,"max":0.7,"step":0.01},"#,
         r#"{"id":"matGrain","kind":"range","min":1.0,"max":6.0,"step":1.0},"#,
@@ -876,7 +876,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     assert!(listing.contains("\natlas  24 frames\n"), "{listing}");
     assert!(listing.contains("\noddgrid  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nfete  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nfete  100 frames\n"), "{listing}");
     assert!(listing.contains("\nfold  1 frame\n"), "{listing}");
     assert!(listing.contains("\nquilt  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstatic  60 frames\n"), "{listing}");
@@ -889,15 +889,15 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nrise  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncarve  1 frame\n"), "{listing}");
     assert!(listing.contains("\nspecimen  1 frame\n"), "{listing}");
-    assert!(listing.contains("\npane  1 frame\n"), "{listing}");
+    assert!(listing.contains("\npane  24 frames\n"), "{listing}");
     assert!(listing.contains("\nmodular  1 frame\n"), "{listing}");
     assert!(listing.contains("\nprism  1 frame\n"), "{listing}");
     assert!(listing.contains("\nparcel  1 frame\n"), "{listing}");
     assert!(listing.contains("\ntokens  1 frame\n"), "{listing}");
     assert!(listing.contains("\noptic  1 frame\n"), "{listing}");
     assert!(listing.contains("\nvee  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nsampler  1 frame\n"), "{listing}");
-    assert!(listing.contains("\ntotem  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nsampler  24 frames\n"), "{listing}");
+    assert!(listing.contains("\ntotem  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nfilament  1 frame\n"), "{listing}");
     assert!(listing.contains("\nchaff  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstrand  1 frame\n"), "{listing}");

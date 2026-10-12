@@ -1,11 +1,11 @@
 ---
 title: "fete"
-description: "A festival poster of pixel noise patches under a white doodle and black dots. It renders a Still."
+description: "A festival poster of pixel noise patches under a white doodle and black dots. It renders a Loop of 100 frames at 20 fps, the doodle drawing itself on."
 ---
 
 A festival poster. Noise patches in bright inks fill a coarse grid that is blown up with hard pixel edges. One big white doodle sits on top, with black dots scattered over the frame and along the line.
 
-fete renders a Still: one frame. Its site page is [playgrnd.tools/fete](https://www.playgrnd.tools/fete/).
+fete renders a Loop: 100 frames at 20 fps, in which the doodle and the dots on it draw themselves on over the first 82 frames and then hold, while the patches and the other dots stay put. Frame 0 has no doodle yet, so it differs from the Still. Its site page is [playgrnd.tools/fete](https://www.playgrnd.tools/fete/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool fete | tirage render --size 540x960 -o fete.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-fete  1 frame
+fete  100 frames
   motifs      Auto, Rings, Spiral, Burst, Atom, Wave, Scribble
   scale       1.2..=6   step 0.1
   res         36..=120  step 4

@@ -16,7 +16,7 @@ Site control ids, slider ranges and site defaults:
 | `lw`     | 0.4..2.2                                         | 0.05 | 1       | doodle line width                       |
 | `dots`   | 0..80                                            | 2    | 32      | how many dots                           |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. fete is a Still Tool: only frame 0 is rendered. Motion stays fixed at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. The Loop turns it on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 fete is a palette-family Tool. Its Palette is the swatch row, read by position, any number of inks from 2. The site row holds 2 to 7. Default Palette, 4 inks: `#7B2CBF #FF6D00 #00BBF9 #FFD60A`.
 
@@ -74,6 +74,20 @@ From the dot stream, `dots` times: draw `r`. Under 0.4 the dot sits on a doodle 
 1. The patch grid, nearest.
 2. Each polyline as its own path, stroked in `#FFFFFF`, width `1000 * 0.009 * lw * k`, round caps and joins.
 3. Each dot a filled circle in `#0A0A0A`, radius `1000 * 0.0085 * k`.
+
+## Motion
+
+The site has two motion modes: Draw and Morph. Draw is the default and the only one ported: amount 0.8, 100 frames at 20 fps.
+
+- Draw sketches the doodle on. At frame `f`, `t = f / 100` and the reveal is `clamp(t / 0.82, 0, 1)`. The strokes get a length budget of reveal times the doodle's total length, in view box units.
+- The budget is spent along the polylines in order. Each polyline is its own path from its first point. A segment longer than what is left ends part way, at the share of it the budget covers, and the walk stops there. A polyline the budget never reaches is not stroked.
+- Dots come in with the line. A dot on a doodle vertex carries the length walked up to that vertex, over `max(1, total)`, counted across all polylines in order. It is drawn once that share is at most the reveal. A free dot has share 0, so it is there from frame 0.
+- Nothing else moves. The patch grid, the doodle's shape and the dots' places hold. Draw never feeds `t` into the patch noise.
+- The amount does not change Draw.
+- The reveal reaches 1 at frame 82, and the whole doodle holds to frame 99. The Loop closes by a cut: the frame after the last is frame 0, the bare grid again. A cut has no closure test.
+- At `f = 0` the budget is 0, so frame 0 is the patch grid and the free dots, with no line. It is not the Still and gets a reference export of its own.
+- The mid frame is 50, the doodle about 61% drawn. It tests the part-way segment and the dots that wait for the line.
+- Morph is not ported. It walks a circle through two extra noise inputs, so the patches shift and the doodle holds. It is not reachable from a Recipe.
 
 ## Fidelity notes
 

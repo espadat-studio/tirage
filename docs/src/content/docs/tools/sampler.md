@@ -1,11 +1,11 @@
 ---
 title: "sampler"
-description: "Bands of hard-edged tiles, each turned a quarter at a time, in two inks over a dark ground. It renders a Still."
+description: "Bands of hard-edged tiles, each turned a quarter at a time, in two inks over a dark ground. It renders a Loop of 24 frames at 6 fps, the bands and tiles dealt again each frame."
 ---
 
 A sampler of flat, straight-edged marks. The frame is a grid of cells cut into horizontal bands. Each band uses one to a few tile shapes: triangles, diagonals, bars, elbows, steps, halves, notches or arrows. It fills its cells with them in two inks, and turns each tile a quarter at a time. The darkest ink is the ground and shows through the empty cells.
 
-sampler renders a Still: one frame. Its site page is [playgrnd.tools/sampler](https://www.playgrnd.tools/sampler/).
+sampler renders a Loop: 24 frames at 6 fps, in which every frame deals new bands, with new shapes, inks and tiles, on the same grid and ground. Frame 0 is the Still. Its site page is [playgrnd.tools/sampler](https://www.playgrnd.tools/sampler/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool sampler | tirage render --size 540x960 -o sampler.
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-sampler  1 frame
+sampler  24 frames
   grid        4..=48    step 1
   bands       1..=14    step 1
   mix         0..=1     step 0.01

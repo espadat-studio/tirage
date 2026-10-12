@@ -1,11 +1,11 @@
 ---
 title: "pane"
-description: "Rows of uneven cells, each a colour ramp between two inks, like a stained glass window. It renders a Still."
+description: "Rows of uneven cells, each a colour ramp between two inks, like a stained glass window. It renders a Loop of 24 frames at 8 fps, every cell dealt again each frame."
 ---
 
 Stained glass made of colour ramps. The frame splits into rows of uneven height, and each row splits into its own count of uneven cells, so the cell edges never line up from top to bottom. Every cell fades from one ink to another along an edge or from corner to corner. The fade turns through the colour wheel the short way round, so two opposite inks meet through bright colour rather than grey.
 
-pane renders a Still: one frame. Its site page is [playgrnd.tools/pane](https://www.playgrnd.tools/pane/).
+pane renders a Loop: 24 frames at 8 fps, in which every frame deals each cell a new pair of inks, a new direction and new ramp ends, while the rows and cells keep their sizes. Frame 0 is the Still. Its site page is [playgrnd.tools/pane](https://www.playgrnd.tools/pane/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool pane | tirage render --size 540x960 -o pane.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-pane  1 frame
+pane  24 frames
   rows        1..=10    step 1
   cells       1..=16    step 1
   vary        0..=1     step 0.01
