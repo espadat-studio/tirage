@@ -114,6 +114,7 @@ mod tests {
         Tool::Vein,
         Tool::Aura,
         Tool::Benday,
+        Tool::Stitch,
     ];
 
     #[test]

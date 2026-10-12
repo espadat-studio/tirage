@@ -1,3 +1,5 @@
+use std::f64::consts::TAU;
+
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{
@@ -9,13 +11,14 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "stitch";
-pub(crate) const FRAMES: u32 = 1;
-pub(crate) const FPS: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
+pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 6] = [
     "#111111", "#f6f23a", "#f01fd0", "#62f19e", "#f5532b", "#ded7eb",
 ];
+const AMOUNT: f64 = 0.6;
 
 const COLS: Param = Param::new(SLUG, "cols", 16, 96, 1);
 const GUTTER: Param = Param {
@@ -312,9 +315,10 @@ pub(crate) fn render(
     params: &StitchParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -322,7 +326,13 @@ fn luma([r, g, b]: [u8; 3]) -> f64 {
     0.2126 * f64::from(r) + 0.7152 * f64::from(g) + 0.0722 * f64::from(b)
 }
 
-fn paint(surface: &mut Surface, params: &StitchParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &StitchParams,
+    palette: &Palette,
+    tool_seed: u32,
+    drift: Option<f64>,
+) {
     let inks = palette.inks();
     let n = inks.len();
     let seed = |k: u32| tool_seed.wrapping_mul(7).wrapping_add(k);
@@ -340,6 +350,10 @@ fn paint(surface: &mut Surface, params: &StitchParams, palette: &Palette, tool_s
     let kb = 3.0 + (1.0 - params.blobsize) * 6.0;
     let blob_cut = 1.0 - params.blobs * 0.42;
     let stray = params.stray * 0.06;
+    let (ox, oy) = drift.map_or((0.0, 0.0), |t| {
+        let (ph, reach) = (TAU * t, AMOUNT * 0.6);
+        (ph.cos() * reach, ph.sin() * reach)
+    });
 
     let steps = params.steps.max(2);
     let mut rnd = XorShift::new(tool_seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
@@ -382,14 +396,18 @@ fn paint(surface: &mut Surface, params: &StitchParams, palette: &Palette, tool_s
         for i in 0..cols {
             let u = (f64::from(i) + offset) / f64::from(cols);
             let v = f64::from(j) / f64::from(rows);
-            let base = value_noise(u * kx, v * ky, seed(2));
-            let stripe = value_noise(u * kx * 6.0 + 7.0, v * ky * 1.5 + 3.0, seed(3));
+            let base = value_noise(u * kx + ox, v * ky + oy, seed(2));
+            let stripe = value_noise(
+                u * kx * 6.0 + ox * 2.0 + 7.0,
+                v * ky * 1.5 + oy + 3.0,
+                seed(3),
+            );
             let mixed = base * (1.0 - sw) + stripe * sw;
             let val = ((mixed - 0.5) * 2.2 + 0.5).clamp(0.0, 0.9999);
             let mut ink = levels[(val * f64::from(steps)) as usize];
             let blob = value_noise(
-                f64::from(i) / f64::from(cols) * kb + 11.0,
-                f64::from(j) / f64::from(rows) * kb * (h / w) + 5.0,
+                f64::from(i) / f64::from(cols) * kb + ox * 0.5 + 11.0,
+                f64::from(j) / f64::from(rows) * kb * (h / w) + oy * 0.5 + 5.0,
                 seed(4),
             );
             if blob > blob_cut {

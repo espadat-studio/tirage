@@ -352,7 +352,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"block","kind":"range","min":0.0,"max":14.0,"step":1.0},"#,
     );
     let stitch = concat!(
-        r#"{"slug":"stitch","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"stitch","frames":36,"svg":false,"params":["#,
         r#"{"id":"cols","kind":"range","min":16.0,"max":96.0,"step":1.0},"#,
         r#"{"id":"gutter","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"streak","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,

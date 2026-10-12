@@ -31,7 +31,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `frond`    | 36     | Loop   |
 | `benday`   | 36     | Loop   |
 | `terrain`  | 1      | Still  |
-| `stitch`   | 1      | Still  |
+| `stitch`   | 36     | Loop   |
 | `pith`     | 36     | Loop   |
 | `mosh`     | 24     | Loop   |
 | `mist`     | 1      | Still  |

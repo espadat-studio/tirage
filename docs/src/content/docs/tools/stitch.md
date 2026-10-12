@@ -22,7 +22,7 @@ tirage derive --seed 13 --tool stitch | tirage render --size 540x960 -o stitch.p
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-stitch  1 frame
+stitch  36 frames
   cols        16..=96   step 1
   gutter      0..=1     step 0.01
   streak      0..=1     step 0.01
