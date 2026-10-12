@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool crowd | tirage render --size 540x960 -o crowd.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-crowd  1 frame
+crowd  36 frames
   crowd       1..=48    step 1
   scale       0..=1     step 0.01
   wobble      0..=1     step 0.01

@@ -630,7 +630,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"coarse","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let crowd = concat!(
-        r#"{"slug":"crowd","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"crowd","frames":36,"svg":false,"params":["#,
         r#"{"id":"crowd","kind":"range","min":1.0,"max":48.0,"step":1.0},"#,
         r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"wobble","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -883,7 +883,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nsplice  36 frames\n"), "{listing}");
     assert!(listing.contains("\ndahlia  36 frames\n"), "{listing}");
     assert!(listing.contains("\nhiss  1 frame\n"), "{listing}");
-    assert!(listing.contains("\ncrowd  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ncrowd  36 frames\n"), "{listing}");
     assert!(listing.contains("\ncipher  1 frame\n"), "{listing}");
     assert!(listing.contains("\nriso  16 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nrise  72 frames, svg\n"), "{listing}");
