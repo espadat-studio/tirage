@@ -26,7 +26,7 @@ Site control ids, slider ranges and site defaults:
 
 `grain` is the Tool's own grain, not the chassis pass. Like every slider named grain it stays at its site default: a Parameter, never dealt.
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. strand is a Still Tool: only frame 0 is rendered, where the pulse is 1, the drift is 0 and the plate slides at its fixed angle. Motion stays at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. `sizePx` is the export width, not a Parameter.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the pulse is 1, the drift is 0 and the plate slides at its fixed angle. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. `sizePx` is the export width, not a Parameter.
 
 The site has no seed deal: a seed change only moves the chains.
 
@@ -94,6 +94,20 @@ Every frame pixel `(x, y)` reads the mask bilinear at `(x / 2, y / 2)`: the lowe
 - channels store rounded half to even, clamped, alpha opaque. The block replaces the frame.
 
 Then the chassis grain, then dither.
+
+## Motion
+
+The site has three motion modes: Drift, Shift and Pulse. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`, and the drift reach is `D = 0.035 amount U = 0.021 U` frame pixels.
+- The whole mask walks round one circle: every rod of all three passes, plate, fill and depth, lands `(cos ph, sin ph) D` further along in frame pixels, so `D / 2` at mask scale. The plate keeps its slide on top of the drift, so `(D cos ph + ox) / 2`, the sum taken before the halving.
+- The shift is sub-pixel in the mask most of the time, so the rods move by their antialiased ramps as much as by whole pixels.
+- Nothing else moves. The chains, the rod shapes, the plate angle and width, the edge noise, the fill gaps and the pixel grain hold: they are read in frame pixels, so the rods slide under them.
+- The mask runs one lap over the Loop, whatever the amount. The amount only sets the reach.
+- The Loop closes because the offset has period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the mask sits `D` to the right of its Still place, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a lap, the mask `2D` from where it is at frame 0, as far as the Loop takes it.
+- Shift turns the plate's slide angle with `ph` and Pulse swells the rods. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
