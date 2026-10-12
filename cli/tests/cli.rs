@@ -453,7 +453,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"calm","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let weave = concat!(
-        r#"{"slug":"weave","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"weave","frames":1,"svg":true,"params":["#,
         r#"{"id":"bands","kind":"range","min":3.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"stripe","kind":"range","min":0.5,"max":2.2,"step":0.05},"#,
     );
@@ -911,7 +911,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nculture  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmosh  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nbloom  24 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nweave  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nweave  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nwarp  72 frames\n"), "{listing}");
     assert!(listing.contains("\nzig  1 frame\n"), "{listing}");
     assert!(listing.contains("\nrelief  24 frames\n"), "{listing}");

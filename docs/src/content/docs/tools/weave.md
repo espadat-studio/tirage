@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool weave | tirage render --size 540x960 -o weave.png
 ```
 
+SVG: yes. `-o weave.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-weave  1 frame
+weave  1 frame, svg
   bands       3..=12    step 1
   stripe      0.5..=2.2 step 0.05
   ditherTog   on/off
