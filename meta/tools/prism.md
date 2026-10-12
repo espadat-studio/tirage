@@ -16,7 +16,7 @@ Site control ids, slider ranges and site defaults:
 | `fringe`  | 0.5..1.6  | 0.01 | 1       | stream width                         |
 | `dots`    | 0..1      | 0.01 | 0.55    | dot grid opacity                     |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. prism is a Still Tool: only frame 0 is rendered. With motion off the surge, drift and shimmer terms are all 0. Motion stays fixed at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the surge, drift and shimmer terms are all 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The site deals `streams`, `reach` and `fringe` from the seed on every seed change. That deal is not ported: `derive` deals every Parameter (ADR 0003), and a Reference export sets every slider after the seed.
 
@@ -81,6 +81,20 @@ Stream `i` of `streams` starts at anchor `A = anchors[i mod 8]`:
 2. Every non-bare cell, row by row, as an opaque pixel-aligned rect.
 3. When `dots > 0`: for every cell, a white square of side `rr = max(1, 0.07 min(cw, ch))` centred on the cell centre, at alpha `0.8 dots`, source-over. The squares sit on fractional coordinates, so their edges are antialiased.
 4. The chassis grain, then dither.
+
+## Motion
+
+The site has three motion modes: Surge, Drift and Shimmer. Drift is the default and the only one ported: amount 0.8, 12 frames at 8 fps.
+
+- Frame `f` sits at `T = f / frames`, and `A = min(1.6, amount) = 0.8`.
+- Each cell's jitter gains `0.18 A sin(2π T + 2π h(gx, gy, 1, K))`, phased by the same hash that sets its fine jitter in [Cell colour](#cell-colour) step 2.
+- The jittered distance `dn` feeds the ring thresholds, so a cell near a threshold flips ring, or between ring and bare field, as its sine swings. The fringe of every stream crawls; the cores and the far field hold.
+- Nothing else moves. The streams, the spine indices, the ink picks within a ring, the dim and the dots hold.
+- Every cell runs one sine cycle over the Loop, whatever the amount. The amount only sets how far `dn` swings, and is capped at 1.6.
+- The Loop closes because each sine has period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the sines sit at their hashed phases, not at 0, so the fringe already differs from the Still. Frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 6: half a cycle, where every sine has flipped sign from frame 0, as far from it as the Loop gets.
+- Surge swells the stream widths and Shimmer reshuffles the ink picks. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 

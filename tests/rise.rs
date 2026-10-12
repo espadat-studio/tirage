@@ -56,13 +56,43 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn rise_is_a_still() {
-    assert_eq!(Tool::Rise.frames(), 1);
+fn rise_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Rise.frames(), Tool::Rise.fps()), (72, 12));
     let recipe = derive(7, RISE);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 72)),
+        "frame 72 is outside 0..72"
     );
+}
+
+#[test]
+fn ripple_holds_band_0_at_frame_0_and_swells_the_outer_bands() {
+    for seed in 1..=3 {
+        let mut recipe = derive(seed, RISE);
+        let still = |r: &Recipe| render(r, &Frame::still(270, 480).unwrap());
+        let frame = |r: &Recipe, t| render(r, &Frame::new(r, 270, 480, t).unwrap());
+        assert!(rise(&recipe).bands() > 1, "seed {seed}");
+        assert!(
+            still(&recipe).rgba() != frame(&recipe, 0).rgba(),
+            "seed {seed}"
+        );
+        assert!(
+            frame(&recipe, 0).rgba() != frame(&recipe, 36).rgba(),
+            "seed {seed}"
+        );
+        let Params::Rise(params) = recipe.params_mut() else {
+            unreachable!()
+        };
+        params.set_bands(1).unwrap();
+        assert!(
+            still(&recipe).rgba() == frame(&recipe, 0).rgba(),
+            "seed {seed}"
+        );
+        assert!(
+            still(&recipe).rgba() != frame(&recipe, 18).rgba(),
+            "seed {seed}"
+        );
+    }
 }
 
 #[test]

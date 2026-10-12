@@ -99,6 +99,10 @@ mod tests {
         Tool::Tokens,
         Tool::Optic,
         Tool::Vee,
+        Tool::Riso,
+        Tool::Rise,
+        Tool::Prism,
+        Tool::Filament,
     ];
 
     #[test]

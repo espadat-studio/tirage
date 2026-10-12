@@ -3,14 +3,14 @@ use std::f64::consts::TAU;
 use serde::{Deserialize, Serialize};
 
 use crate::aura::{Xorshift, hash};
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "filament";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 30;
 pub(crate) const FPS: u32 = 16;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
@@ -18,6 +18,9 @@ const DEFAULT_PALETTE: [&str; 3] = ["#ff5da2", "#ff9acb", "#ffe6f1"];
 const GROUND: [u8; 3] = [0x12, 0x0a, 0x1e];
 const ACCENTS: [[u8; 3]; 3] = [[0xf9, 0xf8, 0x71], [0x4c, 0xe0, 0xd2], [0xb0, 0x9c, 0xff]];
 const VB: f64 = 1000.0;
+const ACTIVE: f64 = 0.5;
+const DASH: f64 = 0.34;
+const AMOUNT: f64 = 0.8;
 
 const ZOOM: Param = Param {
     step: 5,
@@ -354,9 +357,10 @@ pub(crate) fn render(
     params: &FilamentParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let travel = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, travel);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -376,6 +380,7 @@ struct Strand {
     points: Vec<(f64, f64)>,
     ink: [u8; 3],
     width: f64,
+    active: bool,
 }
 
 struct Mark {
@@ -485,7 +490,7 @@ fn trace(p: &FilamentParams, palette: &Palette, h: f64, s: u32) -> (Vec<Strand>,
                 * p.wgt
                 * (1.0 - p.wvar * 0.5 + p.wvar * r())
                 * (1.0 + p.hier * 2.4 * heavy);
-            r();
+            let active = r() < ACTIVE;
             r();
             r();
             let n = points.len();
@@ -551,13 +556,20 @@ fn trace(p: &FilamentParams, palette: &Palette, h: f64, s: u32) -> (Vec<Strand>,
                 points,
                 ink: palette.ink(ink.min(inks - 1)),
                 width: width.max(0.15),
+                active,
             });
         }
     }
     (strands, marks)
 }
 
-fn paint(surface: &mut Surface, p: &FilamentParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    p: &FilamentParams,
+    palette: &Palette,
+    tool_seed: u32,
+    travel: Option<f64>,
+) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let k = w / VB;
     let (strands, marks) = trace(p, palette, VB * h / w, tool_seed);
@@ -570,7 +582,27 @@ fn paint(surface: &mut Surface, p: &FilamentParams, palette: &Palette, tool_seed
             path.line_to(x * k, y * k);
         }
         let width = (strand.width * k).max(0.25);
-        surface.stroke(&path, strand.ink, width, Cap::Round, Join::Round);
+        match travel {
+            Some(t) if strand.active => {
+                let len: f64 = strand
+                    .points
+                    .windows(2)
+                    .map(|pair| (pair[1].0 - pair[0].0).hypot(pair[1].1 - pair[0].1))
+                    .sum();
+                let on = len * DASH;
+                let offset = -((t * len * round_half_up(AMOUNT * 2.0).max(1.0)) % len);
+                surface.stroke_dashed(
+                    &path,
+                    strand.ink,
+                    width,
+                    Cap::Round,
+                    Join::Round,
+                    [on * k, (len - on) * k],
+                    offset * k,
+                );
+            }
+            _ => surface.stroke(&path, strand.ink, width, Cap::Round, Join::Round),
+        }
     }
     let line = (p.wgt * 0.9 * k).max(0.5);
     for mark in &marks {

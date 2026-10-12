@@ -18,7 +18,7 @@ Site control ids, slider ranges and site defaults:
 
 Auto picks the anchor from the Tool seed (see Draws). A Recipe names the anchor it draws, so the Choice is Bottom, Top, Left, Right and Centre without Auto. The site's Auto is the same as naming the anchor it picks.
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. rise is a Still Tool: only frame 0 is rendered, and with motion off the ripple, slide and pulse terms are all 0. Motion stays at site defaults and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the ripple, slide and pulse terms are all 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The site deals `count`, `weight`, `bands` and `depth` from the seed on every seed change. That deal is not ported: `derive` deals every Parameter (ADR 0003), and a Reference export sets every slider after the seed.
 
@@ -55,6 +55,20 @@ Band `i` (`0` innermost) is a disc at `A` of radius `(i + 0.8) bw`. Its ground a
 2. The bars in Bars.
 3. Bands from the outermost (`N - 1`) in, each clipped to its disc: fill the frame with the band's ground, then the bars in the band's bar ink. An inner band paints over the outer ones.
 4. The chassis grain, then dither.
+
+## Motion
+
+The site has three motion modes: Ripple, Slide and Pulse. Ripple is the default and the only one ported: amount 0.8, 72 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, and `A = min(1.6, amount) = 0.8`.
+- The bands breathe. Band `i`'s disc radius becomes `(i + 0.8) bw + 0.3 A bw sin(2π (c T - 0.35 i))`, with cycle count `c = max(1, round(amount)) = 1`.
+- The lag of 0.35 turn per band sends the swell outward from the anchor, one band after the next.
+- Nothing else moves. The bar grid, the pairs and the field hold.
+- The amount sets how far the discs swell, capped at 1.6, and its rounding sets the cycle count. At the site default that is one cycle.
+- The Loop closes because each sine has period 1 in `c T`: frame `frames` is frame 0.
+- At `f = 0` band 0's sine is at 0, so band 0 alone sits at its Still radius. Every outer band is already swollen or shrunk, so frame 0 is not the Still whenever `bands > 1`, and gets a reference export of its own. With one band frame 0 is the Still.
+- The mid frame is 36: half a cycle, where every sine has flipped sign from frame 0, as far from it as the Loop gets.
+- Slide runs the bars sideways and Pulse steps the band pairs. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 

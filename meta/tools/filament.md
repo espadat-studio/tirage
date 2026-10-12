@@ -33,7 +33,7 @@ Site control ids, slider ranges and site defaults, in page order:
 
 `kinds` is a row of chips that switch symbol kinds on and off, all five on by default: arrow, ring, cross, hook, tick. It is a multi-select, not a slider or a one-of picker, so it is not a Parameter and stays at all five. On this page the export size is `size`, 600..6000, default 2400.
 
-Motion (`modes`, `active`, `amt`, `fps`, `frames`) is off by default. filament is a Still Tool: only frame 0 is rendered. With motion off there is no sway, no travelling dash and no reveal alpha, so every strand is a solid stroke at full alpha. `active` still costs one draw per strand (below), but its value never reaches a Still, so it is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `active`, `amt`, `fps`, `frames`) is off by default. With motion off there is no sway, no travelling dash and no reveal alpha, so every strand is a solid stroke at full alpha. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). `active` costs one draw per strand in the Still too (below). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The site deals nothing from the seed beyond the trace itself. `derive` deals every Parameter (ADR 0003).
 
@@ -73,7 +73,7 @@ Bundles: until `bundles` are placed or `40 · bundles` tries are spent:
    4. Fewer than 6 points, start included: the strand is dropped, nothing more is drawn for it.
    5. `hairline = r < hair`. Ink slot `ci`: the last ink for a hairline (no draw), else `floor(r^1.7 · n)` for `n` inks.
    6. `heavy = r^(1 + 4 hier)`. Weight `w = max(0.15, (0.45 if hairline else 1) · wgt · (1 - 0.5 wvar + wvar r) · (1 + 2.4 hier heavy))`.
-   7. Three draws for motion (active, phase, direction), unused in a Still.
+   7. Three draws for motion: active, which is `r < 0.5`, the site's default moving share, then phase and direction. Only active is used, by the Loop.
    8. Beads, only for Beads or Both: one draw `r`; when `r < bead`, for every point index `i` from 2 by `max(2, bgap)` while `i < N - 1` (`N` points): `off = (r - 0.5) · 0.5 msize`, bead ink `floor(n r)`, size `msize (0.3 + 0.55 r)`, one draw unused. The bead sits at point `i` moved `off` along `(-dy, dx) / L`, where `(dx, dy)` runs from point `i` to `i + 1` and `L` is its length (1 when 0).
    9. Symbols: `density = mark` for Symbols or Both, else 0. For every index `i` from 4 by 6 while `i < N`: one draw `r`; when `r ≤ density (0.25 + i / N)`, a symbol at point `i`, heading toward point `min(N - 1, i + 1)`: kind `floor(5 r)` of the kinds in the order above, accent `floor(3 r)`, size `msize (0.6 + 0.8 r)`, one draw unused.
    10. End symbol, only for Symbols or Both: one draw `r`; when `r < 1.4 density`, a symbol at the last point, heading from the point before it: kind, accent and size `msize (0.9 + 0.9 r)` as above, one draw unused.
@@ -92,8 +92,22 @@ Bundles: until `bundles` are placed or `40 · bundles` tries are spent:
      Mark strokes keep the round caps and joins of step 2.
 4. The chassis grain, then dither.
 
+## Motion
+
+The site has three motion modes: Travel, Sway and Reveal. Travel is the default and the only one ported: amount 0.8, moving share 0.5, 30 frames at 16 fps.
+
+- Frame `f` sits at `T = f / frames`.
+- Only active strands move. Each is stroked as a dash running along it: its length `len` is the sum of its segment lengths in view box units, and the dash pattern is `0.34 len` on, `0.66 len` off, so a third of the strand shows at a time.
+- The dash offset is `-((T len laps) mod len)`, with `laps = max(1, round(2 amount)) = 2`. A negative offset runs the dash forward, from the strand's start toward its end. Pattern and offset scale by `k` with the points.
+- Nothing else moves. Inactive strands stay solid, and every mark, ink and width holds. The marks of an active strand stay put while its dash runs past them.
+- The amount sets the lap count, through its rounding. At the site default the dash runs the strand twice per Loop.
+- The Loop closes by whole laps: at `T = 1` the travel is `2 len`, and `2 len mod len` is exactly 0, so frame `frames` is frame 0, byte for byte.
+- At `f = 0` the offset is 0 but the active strands are already dashed, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 7, `frames / 4` floored: two laps put half a lap at a quarter of the Loop, where each dash sits furthest from its frame-0 place. The exact quarter, 7.5, is not a frame.
+- Sway ripples strands and marks sideways and Reveal fades strands in and out. Neither is ported. They are not reachable from a Recipe.
+
 ## Fidelity notes
 
-- A Still never sets a line dash or a stroke alpha below 1. Both belong to the Travel and Reveal motion modes, so the port needs no dash and no alpha ink.
+- A Still never sets a line dash or a stroke alpha below 1. The Loop dashes its active strands; no frame sets an alpha below 1.
 - The hook is the only partial arc; every other curve is a full circle.
 - The PNG export repaints at the export size; the trace is in view box units, so it does not change with the export size.

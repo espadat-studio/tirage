@@ -5,7 +5,7 @@ use kurbo::{Arc, PathEl, Shape, Vec2};
 use tiny_skia::{
     BlendMode, Color, ColorU8, FillRule, FilterQuality, GradientStop, IntSize, LineCap, LineJoin,
     LinearGradient, Mask, Paint, Path, PathBuilder, Pixmap, PixmapPaint, Point, RadialGradient,
-    Rect, SpreadMode, Stroke,
+    Rect, SpreadMode, Stroke, StrokeDash,
 };
 
 use crate::Image;
@@ -431,23 +431,40 @@ impl Surface {
             svg.stroke(&path, ink, width as f32, cap, join);
             return;
         }
+        self.stroke_raster(&path, ink, pen(width, cap, join), "stroke");
+    }
+
+    #[expect(clippy::too_many_arguments, reason = "a dashed stroke needs its dash")]
+    pub(crate) fn stroke_dashed(
+        &mut self,
+        path: &Path2D,
+        ink: [u8; 3],
+        width: f64,
+        cap: Cap,
+        join: Join,
+        [on, off]: [f64; 2],
+        offset: f64,
+    ) {
+        let path = path
+            .0
+            .clone()
+            .finish()
+            .expect("a stroked path has a closed loop");
         let stroke = Stroke {
-            width: width as f32,
-            line_cap: match cap {
-                Cap::Butt => LineCap::Butt,
-                Cap::Round => LineCap::Round,
-            },
-            line_join: match join {
-                Join::Round => LineJoin::Round,
-                Join::Miter => LineJoin::Miter,
-            },
-            miter_limit: 10.0,
-            ..Stroke::default()
+            dash: Some(
+                StrokeDash::new(vec![on as f32, off as f32], offset as f32)
+                    .expect("a dash has a positive length"),
+            ),
+            ..pen(width, cap, join)
         };
+        self.stroke_raster(&path, ink, stroke, "stroke_dashed");
+    }
+
+    fn stroke_raster(&mut self, path: &Path, ink: [u8; 3], stroke: Stroke, op: &str) {
         let paint = self.solid(ink);
-        let (pixmap, mask) = self.raster("stroke");
+        let (pixmap, mask) = self.raster(op);
         pixmap.stroke_path(
-            &path,
+            path,
             &paint,
             &stroke,
             tiny_skia::Transform::identity(),
@@ -656,6 +673,22 @@ impl Surface {
             panic!("into_svg reads an SVG Surface");
         };
         svg.finish()
+    }
+}
+
+fn pen(width: f64, cap: Cap, join: Join) -> Stroke {
+    Stroke {
+        width: width as f32,
+        line_cap: match cap {
+            Cap::Butt => LineCap::Butt,
+            Cap::Round => LineCap::Round,
+        },
+        line_join: match join {
+            Join::Round => LineJoin::Round,
+            Join::Miter => LineJoin::Miter,
+        },
+        miter_limit: 10.0,
+        ..Stroke::default()
     }
 }
 
@@ -1057,6 +1090,35 @@ mod tests {
         surface.stroke(&path, [255, 255, 255], 10.0, cap, join);
         let image = surface.into_image();
         image.rgba()[((y * 40 + x) * 4) as usize] > 128
+    }
+
+    fn dashed(offset: f64, x: u32) -> bool {
+        let mut surface = Surface::new(40, 10);
+        let mut path = Path2D::default();
+        path.move_to(0.0, 5.0);
+        path.line_to(40.0, 5.0);
+        surface.stroke_dashed(
+            &path,
+            [255, 255, 255],
+            2.0,
+            Cap::Round,
+            Join::Round,
+            [10.0, 30.0],
+            offset,
+        );
+        surface.into_image().rgba()[((5 * 40 + x) * 4) as usize] > 128
+    }
+
+    #[test]
+    fn stroke_dashed_inks_the_dash_and_skips_the_gap() {
+        assert!(dashed(0.0, 5));
+        assert!(!dashed(0.0, 25));
+    }
+
+    #[test]
+    fn a_negative_dash_offset_runs_the_dash_forward_along_the_path() {
+        assert!(!dashed(-20.0, 5));
+        assert!(dashed(-20.0, 25));
     }
 
     #[test]
