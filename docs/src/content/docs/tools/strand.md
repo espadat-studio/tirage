@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool strand | tirage render --size 540x960 -o strand.pn
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-strand  1 frame
+strand  36 frames
   count       1..=40    step 1
   len         3..=90    step 1
   wander      0..=1     step 0.01

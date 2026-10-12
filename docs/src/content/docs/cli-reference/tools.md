@@ -73,7 +73,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `totem`    | 24     | Loop   |
 | `filament` | 30     | Loop   |
 | `chaff`    | 36     | Loop   |
-| `strand`   | 1      | Still  |
+| `strand`   | 36     | Loop   |
 
 ## Text output
 

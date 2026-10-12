@@ -110,6 +110,7 @@ mod tests {
         Tool::Crowd,
         Tool::Parcel,
         Tool::Chaff,
+        Tool::Strand,
     ];
 
     #[test]

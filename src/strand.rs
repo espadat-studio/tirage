@@ -9,12 +9,13 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "strand";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 const INKS: usize = 3;
 pub(crate) const MAX_INKS: Option<usize> = Some(INKS);
 
 const DEFAULT_PALETTE: [&str; INKS] = ["#ffd166", "#1b1b1b", "#ef476f"];
+const AMOUNT: f64 = 0.6;
 const ROD_CAP: usize = 7000;
 const STATIONS: usize = 18;
 const TURN: f64 = 1.75;
@@ -356,9 +357,10 @@ pub(crate) fn render(
     params: &StrandParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -483,7 +485,13 @@ fn rod_outline(
     path.close();
 }
 
-fn paint(surface: &mut Surface, p: &StrandParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    p: &StrandParams,
+    palette: &Palette,
+    tool_seed: u32,
+    drift: Option<f64>,
+) {
     let (w, h) = (surface.width(), surface.height());
     let (wf, hf) = (f64::from(w), f64::from(h));
     let aspect = hf / wf;
@@ -495,6 +503,10 @@ fn paint(surface: &mut Surface, p: &StrandParams, palette: &Palette, tool_seed: 
     let slide = p.offset * 0.055 * area;
     let (ox, oy) = ((PI * 0.75).cos() * slide, (PI * 0.75).sin() * slide);
     let fat = wide * (1.0 + p.edge * 0.55);
+    let (dx, dy) = drift.map_or((0.0, 0.0), |t| {
+        let (ph, reach) = (TAU * t, AMOUNT * 0.035 * area);
+        (ph.cos() * reach, ph.sin() * reach)
+    });
 
     let (mw, mh) = (
         (wf / 2.0).round().max(2.0) as u32,
@@ -504,7 +516,10 @@ fn paint(surface: &mut Surface, p: &StrandParams, palette: &Palette, tool_seed: 
     let layer = |shift: (f64, f64), grow: f64| {
         let mut path = Path2D::default();
         for rod in &rods {
-            let at = (rod.x * mu + shift.0 * 0.5, rod.y * mu + shift.1 * 0.5);
+            let at = (
+                rod.x * mu + (dx + shift.0) * 0.5,
+                rod.y * mu + (dy + shift.1) * 0.5,
+            );
             rod_outline(&mut path, rod, at, (seg * mu, wide * 0.5), p.rough, grow);
         }
         path.into_path()

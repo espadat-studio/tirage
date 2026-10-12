@@ -841,7 +841,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let strand = concat!(
-        r#"{"slug":"strand","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"strand","frames":36,"svg":false,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":40.0,"step":1.0},"#,
         r#"{"id":"len","kind":"range","min":3.0,"max":90.0,"step":1.0},"#,
         r#"{"id":"wander","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -900,7 +900,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\ntotem  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nfilament  30 frames\n"), "{listing}");
     assert!(listing.contains("\nchaff  36 frames\n"), "{listing}");
-    assert!(listing.contains("\nstrand  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nstrand  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nsprig  36 frames\n"), "{listing}");
