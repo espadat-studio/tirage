@@ -25,7 +25,7 @@ Site control ids, slider ranges and site defaults:
 | `flecks`   | 0..1     | 0.01 | 0.4     | share of snow grains printed in an ink          |
 | `coarse`   | 0..1     | 0.01 | 0.15    | snow grain size                                 |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. hiss is a Still Tool: only frame 0 is rendered, and with motion off every motion term (boil, drift, breathe) is zero. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off every motion term (boil, drift, breathe) is zero. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 hiss is a palette-family Tool. Its Palette is the swatch row, read by position, any number of inks from 2. Default Palette, 5 inks: `#FF1E8C #FF7A1A #2B4BFF #FFD400 #E8262B`.
 
@@ -42,7 +42,7 @@ Two xorshift32 streams, the chassis kind (unsigned shifts 13, 17, 5, draw = stat
 - the layout stream starts at `(s · 2246822519) xor 0x27d4eb2f`
 - the mark stream starts at `(s · 3266489917) xor 0x165667b1`
 
-Noise seeds: `sd1..sd4 = 7s + 1 .. 7s + 4`. The snow uses the fixed seeds 3 and 77, so the snow is the same for every Tool seed.
+Noise seeds: `sd1..sd4 = 7s + 1 .. 7s + 4`. The snow uses the seeds `boil + 3` and `boil + 77`, with `boil` 0 in a Still, so the Still's snow is the same for every Tool seed.
 
 ## Layout
 
@@ -95,6 +95,25 @@ Each mark is drawn in `#F4F4F2`, source-over, opaque:
 
 1. One path of `arms` segments through `(x, y)`: arm `a` at angle `π a / arms + π/2` from `(x, y) - sz (cos, sin)` to `(x, y) + sz (cos, sin)`. Stroked once, width `max(1, 0.2 sz)`, round caps.
 2. `2 arms` filled dots: dot `a` at angle `2π a / (2 arms) + π/2`, centre `(x, y) + 1.05 sz (cos, sin)`, radius `max(0.8, 0.16 sz)`.
+
+## Motion
+
+The site has three motion modes: Boil, Drift and Breathe. Boil is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`. Boil walks the marble at `dr = 0.15 amount = 0.09`, so `dx = cos ph · dr` and `dy = sin ph · dr`, the reach taken first.
+- The marble walks round that circle, each read with the offset added last:
+  - the black mask reads `vn(0.8 p0 + 40 + 0.5 dx, 0.8 p1 + 7 + 0.5 dy, sd4)`, half the walk
+  - `q1` reads `vn(2 p0 + 1.7 + dx, 2 p1 + 9.1 + dy, sd1)`
+  - `q2` reads `vn(2 p0 + 5.3 - dy, 2 p1 + 2.2 + dx, sd2)`, the offsets turned a quarter
+  - `m` reads `vn(2 p0 + 4 warp (q1 - 0.5) + dx, 2 p1 + 4 warp (q2 - 0.5) + dy, sd3)`
+- The snow reseeds every frame: `boil = 911 f`, and the grains read `h(gx, gy, boil + 3)` and `h(gx, gy, boil + 77)`. Every frame has fresh snow and fresh flecks.
+- Nothing else moves. The leaves, the lenses, the comb and the marks hold.
+- The walk runs one lap over the Loop, whatever the amount. The amount sets the reach only.
+- The Loop closes by a cut. The marble comes back to frame 0, but the snow at frame `frames` would be seeded `911 frames`, not 0. The frame after the last is frame 0, with its own snow. A cut has no closure test.
+- At `f = 0` the snow is the Still's, but the marble sits at `(0.09, 0)`, not at the origin the Still reads. Frame 0 is not the Still and gets a reference export of its own.
+- When `black` covers the whole marble, as it does for Seed 2, the walk shows nowhere and frame 0 is the Still byte for byte. Only the snow boils.
+- The mid frame is 18: half a lap, the marble at `(-0.09, 0)`, as far from frame 0 as the walk goes, with the snow seeded 16398.
+- Drift walks the marble further with the snow held, and Breathe swells the leaves. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
