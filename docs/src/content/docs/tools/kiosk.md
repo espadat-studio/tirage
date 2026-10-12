@@ -17,12 +17,14 @@ Seed 5, rendered by:
 tirage derive --seed 5 --tool kiosk | tirage render --size 540x960 -o kiosk.png
 ```
 
+SVG: yes. `-o kiosk.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-kiosk  24 frames
+kiosk  24 frames, svg
   split       0.15..=0.95 step 0.01
   rings       4..=40    step 1
   stripes     2..=24    step 1

@@ -300,7 +300,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"punch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let kiosk = concat!(
-        r#"{"slug":"kiosk","frames":24,"svg":false,"params":["#,
+        r#"{"slug":"kiosk","frames":24,"svg":true,"params":["#,
         r#"{"id":"split","kind":"range","min":0.15,"max":0.95,"step":0.01},"#,
         r#"{"id":"rings","kind":"range","min":4.0,"max":40.0,"step":1.0},"#,
         r#"{"id":"stripes","kind":"range","min":2.0,"max":24.0,"step":1.0},"#,
