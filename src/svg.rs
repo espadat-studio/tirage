@@ -148,19 +148,19 @@ impl SvgWriter {
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
         self.group(ink, false);
-        self.path(path, true);
+        self.open_path(path, true);
         self.markup.push_str(r#""/>"#);
     }
 
     pub(crate) fn fill_even_odd(&mut self, path: &Path, ink: [u8; 3]) {
         self.group(ink, false);
-        self.path(path, true);
+        self.open_path(path, true);
         self.markup.push_str(r#"" fill-rule="evenodd"/>"#);
     }
 
     pub(crate) fn stroke(&mut self, path: &Path, ink: [u8; 3], width: f32, cap: Cap, join: Join) {
         self.group(ink, false);
-        self.path(path, false);
+        self.open_path(path, false);
         let [r, g, b] = ink;
         write!(
             self.markup,
@@ -176,7 +176,7 @@ impl SvgWriter {
         });
     }
 
-    fn path(&mut self, path: &Path, snap: bool) {
+    fn open_path(&mut self, path: &Path, snap: bool) {
         self.markup.push_str(r#"<path d=""#);
         let bounds = path.bounds();
         let unclipped = snap
