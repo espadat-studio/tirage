@@ -10,13 +10,14 @@ use crate::terrain::{fbm, hash};
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "stipple";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 30;
 pub(crate) const FPS: u32 = 14;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const GROUND: [u8; 3] = [0x0b, 0x13, 0x2b];
 const ACCENT: [u8; 3] = [0xff, 0xd1, 0x66];
 const PAGE: f64 = 1000.0;
+const AMOUNT: f64 = 0.3;
 
 const DEFAULT_PALETTE: [&str; 3] = ["#3a86ff", "#8ab6ff", "#d6e6ff"];
 
@@ -452,6 +453,7 @@ struct Field<'a> {
     params: &'a StippleParams,
     seed: u32,
     aspect: f64,
+    zw: Option<(f64, f64)>,
 }
 
 impl Field<'_> {
@@ -479,12 +481,12 @@ impl Field<'_> {
         let (u, v) = self.fold(nx, ny);
         let su = u * p.zoom;
         let sv = v * p.zoom * self.aspect;
-        let wx = fbm(su + 5.2, sv + 1.3, None, self.seed.wrapping_add(11), 2);
-        let wy = fbm(su + 9.1, sv + 7.7, None, self.seed.wrapping_add(29), 2);
+        let wx = fbm(su + 5.2, sv + 1.3, self.zw, self.seed.wrapping_add(11), 2);
+        let wy = fbm(su + 9.1, sv + 7.7, self.zw, self.seed.wrapping_add(29), 2);
         let f = fbm(
             su + p.warp * (wx - 0.5) * 2.0,
             sv + p.warp * (wy - 0.5) * 2.0,
-            None,
+            self.zw,
             self.seed,
             p.oct,
         );
@@ -499,12 +501,19 @@ struct Dot {
     ink: [u8; 3],
 }
 
-fn dots(params: &StippleParams, palette: &Palette, seed: u32, page_h: f64) -> Vec<Dot> {
+fn dots(
+    params: &StippleParams,
+    palette: &Palette,
+    seed: u32,
+    page_h: f64,
+    drift: Option<f64>,
+) -> Vec<Dot> {
     let aspect = page_h / PAGE;
     let field = Field {
         params,
         seed,
         aspect,
+        zw: drift.map(|t| ((TAU * t).cos() * AMOUNT, (TAU * t).sin() * AMOUNT)),
     };
     let hex = params.lattices == Lattice::Hex;
     let cols = params.res.max(2);
@@ -585,17 +594,24 @@ pub(crate) fn render(
     params: &StippleParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
-fn paint(surface: &mut Surface, params: &StippleParams, palette: &Palette, seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &StippleParams,
+    palette: &Palette,
+    seed: u32,
+    drift: Option<f64>,
+) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let k = width / PAGE;
     surface.fill(GROUND);
-    for dot in dots(params, palette, seed, PAGE * height / width) {
+    for dot in dots(params, palette, seed, PAGE * height / width, drift) {
         match params.shapes {
             DotShape::Circle => surface.fill_circle(dot.x * k, dot.y * k, dot.r * k, dot.ink),
             DotShape::Square => surface.fill_box(

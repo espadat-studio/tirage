@@ -24,7 +24,7 @@ SVG: yes. `-o stipple.svg` writes this Still as an [SVG](/cli-reference/render/#
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-stipple  1 frame, svg
+stipple  30 frames, svg
   modesDot    Lattice, Contour
   lattices    Square, Hex
   shapes      Circle, Square

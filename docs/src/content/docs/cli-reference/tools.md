@@ -46,7 +46,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `relief`   | 24     | Loop   |
 | `atlas`    | 24     | Loop   |
 | `sprig`    | 36     | Loop   |
-| `stipple`  | 1      | Still  |
+| `stipple`  | 30     | Loop   |
 | `motley`   | 36     | Loop   |
 | `oddgrid`  | 1      | Still  |
 | `fete`     | 100    | Loop   |

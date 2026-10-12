@@ -120,6 +120,7 @@ mod tests {
         Tool::Sear,
         Tool::Cipher,
         Tool::Terrain,
+        Tool::Stipple,
     ];
 
     #[test]

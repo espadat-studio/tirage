@@ -504,7 +504,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"detail","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let stipple = concat!(
-        r#"{"slug":"stipple","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"stipple","frames":30,"svg":true,"params":["#,
         r#"{"id":"modesDot","kind":"choice","choices":["Lattice","Contour"]},"#,
         r#"{"id":"lattices","kind":"choice","choices":["Square","Hex"]},"#,
         r#"{"id":"shapes","kind":"choice","choices":["Circle","Square"]},"#,
@@ -902,7 +902,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nchaff  36 frames\n"), "{listing}");
     assert!(listing.contains("\nstrand  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
-    assert!(listing.contains("\nstipple  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nstipple  30 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nsprig  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmist  72 frames\n"), "{listing}");
     assert!(listing.contains("\ncoral  36 frames\n"), "{listing}");
@@ -1849,7 +1849,7 @@ mod encode {
                 .contains("→ tirage derive --seed 42 --tool sonar | tirage encode -o sonar-42.mp4"),
             "{screen}"
         );
-        for still in ["stipple", "oddgrid", "deal from Seed"] {
+        for still in ["oddgrid", "specimen", "deal from Seed"] {
             assert!(!screen.contains(still), "{still} offered in\n{screen}");
         }
         std::fs::remove_dir_all(dir).unwrap();
@@ -1857,12 +1857,12 @@ mod encode {
 
     #[test]
     fn encode_refuses_a_still_with_a_hint_to_render_it() {
-        let stipple = tirage(&["derive", "--seed", "42", "--tool", "stipple"], b"").stdout;
-        let out = tirage(&["encode", "-o", "-"], &stipple);
+        let oddgrid = tirage(&["derive", "--seed", "42", "--tool", "oddgrid"], b"").stdout;
+        let out = tirage(&["encode", "-o", "-"], &oddgrid);
         assert_eq!(out.status.code(), Some(1));
         assert_eq!(
             text(&out.stderr),
-            "error: stipple draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
+            "error: oddgrid draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
         );
         assert!(out.stdout.is_empty());
     }
