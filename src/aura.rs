@@ -9,13 +9,14 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "aura";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 72;
 pub(crate) const FPS: u32 = 12;
 const BUDGET: f64 = 700.0;
 pub(crate) const INKS: usize = 4;
 pub(crate) const MAX_INKS: Option<usize> = Some(INKS);
 
 const DEFAULT_PALETTE: [&str; INKS] = ["#ff8a5b", "#ffc15e", "#f4a7d6", "#8e7cff"];
+const AMOUNT: f64 = 0.8;
 
 const SCALE: Param = Param {
     step: 5,
@@ -279,13 +280,20 @@ pub(crate) fn render(
     params: &AuraParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let flow = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, flow);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
-fn paint(surface: &mut Surface, params: &AuraParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &AuraParams,
+    palette: &Palette,
+    tool_seed: u32,
+    flow: Option<f64>,
+) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let bw = round_half_up(width).clamp(90.0, BUDGET);
     let bh = round_half_up(bw * height / width).max(90.0);
@@ -313,6 +321,10 @@ fn paint(surface: &mut Surface, params: &AuraParams, palette: &Palette, tool_see
     let warp = 0.4 + params.churn * 2.4;
     let short_edge = bw.min(bh);
     let zoom = 1.7 * params.scale;
+    let (ox, oy) = flow.map_or((0.0, 0.0), |t| {
+        let (ph, reach) = (TAU * t, AMOUNT * 0.5);
+        (reach * ph.cos(), reach * ph.sin())
+    });
 
     let mut rgba = Vec::with_capacity((bw * bh) as usize * 4);
     for y in 0..bh as u32 {
@@ -321,7 +333,7 @@ fn paint(surface: &mut Surface, params: &AuraParams, palette: &Palette, tool_see
             let nx = (f64::from(x) - bw / 2.0) / short_edge * zoom;
             let q1 = noise.fbm(nx + 11.3, ny + 7.9, 81);
             let q2 = noise.fbm(nx + 3.7, ny + 19.1, 82);
-            let (wx, wy) = (nx + warp * (q1 - 0.5), ny + warp * (q2 - 0.5));
+            let (wx, wy) = (nx + warp * (q1 - 0.5) + ox, ny + warp * (q2 - 0.5) + oy);
             let (mut total, mut mix) = (0.0, [0.0; 3]);
             for (channel, ink) in (60..).zip(&inks) {
                 let nz = noise.fbm2(wx * 1.15 + ink.offset.0, wy * 1.15 + ink.offset.1, channel);

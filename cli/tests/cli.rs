@@ -293,7 +293,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"runs","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let aura = concat!(
-        r#"{"slug":"aura","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"aura","frames":72,"svg":false,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Clouds","Mesh","Sweep"]},"#,
         r#"{"id":"scale","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
         r#"{"id":"churn","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -872,7 +872,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.starts_with("sonar  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nhusk  36 frames\n"), "{listing}");
     assert!(listing.contains("\nvein  36 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\naura  1 frame\n"), "{listing}");
+    assert!(listing.contains("\naura  72 frames\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     assert!(listing.contains("\natlas  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\noddgrid  1 frame, svg\n"), "{listing}");
@@ -1849,7 +1849,7 @@ mod encode {
                 .contains("→ tirage derive --seed 42 --tool sonar | tirage encode -o sonar-42.mp4"),
             "{screen}"
         );
-        for still in ["terrain", "aura", "deal from Seed"] {
+        for still in ["terrain", "coral", "deal from Seed"] {
             assert!(!screen.contains(still), "{still} offered in\n{screen}");
         }
         std::fs::remove_dir_all(dir).unwrap();

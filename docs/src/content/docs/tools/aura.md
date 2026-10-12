@@ -22,7 +22,7 @@ tirage derive --seed 4 --tool aura | tirage render --size 540x960 -o aura.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-aura  1 frame
+aura  72 frames
   styles      Auto, Clouds, Mesh, Sweep
   scale       0.5..=2   step 0.05
   churn       0..=1     step 0.01

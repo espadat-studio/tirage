@@ -112,6 +112,7 @@ mod tests {
         Tool::Chaff,
         Tool::Strand,
         Tool::Vein,
+        Tool::Aura,
     ];
 
     #[test]

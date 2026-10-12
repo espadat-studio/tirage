@@ -26,7 +26,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `sonar`    | 24     | Loop   |
 | `husk`     | 36     | Loop   |
 | `vein`     | 36     | Loop   |
-| `aura`     | 1      | Still  |
+| `aura`     | 72     | Loop   |
 | `kiosk`    | 24     | Loop   |
 | `frond`    | 36     | Loop   |
 | `benday`   | 1      | Still  |
