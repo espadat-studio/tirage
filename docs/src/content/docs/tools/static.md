@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool static | tirage render --size 540x960 -o static.png
 ```
 
+SVG: yes. `-o static.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-static  60 frames
+static  60 frames, svg
   regions     2..=5     step 1
   res         48..=160  step 4
   glitch      0..=1     step 0.01

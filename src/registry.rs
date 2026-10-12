@@ -115,6 +115,10 @@ impl Tool {
         matches!(
             self,
             Self::Sonar
+                | Self::Fete
+                | Self::Quilt
+                | Self::Static
+                | Self::Carve
                 | Self::Mosh
                 | Self::Bloom
                 | Self::Weave

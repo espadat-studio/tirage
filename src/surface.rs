@@ -547,6 +547,10 @@ impl Surface {
     }
 
     pub(crate) fn set_pixel(&mut self, x: u32, y: u32, [r, g, b]: [u8; 3]) {
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.set_pixel(x, y, [r, g, b]);
+            return;
+        }
         let (pixmap, mask) = self.raster("set_pixel");
         assert!(mask.is_none(), "pixel writes ignore a clip");
         let width = pixmap.width();
@@ -607,17 +611,18 @@ impl Surface {
     }
 
     fn draw_nearest(&mut self, rgba: &[u8], width: u32, height: u32) {
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.draw_nearest(rgba, width, height);
+            return;
+        }
         let (pixmap, mask) = self.raster("draw_smooth Nearest");
         assert!(mask.is_none(), "pixel writes ignore a clip");
         let (columns, rows) = (pixmap.width(), pixmap.height());
-        let source = |at: u32, edge: u32, scaled: u32| {
-            ((f64::from(at) + 0.5) * f64::from(edge) / f64::from(scaled)).ceil() as u32 - 1
-        };
         let pixels = pixmap.pixels_mut();
         for y in 0..rows {
-            let sy = source(y, height, rows);
+            let sy = nearest_source(y, height, rows);
             for x in 0..columns {
-                let sx = source(x, width, columns);
+                let sx = nearest_source(x, width, columns);
                 let i = ((sy * width + sx) * 4) as usize;
                 let [r, g, b, a] = [rgba[i], rgba[i + 1], rgba[i + 2], rgba[i + 3]];
                 pixels[(y * columns + x) as usize] = ColorU8::from_rgba(r, g, b, a).premultiply();
@@ -652,6 +657,10 @@ impl Surface {
         };
         svg.finish()
     }
+}
+
+pub(crate) fn nearest_source(at: u32, edge: u32, scaled: u32) -> u32 {
+    ((f64::from(at) + 0.5) * f64::from(edge) / f64::from(scaled)).ceil() as u32 - 1
 }
 
 fn rgba(pixmap: &Pixmap) -> Vec<u8> {
@@ -710,9 +719,9 @@ mod tests {
     use super::{Cap, Join, Path2D, Smoothing, Surface, Transform};
 
     #[test]
-    #[should_panic(expected = "set_pixel has no SVG arm")]
+    #[should_panic(expected = "with_plus has no SVG arm")]
     fn an_svg_surface_panics_naming_an_op_without_an_svg_arm() {
-        Surface::svg(4, 4).set_pixel(0, 0, [0, 0, 0]);
+        Surface::svg(4, 4).with_plus(|_| {});
     }
 
     #[test]
@@ -822,6 +831,40 @@ mod tests {
                 surface.stroke(&path, [77, 201, 33], 1.0, Cap::Butt, Join::Miter);
             });
             surface.fill_box(0.5, 0.5, 1.0, 1.0, [16, 40, 90]);
+        };
+        assert_svg_rasterizes_within_one_level(draw);
+    }
+
+    #[test]
+    fn clipped_hairlines_crossing_on_the_clip_edge_rasterize_from_svg_within_one_level() {
+        let draw = |surface: &mut Surface| {
+            surface.fill([245, 242, 236]);
+            let mut clip = Path2D::default();
+            clip.rect(1.29, 1.29, 4.0, 4.0);
+            surface.with_clip(&clip, Transform::IDENTITY, |surface| {
+                let mut grid = Path2D::default();
+                for at in [1.292, 3.5] {
+                    grid.move_to(at, 1.292);
+                    grid.line_to(at, 6.0);
+                    grid.move_to(1.292, at);
+                    grid.line_to(6.0, at);
+                }
+                surface.stroke(&grid, [0, 163, 255], 1.0, Cap::Butt, Join::Miter);
+            });
+        };
+        assert_svg_rasterizes_within_one_level(draw);
+    }
+
+    #[test]
+    fn pixels_between_boxes_rasterize_from_svg_within_one_level_of_the_raster() {
+        let draw = |surface: &mut Surface| {
+            surface.fill([138, 182, 255]);
+            surface.fill_box(1.3, 0.6, 3.2, 2.9, [16, 40, 90]);
+            for (x, y) in [(1, 1), (2, 1), (4, 3), (2, 5)] {
+                surface.set_pixel(x, y, [250, 120, x as u8 * 40]);
+            }
+            surface.fill_box(2.7, 1.9, 2.55, 3.05, [77, 201, 33]);
+            surface.set_pixel(0, 0, [0, 0, 0]);
         };
         assert_svg_rasterizes_within_one_level(draw);
     }

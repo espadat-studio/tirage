@@ -551,7 +551,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"balance","kind":"range","min":-1.2,"max":1.2,"step":0.05},"#,
     );
     let fete = concat!(
-        r#"{"slug":"fete","frames":100,"svg":false,"params":["#,
+        r#"{"slug":"fete","frames":100,"svg":true,"params":["#,
         r#"{"id":"motifs","kind":"choice","choices":["Auto","Rings","Spiral","Burst","Atom","Wave","Scribble"]},"#,
         r#"{"id":"scale","kind":"range","min":1.2,"max":6.0,"step":0.1},"#,
         r#"{"id":"res","kind":"range","min":36.0,"max":120.0,"step":4.0},"#,
@@ -573,13 +573,13 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"px","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let quilt = concat!(
-        r#"{"slug":"quilt","frames":60,"svg":false,"params":["#,
+        r#"{"slug":"quilt","frames":60,"svg":true,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Bands","Tabs","Plaid","Dither","Steps","Zigzag","Diamond","Cross","Basket","Rings","Star","Waves","Gingham","Burst"]},"#,
         r#"{"id":"cells","kind":"range","min":28.0,"max":72.0,"step":2.0},"#,
         r#"{"id":"chunk","kind":"range","min":0.7,"max":1.8,"step":0.05},"#,
     );
     let static_tool = concat!(
-        r#"{"slug":"static","frames":60,"svg":false,"params":["#,
+        r#"{"slug":"static","frames":60,"svg":true,"params":["#,
         r#"{"id":"regions","kind":"range","min":2.0,"max":5.0,"step":1.0},"#,
         r#"{"id":"res","kind":"range","min":48.0,"max":160.0,"step":4.0},"#,
         r#"{"id":"glitch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -671,7 +671,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"depth","kind":"range","min":0.1,"max":0.4,"step":0.01},"#,
     );
     let carve = concat!(
-        r#"{"slug":"carve","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"carve","frames":1,"svg":true,"params":["#,
         r#"{"id":"cuts","kind":"range","min":1.0,"max":16.0,"step":1.0},"#,
         r#"{"id":"uneven","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"gap","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -876,10 +876,10 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     assert!(listing.contains("\natlas  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\noddgrid  1 frame, svg\n"), "{listing}");
-    assert!(listing.contains("\nfete  100 frames\n"), "{listing}");
+    assert!(listing.contains("\nfete  100 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nfold  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nquilt  60 frames\n"), "{listing}");
-    assert!(listing.contains("\nstatic  60 frames\n"), "{listing}");
+    assert!(listing.contains("\nquilt  60 frames, svg\n"), "{listing}");
+    assert!(listing.contains("\nstatic  60 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nsplice  1 frame\n"), "{listing}");
     assert!(listing.contains("\ndahlia  1 frame\n"), "{listing}");
     assert!(listing.contains("\nhiss  1 frame\n"), "{listing}");
@@ -887,7 +887,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\ncipher  1 frame\n"), "{listing}");
     assert!(listing.contains("\nriso  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nrise  1 frame, svg\n"), "{listing}");
-    assert!(listing.contains("\ncarve  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ncarve  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nspecimen  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\npane  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nmodular  1 frame, svg\n"), "{listing}");
