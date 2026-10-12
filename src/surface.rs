@@ -392,6 +392,15 @@ impl Surface {
     }
 
     pub(crate) fn stroke(&mut self, path: &Path2D, ink: [u8; 3], width: f64, cap: Cap, join: Join) {
+        let path = path
+            .0
+            .clone()
+            .finish()
+            .expect("a stroked path has a closed loop");
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.stroke(&path, ink, width as f32, cap, join);
+            return;
+        }
         let stroke = Stroke {
             width: width as f32,
             line_cap: match cap {
@@ -405,11 +414,6 @@ impl Surface {
             miter_limit: 10.0,
             ..Stroke::default()
         };
-        let path = path
-            .0
-            .clone()
-            .finish()
-            .expect("a stroked path has a closed loop");
         let paint = self.solid(ink);
         let (pixmap, mask) = self.raster("stroke");
         pixmap.stroke_path(

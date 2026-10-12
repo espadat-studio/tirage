@@ -2,6 +2,8 @@ use std::fmt::Write;
 
 use tiny_skia::{Path, PathSegment};
 
+use crate::surface::{Cap, Join};
+
 pub(crate) struct SvgWriter {
     width: u32,
     height: u32,
@@ -146,20 +148,39 @@ impl SvgWriter {
 
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
         self.group(ink, false);
-        self.path(path);
+        self.path(path, true);
         self.markup.push_str(r#""/>"#);
     }
 
     pub(crate) fn fill_even_odd(&mut self, path: &Path, ink: [u8; 3]) {
         self.group(ink, false);
-        self.path(path);
+        self.path(path, true);
         self.markup.push_str(r#"" fill-rule="evenodd"/>"#);
     }
 
-    fn path(&mut self, path: &Path) {
+    pub(crate) fn stroke(&mut self, path: &Path, ink: [u8; 3], width: f32, cap: Cap, join: Join) {
+        self.group(ink, false);
+        self.path(path, false);
+        let [r, g, b] = ink;
+        write!(
+            self.markup,
+            r##"" fill="none" stroke="#{r:02x}{g:02x}{b:02x}" stroke-width="{width}""##
+        )
+        .expect("a String takes any write");
+        if let Cap::Round = cap {
+            self.markup.push_str(r#" stroke-linecap="round""#);
+        }
+        self.markup.push_str(match join {
+            Join::Round => r#" stroke-linejoin="round"/>"#,
+            Join::Miter => r#" stroke-miterlimit="10"/>"#,
+        });
+    }
+
+    fn path(&mut self, path: &Path, snap: bool) {
         self.markup.push_str(r#"<path d=""#);
         let bounds = path.bounds();
-        let unclipped = bounds.left() >= 0.0
+        let unclipped = snap
+            && bounds.left() >= 0.0
             && bounds.top() >= 0.0
             && bounds.right() <= self.width as f32
             && bounds.bottom() <= self.height as f32;
@@ -227,6 +248,7 @@ mod tests {
     use tiny_skia::PathBuilder;
 
     use super::SvgWriter;
+    use crate::surface::{Cap, Join};
 
     #[test]
     fn an_empty_writer_gives_a_root_svg_sized_by_width_height_and_view_box() {
@@ -379,6 +401,42 @@ mod tests {
             body(svg.finish()),
             r##"<g fill="#010203"><path d="M0 0L4 0L0 3.5Z" fill-rule="evenodd"/></g>"##
         );
+    }
+
+    #[test]
+    fn a_butt_capped_miter_joined_stroke_writes_tiny_skias_miter_limit() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(&triangle(), [255, 0, 16], 1.5, Cap::Butt, Join::Miter);
+        assert_eq!(
+            body(svg.finish()),
+            r##"<g fill="#ff0010"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#ff0010" stroke-width="1.5" stroke-miterlimit="10"/></g>"##
+        );
+    }
+
+    #[test]
+    fn a_round_capped_round_joined_stroke_names_both() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(&triangle(), [0, 0, 0], 0.25, Cap::Round, Join::Round);
+        assert_eq!(
+            body(svg.finish()),
+            r##"<g fill="#000000"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#000000" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/></g>"##
+        );
+    }
+
+    #[test]
+    fn a_stroke_keeps_shortest_f32_coordinates_for_tiny_skias_stroker() {
+        let mut path = PathBuilder::new();
+        path.move_to(1.0 / 3.0, 1.0);
+        path.line_to(2.0, 1.0);
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(
+            &path.finish().unwrap(),
+            [0, 0, 0],
+            1.0,
+            Cap::Butt,
+            Join::Round,
+        );
+        assert!(body(svg.finish()).contains(r#"d="M0.33333334 1L2 1""#));
     }
 
     #[test]
