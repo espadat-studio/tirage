@@ -121,6 +121,7 @@ impl Tool {
                 | Self::Stipple
                 | Self::Totem
                 | Self::Vein
+                | Self::Warp
         )
     }
 }

@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool warp | tirage render --size 540x960 -o warp.png
 ```
 
+SVG: yes. `-o warp.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-warp  72 frames
+warp  72 frames, svg
   styles      Checker, Slash
   scale       0.5..=2   step 0.05
   warp        0..=1     step 0.01
