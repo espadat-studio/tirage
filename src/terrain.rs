@@ -1,3 +1,5 @@
+use std::f64::consts::TAU;
+
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
@@ -7,9 +9,10 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "terrain";
-pub(crate) const FRAMES: u32 = 1;
-pub(crate) const FPS: u32 = 1;
+pub(crate) const FRAMES: u32 = 30;
+pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
+const AMOUNT: f64 = 0.6;
 
 const DEFAULT_PALETTE: [&str; 6] = [
     "#264653", "#2a9d8f", "#8ab17d", "#e9c46a", "#f4a261", "#e76f51",
@@ -249,9 +252,10 @@ pub(crate) fn render(
     params: &TerrainParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -316,7 +320,14 @@ pub(crate) fn fbm(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32, octaves: u3
     sum / total
 }
 
-fn paint(surface: &mut Surface, params: &TerrainParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &TerrainParams,
+    palette: &Palette,
+    tool_seed: u32,
+    drift: Option<f64>,
+) {
+    let zw = drift.map(|t| ((TAU * t).cos() * AMOUNT, (TAU * t).sin() * AMOUNT));
     let (width, height) = (surface.width() as usize, surface.height() as usize);
     let (w, h) = (width as f64, height as f64);
     let fw = width.div_ceil(STEP) + 2;
@@ -326,12 +337,12 @@ fn paint(surface: &mut Surface, params: &TerrainParams, palette: &Palette, tool_
         let v = (j * STEP) as f64 / h * params.scale * (h / w);
         for i in 0..fw {
             let u = (i * STEP) as f64 / w * params.scale;
-            let wx = fbm(u + 5.2, v + 1.3, None, tool_seed.wrapping_add(11), 2);
-            let wy = fbm(u + 9.1, v + 7.7, None, tool_seed.wrapping_add(29), 2);
+            let wx = fbm(u + 5.2, v + 1.3, zw, tool_seed.wrapping_add(11), 2);
+            let wy = fbm(u + 9.1, v + 7.7, zw, tool_seed.wrapping_add(29), 2);
             let val = fbm(
                 u + params.warp * (wx - 0.5) * 2.0,
                 v + params.warp * (wy - 0.5) * 2.0,
-                None,
+                zw,
                 tool_seed,
                 params.oct,
             );

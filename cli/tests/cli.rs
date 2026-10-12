@@ -342,7 +342,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"bite","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let terrain = concat!(
-        r#"{"slug":"terrain","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"terrain","frames":30,"svg":false,"params":["#,
         r#"{"id":"scale","kind":"range","min":0.6,"max":9.0,"step":0.1},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":3.0,"step":0.02},"#,
         r#"{"id":"oct","kind":"range","min":1.0,"max":7.0,"step":1.0},"#,
@@ -1849,7 +1849,7 @@ mod encode {
                 .contains("→ tirage derive --seed 42 --tool sonar | tirage encode -o sonar-42.mp4"),
             "{screen}"
         );
-        for still in ["terrain", "oddgrid", "deal from Seed"] {
+        for still in ["stipple", "oddgrid", "deal from Seed"] {
             assert!(!screen.contains(still), "{still} offered in\n{screen}");
         }
         std::fs::remove_dir_all(dir).unwrap();
@@ -1857,12 +1857,12 @@ mod encode {
 
     #[test]
     fn encode_refuses_a_still_with_a_hint_to_render_it() {
-        let terrain = tirage(&["derive", "--seed", "42", "--tool", "terrain"], b"").stdout;
-        let out = tirage(&["encode", "-o", "-"], &terrain);
+        let stipple = tirage(&["derive", "--seed", "42", "--tool", "stipple"], b"").stdout;
+        let out = tirage(&["encode", "-o", "-"], &stipple);
         assert_eq!(out.status.code(), Some(1));
         assert_eq!(
             text(&out.stderr),
-            "error: terrain draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
+            "error: stipple draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
         );
         assert!(out.stdout.is_empty());
     }

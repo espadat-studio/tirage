@@ -119,6 +119,7 @@ mod tests {
         Tool::Coral,
         Tool::Sear,
         Tool::Cipher,
+        Tool::Terrain,
     ];
 
     #[test]

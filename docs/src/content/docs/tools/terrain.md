@@ -22,7 +22,7 @@ tirage derive --seed 7 --tool terrain | tirage render --size 540x960 -o terrain.
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-terrain  1 frame
+terrain  30 frames
   scale       0.6..=9   step 0.1
   warp        0..=3     step 0.02
   oct         1..=7     step 1
