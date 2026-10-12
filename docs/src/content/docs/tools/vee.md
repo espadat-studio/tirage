@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool vee | tirage render --size 540x960 -o vee.png
 ```
 
+SVG: yes. `-o vee.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-vee  1 frame
+vee  1 frame, svg
   styles      Auto, Chevron, Quad, Diagonal, Cross
   angle       15..=75   step 1
   width       0.4..=2.2 step 0.05

@@ -133,6 +133,11 @@ impl Tool {
                 | Self::Prism
                 | Self::Parcel
                 | Self::Tokens
+                | Self::Riso
+                | Self::Rise
+                | Self::Specimen
+                | Self::Optic
+                | Self::Vee
         )
     }
 }

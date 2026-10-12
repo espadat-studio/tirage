@@ -214,9 +214,18 @@ impl Surface {
         transform: Transform,
         draw: impl FnOnce(&mut Self),
     ) {
+        let path = clip.0.clone().finish().expect("a clip has a closed loop");
+        if let Backend::Svg(svg) = &mut self.0 {
+            svg.push_clip(&path, transform.0);
+            draw(self);
+            let Backend::Svg(svg) = &mut self.0 else {
+                unreachable!("a Surface keeps its backend")
+            };
+            svg.pop_clip();
+            return;
+        }
         let (width, height) = (self.width(), self.height());
         let (_, slot) = self.raster("with_clip");
-        let path = clip.0.clone().finish().expect("a clip has a closed loop");
         let mask = if let Some(outer) = slot.as_ref() {
             let mut mask = outer.clone();
             mask.intersect_path(&path, FillRule::Winding, true, transform.0);

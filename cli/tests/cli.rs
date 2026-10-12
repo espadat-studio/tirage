@@ -655,7 +655,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"dots","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let riso = concat!(
-        r#"{"slug":"riso","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"riso","frames":1,"svg":true,"params":["#,
         r#"{"id":"bands","kind":"range","min":2.0,"max":5.0,"step":1.0},"#,
         r#"{"id":"rough","kind":"range","min":0.1,"max":1.0,"step":0.01},"#,
         r#"{"id":"scrib","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -663,7 +663,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let rise = concat!(
-        r#"{"slug":"rise","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"rise","frames":1,"svg":true,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Bottom","Top","Left","Right","Centre"]},"#,
         r#"{"id":"count","kind":"range","min":6.0,"max":28.0,"step":1.0},"#,
         r#"{"id":"weight","kind":"range","min":0.3,"max":0.7,"step":0.01},"#,
@@ -681,7 +681,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"nodes","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let specimen = concat!(
-        r#"{"slug":"specimen","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"specimen","frames":1,"svg":true,"params":["#,
         r#"{"id":"cols","kind":"range","min":2.0,"max":16.0,"step":1.0},"#,
         r#"{"id":"fill","kind":"range","min":0.1,"max":1.0,"step":0.01},"#,
         r#"{"id":"span","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -766,7 +766,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"break","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let optic = concat!(
-        r#"{"slug":"optic","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"optic","frames":1,"svg":true,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Diamond","Circle","Peak","Square"]},"#,
         r#"{"id":"count","kind":"range","min":6.0,"max":28.0,"step":1.0},"#,
         r#"{"id":"weight","kind":"range","min":0.3,"max":0.7,"step":0.01},"#,
@@ -774,7 +774,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"levels","kind":"range","min":1.0,"max":3.0,"step":1.0},"#,
     );
     let vee = concat!(
-        r#"{"slug":"vee","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"vee","frames":1,"svg":true,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Chevron","Quad","Diagonal","Cross"]},"#,
         r#"{"id":"angle","kind":"range","min":15.0,"max":75.0,"step":1.0},"#,
         r#"{"id":"width","kind":"range","min":0.4,"max":2.2,"step":0.05},"#,
@@ -885,17 +885,17 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nhiss  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncrowd  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncipher  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nriso  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nrise  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nriso  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nrise  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\ncarve  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nspecimen  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nspecimen  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\npane  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nmodular  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nprism  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nparcel  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\ntokens  1 frame, svg\n"), "{listing}");
-    assert!(listing.contains("\noptic  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nvee  1 frame\n"), "{listing}");
+    assert!(listing.contains("\noptic  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nvee  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nsampler  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ntotem  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nfilament  1 frame\n"), "{listing}");

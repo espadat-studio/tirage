@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool optic | tirage render --size 540x960 -o optic.png
 ```
 
+SVG: yes. `-o optic.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-optic  1 frame
+optic  1 frame, svg
   styles      Auto, Diamond, Circle, Peak, Square
   count       6..=28    step 1
   weight      0.3..=0.7 step 0.01

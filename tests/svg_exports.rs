@@ -11,7 +11,7 @@ use fidelity::assert_svg_fidelity;
 
 const MAX_LUMA: u8 = 1;
 const MAX_BYTES: usize = 10_000_000;
-const OVERRIDES: &[(Tool, u8)] = &[];
+const OVERRIDES: &[(Tool, u8)] = &[(Tool::Riso, 2), (Tool::Specimen, 3), (Tool::Vee, 2)];
 const WIDTH: u32 = 540;
 const HEIGHT: u32 = 960;
 

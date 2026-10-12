@@ -10,6 +10,8 @@ pub(crate) struct SvgWriter {
     markup: String,
     group: Option<([u8; 3], bool)>,
     gradients: u32,
+    clips: Vec<u32>,
+    next_clip: u32,
     alpha: f32,
     multiply: bool,
 }
@@ -24,6 +26,8 @@ impl SvgWriter {
             ),
             group: None,
             gradients: 0,
+            clips: Vec::new(),
+            next_clip: 0,
             alpha: 1.0,
             multiply: false,
         }
@@ -58,10 +62,75 @@ impl SvgWriter {
             self.markup
                 .push_str(r#"<g style="mix-blend-mode:multiply">"#);
         }
+        if let Some(id) = self.clips.last() {
+            write!(
+                self.markup,
+                r#"<g clip-path="url(#c{id})" filter="url(#frame)">"#
+            )
+            .expect("a String takes any write");
+        }
+    }
+
+    fn end_group(&mut self) {
+        if self.group.take().is_some() {
+            self.markup.push_str("</g>");
+        }
+    }
+
+    pub(crate) fn push_clip(&mut self, path: &Path, transform: Transform) {
+        self.end_group();
+        let id = self.next_clip;
+        self.next_clip += 1;
+        if id == 0 {
+            let (width, height) = (self.width, self.height);
+            write!(
+                self.markup,
+                r#"<filter id="frame" filterUnits="userSpaceOnUse" x="0" y="0" width="{width}" height="{height}" color-interpolation-filters="sRGB"><feOffset/></filter>"#
+            )
+            .expect("a String takes any write");
+        }
+        write!(self.markup, r#"<clipPath id="c{id}""#).expect("a String takes any write");
+        if let Some(outer) = self.clips.last() {
+            write!(self.markup, r#" clip-path="url(#c{outer})""#)
+                .expect("a String takes any write");
+        }
+        self.markup.push('>');
+        if transform.is_identity() {
+            self.open_path(path, true);
+            self.markup.push('"');
+        } else {
+            self.open_path(path, false);
+            self.matrix(transform);
+        }
+        self.markup.push_str("/></clipPath>");
+        self.clips.push(id);
+    }
+
+    pub(crate) fn pop_clip(&mut self) {
+        self.clips.pop().expect("a pop follows its push");
+    }
+
+    fn matrix(&mut self, transform: Transform) {
+        let Transform {
+            sx,
+            ky,
+            kx,
+            sy,
+            tx,
+            ty,
+        } = transform;
+        write!(
+            self.markup,
+            r#"" transform="matrix({sx} {ky} {kx} {sy} {tx} {ty})""#
+        )
+        .expect("a String takes any write");
     }
 
     fn close(&mut self) {
         self.markup.push_str("/>");
+        if !self.clips.is_empty() {
+            self.markup.push_str("</g>");
+        }
         if self.multiply {
             self.markup.push_str("</g>");
         }
@@ -147,9 +216,8 @@ impl SvgWriter {
         (x1, y1): (f64, f64),
         stops: &[(f64, [u8; 3])],
     ) {
-        if self.group.take().is_some() {
-            self.markup.push_str("</g>");
-        }
+        assert!(self.clips.is_empty(), "a ramp ignores a clip");
+        self.end_group();
         let id = self.gradients;
         self.gradients += 1;
         let [x0, y0, x1, y1] = [x0, y0, x1, y1].map(|v| v as f32);
@@ -281,19 +349,7 @@ impl SvgWriter {
     pub(crate) fn fill_transformed(&mut self, path: &Path, ink: [u8; 3], transform: Transform) {
         self.open(self.faded(ink), false);
         self.open_path(path, false);
-        let Transform {
-            sx,
-            ky,
-            kx,
-            sy,
-            tx,
-            ty,
-        } = transform;
-        write!(
-            self.markup,
-            r#"" transform="matrix({sx} {ky} {kx} {sy} {tx} {ty})""#
-        )
-        .expect("a String takes any write");
+        self.matrix(transform);
         self.opacity("fill", self.alpha);
         self.close();
     }
@@ -374,9 +430,7 @@ impl SvgWriter {
     }
 
     pub(crate) fn finish(mut self) -> String {
-        if self.group.is_some() {
-            self.markup.push_str("</g>");
-        }
+        self.end_group();
         self.markup + "</svg>\n"
     }
 }
@@ -777,6 +831,54 @@ mod tests {
                 blend,
                 r##"<path d="M1.5 0L1.5 4" fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10"/></g></g>"##,
                 r##"<g fill="#010203" shape-rendering="crispEdges"><rect x="2" y="0" width="1" height="1"/></g>"##,
+            ]
+            .concat()
+        );
+    }
+
+    #[test]
+    fn each_clipped_element_sits_in_its_own_frame_sized_clip_group_as_tiny_skia_masks_each_draw() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_rect(0, 0, 1, 1, [0, 0, 0]);
+        svg.push_clip(&triangle(), Transform::identity());
+        svg.fill_rect(1, 0, 1, 1, [0, 0, 0]);
+        svg.fill_path(&triangle(), [0, 0, 0]);
+        svg.pop_clip();
+        svg.fill_rect(2, 0, 1, 1, [0, 0, 0]);
+        assert_eq!(
+            body(svg.finish()),
+            [
+                r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1"/></g>"##,
+                r#"<filter id="frame" filterUnits="userSpaceOnUse" x="0" y="0" width="9" height="9" color-interpolation-filters="sRGB"><feOffset/></filter>"#,
+                r#"<clipPath id="c0"><path d="M0 0L4 0L0 3.5Z"/></clipPath>"#,
+                r##"<g fill="#000000" shape-rendering="crispEdges"><g clip-path="url(#c0)" filter="url(#frame)"><rect x="1" y="0" width="1" height="1"/></g></g>"##,
+                r##"<g fill="#000000"><g clip-path="url(#c0)" filter="url(#frame)"><path d="M0 0L4 0L0 3.5Z"/></g></g>"##,
+                r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="2" y="0" width="1" height="1"/></g>"##,
+            ]
+            .concat()
+        );
+    }
+
+    #[test]
+    fn a_nested_transformed_clip_is_clipped_by_the_outer_and_writes_its_matrix_on_its_path() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.push_clip(&triangle(), Transform::identity());
+        svg.push_clip(
+            &triangle(),
+            Transform::from_row(0.0, 1.0, -1.5, 0.0, 5.0, 1.0 / 3.0),
+        );
+        svg.fill([1, 2, 3]);
+        svg.pop_clip();
+        svg.fill([1, 2, 3]);
+        svg.pop_clip();
+        assert_eq!(
+            body(svg.finish()),
+            [
+                r#"<filter id="frame" filterUnits="userSpaceOnUse" x="0" y="0" width="9" height="9" color-interpolation-filters="sRGB"><feOffset/></filter>"#,
+                r#"<clipPath id="c0"><path d="M0 0L4 0L0 3.5Z"/></clipPath>"#,
+                r#"<clipPath id="c1" clip-path="url(#c0)"><path d="M0 0L4 0L0 3.5Z" transform="matrix(0 1 -1.5 0 5 0.33333334)"/></clipPath>"#,
+                r##"<g fill="#010203"><g clip-path="url(#c1)" filter="url(#frame)"><rect width="9" height="9"/></g>"##,
+                r#"<g clip-path="url(#c0)" filter="url(#frame)"><rect width="9" height="9"/></g></g>"#,
             ]
             .concat()
         );

@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool rise | tirage render --size 540x960 -o rise.png
 ```
 
+SVG: yes. `-o rise.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-rise  1 frame
+rise  1 frame, svg
   styles      Bottom, Top, Left, Right, Centre
   count       6..=28    step 1
   weight      0.3..=0.7 step 0.01
