@@ -112,7 +112,7 @@ impl Tool {
     }
 
     pub fn supports_svg(self) -> bool {
-        matches!(self, Self::Sonar)
+        matches!(self, Self::Sonar | Self::Mosh)
     }
 }
 

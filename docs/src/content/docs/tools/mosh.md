@@ -17,12 +17,14 @@ Seed 17, rendered by:
 tirage derive --seed 17 --tool mosh | tirage render --size 540x960 -o mosh.png
 ```
 
+SVG: yes. `-o mosh.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-mosh  24 frames
+mosh  24 frames, svg
   bands       1..=14    step 1
   cols        24..=420  step 2
   mix         0..=1     step 0.01

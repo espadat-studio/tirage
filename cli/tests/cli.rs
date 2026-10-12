@@ -379,7 +379,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let mosh = concat!(
-        r#"{"slug":"mosh","frames":24,"svg":false,"params":["#,
+        r#"{"slug":"mosh","frames":24,"svg":true,"params":["#,
         r#"{"id":"bands","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"cols","kind":"range","min":24.0,"max":420.0,"step":2.0},"#,
         r#"{"id":"mix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -909,6 +909,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nwhorl  1 frame\n"), "{listing}");
     assert!(listing.contains("\nsear  1 frame\n"), "{listing}");
     assert!(listing.contains("\nculture  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nmosh  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nbloom  24 frames\n"), "{listing}");
     assert!(listing.contains("\nweave  1 frame\n"), "{listing}");
     assert!(listing.contains("\nwarp  72 frames\n"), "{listing}");
