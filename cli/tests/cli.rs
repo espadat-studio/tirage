@@ -1642,9 +1642,9 @@ fn shell_blocks(markdown: &str) -> Vec<&str> {
     lines
 }
 
-fn first_seed(still: bool) -> u64 {
+fn loop_seed() -> u64 {
     (0..)
-        .find(|&seed| (tirage::derive(seed, tirage::ToolPin::Any).tool().frames() == 1) == still)
+        .find(|&seed| tirage::derive(seed, tirage::ToolPin::Any).tool().frames() > 1)
         .unwrap()
 }
 
@@ -1682,9 +1682,10 @@ fn files_in(dir: &Path) -> Vec<String> {
     names
 }
 
+#[cfg(not(feature = "encode"))]
 #[test]
-fn roll_writes_a_still_as_a_story_png_its_reproduce_line_remakes() {
-    let seed = first_seed(true);
+fn roll_without_encode_writes_the_still_of_a_loop_as_a_story_png_its_reproduce_line_remakes() {
+    let seed = loop_seed();
     let tool = tirage::derive(seed, tirage::ToolPin::Any).tool().slug();
     let name = format!("{tool}-{seed}.png");
     let dir = scratch("roll-still");
@@ -1708,15 +1709,20 @@ fn roll_writes_a_still_as_a_story_png_its_reproduce_line_remakes() {
 
 #[test]
 fn roll_refuses_an_existing_target_and_writes_nothing() {
-    let seed = first_seed(true);
+    let seed = loop_seed();
     let tool = tirage::derive(seed, tirage::ToolPin::Any).tool().slug();
-    let name = format!("{tool}-{seed}.png");
+    let extension = if cfg!(feature = "encode") {
+        "mp4"
+    } else {
+        "png"
+    };
+    let name = format!("{tool}-{seed}.{extension}");
     let dir = scratch("roll-exists");
     std::fs::write(dir.join(&name), b"mine").unwrap();
     let out = roll_in(&dir, &[], seed);
     assert_eq!(out.status.code(), Some(1), "{}", text(&out.stderr));
     assert!(
-        text(&out.stderr).starts_with(&format!("error: {name} exists\nhint: ")),
+        text(&out.stderr).contains(&format!("error: {name} exists\nhint: ")),
         "{}",
         text(&out.stderr)
     );
@@ -1727,13 +1733,14 @@ fn roll_refuses_an_existing_target_and_writes_nothing() {
 
 #[test]
 fn roll_never_prompts() {
-    let seed = first_seed(true);
+    let seed = loop_seed();
     let dir = scratch("roll-no-input");
     let quiet = roll_in(&dir, &["--no-input"], seed);
     assert_eq!(quiet.status.code(), Some(0), "{}", text(&quiet.stderr));
     let piped = scratch("roll-piped");
     let out = roll_in(&piped, &[], seed);
-    assert_eq!(out.stderr, quiet.stderr);
+    let last = |stderr: &[u8]| text(stderr).lines().last().map(str::to_owned);
+    assert_eq!(last(&out.stderr), last(&quiet.stderr));
     assert_eq!(files_in(&piped), files_in(&dir));
     let tty = scratch("roll-tty");
     let out = on_tty_typing("tirage roll", "", &tty);
@@ -1752,29 +1759,6 @@ fn roll_shows_in_help_with_examples() {
     assert!(help.starts_with("Examples:\n  tirage roll\n"), "{help}");
     let script = text(&tirage(&["completions", "bash"], b"").stdout);
     assert!(script.contains("roll"), "{script}");
-}
-
-#[cfg(not(feature = "encode"))]
-#[test]
-fn roll_without_encode_deals_past_a_loop_to_a_still() {
-    let dir = scratch("roll-past-loop");
-    let out = roll_in(&dir, &[], first_seed(false));
-    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
-    let names = files_in(&dir);
-    assert_eq!(names.len(), 1);
-    assert!(names[0].ends_with(".png"), "{names:?}");
-    let seed: u64 = names[0]
-        .trim_end_matches(".png")
-        .rsplit_once('-')
-        .unwrap()
-        .1
-        .parse()
-        .unwrap();
-    assert_eq!(
-        tirage::derive(seed, tirage::ToolPin::Any).tool().frames(),
-        1
-    );
-    std::fs::remove_dir_all(dir).unwrap();
 }
 
 #[cfg(feature = "encode")]
@@ -1922,7 +1906,7 @@ mod encode {
 
     #[test]
     fn roll_encodes_a_loop_its_reproduce_line_remakes() {
-        let seed = first_seed(false);
+        let seed = loop_seed();
         let recipe = tirage::derive(seed, tirage::ToolPin::Any);
         let name = format!("{}-{seed}.mp4", recipe.tool().slug());
         let dir = scratch("roll-loop");

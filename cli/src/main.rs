@@ -532,16 +532,10 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             write_output(&output, &encode_loop(&recipe)?)
         }
         Command::Roll => {
-            let mut seed = roll_seed();
-            let recipe = loop {
-                let recipe = derive(seed, ToolPin::Any);
-                if cfg!(feature = "encode") || recipe.tool().frames() == 1 {
-                    break recipe;
-                }
-                seed = random_seed();
-            };
+            let seed = roll_seed();
+            let recipe = derive(seed, ToolPin::Any);
             let tool = recipe.tool();
-            let still = tool.frames() == 1;
+            let still = !cfg!(feature = "encode") || tool.frames() == 1;
             let output = PathBuf::from(format!(
                 "{}-{seed}.{}",
                 tool.slug(),
@@ -730,7 +724,7 @@ fn encode_loop(recipe: &Recipe) -> Result<Vec<u8>, Failure> {
 
 #[cfg(not(feature = "encode"))]
 fn encode_loop(_: &Recipe) -> Result<Vec<u8>, Failure> {
-    unreachable!("roll deals only Stills without the encode feature")
+    unreachable!("roll renders a Still without the encode feature")
 }
 
 fn frames_label(tool: Tool) -> String {
