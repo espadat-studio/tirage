@@ -1,11 +1,11 @@
 ---
 title: "strand"
-description: "Chains of torn rods printed in two plates that slipped apart, so a dark rim shows beside each one. It renders a Still."
+description: "Chains of torn rods printed in two plates that slipped apart, so a dark rim shows beside each one. It renders a Loop of 36 frames at 12 fps, the chains drifting round one small circle."
 ---
 
 Chains of short rods, printed as if by two plates that slipped apart. Each chain wanders across the sheet and now and then splits in two. Its rods are torn, lopsided shapes with a notch at every joint. The plate underneath shows as a thick rim on one side of each rod and a hairline on the other. The fill on top breaks up near its edges into specks, streaks or a dot screen.
 
-strand renders a Still: one frame. Its site page is [playgrnd.tools/strand](https://www.playgrnd.tools/strand/).
+strand renders a Loop: 36 frames at 12 fps, in which every chain, with both its plates, drifts once round a small circle. The rod shapes, the plate slip and the specks in the fill hold still, so the rods slide under them. The chains are already shifted at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/strand](https://www.playgrnd.tools/strand/).
 
 ## Still
 
