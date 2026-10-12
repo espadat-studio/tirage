@@ -774,7 +774,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"levels","kind":"range","min":1.0,"max":3.0,"step":1.0},"#,
     );
     let vee = concat!(
-        r#"{"slug":"vee","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"vee","frames":1,"svg":true,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Chevron","Quad","Diagonal","Cross"]},"#,
         r#"{"id":"angle","kind":"range","min":15.0,"max":75.0,"step":1.0},"#,
         r#"{"id":"width","kind":"range","min":0.4,"max":2.2,"step":0.05},"#,
@@ -895,7 +895,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nparcel  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\ntokens  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\noptic  1 frame, svg\n"), "{listing}");
-    assert!(listing.contains("\nvee  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nvee  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nsampler  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ntotem  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nfilament  1 frame\n"), "{listing}");
