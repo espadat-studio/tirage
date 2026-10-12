@@ -121,6 +121,7 @@ mod tests {
         Tool::Cipher,
         Tool::Terrain,
         Tool::Stipple,
+        Tool::Oddgrid,
     ];
 
     #[test]

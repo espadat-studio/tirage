@@ -24,7 +24,7 @@ SVG: yes. `-o oddgrid.svg` writes this Still as an [SVG](/cli-reference/render/#
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-oddgrid  1 frame, svg
+oddgrid  32 frames, svg
   cols        12..=110  step 1
   scale       2..=60    step 0.5
   density     0..=1     step 0.01

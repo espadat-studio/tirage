@@ -1,3 +1,5 @@
+use std::f64::consts::TAU;
+
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
@@ -11,12 +13,13 @@ use crate::terrain::{fbm, hash};
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "oddgrid";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 32;
 pub(crate) const FPS: u32 = 8;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const GROUND: [u8; 3] = [0x10, 0x18, 0x20];
 const MARK_INK: [u8; 3] = [0xf2, 0xed, 0xe4];
+const AMOUNT: f64 = 0.8;
 
 const DEFAULT_PALETTE: [&str; 5] = ["#ff5e5b", "#ffed66", "#00cecb", "#f2ede4", "#9b5de5"];
 
@@ -379,7 +382,17 @@ fn stretch(v: f64, k: f64) -> f64 {
     ((v - 0.5) * k + 0.5).clamp(0.0, 1.0)
 }
 
-fn grid(params: &OddgridParams, n: usize, seed: u32, cols: u32, rows: u32) -> Vec<Cell> {
+fn grid(
+    params: &OddgridParams,
+    n: usize,
+    seed: u32,
+    cols: u32,
+    rows: u32,
+    flow: Option<f64>,
+) -> Vec<Cell> {
+    let zw = flow.map(|t| ((TAU * t).cos() * AMOUNT, (TAU * t).sin() * AMOUNT));
+    let scaled = |k: f64| zw.map(|(z, w)| (z * k, w * k));
+    let (cover, detail) = (scaled(0.8), scaled(0.45));
     let b = params.bsize.max(2) as i32;
     let bf = f64::from(b);
     let s = params.scale;
@@ -393,14 +406,14 @@ fn grid(params: &OddgridParams, n: usize, seed: u32, cols: u32, rows: u32) -> Ve
             let (xc, yc) = (f64::from(x) + 0.5, f64::from(y) + 0.5);
             let bx = lerp(xc, f64::from(rx) * bf + bf / 2.0, params.block);
             let by = lerp(yc, f64::from(ry) * bf + bf / 2.0, params.block);
-            let smooth = fbm(bx / s, by / s, None, seed, 2);
+            let smooth = fbm(bx / s, by / s, zw, seed, 2);
             let tone = smooth * 0.5 + hash(rx, ry, 0, 13, at(404)) * 0.5;
             let base = stretch(lerp(smooth, tone, params.block), 2.0);
             let mask = stretch(
                 fbm(
                     xc / (s * 1.15) + 91.0,
                     yc / (s * 1.15) - 17.0,
-                    None,
+                    cover,
                     at(9111),
                     3,
                 ),
@@ -409,7 +422,7 @@ fn grid(params: &OddgridParams, n: usize, seed: u32, cols: u32, rows: u32) -> Ve
             let det = fbm(
                 xc / (s * 0.26) + 37.0,
                 yc / (s * 0.26) - 11.0,
-                None,
+                detail,
                 at(7717),
                 2,
             );
@@ -470,19 +483,26 @@ pub(crate) fn render(
     params: &OddgridParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let flow = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, flow);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
-fn paint(surface: &mut Surface, params: &OddgridParams, palette: &Palette, seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &OddgridParams,
+    palette: &Palette,
+    seed: u32,
+    flow: Option<f64>,
+) {
     let (width, height) = (surface.width(), surface.height());
     let cols = params.cols;
     let rows =
         (round_half_up(f64::from(cols) * f64::from(height) / f64::from(width)) as u32).max(4);
     let inks = palette.inks();
-    let cells = grid(params, inks.len(), seed, cols, rows);
+    let cells = grid(params, inks.len(), seed, cols, rows, flow);
     let edge = |i: u32, total: u32, n: u32| {
         round_half_up(f64::from(i) * f64::from(total) / f64::from(n)) as i32
     };
