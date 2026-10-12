@@ -675,7 +675,7 @@ mod tests {
         surface.fill_circle(2.0, 2.0, 1.0, [0, 0, 0]);
         let svg = surface.into_svg();
         assert!(svg.contains(r#"<path d="M3 2Q"#), "{svg}");
-        assert!(svg.ends_with("Z\" fill=\"#000000\"/></svg>\n"), "{svg}");
+        assert!(svg.ends_with("Z\"/></g></svg>\n"), "{svg}");
     }
 
     #[test]
