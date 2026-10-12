@@ -10,8 +10,8 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "riso";
-pub(crate) const FRAMES: u32 = 1;
-pub(crate) const FPS: u32 = 12;
+pub(crate) const FRAMES: u32 = 16;
+pub(crate) const FPS: u32 = 8;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 6] = [
@@ -19,6 +19,7 @@ const DEFAULT_PALETTE: [&str; 6] = [
 ];
 const INK: [u8; 3] = [0x1a, 0x1a, 0x1a];
 const VB: f64 = 1000.0;
+const AMOUNT: f64 = 0.8;
 
 const BANDS: Param = Param::new(SLUG, "bands", 2, 5, 1);
 const ROUGH: Param = Param::new(SLUG, "rough", 10, 100, 100);
@@ -204,9 +205,10 @@ pub(crate) fn render(
     params: &RisoParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let tear = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, tear);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -257,8 +259,27 @@ fn against(inks: &[[u8; 3]], base: usize, draw: f64) -> usize {
 type Poly = Vec<(f64, f64)>;
 
 #[expect(clippy::too_many_arguments, reason = "a torn rect needs its keys")]
-fn torn(x: f64, y: f64, w: f64, h: f64, rough: f64, k1: i32, k2: i32, sw: u32) -> Poly {
-    let j = |q: i32, edge: i32| (hash(k1, q, (edge + k2 * 7) as u32, sw) - 0.5) * rough;
+fn torn(
+    x: f64,
+    y: f64,
+    w: f64,
+    h: f64,
+    rough: f64,
+    k1: i32,
+    k2: i32,
+    sw: u32,
+    tear: Option<f64>,
+) -> Poly {
+    let j = |q: i32, edge: i32| {
+        let j = (hash(k1, q, (edge + k2 * 7) as u32, sw) - 0.5) * rough;
+        match tear {
+            Some(t) => {
+                let phase = hash(k1, q, (edge + 50) as u32, sw);
+                j + rough * 0.45 * AMOUNT * (TAU * (t + phase)).sin()
+            }
+            None => j,
+        }
+    };
     let at = |q: i32| f64::from(q) / 5.0;
     let mut pts = Vec::with_capacity(20);
     pts.extend((0..=5).map(|q| (x + w * at(q), y + j(q, 1))));
@@ -268,7 +289,7 @@ fn torn(x: f64, y: f64, w: f64, h: f64, rough: f64, k1: i32, k2: i32, sw: u32) -
     pts
 }
 
-fn shapes(band: &Band, id: i32, rough: f64, sw: u32) -> Vec<Poly> {
+fn shapes(band: &Band, id: i32, rough: f64, sw: u32, tear: Option<f64>) -> Vec<Poly> {
     let bh = band.y1 - band.y0;
     let g = VB * 0.016 * (0.4 + rough * 1.6);
     let h = |x: i32, y: i32, z: i32| hash(x, y, z as u32, sw);
@@ -296,6 +317,7 @@ fn shapes(band: &Band, id: i32, rough: f64, sw: u32) -> Vec<Poly> {
                         cx + cy * 31,
                         id,
                         sw,
+                        tear,
                     ));
                 }
             }
@@ -310,7 +332,10 @@ fn shapes(band: &Band, id: i32, rough: f64, sw: u32) -> Vec<Poly> {
                 let (mut left, mut right) = (Vec::new(), Vec::new());
                 for q in 0..=6 {
                     let yy = band.y0 + bh * f64::from(q) / 6.0;
-                    let sway = (h(i, q, id * 7 + 3) - 0.5) * cw * 1.1 * (0.4 + rough);
+                    let mut sway = (h(i, q, id * 7 + 3) - 0.5) * cw * 1.1 * (0.4 + rough);
+                    if let Some(t) = tear {
+                        sway += cw * 0.3 * AMOUNT * (TAU * (t + h(i, q, id + 60))).sin();
+                    }
                     let wd = cw * (0.34 + h(i, q, id * 7 + 4) * 0.5);
                     let mid = f64::from(i) * cw + cw / 2.0 + sway;
                     left.push((mid - wd / 2.0, yy));
@@ -337,6 +362,7 @@ fn shapes(band: &Band, id: i32, rough: f64, sw: u32) -> Vec<Poly> {
                         ry * 17 + d,
                         id,
                         sw,
+                        tear,
                     ));
                 }
             }
@@ -388,7 +414,13 @@ fn fill_poly(surface: &mut Surface, pts: &[(f64, f64)], k: f64, ink: [u8; 3]) {
     surface.fill_path(&path.into_path(), ink);
 }
 
-fn paint(surface: &mut Surface, p: &RisoParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    p: &RisoParams,
+    palette: &Palette,
+    tool_seed: u32,
+    tear: Option<f64>,
+) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let inks = palette.inks();
     let nc = inks.len();
@@ -457,7 +489,7 @@ fn paint(surface: &mut Surface, p: &RisoParams, palette: &Palette, tool_seed: u3
         clip.line_to(w, bottom);
         clip.line_to(0.0, bottom);
         clip.close();
-        let shapes = shapes(band, id as i32, p.rough, sw);
+        let shapes = shapes(band, id as i32, p.rough, sw, tear);
         surface.with_clip(&clip, Transform::IDENTITY, |surface| {
             surface.fill_box(
                 0.0,

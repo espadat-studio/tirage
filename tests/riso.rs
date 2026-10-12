@@ -57,13 +57,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn riso_is_a_still() {
-    assert_eq!(Tool::Riso.frames(), 1);
+fn riso_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Riso.frames(), Tool::Riso.fps()), (16, 8));
     let recipe = derive(7, RISO);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 16)),
+        "frame 16 is outside 0..16"
     );
+}
+
+#[test]
+fn tear_moves_the_torn_edges_off_the_still_at_frame_0_and_on_later() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, RISO);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() != frame(0).rgba(), "seed {seed}");
+        assert!(frame(0).rgba() != frame(8).rgba(), "seed {seed}");
+    }
 }
 
 #[test]

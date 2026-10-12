@@ -24,7 +24,7 @@ SVG: yes. `-o riso.svg` writes this Still as an [SVG](/cli-reference/render/#svg
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-riso  1 frame, svg
+riso  16 frames, svg
   bands       2..=5     step 1
   rough       0.1..=1   step 0.01
   scrib       0..=1     step 0.01
