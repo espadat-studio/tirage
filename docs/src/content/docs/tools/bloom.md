@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool bloom | tirage render --size 540x960 -o bloom.png
 ```
 
+SVG: yes. `-o bloom.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-bloom  24 frames
+bloom  24 frames, svg
   cols        8..=96    step 1
   rings       1..=14    step 1
   warp        0..=1     step 0.01
