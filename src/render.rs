@@ -105,6 +105,7 @@ mod tests {
         Tool::Filament,
         Tool::Culture,
         Tool::Sprig,
+        Tool::Fold,
     ];
 
     #[test]

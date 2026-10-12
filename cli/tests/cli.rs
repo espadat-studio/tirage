@@ -559,7 +559,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"dots","kind":"range","min":0.0,"max":80.0,"step":2.0},"#,
     );
     let fold = concat!(
-        r#"{"slug":"fold","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"fold","frames":36,"svg":false,"params":["#,
         r#"{"id":"folds","kind":"choice","choices":["Four ways","Kaleidoscope","Across","Down","None"]},"#,
         r#"{"id":"kinds","kind":"choice","choices":["Mixed","Zebra","Staircases","Dot rows","Bursts","Chevrons","Checks"]},"#,
         r#"{"id":"foldx","kind":"range","min":0.2,"max":0.8,"step":0.01},"#,
@@ -877,7 +877,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\natlas  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\noddgrid  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nfete  100 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nfold  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nfold  36 frames\n"), "{listing}");
     assert!(listing.contains("\nquilt  60 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nstatic  60 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nsplice  1 frame\n"), "{listing}");

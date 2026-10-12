@@ -9,13 +9,14 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "fold";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 6] = [
     "#1a1a1a", "#f5f1e8", "#ff5c39", "#3b5bff", "#ffd23f", "#7b2cbf",
 ];
+const AMOUNT: f64 = 0.6;
 
 const FOLDX: Param = Param::new(SLUG, "foldx", 20, 80, 100);
 const FOLDY: Param = Param::new(SLUG, "foldy", 20, 80, 100);
@@ -350,9 +351,10 @@ pub(crate) fn render(
     params: &FoldParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -517,11 +519,21 @@ fn fold(x: f64, line: f64) -> f64 {
     (if x < line { line - x } else { x - line }) / line.max(1.0 - line)
 }
 
-fn paint(surface: &mut Surface, params: &FoldParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &FoldParams,
+    palette: &Palette,
+    tool_seed: u32,
+    drift: Option<f64>,
+) {
     let inks = palette.inks();
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let unit = (width * height).sqrt();
     let (aw, ah) = (width / unit, height / unit);
+    let (ox, oy) = drift.map_or((0.0, 0.0), |t| {
+        let (ph, reach) = (TAU * t, AMOUNT * 0.12);
+        (ph.cos() * reach, ph.sin() * reach)
+    });
     let (mut dark, mut light) = (0, 0);
     for (k, &ink) in inks.iter().enumerate().skip(1) {
         if lum(ink) < lum(inks[dark]) {
@@ -558,7 +570,7 @@ fn paint(surface: &mut Surface, params: &FoldParams, palette: &Palette, tool_see
             if params.mirror == FoldMirror::Kaleidoscope && sx > sy {
                 (sx, sy) = (sy, sx);
             }
-            let point = (sx * aw, sy * ah);
+            let point = (sx * aw + ox, sy * ah + oy);
             let ink = patches
                 .iter()
                 .rev()

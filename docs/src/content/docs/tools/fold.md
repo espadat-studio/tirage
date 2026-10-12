@@ -22,7 +22,7 @@ tirage derive --seed 2 --tool fold | tirage render --size 540x960 -o fold.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-fold  1 frame
+fold  36 frames
   folds       Four ways, Kaleidoscope, Across, Down, None
   kinds       Mixed, Zebra, Staircases, Dot rows, Bursts, Chevrons, Checks
   foldx       0.2..=0.8 step 0.01
