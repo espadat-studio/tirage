@@ -1,4 +1,5 @@
 use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
@@ -10,11 +11,12 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "parcel";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 72;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = Some(3);
 
 const DEFAULT_PALETTE: [&str; 3] = ["#e9f5db", "#e63946", "#2b2d42"];
+const AMOUNT: f64 = 0.8;
 
 const CELLS: Param = Param::new(SLUG, "cells", 8, 28, 1);
 const COVER: Param = Param::new(SLUG, "cover", 20, 80, 100);
@@ -212,17 +214,28 @@ pub(crate) fn render(
     params: &ParcelParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let creep = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, creep);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
-fn paint(surface: &mut Surface, p: &ParcelParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    p: &ParcelParams,
+    palette: &Palette,
+    tool_seed: u32,
+    creep: Option<f64>,
+) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let mut rng = Xorshift::new(tool_seed);
     let (ox, oy) = (rng.next() * 43.0, rng.next() * 37.0);
     let sw = (rng.next() * 1e9) as u32;
+    let steps = (AMOUNT * 6.0).round().max(2.0);
+    let step = creep.map_or(0.0, |t| (t * steps).floor() % steps);
+    let a = TAU * step / steps;
+    let (ox, oy) = (ox + 0.9 * a.cos(), oy + 0.9 * a.sin());
     let ns = tool_seed ^ 0x51ed_270b;
 
     let gw = p.cells as i32;
@@ -243,7 +256,7 @@ fn paint(surface: &mut Surface, p: &ParcelParams, palette: &Palette, tool_seed: 
     let fbm = |x: f64, y: f64, k: u32| vn(x, y, k) * 0.62 + vn(x * 2.17, y * 2.17, k + 9) * 0.38;
     let sc = 0.2 / p.chunk;
     let th = 0.5 + (0.5 - p.cover) * 0.55;
-    let inked = |u: i32, v: i32| fbm(f64::from(u) * sc + ox + 0.9, f64::from(v) * sc + oy, 5) > th;
+    let inked = |u: i32, v: i32| fbm(f64::from(u) * sc + ox, f64::from(v) * sc + oy, 5) > th;
     let px = |at: i32, size: f64| (f64::from(at) * size).round() as i32;
     for v in 0..gh {
         let mut run = None;

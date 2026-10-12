@@ -56,7 +56,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `splice`   | 36     | Loop   |
 | `dahlia`   | 36     | Loop   |
 | `hiss`     | 1      | Still  |
-| `crowd`    | 1      | Still  |
+| `crowd`    | 36     | Loop   |
 | `cipher`   | 1      | Still  |
 | `riso`     | 16     | Loop   |
 | `rise`     | 72     | Loop   |
@@ -65,15 +65,15 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `pane`     | 24     | Loop   |
 | `modular`  | 1      | Still  |
 | `prism`    | 12     | Loop   |
-| `parcel`   | 1      | Still  |
+| `parcel`   | 72     | Loop   |
 | `tokens`   | 36     | Loop   |
 | `optic`    | 72     | Loop   |
 | `vee`      | 72     | Loop   |
 | `sampler`  | 24     | Loop   |
 | `totem`    | 24     | Loop   |
 | `filament` | 30     | Loop   |
-| `chaff`    | 1      | Still  |
-| `strand`   | 1      | Still  |
+| `chaff`    | 36     | Loop   |
+| `strand`   | 36     | Loop   |
 
 ## Text output
 

@@ -1,4 +1,4 @@
-use std::f64::consts::PI;
+use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
@@ -11,11 +11,12 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "crowd";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 3] = ["#b5bab6", "#d6ee3a", "#f08ae6"];
+const AMOUNT: f64 = 0.6;
 
 const CROWD: Param = Param {
     taste: (8, 48),
@@ -254,9 +255,10 @@ pub(crate) fn render(
     params: &CrowdParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let sway = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, sway);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -314,7 +316,14 @@ struct Figure {
     seed: u32,
 }
 
-fn figures(params: &CrowdParams, width: f64, height: f64, unit: f64, seed: u32) -> Vec<Figure> {
+fn figures(
+    params: &CrowdParams,
+    width: f64,
+    height: f64,
+    unit: f64,
+    seed: u32,
+    sway: Option<f64>,
+) -> Vec<Figure> {
     let mut rng = XorShift::new(seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
     (0..params.crowd)
         .map(|k| {
@@ -324,10 +333,15 @@ fn figures(params: &CrowdParams, width: f64, height: f64, unit: f64, seed: u32) 
             let body_width = head * (1.5 + rng.next() * 0.8);
             let rows = 3 + (rng.next() * 3.0) as u32;
             let row = (rng.next() * f64::from(rows)) as u32;
-            let x = (-0.06 + rng.next() * 1.12) * width;
-            let y = (f64::from(row) + rng.next() * 1.2 - 0.3) / f64::from(rows) * height;
-            rng.next();
-            rng.next();
+            let mut x = (-0.06 + rng.next() * 1.12) * width;
+            let mut y = (f64::from(row) + rng.next() * 1.2 - 0.3) / f64::from(rows) * height;
+            let wob = rng.next() * TAU;
+            let radius = unit * 0.012 * (0.6 + rng.next() * 0.8);
+            if let Some(t) = sway {
+                let ph = TAU * t;
+                x += (ph + wob).cos() * AMOUNT * radius;
+                y += (ph + wob).sin() * AMOUNT * radius;
+            }
             Figure {
                 x,
                 y,
@@ -478,13 +492,19 @@ fn arrows(params: &CrowdParams, width: f64, height: f64, unit: f64, seed: u32) -
     (path, size)
 }
 
-fn paint(surface: &mut Surface, params: &CrowdParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &CrowdParams,
+    palette: &Palette,
+    tool_seed: u32,
+    sway: Option<f64>,
+) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let unit = (width * height).sqrt();
     let cell = round_half_up(unit / 420.0).max(2.0);
     let fw = (width / cell).ceil() as usize + 2;
     let fh = (height / cell).ceil() as usize + 2;
-    let figures = figures(params, width, height, unit, tool_seed);
+    let figures = figures(params, width, height, unit, tool_seed, sway);
     let field = mask(params, &figures, unit, cell, fw, fh);
     let ramp = ramp(palette, params.edge);
     surface.edit_rgba(|rgba, columns, rows| {

@@ -630,7 +630,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"coarse","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let crowd = concat!(
-        r#"{"slug":"crowd","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"crowd","frames":36,"svg":false,"params":["#,
         r#"{"id":"crowd","kind":"range","min":1.0,"max":48.0,"step":1.0},"#,
         r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"wobble","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -735,7 +735,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"dots","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let parcel = concat!(
-        r#"{"slug":"parcel","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"parcel","frames":72,"svg":true,"params":["#,
         r#"{"id":"cells","kind":"range","min":8.0,"max":28.0,"step":1.0},"#,
         r#"{"id":"cover","kind":"range","min":0.2,"max":0.8,"step":0.01},"#,
         r#"{"id":"chunk","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
@@ -827,7 +827,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"msize","kind":"range","min":2.0,"max":26.0,"step":0.5},"#,
     );
     let chaff = concat!(
-        r#"{"slug":"chaff","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"chaff","frames":36,"svg":false,"params":["#,
         r#"{"id":"count","kind":"range","min":4.0,"max":400.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"vary","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -841,7 +841,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let strand = concat!(
-        r#"{"slug":"strand","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"strand","frames":36,"svg":false,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":40.0,"step":1.0},"#,
         r#"{"id":"len","kind":"range","min":3.0,"max":90.0,"step":1.0},"#,
         r#"{"id":"wander","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -883,7 +883,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nsplice  36 frames\n"), "{listing}");
     assert!(listing.contains("\ndahlia  36 frames\n"), "{listing}");
     assert!(listing.contains("\nhiss  1 frame\n"), "{listing}");
-    assert!(listing.contains("\ncrowd  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ncrowd  36 frames\n"), "{listing}");
     assert!(listing.contains("\ncipher  1 frame\n"), "{listing}");
     assert!(listing.contains("\nriso  16 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nrise  72 frames, svg\n"), "{listing}");
@@ -892,15 +892,15 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\npane  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nmodular  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nprism  12 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nparcel  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\nparcel  72 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ntokens  36 frames, svg\n"), "{listing}");
     assert!(listing.contains("\noptic  72 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nvee  72 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nsampler  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ntotem  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nfilament  30 frames\n"), "{listing}");
-    assert!(listing.contains("\nchaff  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nstrand  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nchaff  36 frames\n"), "{listing}");
+    assert!(listing.contains("\nstrand  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nsprig  36 frames\n"), "{listing}");

@@ -107,6 +107,10 @@ mod tests {
         Tool::Sprig,
         Tool::Fold,
         Tool::Splice,
+        Tool::Crowd,
+        Tool::Parcel,
+        Tool::Chaff,
+        Tool::Strand,
     ];
 
     #[test]
