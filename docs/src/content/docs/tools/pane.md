@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool pane | tirage render --size 540x960 -o pane.png
 ```
 
+SVG: yes. `-o pane.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-pane  24 frames
+pane  24 frames, svg
   rows        1..=10    step 1
   cells       1..=16    step 1
   vary        0..=1     step 0.01

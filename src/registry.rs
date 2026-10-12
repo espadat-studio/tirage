@@ -128,6 +128,7 @@ impl Tool {
                 | Self::Kiosk
                 | Self::Atlas
                 | Self::Sampler
+                | Self::Pane
         )
     }
 }
