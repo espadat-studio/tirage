@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool hiss | tirage render --size 540x960 -o hiss.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-hiss  1 frame
+hiss  36 frames
   leaves      1..=5     step 1
   size        0.4..=1.4 step 0.01
   overlap     0..=0.5   step 0.01

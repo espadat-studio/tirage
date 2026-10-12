@@ -63,13 +63,37 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn hiss_is_a_still() {
-    assert_eq!(Tool::Hiss.frames(), 1);
+fn hiss_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Hiss.frames(), Tool::Hiss.fps()), (36, 12));
     let recipe = derive(7, HISS);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 36)),
+        "frame 36 is outside 0..36"
     );
+}
+
+#[test]
+fn boil_walks_the_marble_off_the_still_and_reseeds_the_snow() {
+    for seed in 1..=3 {
+        let mut recipe = derive(seed, HISS);
+        let Params::Hiss(params) = recipe.params_mut() else {
+            unreachable!()
+        };
+        params.set_black(0.0).unwrap();
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() != frame(0).rgba(), "seed {seed}");
+        assert!(frame(0).rgba() != frame(18).rgba(), "seed {seed}");
+    }
+}
+
+#[test]
+fn under_a_black_marble_only_the_snow_boils() {
+    let recipe = derive(2, HISS);
+    let still = render(&recipe, &Frame::still(270, 480).unwrap());
+    let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+    assert!(still.rgba() == frame(0).rgba());
+    assert!(frame(0).rgba() != frame(1).rgba());
 }
 
 #[test]
@@ -107,7 +131,7 @@ fn marble_takes_the_palette_and_snow_and_marks_their_own_inks() {
     params.set_comb(0.0).unwrap();
     params.set_flecks(0.0).unwrap();
     params.set_marks(24).unwrap();
-    let image = render(&recipe, &Frame::new(&recipe, 270, 480, 0).unwrap());
+    let image = render(&recipe, &Frame::still(270, 480).unwrap());
     let has = |test: &dyn Fn(&[u8]) -> bool| image.rgba().chunks(4).any(test);
     assert!(
         has(&|px| px[0] > 100 && px[1] < 10 && px[2] == 0),

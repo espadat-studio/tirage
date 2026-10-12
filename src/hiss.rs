@@ -9,13 +9,14 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "hiss";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 5] = ["#ff1e8c", "#ff7a1a", "#2b4bff", "#ffd400", "#e8262b"];
 const BLACK: [f64; 3] = [8.0, 8.0, 10.0];
 const MARK: [u8; 3] = [0xf4, 0xf4, 0xf2];
+const AMOUNT: f64 = 0.6;
 
 const LEAVES: Param = Param::new(SLUG, "leaves", 1, 5, 1);
 const SIZE: Param = Param::new(SLUG, "size", 40, 140, 100);
@@ -342,9 +343,9 @@ pub(crate) fn render(
     params: &HissParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -440,7 +441,13 @@ fn lenses(count: u32, leaves: &[Leaf], leaf: f64, w: f64, rng: &mut XorShift) ->
         .collect()
 }
 
-fn paint(surface: &mut Surface, params: &HissParams, palette: &Palette, seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &HissParams,
+    palette: &Palette,
+    seed: u32,
+    frame: Option<u32>,
+) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let u = (w * h).sqrt();
     let inks = palette.len();
@@ -451,6 +458,12 @@ fn paint(surface: &mut Surface, params: &HissParams, palette: &Palette, seed: u3
     let comb_a = ink(palette, (rng.next() * inks as f64) as usize);
     let comb_b = ink(palette, (rng.next() * inks as f64) as usize);
     let sd = |k: u32| seed.wrapping_mul(7).wrapping_add(k);
+    let (ox, oy) = frame.map_or((0.0, 0.0), |f| {
+        let t = f64::from(f) / f64::from(FRAMES);
+        let (ph, reach) = (TAU * t, AMOUNT * 0.15);
+        (ph.cos() * reach, ph.sin() * reach)
+    });
+    let boil = frame.map_or(0, |f| f * 911);
 
     let cell = (params.steps > 0.0).then(|| (params.steps * u * 0.04).max(1.0));
     let mc = (u * 0.008).max(1.0);
@@ -473,15 +486,15 @@ fn paint(surface: &mut Surface, params: &HissParams, palette: &Palette, seed: u3
                 let xf = x as f64;
                 let qx = step(xf);
                 let (p0, p1) = ((xf / mc).floor() * mc / sc, my / sc);
-                let bn = value_noise(p0 * 0.8 + 40.0, p1 * 0.8 + 7.0, sd(4));
+                let bn = value_noise(p0 * 0.8 + 40.0 + ox * 0.5, p1 * 0.8 + 7.0 + oy * 0.5, sd(4));
                 let mut rgb = if (bn - 0.5) * 2.2 + 0.5 < black {
                     BLACK
                 } else {
-                    let q1 = value_noise(p0 * 2.0 + 1.7, p1 * 2.0 + 9.1, sd(1));
-                    let q2 = value_noise(p0 * 2.0 + 5.3, p1 * 2.0 + 2.2, sd(2));
+                    let q1 = value_noise(p0 * 2.0 + 1.7 + ox, p1 * 2.0 + 9.1 + oy, sd(1));
+                    let q2 = value_noise(p0 * 2.0 + 5.3 - oy, p1 * 2.0 + 2.2 + ox, sd(2));
                     let m = value_noise(
-                        p0 * 2.0 + warp * (q1 - 0.5) * 4.0,
-                        p1 * 2.0 + warp * (q2 - 0.5) * 4.0,
+                        p0 * 2.0 + warp * (q1 - 0.5) * 4.0 + ox,
+                        p1 * 2.0 + warp * (q2 - 0.5) * 4.0 + oy,
                         sd(3),
                     );
                     let shade = 0.55 + 0.45 * q1;
@@ -510,8 +523,8 @@ fn paint(surface: &mut Surface, params: &HissParams, palette: &Palette, seed: u3
                 });
                 if in_leaf {
                     let (gx, gy) = ((xf / gsc) as i32, (yf / gsc) as i32);
-                    rgb = [12.0 + hash(gx, gy, 3).powf(1.6) * 220.0; 3];
-                    let fleck_at = hash(gx, gy, 77);
+                    rgb = [12.0 + hash(gx, gy, boil + 3).powf(1.6) * 220.0; 3];
+                    let fleck_at = hash(gx, gy, boil + 77);
                     if fleck > 0.0 && fleck_at < fleck {
                         rgb = ink(palette, (fleck_at / fleck * inks as f64) as usize % inks);
                     }
