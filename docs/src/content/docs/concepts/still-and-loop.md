@@ -3,7 +3,7 @@ title: "Still and Loop"
 description: "One Recipe gives one frame or a short video: the Tool with motion off or on."
 ---
 
-A _Visual_ is what a Recipe renders. It is either a _Still_, a single frame with the Tool's motion off, or a _Loop_, an animation with motion on that ends where it starts: after its last frame, frame 0 plays again. The Tool decides which you get. sonar, husk, kiosk, frond, pith, bloom, warp, mosh, relief, atlas, motley, static, fete, pane, sampler, totem, whorl, weave, zig, quilt, dahlia, carve, tokens, optic, vee, riso, rise, prism, filament and culture draw Loops. Every other Tool draws a Still. `tirage tools` lists the frame count beside each Tool, and a Still Tool has 1.
+A _Visual_ is what a Recipe renders. It is either a _Still_, a single frame with the Tool's motion off, or a _Loop_, an animation with motion on that ends where it starts: after its last frame, frame 0 plays again. The Tool decides which you get. sonar, husk, kiosk, frond, pith, bloom, warp, mosh, relief, atlas, motley, static, fete, pane, sampler, totem, whorl, weave, zig, quilt, dahlia, carve, tokens, optic, vee, riso, rise, prism, filament, culture and sprig draw Loops. Every other Tool draws a Still. `tirage tools` lists the frame count beside each Tool, and a Still Tool has 1.
 
 ## The Still and frame 0
 
