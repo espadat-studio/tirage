@@ -300,7 +300,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"punch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let kiosk = concat!(
-        r#"{"slug":"kiosk","frames":24,"svg":false,"params":["#,
+        r#"{"slug":"kiosk","frames":24,"svg":true,"params":["#,
         r#"{"id":"split","kind":"range","min":0.15,"max":0.95,"step":0.01},"#,
         r#"{"id":"rings","kind":"range","min":4.0,"max":40.0,"step":1.0},"#,
         r#"{"id":"stripes","kind":"range","min":2.0,"max":24.0,"step":1.0},"#,
@@ -481,7 +481,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"accent","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let atlas = concat!(
-        r#"{"slug":"atlas","frames":24,"svg":false,"params":["#,
+        r#"{"slug":"atlas","frames":24,"svg":true,"params":["#,
         r#"{"id":"scale","kind":"range","min":1.0,"max":9.0,"step":0.1},"#,
         r#"{"id":"warp","kind":"range","min":0.0,"max":1.6,"step":0.01},"#,
         r#"{"id":"bands","kind":"range","min":2.0,"max":14.0,"step":1.0},"#,
@@ -782,7 +782,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"bands","kind":"range","min":1.0,"max":4.0,"step":1.0},"#,
     );
     let sampler = concat!(
-        r#"{"slug":"sampler","frames":24,"svg":false,"params":["#,
+        r#"{"slug":"sampler","frames":24,"svg":true,"params":["#,
         r#"{"id":"grid","kind":"range","min":4.0,"max":48.0,"step":1.0},"#,
         r#"{"id":"bands","kind":"range","min":1.0,"max":14.0,"step":1.0},"#,
         r#"{"id":"mix","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -874,7 +874,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nvein  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
-    assert!(listing.contains("\natlas  24 frames\n"), "{listing}");
+    assert!(listing.contains("\natlas  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\noddgrid  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nfete  100 frames\n"), "{listing}");
     assert!(listing.contains("\nfold  1 frame\n"), "{listing}");
@@ -896,7 +896,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\ntokens  1 frame\n"), "{listing}");
     assert!(listing.contains("\noptic  1 frame\n"), "{listing}");
     assert!(listing.contains("\nvee  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nsampler  24 frames\n"), "{listing}");
+    assert!(listing.contains("\nsampler  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ntotem  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nfilament  1 frame\n"), "{listing}");
     assert!(listing.contains("\nchaff  1 frame\n"), "{listing}");

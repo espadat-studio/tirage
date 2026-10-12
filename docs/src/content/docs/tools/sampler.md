@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool sampler | tirage render --size 540x960 -o sampler.png
 ```
 
+SVG: yes. `-o sampler.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-sampler  24 frames
+sampler  24 frames, svg
   grid        4..=48    step 1
   bands       1..=14    step 1
   mix         0..=1     step 0.01

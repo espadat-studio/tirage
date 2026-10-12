@@ -125,6 +125,9 @@ impl Tool {
                 | Self::Zig
                 | Self::Relief
                 | Self::Oddgrid
+                | Self::Kiosk
+                | Self::Atlas
+                | Self::Sampler
         )
     }
 }

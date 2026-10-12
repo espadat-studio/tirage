@@ -17,12 +17,14 @@ Seed 9, rendered by:
 tirage derive --seed 9 --tool atlas | tirage render --size 540x960 -o atlas.png
 ```
 
+SVG: yes. `-o atlas.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-atlas  24 frames
+atlas  24 frames, svg
   scale       1..=9     step 0.1
   warp        0..=1.6   step 0.01
   bands       2..=14    step 1
