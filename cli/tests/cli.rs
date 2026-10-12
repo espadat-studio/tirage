@@ -432,7 +432,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let culture = concat!(
-        r#"{"slug":"culture","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"culture","frames":36,"svg":false,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":90.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"fuse","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -492,7 +492,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"weight","kind":"range","min":0.0,"max":1.5,"step":0.01},"#,
     );
     let sprig = concat!(
-        r#"{"slug":"sprig","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"sprig","frames":36,"svg":false,"params":["#,
         r#"{"id":"dirs","kind":"choice","choices":["Garden","Blooms","Leaves"]},"#,
         r#"{"id":"count","kind":"range","min":2.0,"max":120.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -559,7 +559,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"dots","kind":"range","min":0.0,"max":80.0,"step":2.0},"#,
     );
     let fold = concat!(
-        r#"{"slug":"fold","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"fold","frames":36,"svg":false,"params":["#,
         r#"{"id":"folds","kind":"choice","choices":["Four ways","Kaleidoscope","Across","Down","None"]},"#,
         r#"{"id":"kinds","kind":"choice","choices":["Mixed","Zebra","Staircases","Dot rows","Bursts","Chevrons","Checks"]},"#,
         r#"{"id":"foldx","kind":"range","min":0.2,"max":0.8,"step":0.01},"#,
@@ -585,7 +585,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"glitch","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let splice = concat!(
-        r#"{"slug":"splice","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"splice","frames":36,"svg":false,"params":["#,
         r#"{"id":"dirs","kind":"choice","choices":["Columns","Rows","Blocks"]},"#,
         r#"{"id":"slices","kind":"range","min":1.0,"max":40.0,"step":1.0},"#,
         r#"{"id":"shift","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -877,10 +877,10 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\natlas  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\noddgrid  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nfete  100 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nfold  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nfold  36 frames\n"), "{listing}");
     assert!(listing.contains("\nquilt  60 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nstatic  60 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nsplice  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nsplice  36 frames\n"), "{listing}");
     assert!(listing.contains("\ndahlia  36 frames\n"), "{listing}");
     assert!(listing.contains("\nhiss  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncrowd  1 frame\n"), "{listing}");
@@ -903,12 +903,12 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nstrand  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame, svg\n"), "{listing}");
-    assert!(listing.contains("\nsprig  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nsprig  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
     assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
     assert!(listing.contains("\nwhorl  36 frames\n"), "{listing}");
     assert!(listing.contains("\nsear  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nculture  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nculture  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmosh  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nbloom  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nweave  120 frames, svg\n"), "{listing}");

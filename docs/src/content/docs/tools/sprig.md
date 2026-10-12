@@ -1,11 +1,11 @@
 ---
 title: "sprig"
-description: "A hand-drawn repeat of little plants. It renders a Still."
+description: "A hand-drawn repeat of little plants. It renders a Loop of 36 frames at 12 fps, the whole pattern sliding round an oval."
 ---
 
 A hand-drawn repeat of little plants. Blooms, leaves, petals, daisies, dots and stems are spread evenly over a plain ground in one ink. Each line swells and thins with a ragged edge, as a marker would lay it down. The pattern tiles: whatever runs off one edge comes back on the other.
 
-sprig renders a Still: one frame. Its site page is [playgrnd.tools/sprig](https://www.playgrnd.tools/sprig/).
+sprig renders a Loop: 36 frames at 12 fps, in which the whole pattern slides once round a small oval and wraps at the edges, so a plant that leaves one side comes in on the other. The plants keep their shapes, sizes and turns. The pattern is already off its place at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/sprig](https://www.playgrnd.tools/sprig/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 4 --tool sprig | tirage render --size 540x960 -o sprig.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-sprig  1 frame
+sprig  36 frames
   dirs        Garden, Blooms, Leaves
   count       2..=120   step 1
   size        0..=1     step 0.01

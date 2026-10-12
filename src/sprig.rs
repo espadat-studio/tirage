@@ -9,11 +9,12 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "sprig";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 2] = ["#f9e4c8", "#2d6a4f"];
+const AMOUNT: f64 = 0.6;
 
 const COUNT: Param = Param {
     taste: (20, 100),
@@ -487,16 +488,27 @@ pub(crate) fn render(
     params: &SprigParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
-fn paint(surface: &mut Surface, params: &SprigParams, palette: &Palette, seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &SprigParams,
+    palette: &Palette,
+    seed: u32,
+    drift: Option<f64>,
+) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let aspect = height / width;
     let (fw, fh) = (1.0 / aspect.sqrt(), aspect.sqrt());
+    let (ox, oy) = drift.map_or((0.0, 0.0), |t| {
+        let (ph, reach) = (TAU * t, AMOUNT * 0.5);
+        (ph.cos() * reach * 0.5 * fw, ph.sin() * reach * 0.5 * fh)
+    });
     let unit = (width * height).sqrt();
     let (ground, line) = (palette.ink(0), palette.ink(1));
     surface.fill(ground);
@@ -507,8 +519,8 @@ fn paint(surface: &mut Surface, params: &SprigParams, palette: &Palette, seed: u
         let (sa, ca) = motif.angle.sin_cos();
         for gx in -1..=1 {
             for gy in -1..=1 {
-                let px = (motif.x + f64::from(gx) * fw) * unit;
-                let py = (motif.y + f64::from(gy) * fh) * unit;
+                let px = (motif.x + ox + f64::from(gx) * fw) * unit;
+                let py = (motif.y + oy + f64::from(gy) * fh) * unit;
                 if px < -scale * 2.0
                     || px > width + scale * 2.0
                     || py < -scale * 2.0

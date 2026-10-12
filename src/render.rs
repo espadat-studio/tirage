@@ -103,6 +103,10 @@ mod tests {
         Tool::Rise,
         Tool::Prism,
         Tool::Filament,
+        Tool::Culture,
+        Tool::Sprig,
+        Tool::Fold,
+        Tool::Splice,
     ];
 
     #[test]

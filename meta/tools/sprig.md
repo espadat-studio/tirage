@@ -22,7 +22,7 @@ Site control ids, slider ranges and site defaults, in page order:
 
 On this page `size` is a Parameter and the export size is `sizePx`.
 
-Motion: three modes, Drift (default), Boil and Swell, off by default. sprig is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off the drift offset is 0, the swell factor 1 and the boil salt 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion: three modes, Drift (default), Boil and Swell, off by default. With motion off the drift offset is 0, the swell factor 1 and the boil salt 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 Default Palette, 2 inks: `#f9e4c8 #2d6a4f`. Ink 1 is the ground, ink 2 the line. Inks past the second are not drawn.
 
@@ -92,6 +92,21 @@ For a path of `n ≥ 2` points, salt `q`:
 - Closed path: two closed rings, the left edge forward and the right edge backward, filled even-odd. That leaves the band between them, an outline with nothing inside.
 
 All fills are anti-aliased.
+
+## Motion
+
+Drift is the default and the only mode ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`, and the drift reach is `D = 0.5 amount = 0.3`.
+- The whole pattern slides as one. Every motif's tile position gains `(0.5 D fw cos ph, 0.5 D fh sin ph)` before its nine placings, so a placing sits at `(x + ox + gx fw, y + oy + gy fh) U`.
+- The path is an ellipse, not a circle: `fw` and `fh` differ on any frame that is not square. It reaches 0.15 of the tile each way.
+- The tile wraps, so a motif that slides off one edge is already coming in on the other. The placing cull uses the moved position.
+- Nothing else moves. Shapes, angles, sizes, line widths and the ground hold.
+- The pattern runs one lap over the Loop, whatever the amount. The amount only sets the reach.
+- The Loop closes because both offsets have period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the offset is `(0.15 fw, 0)`, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a lap, where the offset is `(-0.15 fw, 0)`, as far from frame 0 as the Loop gets.
+- Boil reseeds the marker edge every frame and Swell grows and shrinks the motifs. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 

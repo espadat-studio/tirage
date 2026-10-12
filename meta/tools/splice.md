@@ -23,7 +23,7 @@ Site control ids, slider ranges and site defaults:
 | `weight` | 0..1                  | 0.01 | 0.45    | arc line width                                       |
 | `bend`   | 0..1                  | 0.01 | 0.55    | how round the arcs are                               |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. splice is a Still Tool: only frame 0 is rendered. Motion stays fixed at site defaults and is not a Parameter. `grain` is the Tool's own and stays at its site default, as mist's does. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). `grain` is the Tool's own and stays at its site default, as mist's does. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 splice is a palette-family Tool. Its Palette is the swatch row, read by position, any number of inks from 2. Slot 0 is the key: it draws the step lines and also takes part in the ink rotation. Default Palette, 7 inks: `#1B1B1B #FF6B35 #004E89 #F7C59F #EFEFD0 #1A936F #FF3CAC`.
 
@@ -77,6 +77,20 @@ Drawn when there is at least one arc and `weight > 0.004`, after the field, each
 - ink slot `k mod k-inks`, at alpha 0.85, source-over
 - width `max(0.9, U (0.0009 + 0.0042 weight))`, round caps
 - canvas `ellipse(cx W, cy H, rx U, ry U, rot, a0, a1)`, clockwise
+
+## Motion
+
+The site has three motion modes: Drift, Jump and Bleed. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`, and the glide reach is `G = 0.09 amount = 0.054`.
+- The field slides round a circle under the cuts. Every pixel reads the field from `(x + G U cos ph, y + G U sin ph)` before its piece's own slide, so step 2 of [Field](#field) becomes `sx = x + gx + off shift'` (Rows) or `sy = y + gy + off shift'` (Columns, Blocks), the other axis taking only the glide.
+- The cuts stay fixed. Pieces, their offsets, screens and ink rotations hold, and the screen cells still read the pixel, not the slid position, so the dots and lines stay put while the tones flow through them.
+- The arcs hold.
+- The field runs one lap over the Loop, whatever the amount. The amount only sets the reach.
+- The Loop closes because both offsets have period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the glide is `(G U, 0)`, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a lap, where the glide is `(-G U, 0)`, as far from frame 0 as the Loop gets.
+- Jump steps the pieces along the field six times a Loop and Bleed opens and closes the screens. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
