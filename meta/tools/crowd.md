@@ -19,7 +19,7 @@ Site control ids, slider ranges and site defaults:
 | `arrows`    | 0..1  | 0.01 | 0.5     | how much of the frame the arrows cover |
 | `arrowSize` | 0..1  | 0.01 | 0.5     | arrow spacing and size                 |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. crowd is a Still Tool: only frame 0 is rendered. Motion stays fixed at site defaults and is not a Parameter. Dither is the shared [chassis](chassis.md) post-pass, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off every figure stands at its dealt place. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Dither is the shared [chassis](chassis.md) post-pass, off by default.
 
 Grain is the chassis pass too, but the page opens with it on: overlay blend, amount 0.35, size 1, specks 0.3, vignette 0.2. Those are crowd's grain defaults.
 
@@ -54,7 +54,7 @@ crowd is a palette-family Tool. Its Palette is the swatch row, read by role, any
 5. `row = floor(rows r)`
 6. `cx = W (-0.06 + 1.12r)`
 7. `cy = H (row + 1.2r - 0.3) / rows`
-8. sway phase, then sway radius: two draws a Still ignores
+8. sway phase `phs = 2π r`, then sway radius `sr = 0.012 U (0.6 + 0.8r)`: a Still draws both and ignores them
 9. corner radius `rr = hr (0.6 + 0.5r)`
 
 Figure `k` has noise seed `ns = 13s + 7k`.
@@ -88,3 +88,17 @@ Then a box blur of radius `rad = (0.004 + 0.04 blur) U / gs`, skipped under 1, w
 
    Every arrow joins one path, stroked once in the core ink at alpha 0.9, width `max(0.8, 0.15 sz)`, round caps and joins. Overlapping arrows do not stack their alpha.
 3. Grain, then dither.
+
+## Motion
+
+The site has three motion modes: Sway, Pulse and Flicker. Sway is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`.
+- Each figure walks a small circle round its dealt place on its own beat: it stands at `cx + cos(ph + phs) 0.6 sr`, `cy + sin(ph + phs) 0.6 sr`. The head, the shoulders and the mask margins all follow that moved centre.
+- The sway phase and radius are drawn on the Still path too, so the figure stream is the same with motion on or off. Only their use is new.
+- Nothing else moves. The wobble noise is read at grid positions, so it stays put in the frame and a figure's edge ripples as it passes through it. The arrows, the blur, the ramp and the grain hold.
+- Every figure runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the offsets have period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` each figure sits `(cos phs, sin phs) 0.6 sr` off its Still place, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a lap, where every offset has flipped sign from frame 0, as far from it as the Loop gets.
+- Pulse swells the halo and Flicker re-deals the arrows every frame. Neither is ported. They are not reachable from a Recipe.
