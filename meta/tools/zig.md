@@ -17,7 +17,7 @@ Site control ids, slider ranges and site defaults:
 
 The `styles` picker offers Auto, Teeth, Chevron, Stairs, Ricrac, Waves and Scales, default Auto. Auto picks one of the six others from the Tool seed: index `floor(hash(1, 2, 3, seed) * 6)` in the order Teeth, Chevron, Stairs, Ricrac, Waves, Scales. A Recipe names the style it draws, so the Choice is the six styles without Auto. The site's Auto is the same as naming the style it picks.
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. zig is a Still Tool: only frame 0 is rendered. With motion off the crawl shift is 0 and the colour pair is dealt at step 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). With motion off the crawl shift is 0 and the colour pair is dealt at step 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 zig is a palette-family Tool. Its Palette is the swatch row only, read by position, any number of inks from 2. It has no ground, rule or ink fields of its own and no family picker. Default Palette, 6 inks: `#1b1b1b #f94144 #f8961e #f9c74f #43aa8b #577590`.
 
@@ -72,6 +72,23 @@ Horizontal rows.
 - Lines `j = -2 .. ceil(V / rh) + 2`, each based at `y = j rh`.
 - Ricrac: half-period `q = p / 2`. For `i = floor(-4q / q) .. ceil((1000 + 4q) / q)`, add `(i q, base - amp)` when `i` is even, `(i q, base + amp)` when odd.
 - Waves and Scales: x runs from `-3p` while `x <= 1000 + 3p`, stepping by `p / 14` with repeated addition. Scales offsets odd rows by `p / 2`. With `u = 2π (x + offset) / p`, Waves adds `(x, base + amp sin u)` and Scales adds `(x, base - amp |sin(u / 2)|)`.
+
+## Motion
+
+The site has two motion modes: Crawl and Blink. Crawl is the default and the only one ported: amount 0.8, 120 frames at 24 fps.
+
+- Frame `f` sits at `T = f / frames`.
+- Crawl slides every line along its style's period `p` by `shift = 2 p T`, where 2 is `max(1, round(2 amount))`. The amount sets how many periods the pattern travels per Loop, never its speed within one.
+  - Teeth and Chevron: each segment starts at `y0 = i p + offset + shift`, so the teeth march along the stripes.
+  - Stairs: each line starts at `x = -V - 3 bw + j bw + shift`, with `p = 2 s`, so the staircases slide right.
+  - Ricrac: points sit at `i q + shift`, and the range of `i` becomes `floor((-4q - shift) / q) .. ceil((1000 + 4q - shift) / q)`, so the zigzag keeps covering the frame.
+  - Waves and Scales: `u = 2π (x + shift + offset) / p`. The sample points stay put and the curve slides under them.
+- Nothing else moves: the inks, the band count, widths, depths and corner radius hold.
+- The Loop closes by whole periods on five styles: at `T = 1` the shift is `2p`, a whole number of each pattern's repeats, so every band lands where a band of the same parity was. Waves and Scales read `sin` at shifted points, whose last bit can differ, which the closure test would catch.
+- Stairs closes only when `round(2 width)` is 1. Its bands alternate fill every `bw`, so the pattern repeats every `2 bw = 4 s round(2 width)`, while the crawl moves `4 s`. At `round(2 width) = 2` the bands land one band over and the two inks swap at the seam. At 3 and 4 the staircases jump back two steps at the seam: a third of a band at 3, half a band at 4. That is the site's behaviour, and the port keeps it.
+- At `f = 0` the shift is 0, so frame 0 is the Still, byte for byte.
+- The mid frame is 30, `frames / 4`: half a period along. Frame 60 is a whole period along, which on every style but Teeth and Chevron looks like frame 0 again.
+- Blink is not ported. It deals the ink pair again at fixed steps and is not reachable from a Recipe.
 
 ## Corner radius
 
