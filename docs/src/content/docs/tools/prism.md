@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool prism | tirage render --size 540x960 -o prism.png
 ```
 
+SVG: yes. `-o prism.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-prism  1 frame
+prism  1 frame, svg
   cols        24..=72   step 2
   streams     1..=5     step 1
   reach       0.3..=0.85 step 0.01

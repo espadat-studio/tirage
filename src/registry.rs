@@ -130,6 +130,7 @@ impl Tool {
                 | Self::Sampler
                 | Self::Pane
                 | Self::Modular
+                | Self::Prism
         )
     }
 }
