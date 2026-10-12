@@ -13600,6 +13600,228 @@
               "grnVignette": 0.5
             }
           }
+        },
+        {
+          "name": "seed-1-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "chaff",
+            "tool_seed": 9611518,
+            "palette": [
+              "#0e3b43",
+              "#f2c14e"
+            ],
+            "params": {
+              "count": 91,
+              "size": 0.4,
+              "vary": 0.99,
+              "apart": 0.36,
+              "shapes": "Leaf",
+              "curve": 0.79,
+              "slim": 0.95,
+              "taper": 0.67,
+              "mottle": 0.66,
+              "coarse": 0.42,
+              "grain": 0.3,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-1-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "chaff",
+            "tool_seed": 9611518,
+            "palette": [
+              "#0e3b43",
+              "#f2c14e"
+            ],
+            "params": {
+              "count": 91,
+              "size": 0.4,
+              "vary": 0.99,
+              "apart": 0.36,
+              "shapes": "Leaf",
+              "curve": 0.79,
+              "slim": 0.95,
+              "taper": 0.67,
+              "mottle": 0.66,
+              "coarse": 0.42,
+              "grain": 0.3,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-2-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "chaff",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#0e3b43",
+              "#f2c14e"
+            ],
+            "params": {
+              "count": 69,
+              "size": 0.17,
+              "vary": 0.27,
+              "apart": 0.96,
+              "shapes": "Leaf",
+              "curve": 0.12,
+              "slim": 0.81,
+              "taper": 0.13,
+              "mottle": 0.27,
+              "coarse": 0.53,
+              "grain": 0.3,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-2-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "chaff",
+            "tool_seed": 3724278653,
+            "palette": [
+              "#0e3b43",
+              "#f2c14e"
+            ],
+            "params": {
+              "count": 69,
+              "size": 0.17,
+              "vary": 0.27,
+              "apart": 0.96,
+              "shapes": "Leaf",
+              "curve": 0.12,
+              "slim": 0.81,
+              "taper": 0.13,
+              "mottle": 0.27,
+              "coarse": 0.53,
+              "grain": 0.3,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
+        },
+        {
+          "name": "seed-3-f0",
+          "recipe": {
+            "tirage": 0,
+            "tool": "chaff",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#0e3b43",
+              "#f2c14e"
+            ],
+            "params": {
+              "count": 7,
+              "size": 0.68,
+              "vary": 0.2,
+              "apart": 0.25,
+              "shapes": "Crescent",
+              "curve": 0.99,
+              "slim": 0.84,
+              "taper": 1,
+              "mottle": 0.38,
+              "coarse": 0.32,
+              "grain": 0.3,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 0
+        },
+        {
+          "name": "seed-3-mid",
+          "recipe": {
+            "tirage": 0,
+            "tool": "chaff",
+            "tool_seed": 2636557845,
+            "palette": [
+              "#0e3b43",
+              "#f2c14e"
+            ],
+            "params": {
+              "count": 7,
+              "size": 0.68,
+              "vary": 0.2,
+              "apart": 0.25,
+              "shapes": "Crescent",
+              "curve": 0.99,
+              "slim": 0.84,
+              "taper": 1,
+              "mottle": 0.38,
+              "coarse": 0.32,
+              "grain": 0.3,
+              "ditherTog": false,
+              "dthKinds": "Bayer 8",
+              "dthSize": 2,
+              "dthLevels": 3,
+              "dthAmount": 1,
+              "grainTog": false,
+              "grnBlends": "Add",
+              "grnAmount": 0.55,
+              "grnSize": 1,
+              "grnSpecks": 0.5,
+              "grnVignette": 0.5
+            }
+          },
+          "frame": 18
         }
       ],
       "page_sha256": "d847d40e9bcd447bead44c5a5f98a1c47f2689ee73a7dff19a457465bf63b5f9",
