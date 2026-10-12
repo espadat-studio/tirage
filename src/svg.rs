@@ -440,6 +440,10 @@ impl SvgWriter {
     }
 
     pub(crate) fn fill_transformed(&mut self, path: &Path, ink: [u8; 3], transform: Transform) {
+        if transform.is_identity() {
+            self.fill_path(path, ink);
+            return;
+        }
         if let Some(placed) = path.clone().transform(transform)
             && self.misses_frame(placed.bounds(), 0.0)
         {
@@ -783,6 +787,21 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             r##"<g fill="#010203"><path d="M0.33333334 0L4 0L0 3.5Z" transform="matrix(0 1 -1.5 0 5 0.33333334)"/></g>"##
+        );
+    }
+
+    #[test]
+    fn an_identity_fill_transformed_writes_the_plain_snapped_path() {
+        let mut path = PathBuilder::new();
+        path.move_to(2.7612965, 0.0);
+        path.line_to(4.0, 0.0);
+        path.line_to(0.0, 3.5);
+        path.close();
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_transformed(&path.finish().unwrap(), [1, 2, 3], Transform::identity());
+        assert_eq!(
+            body(svg.finish()),
+            r##"<g fill="#010203"><path d="M2.76 0L4 0L0 3.5Z"/></g>"##
         );
     }
 
