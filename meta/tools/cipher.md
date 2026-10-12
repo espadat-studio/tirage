@@ -22,7 +22,7 @@ Site control ids, slider ranges and site defaults:
 | `smears` | 0..0.6                | 0.01 | 0.15    | chance a row carries a smeared streak          |
 | `dots`   | 0..1                  | 0.01 | 0.6     | ground dot size                                |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. cipher is a Still Tool: only frame 0 is rendered. Motion stays fixed at site defaults and is not a Parameter. At frame 0 with motion off the drift offsets, the flicker offset and the breathe swell are all 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the drift offsets, the flicker offset and the breathe swell are all 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 The page deals every slider from the Tool seed when the seed changes. That deal is not ported: `derive` deals each Parameter ([ADR 0003](../adr/0003-seed-derivation-of-recipes.md)), and a Reference export sets every slider after the page loads.
 
@@ -92,3 +92,21 @@ Fill the frame with the ground. Then each cell, row by row, left to right, with 
 Strokes have butt caps and miter joins. Every shape is anti-aliased; boxes land off the pixel grid.
 
 The site also has a dot glyph, but no band can pick it, so it never draws.
+
+## Motion
+
+The site has three motion modes: Drift, Flicker and Breathe. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`. The offsets are `drx = cos ph · amount · 0.4` and `dry = sin ph · amount · 0.4`, multiplied left to right, so a circle of radius 0.24 in noise space.
+- Every noise read of the field walks. The first read of each pair adds `(drx, dry)`; the second adds them swapped, `(dry, drx)`:
+  - Figure: `vn(1.6 det v + drx + 3, 0.5 + dry, sd1)`, `vn(4 det v + dry + 9, 1.5 + drx, sd1)`, and the blob's `vn(1.9 det v + drx + 13, 2.5 + dry, sd1)`.
+  - Relief: `vn(1.3 det u + drx + 5, 1.3 det w + dry + 2, sd2)` and `vn(3.1 det u + dry + 8, 3.1 det w + drx + 4, sd2)`.
+  - Slope: `vn(1.5 det u + drx + 7, 0.5 + dry, sd3)` and `vn(6 det u + dry + 3, 1.5 + drx, sd3)`.
+  - The sums run left to right, the offset added before the constant.
+- So the band edges ripple and cells change band, taking the new band's glyph and ink, and the x's follow the edges.
+- Nothing else moves. The grid, the bands' glyphs and inks, the spine, the blob centre, the fleck and edge draws, the smear runs and the ground dots hold.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the offsets have period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the walk sits at `(0.24, 0)`, not at the origin the Still reads, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a lap, the walk at `(-0.24, 0)`, as far from frame 0 as the Loop goes.
+- Flicker reseeds the cell draws every frame and Breathe swells the wave. Neither is ported. They are not reachable from a Recipe.
