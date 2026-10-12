@@ -41,9 +41,9 @@ impl SvgWriter {
         self.alpha = alpha;
     }
 
-    fn opacity(&mut self, paint: &str) {
+    fn opacity(&mut self, paint: &str, opacity: f32) {
         if self.alpha < 1.0 {
-            write!(self.markup, r#" {paint}-opacity="{:.4}""#, self.alpha)
+            write!(self.markup, r#" {paint}-opacity="{opacity:.4}""#)
                 .expect("a String takes any write");
         }
     }
@@ -79,7 +79,23 @@ impl SvgWriter {
         if self.alpha >= 1.0 {
             return ink;
         }
-        shifted(self.alpha8(), self.premultiplied(ink))
+        shifted(self.alpha8() as f32 / 255.0, self.premultiplied(ink))
+    }
+
+    fn faded_stroke(&self, ink: [u8; 3], width: f32) -> ([u8; 3], f32) {
+        if self.alpha >= 1.0 || width <= 0.0 || width >= 1.0 {
+            return (self.faded(ink), self.alpha);
+        }
+        let hairline = ((255 * (width * 256.0) as i32) >> 8) as f32 / 255.0;
+        let alpha = self.alpha * hairline;
+        let target = (alpha * 255.0 + 0.5) as i32;
+        let opacity = (0..=255)
+            .filter(|&o| (o as f32 / 255.0 * hairline * 255.0 + 0.5) as i32 == target)
+            .min_by_key(|o| (o - self.alpha8()).abs())
+            .expect("some u8 opacity scales to any hairline alpha") as f32
+            / 255.0;
+        let premultiplied = ink.map(|c| (f32::from(c) / 255.0 * alpha * 255.0 + 0.5) as i32);
+        (shifted(opacity * hairline, premultiplied), opacity)
     }
 
     fn group(&mut self, ink: [u8; 3], crisp: bool) {
@@ -104,7 +120,7 @@ impl SvgWriter {
         let (width, height) = (self.width, self.height);
         write!(self.markup, r#"<rect width="{width}" height="{height}""#)
             .expect("a String takes any write");
-        self.opacity("fill");
+        self.opacity("fill", self.alpha);
         self.close();
     }
 
@@ -115,7 +131,7 @@ impl SvgWriter {
             r#"<rect x="{x}" y="{y}" width="{width}" height="{height}""#
         )
         .expect("a String takes any write");
-        self.opacity("fill");
+        self.opacity("fill", self.alpha);
         self.close();
     }
 
@@ -228,7 +244,7 @@ impl SvgWriter {
         if opacity <= 0 {
             return;
         }
-        let shifted = shifted(opacity, base.map(|c| (c * alpha + 128) >> 8));
+        let shifted = shifted(opacity as f32 / 255.0, base.map(|c| (c * alpha + 128) >> 8));
         self.open(ink, true);
         write!(
             self.markup,
@@ -249,7 +265,7 @@ impl SvgWriter {
         self.open(self.faded(ink), false);
         self.open_path(path, true);
         self.markup.push('"');
-        self.opacity("fill");
+        self.opacity("fill", self.alpha);
         self.close();
     }
 
@@ -257,7 +273,7 @@ impl SvgWriter {
         self.open(self.faded(ink), false);
         self.open_path(path, true);
         self.markup.push_str(r#"" fill-rule="evenodd""#);
-        self.opacity("fill");
+        self.opacity("fill", self.alpha);
         self.close();
     }
 
@@ -277,12 +293,12 @@ impl SvgWriter {
             r#"" transform="matrix({sx} {ky} {kx} {sy} {tx} {ty})""#
         )
         .expect("a String takes any write");
-        self.opacity("fill");
+        self.opacity("fill", self.alpha);
         self.close();
     }
 
     pub(crate) fn stroke(&mut self, path: &Path, ink: [u8; 3], width: f32, cap: Cap, join: Join) {
-        let ink = self.faded(ink);
+        let (ink, opacity) = self.faded_stroke(ink, width);
         let parts = if self.multiply {
             subpaths(path)
         } else {
@@ -297,7 +313,7 @@ impl SvgWriter {
                 r##"" fill="none" stroke="#{r:02x}{g:02x}{b:02x}" stroke-width="{width}""##
             )
             .expect("a String takes any write");
-            self.opacity("stroke");
+            self.opacity("stroke", opacity);
             if let Cap::Round = cap {
                 self.markup.push_str(r#" stroke-linecap="round""#);
             }
@@ -383,8 +399,7 @@ fn subpaths(path: &Path) -> Vec<Path> {
     parts
 }
 
-fn shifted(alpha: i32, scaled: [i32; 3]) -> [u8; 3] {
-    let opacity = alpha as f32 / 255.0;
+fn shifted(opacity: f32, scaled: [i32; 3]) -> [u8; 3] {
     scaled.map(|scaled| {
         (0..=255u8)
             .find(|&v| (f32::from(v) / 255.0 * opacity * 255.0 + 0.5) as i32 == scaled)
@@ -684,6 +699,17 @@ mod tests {
                 r##"<g fill="#1c1c1c" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1" fill-opacity="0.3900"/></g>"##,
             ]
             .concat()
+        );
+    }
+
+    #[test]
+    fn a_faded_hairline_picks_the_opacity_whose_u8_tiny_skia_scales_by_its_width_to_its_alpha() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.set_alpha(0.81);
+        svg.stroke(&triangle(), [217, 212, 199], 0.594, Cap::Butt, Join::Miter);
+        assert_eq!(
+            body(svg.finish()),
+            r##"<g fill="#d9d5c6"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#d9d5c6" stroke-width="0.594" stroke-opacity="0.8078" stroke-miterlimit="10"/></g>"##
         );
     }
 

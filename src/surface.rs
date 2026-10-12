@@ -788,6 +788,9 @@ mod tests {
             surface.with_alpha(0.3, |surface| {
                 surface.stroke(&path, [255, 255, 255], 1.0, Cap::Butt, Join::Miter);
             });
+            surface.with_alpha(0.81, |surface| {
+                surface.stroke(&path, [217, 212, 199], 0.594, Cap::Butt, Join::Miter);
+            });
         };
         let mut raster = Surface::new(6, 6);
         draw(&mut raster);
