@@ -25,7 +25,7 @@ Site control ids, slider ranges and site defaults, in page order:
 
 The site's Looks are presets that set several sliders at once. They are not Parameters. The site also offers a Custom motif from an uploaded SVG, with an ink toggle. tirage ships the built-in motifs only, so `motifs` has no Custom and the toggle is not a Parameter. On this page the export size is `size`, 500..6000, default 2000.
 
-Motion: four modes, Flow (default), Scan, Pulse and Shimmer, off by default. oddgrid is a Still Tool: one frame, motion stays off and is not a Parameter. With motion off the fields' two extra noise axes are 0 and the shimmer salt is 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion: four modes, Flow (default), Scan, Pulse and Shimmer, off by default. With motion off the fields' two extra noise axes are 0 and the shimmer salt is 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 Default Palette, the 5 swatches: `#ff5e5b #ffed66 #00cecb #f2ede4 #9b5de5`. The site's palette family also sets a ground and a motif ink, which are Tool constants at the site defaults: ground `#101820`, motif ink `#f2ede4`. The family picker is not a Parameter. The Palette is uncapped and painted with every ink it has.
 
@@ -65,6 +65,22 @@ Motif in a cell at `(px, py)`, `cw` by `ch`, in the motif ink, with `cs = min(cw
 - Mixed picks per cell from `k = hash(x, y, 0, 9, seed + 404)`: under 0.4 a dot, under 0.65 a square, under 0.85 a ring, else a wedge.
 
 Motifs are anti-aliased.
+
+## Motion
+
+Flow is the default mode and the only one ported: amount 0.8, 32 frames at 8 fps.
+
+- Frame `f` sits at `T = f / frames`. The walk point is `(z, w) = (cos 2πT, sin 2πT) amount`, a circle of radius 0.8 in the noise's two extra axes.
+- All three fields read 4D noise, [terrain](terrain.md)'s, on circles of their own size:
+  - the colour field at `(z, w)`, the full radius;
+  - the coverage field at `(0.8 z, 0.8 w)`;
+  - the detail field at `(0.45 z, 0.45 w)`, so the fine edge breakup changes slowest.
+- So colour areas, filled regions and their ragged edges morph in place and come back. The grid, the block snap and block tones, the per-block bias, the specks and the motif choice hold: they are hashes of the cell, not noise reads.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the walk has period 1 in `T`: frame `frames` is frame 0, up to the last bit of `sin 2π`, which reads the same corners from the other side.
+- Frame 0 is not the Still. At `T = 0` the three fields sit at `z` = 0.8, 0.64 and 0.36, off the `z = w = 0` slice the Still reads, and no frame of the Loop visits that slice. Frame 0 gets its own motion-on reference export.
+- The mid frame is 16: half a lap, each field across its circle from frame 0, as far as the Loop takes it.
+- Scan and Pulse push coverage and colour on a sine, and Shimmer reseeds the detail and specks each frame. None is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 
