@@ -1,11 +1,11 @@
 ---
 title: "modular"
-description: "A Swiss grid poster of flat, ramped, dotted and ruled modules under thin rules. It renders a Still."
+description: "A Swiss grid poster of flat, ramped, dotted and ruled modules under thin rules. It renders a Loop of 24 frames at 6 fps, the blocks and dots switching on and off."
 ---
 
 A grid poster in the Swiss style. The frame is cut into modules, and some of them span two cells. Each module is left empty, filled flat, filled with a ramp between two inks, scattered with blocks, packed with dots in one corner, or ruled like graph paper. Thin rules run over the whole grid.
 
-modular renders a Still: one frame. Its site page is [playgrnd.tools/modular](https://www.playgrnd.tools/modular/).
+modular renders a Loop: 24 frames at 6 fps, in which the cells of the block and dot modules switch on and off as a noise field drifts past their threshold, then come back. The layout, the inks and the rules hold still. The cells have already switched at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/modular](https://www.playgrnd.tools/modular/).
 
 ## Still
 
