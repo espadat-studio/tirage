@@ -123,6 +123,7 @@ impl Tool {
                 | Self::Vein
                 | Self::Warp
                 | Self::Zig
+                | Self::Relief
         )
     }
 }
