@@ -1,11 +1,11 @@
 ---
 title: "aura"
-description: "A soft glow of melting inks. It renders a Still."
+description: "A soft glow of melting inks. It renders a Loop of 72 frames at 12 fps, the inks sliding round a circle over a fixed warp."
 ---
 
 A soft glow of melting inks. Each ink owns a warped noise field. Every pixel mixes all inks, weighted by how strong each field is there, so the inks bleed into tints with no hard edge. The field is painted on a small buffer and scaled up smooth.
 
-aura renders a Still: one frame. Its site page is [playgrnd.tools/aura](https://www.playgrnd.tools/aura/).
+aura renders a Loop: 72 frames at 12 fps, in which the point every ink field reads drifts once round a circle, so all the inks slide together. The warp under them holds still, so the blots bend as they pass through it. The inks are already shifted at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/aura](https://www.playgrnd.tools/aura/).
 
 ## Still
 
