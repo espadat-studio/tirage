@@ -54,7 +54,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `quilt`    | 60     | Loop   |
 | `static`   | 60     | Loop   |
 | `splice`   | 1      | Still  |
-| `dahlia`   | 1      | Still  |
+| `dahlia`   | 36     | Loop   |
 | `hiss`     | 1      | Still  |
 | `crowd`    | 1      | Still  |
 | `cipher`   | 1      | Still  |

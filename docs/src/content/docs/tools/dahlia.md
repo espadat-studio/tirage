@@ -1,11 +1,11 @@
 ---
 title: "dahlia"
-description: "A firework burst of dashed rays in stacked inks on a printed paper ground. It renders a Still."
+description: "A firework burst of dashed rays in stacked inks on a printed paper ground. It renders a Loop of 36 frames at 12 fps, the dashes running outward along the rays."
 ---
 
 A firework burst on paper. Rays leave one centre and bow a little as they go. Each ray is a chain of short dashes, often two or three inks laid side by side, and many dashes end in a round bead of the accent ink.
 
-dahlia renders a Still: one frame. Its site page is [playgrnd.tools/dahlia](https://www.playgrnd.tools/dahlia/).
+dahlia renders a Loop: 36 frames at 12 fps, in which the dashes run outward along every ray by one dash, a new one starting at the centre as the last runs off, while the rays, inks and beads hold. Frame 0 is the Still. Its site page is [playgrnd.tools/dahlia](https://www.playgrnd.tools/dahlia/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 1 --tool dahlia | tirage render --size 540x960 -o dahlia.pn
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-dahlia  1 frame
+dahlia  36 frames
   rays        8..=300   step 1
   size        0..=1     step 0.01
   ragged      0..=1     step 0.01
