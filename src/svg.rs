@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use tiny_skia::{Path, PathBuilder, PathSegment, Transform};
+use tiny_skia::{Path, PathBuilder, PathSegment, Rect, Transform};
 
 use crate::Image;
 use crate::surface::{Cap, Join, nearest_source};
@@ -410,7 +410,17 @@ impl SvgWriter {
         self.close();
     }
 
+    fn misses_frame(&self, bounds: Rect, reach: f32) -> bool {
+        bounds.right() + reach < 0.0
+            || bounds.bottom() + reach < 0.0
+            || bounds.left() - reach > self.width as f32
+            || bounds.top() - reach > self.height as f32
+    }
+
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
+        if self.misses_frame(path.bounds(), 0.0) {
+            return;
+        }
         self.open(self.faded(ink), false);
         self.open_path(path, true);
         self.markup.push('"');
@@ -419,6 +429,9 @@ impl SvgWriter {
     }
 
     pub(crate) fn fill_even_odd(&mut self, path: &Path, ink: [u8; 3]) {
+        if self.misses_frame(path.bounds(), 0.0) {
+            return;
+        }
         self.open(self.faded(ink), false);
         self.open_path(path, true);
         self.markup.push_str(r#"" fill-rule="evenodd""#);
@@ -427,6 +440,11 @@ impl SvgWriter {
     }
 
     pub(crate) fn fill_transformed(&mut self, path: &Path, ink: [u8; 3], transform: Transform) {
+        if let Some(placed) = path.clone().transform(transform)
+            && self.misses_frame(placed.bounds(), 0.0)
+        {
+            return;
+        }
         self.open(self.faded(ink), false);
         self.open_path(path, false);
         self.matrix(transform);
@@ -435,6 +453,13 @@ impl SvgWriter {
     }
 
     pub(crate) fn stroke(&mut self, path: &Path, ink: [u8; 3], width: f32, cap: Cap, join: Join) {
+        let reach = match join {
+            Join::Round => width,
+            Join::Miter => width * 5.0,
+        };
+        if self.misses_frame(path.bounds(), reach) {
+            return;
+        }
         let (ink, opacity) = self.faded_stroke(ink, width);
         let parts = if self.multiply || (!self.clips.is_empty() && width <= 1.0) {
             subpaths(path)
@@ -1090,6 +1115,33 @@ mod tests {
             ]
         );
         assert_eq!(super::base64(&[0xfb, 0xff]), "+/8=");
+    }
+
+    #[test]
+    fn a_fill_or_stroke_that_misses_the_frame_writes_nothing() {
+        let mut far = PathBuilder::new();
+        far.move_to(-4.0, 1.0);
+        far.line_to(-2.0, 1.0);
+        far.line_to(-2.0, 3.0);
+        far.close();
+        let far = far.finish().unwrap();
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_path(&far, [0, 0, 0]);
+        svg.fill_transformed(&far, [0, 0, 0], Transform::from_translate(0.0, 20.0));
+        svg.stroke(&far, [0, 0, 0], 1.0, Cap::Round, Join::Round);
+        assert_eq!(body(svg.finish()), "");
+    }
+
+    #[test]
+    fn a_stroke_whose_width_reaches_the_frame_is_kept() {
+        let mut near = PathBuilder::new();
+        near.move_to(-0.5, 1.0);
+        near.line_to(-0.5, 3.0);
+        let near = near.finish().unwrap();
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(&near, [0, 0, 0], 2.0, Cap::Butt, Join::Round);
+        svg.stroke(&near, [0, 0, 0], 1.0, Cap::Butt, Join::Miter);
+        assert!(body(svg.finish()).contains("<path"));
     }
 
     #[test]
