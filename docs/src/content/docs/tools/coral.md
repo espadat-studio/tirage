@@ -22,7 +22,7 @@ tirage derive --seed 8 --tool coral | tirage render --size 540x960 -o coral.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-coral  1 frame
+coral  36 frames
   branches    2..=12    step 1
   spacing     0..=1     step 0.01
   spread      0..=1     step 0.01

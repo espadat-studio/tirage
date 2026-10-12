@@ -11,7 +11,7 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "coral";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
@@ -20,6 +20,8 @@ pub(crate) const MAX_INKS: Option<usize> = None;
     reason = "the site's rib phase is 6.28, not 2π"
 )]
 const RIB_PHASE: f64 = 6.28;
+
+const AMOUNT: f64 = 0.6;
 
 const DEFAULT_PALETTE: [&str; 5] = ["#33081c", "#e8449e", "#f7b8dc", "#45be6e", "#c9f24e"];
 
@@ -300,9 +302,10 @@ pub(crate) fn render(
     params: &CoralParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let sway = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, sway);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -348,7 +351,13 @@ impl Grid {
     }
 }
 
-fn paint(surface: &mut Surface, params: &CoralParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &CoralParams,
+    palette: &Palette,
+    tool_seed: u32,
+    sway: Option<f64>,
+) {
     let (w, h) = (surface.width(), surface.height());
     let (wf, hf) = (f64::from(w), f64::from(h));
     let u_size = (wf * hf).sqrt();
@@ -383,6 +392,10 @@ fn paint(surface: &mut Surface, params: &CoralParams, palette: &Palette, tool_se
     let n0 = f64::from(params.branches.max(2));
     let hw_max = params.width * s * 0.5 * 0.62;
     let wob = params.wobble;
+    let (ox, oy) = sway.map_or((0.0, 0.0), |t| {
+        let ph = TAU * t;
+        (ph.cos() * AMOUNT * 0.7, ph.sin() * AMOUNT * 0.7)
+    });
     let rib_p = (s * 0.11).max(1.5);
     let sh_k = params.shadow;
     let sh_off = u_size * 0.012 * sh_k;
@@ -427,11 +440,12 @@ fn paint(surface: &mut Surface, params: &CoralParams, palette: &Palette, tool_se
                 th += wob
                     * 0.55
                     * far
-                    * (value_noise(rr / (u_size * 0.38) + 7.0, th * 1.4, sd(1)) - 0.5);
+                    * (value_noise(rr / (u_size * 0.38) + ox + 7.0, th * 1.4 + oy, sd(1)) - 0.5);
                 th += wob
                     * 0.22
                     * far
-                    * (value_noise(rr / (u_size * 0.16) + 3.0, th * 4.2 + 5.0, sd(1)) - 0.5);
+                    * (value_noise(rr / (u_size * 0.16) + oy + 3.0, th * 4.2 + ox + 5.0, sd(1))
+                        - 0.5);
             }
             let a = ((th - th_start) % TAU + TAU) % TAU;
             let (mut in_b, mut arc, mut hw, mut side1, mut bid) = (false, 1e9, 1.0, 0, 0);

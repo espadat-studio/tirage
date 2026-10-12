@@ -79,13 +79,38 @@ fn the_grain_post_pass_is_on_as_the_site_opens() {
 }
 
 #[test]
-fn coral_is_a_still() {
-    assert_eq!(Tool::Coral.frames(), 1);
+fn coral_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Coral.frames(), Tool::Coral.fps()), (36, 12));
     let recipe = derive(7, CORAL);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 36)),
+        "frame 36 is outside 0..36"
     );
+}
+
+#[test]
+fn sway_bends_the_branches_off_the_still_at_frame_0_and_on_later() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, CORAL);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() != frame(0).rgba(), "seed {seed}");
+        assert!(frame(0).rgba() != frame(18).rgba(), "seed {seed}");
+    }
+}
+
+#[test]
+fn without_wobble_every_frame_is_the_still() {
+    let mut recipe = derive(1, CORAL);
+    let Params::Coral(params) = recipe.params_mut() else {
+        unreachable!()
+    };
+    params.set_wobble(0.0).unwrap();
+    let still = render(&recipe, &Frame::still(270, 480).unwrap());
+    for t in [0, 9, 18] {
+        let frame = render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() == frame.rgba(), "frame {t}");
+    }
 }
 
 #[test]
@@ -118,6 +143,6 @@ fn a_two_ink_palette_derives_the_other_roles() {
     recipe
         .set_palette(Palette::from_hex(&["#101010", "#f0f0f0"]).unwrap())
         .unwrap();
-    let image = render(&recipe, &Frame::new(&recipe, 90, 160, 0).unwrap());
+    let image = render(&recipe, &Frame::still(90, 160).unwrap());
     assert!(image.rgba().chunks(4).all(|px| px[3] == 255));
 }

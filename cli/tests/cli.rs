@@ -396,7 +396,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let coral = concat!(
-        r#"{"slug":"coral","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"coral","frames":36,"svg":false,"params":["#,
         r#"{"id":"branches","kind":"range","min":2.0,"max":12.0,"step":1.0},"#,
         r#"{"id":"spacing","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"spread","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -905,7 +905,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nstipple  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nsprig  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmist  72 frames\n"), "{listing}");
-    assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
+    assert!(listing.contains("\ncoral  36 frames\n"), "{listing}");
     assert!(listing.contains("\nwhorl  36 frames\n"), "{listing}");
     assert!(listing.contains("\nsear  1 frame\n"), "{listing}");
     assert!(listing.contains("\nculture  36 frames\n"), "{listing}");
@@ -1849,7 +1849,7 @@ mod encode {
                 .contains("→ tirage derive --seed 42 --tool sonar | tirage encode -o sonar-42.mp4"),
             "{screen}"
         );
-        for still in ["terrain", "coral", "deal from Seed"] {
+        for still in ["terrain", "oddgrid", "deal from Seed"] {
             assert!(!screen.contains(still), "{still} offered in\n{screen}");
         }
         std::fs::remove_dir_all(dir).unwrap();

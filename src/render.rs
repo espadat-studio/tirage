@@ -116,6 +116,7 @@ mod tests {
         Tool::Benday,
         Tool::Stitch,
         Tool::Mist,
+        Tool::Coral,
     ];
 
     #[test]
