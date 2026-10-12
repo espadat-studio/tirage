@@ -131,6 +131,7 @@ impl Tool {
                 | Self::Pane
                 | Self::Modular
                 | Self::Prism
+                | Self::Parcel
         )
     }
 }
