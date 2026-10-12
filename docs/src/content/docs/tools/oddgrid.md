@@ -1,11 +1,11 @@
 ---
 title: "oddgrid"
-description: "A patchwork of hard-edged pixel regions. It renders a Still."
+description: "A patchwork of hard-edged pixel regions. It renders a Loop of 32 frames at 8 fps, the regions reshaping in place."
 ---
 
 A patchwork of hard-edged pixel regions on a coarse grid. Three noise fields decide each cell: one picks its colour, one decides whether it is filled at all, and a fine one breaks the region edges into pixels. Blocks of cells can be pulled toward a tone of their own, so the regions square off into a quilt. Some filled cells carry a small motif.
 
-oddgrid renders a Still: one frame. Its site page is [playgrnd.tools/oddgrid](https://www.playgrnd.tools/oddgrid/).
+oddgrid renders a Loop: 32 frames at 8 fps, in which all three fields shift shape and come back, so regions change colour, grow, shrink and fray in place. The grid, the block tones and the motifs hold still. The fields have already shifted at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/oddgrid](https://www.playgrnd.tools/oddgrid/).
 
 ## Still
 
