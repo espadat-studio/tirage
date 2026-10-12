@@ -17,12 +17,14 @@ Seed 1, rendered by:
 tirage derive --seed 1 --tool quilt | tirage render --size 540x960 -o quilt.png
 ```
 
+SVG: yes. `-o quilt.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
+
 ## Parameters
 
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-quilt  60 frames
+quilt  60 frames, svg
   styles      Auto, Bands, Tabs, Plaid, Dither, Steps, Zigzag, Diamond, Cross, Basket, Rings, Star, Waves, Gingham, Burst
   cells       28..=72   step 2
   chunk       0.7..=1.8 step 0.05
