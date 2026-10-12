@@ -22,7 +22,7 @@ tirage derive --seed 2 --tool filament | tirage render --size 540x960 -o filamen
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-filament  1 frame
+filament  30 frames
   zoom        0.3..=6   step 0.05
   turn        0.2..=5   step 0.05
   oct         1..=6     step 1

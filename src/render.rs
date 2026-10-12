@@ -102,6 +102,7 @@ mod tests {
         Tool::Riso,
         Tool::Rise,
         Tool::Prism,
+        Tool::Filament,
     ];
 
     #[test]

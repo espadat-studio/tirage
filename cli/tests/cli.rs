@@ -804,7 +804,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"coreRings","kind":"range","min":0.0,"max":8.0,"step":1.0},"#,
     );
     let filament = concat!(
-        r#"{"slug":"filament","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"filament","frames":30,"svg":false,"params":["#,
         r#"{"id":"zoom","kind":"range","min":0.3,"max":6.0,"step":0.05},"#,
         r#"{"id":"turn","kind":"range","min":0.2,"max":5.0,"step":0.05},"#,
         r#"{"id":"oct","kind":"range","min":1.0,"max":6.0,"step":1.0},"#,
@@ -898,7 +898,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nvee  72 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nsampler  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ntotem  24 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\nfilament  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nfilament  30 frames\n"), "{listing}");
     assert!(listing.contains("\nchaff  1 frame\n"), "{listing}");
     assert!(listing.contains("\nstrand  1 frame\n"), "{listing}");
     assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");

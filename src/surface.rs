@@ -434,7 +434,6 @@ impl Surface {
         self.stroke_raster(&path, ink, pen(width, cap, join), "stroke");
     }
 
-    #[cfg_attr(not(test), expect(dead_code, reason = "filament's Loop uses it next"))]
     #[expect(clippy::too_many_arguments, reason = "a dashed stroke needs its dash")]
     pub(crate) fn stroke_dashed(
         &mut self,
