@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use tiny_skia::{Path, PathBuilder, PathSegment, Transform};
+use tiny_skia::{Path, PathBuilder, PathSegment, Rect, Transform};
 
 use crate::Image;
 use crate::surface::{Cap, Join, nearest_source};
@@ -15,6 +15,7 @@ pub(crate) struct SvgWriter {
     next_clip: u32,
     alpha: f32,
     multiply: bool,
+    strokes: Vec<String>,
     pixels: Vec<(u32, u32, [u8; 3])>,
     xlink: bool,
 }
@@ -33,6 +34,7 @@ impl SvgWriter {
             next_clip: 0,
             alpha: 1.0,
             multiply: false,
+            strokes: Vec::new(),
             pixels: Vec::new(),
             xlink: false,
         }
@@ -63,6 +65,17 @@ impl SvgWriter {
 
     fn open(&mut self, ink: [u8; 3], crisp: bool) {
         self.group(ink, crisp);
+        self.open_wrappers();
+    }
+
+    fn open_smooth(&mut self, ink: [u8; 3]) {
+        match self.group {
+            Some((_, false)) if self.pixels.is_empty() => self.open_wrappers(),
+            _ => self.open(ink, false),
+        }
+    }
+
+    fn open_wrappers(&mut self) {
         if self.multiply {
             self.markup
                 .push_str(r#"<g style="mix-blend-mode:multiply">"#);
@@ -410,7 +423,52 @@ impl SvgWriter {
         self.close();
     }
 
+    fn misses_frame(&self, bounds: Rect, reach: f32) -> bool {
+        bounds.right() + reach < 0.0
+            || bounds.bottom() + reach < 0.0
+            || bounds.left() - reach > self.width as f32
+            || bounds.top() - reach > self.height as f32
+    }
+
+    fn trimmed(&self, path: &Path, reach: f32) -> Option<Path> {
+        let mut runs: Vec<Vec<tiny_skia::Point>> = Vec::new();
+        for segment in path.segments() {
+            match segment {
+                PathSegment::MoveTo(p) => runs.push(vec![p]),
+                PathSegment::LineTo(p) => runs.last_mut().expect("a line follows a move").push(p),
+                _ => return Some(path.clone()),
+            }
+        }
+        let mut trimmed = PathBuilder::new();
+        for points in runs {
+            let seen: Vec<bool> = points
+                .windows(2)
+                .map(|ends| {
+                    let bounds = Rect::from_points(ends).expect("two finite points bound a rect");
+                    !self.misses_frame(bounds, reach)
+                })
+                .collect();
+            let mut open = false;
+            for (i, ends) in points.windows(2).enumerate() {
+                let kept = seen[i] || (i > 0 && seen[i - 1]) || seen.get(i + 1) == Some(&true);
+                if !kept {
+                    open = false;
+                    continue;
+                }
+                if !open {
+                    trimmed.move_to(ends[0].x, ends[0].y);
+                    open = true;
+                }
+                trimmed.line_to(ends[1].x, ends[1].y);
+            }
+        }
+        trimmed.finish()
+    }
+
     pub(crate) fn fill_path(&mut self, path: &Path, ink: [u8; 3]) {
+        if self.misses_frame(path.bounds(), 0.0) {
+            return;
+        }
         self.open(self.faded(ink), false);
         self.open_path(path, true);
         self.markup.push('"');
@@ -419,6 +477,9 @@ impl SvgWriter {
     }
 
     pub(crate) fn fill_even_odd(&mut self, path: &Path, ink: [u8; 3]) {
+        if self.misses_frame(path.bounds(), 0.0) {
+            return;
+        }
         self.open(self.faded(ink), false);
         self.open_path(path, true);
         self.markup.push_str(r#"" fill-rule="evenodd""#);
@@ -427,6 +488,15 @@ impl SvgWriter {
     }
 
     pub(crate) fn fill_transformed(&mut self, path: &Path, ink: [u8; 3], transform: Transform) {
+        if transform.is_identity() {
+            self.fill_path(path, ink);
+            return;
+        }
+        if let Some(placed) = path.clone().transform(transform)
+            && self.misses_frame(placed.bounds(), 0.0)
+        {
+            return;
+        }
         self.open(self.faded(ink), false);
         self.open_path(path, false);
         self.matrix(transform);
@@ -435,31 +505,57 @@ impl SvgWriter {
     }
 
     pub(crate) fn stroke(&mut self, path: &Path, ink: [u8; 3], width: f32, cap: Cap, join: Join) {
+        let reach = match join {
+            Join::Round => width.max(1.0) + 0.5,
+            Join::Miter => width.max(1.0) * 5.0 + 0.5,
+        };
+        if self.misses_frame(path.bounds(), reach) {
+            return;
+        }
+        let Some(path) = &self.trimmed(path, reach) else {
+            return;
+        };
         let (ink, opacity) = self.faded_stroke(ink, width);
         let parts = if self.multiply || (!self.clips.is_empty() && width <= 1.0) {
             subpaths(path)
         } else {
             vec![path.clone()]
         };
+        let class = self.stroke_class(ink, width, opacity, cap, join);
         for part in &parts {
-            self.open(ink, false);
+            self.open_smooth(ink);
             self.open_path(part, false);
-            let [r, g, b] = ink;
-            write!(
-                self.markup,
-                r##"" fill="none" stroke="#{r:02x}{g:02x}{b:02x}" stroke-width="{width}""##
-            )
-            .expect("a String takes any write");
-            self.opacity("stroke", opacity);
-            if let Cap::Round = cap {
-                self.markup.push_str(r#" stroke-linecap="round""#);
-            }
-            self.markup.push_str(match join {
-                Join::Round => r#" stroke-linejoin="round""#,
-                Join::Miter => r#" stroke-miterlimit="10""#,
-            });
+            write!(self.markup, r#"" class="s{class}""#).expect("a String takes any write");
             self.close();
         }
+    }
+
+    fn stroke_class(
+        &mut self,
+        [r, g, b]: [u8; 3],
+        width: f32,
+        opacity: f32,
+        cap: Cap,
+        join: Join,
+    ) -> usize {
+        let mut style = format!("fill:none;stroke:#{r:02x}{g:02x}{b:02x};stroke-width:{width}");
+        if opacity < 1.0 {
+            write!(style, ";stroke-opacity:{opacity:.4}").expect("a String takes any write");
+        }
+        if let Cap::Round = cap {
+            style.push_str(";stroke-linecap:round");
+        }
+        style.push_str(match join {
+            Join::Round => ";stroke-linejoin:round",
+            Join::Miter => ";stroke-miterlimit:10",
+        });
+        self.strokes
+            .iter()
+            .position(|known| *known == style)
+            .unwrap_or_else(|| {
+                self.strokes.push(style);
+                self.strokes.len() - 1
+            })
     }
 
     fn open_path(&mut self, path: &Path, snap: bool) {
@@ -470,47 +566,73 @@ impl SvgWriter {
             && bounds.top() >= 0.0
             && bounds.right() <= self.width as f32
             && bounds.bottom() <= self.height as f32;
-        let number: fn(f32) -> String = if unclipped {
-            coordinate
-        } else {
-            |v| v.to_string()
-        };
+        let lands = if unclipped { on_edge } else { exact };
+        let (mut pen, mut start) = ((0.0, 0.0), (0.0, 0.0));
+        let mut run = ' ';
+        let mut dotted = None;
         for segment in path.segments() {
-            match segment {
-                PathSegment::MoveTo(p) => {
-                    write!(self.markup, "M{} {}", number(p.x), number(p.y))
+            let (command, points) = match segment {
+                PathSegment::MoveTo(p) => ('m', vec![p]),
+                PathSegment::LineTo(p) => ('l', vec![p]),
+                PathSegment::QuadTo(c, p) => ('q', vec![c, p]),
+                PathSegment::CubicTo(a, b, p) => ('c', vec![a, b, p]),
+                PathSegment::Close => {
+                    self.markup.push('z');
+                    (pen, run, dotted) = (start, 'z', None);
+                    continue;
                 }
-                PathSegment::LineTo(p) => {
-                    write!(self.markup, "L{} {}", number(p.x), number(p.y))
-                }
-                PathSegment::QuadTo(c, p) => {
-                    write!(
-                        self.markup,
-                        "Q{} {} {} {}",
-                        number(c.x),
-                        number(c.y),
-                        number(p.x),
-                        number(p.y)
-                    )
-                }
-                PathSegment::CubicTo(a, b, p) => write!(
-                    self.markup,
-                    "C{} {} {} {} {} {}",
-                    number(a.x),
-                    number(a.y),
-                    number(b.x),
-                    number(b.y),
-                    number(p.x),
-                    number(p.y)
-                ),
-                PathSegment::Close => write!(self.markup, "Z"),
+            };
+            let near: Option<Vec<_>> = points
+                .iter()
+                .flat_map(|p| [(pen.0, p.x), (pen.1, p.y)])
+                .map(|(base, v)| relative(base, v, lands))
+                .collect();
+            let far: Vec<_> = points
+                .iter()
+                .flat_map(|p| [p.x, p.y])
+                .map(|v| absolute(v, lands))
+                .collect();
+            let length =
+                |texts: &[(String, f64)]| texts.iter().map(|(text, _)| text.len()).sum::<usize>();
+            let (command, texts) = match near {
+                Some(near) if length(&near) <= length(&far) => (command, near),
+                _ => (command.to_ascii_uppercase(), far),
+            };
+            if command != run {
+                self.markup.push(command);
+                dotted = None;
             }
-            .expect("a String takes any write");
+            for (text, _) in &texts {
+                let joins =
+                    text.starts_with('-') || (text.starts_with('.') && dotted == Some(true));
+                if dotted.is_some() && !joins {
+                    self.markup.push(' ');
+                }
+                dotted = Some(text.contains('.'));
+                self.markup.push_str(text);
+            }
+            pen = (texts[texts.len() - 2].1, texts[texts.len() - 1].1);
+            run = command;
+            if command.eq_ignore_ascii_case(&'m') {
+                start = pen;
+                run = if command == 'm' { 'l' } else { 'L' };
+            }
         }
     }
 
     pub(crate) fn finish(mut self) -> String {
         self.end_group();
+        if !self.strokes.is_empty() {
+            let root = self.markup.find('>').expect("the root tag closes") + 1;
+            let css: String = self
+                .strokes
+                .iter()
+                .enumerate()
+                .map(|(class, style)| format!(".s{class}{{{style}}}"))
+                .collect();
+            self.markup
+                .insert_str(root, &format!("<style>{css}</style>"));
+        }
         if self.xlink {
             let svg = r#"xmlns="http://www.w3.org/2000/svg""#;
             let xlink = r#" xmlns:xlink="http://www.w3.org/1999/xlink""#;
@@ -570,16 +692,52 @@ fn shifted(opacity: f32, scaled: [i32; 3]) -> [u8; 3] {
     })
 }
 
-fn coordinate(v: f32) -> String {
+const MAX_DELTA_DIGITS: i32 = 12;
+
+fn on_edge(sum: f64, v: f32) -> bool {
     let edge = |v: f32| (v * 256.0) as i32;
-    (0..)
+    edge(sum as f32) == edge(v)
+}
+
+fn exact(sum: f64, v: f32) -> bool {
+    sum as f32 == v
+}
+
+fn relative(base: f64, v: f32, lands: fn(f64, f32) -> bool) -> Option<(String, f64)> {
+    shortest(base, v, lands, MAX_DELTA_DIGITS)
+}
+
+fn absolute(v: f32, lands: fn(f64, f32) -> bool) -> (String, f64) {
+    shortest(0.0, v, lands, i32::from(u8::MAX)).expect("v's own digits land on v")
+}
+
+fn shortest(
+    base: f64,
+    v: f32,
+    lands: fn(f64, f32) -> bool,
+    max_digits: i32,
+) -> Option<(String, f64)> {
+    let delta = f64::from(v) - base;
+    let (text, sum) = (0..=max_digits)
         .flat_map(|digits| {
             let scale = 10f64.powi(digits);
-            let scaled = f64::from(v) * scale;
+            let scaled = delta * scale;
             [scaled.floor(), scaled.ceil()].map(|d| format!("{:.*}", digits as usize, d / scale))
         })
-        .find(|text| edge(text.parse::<f64>().expect("a formatted f64 parses") as f32) == edge(v))
-        .expect("v's own digits land on v's edge")
+        .map(|text| {
+            let sum = base + text.parse::<f64>().expect("a formatted f64 parses");
+            (text, sum)
+        })
+        .find(|&(_, sum)| lands(sum, v))?;
+    let digits = text.trim_start_matches('-').trim_start_matches('0');
+    let text = if digits.chars().all(|c| c == '0' || c == '.') {
+        "0".to_owned()
+    } else if text.starts_with('-') {
+        format!("-{digits}")
+    } else {
+        digits.to_owned()
+    };
+    Some((text, sum))
 }
 
 #[cfg(test)]
@@ -694,7 +852,7 @@ mod tests {
     }
 
     #[test]
-    fn fill_path_writes_each_segment_at_the_shortest_decimal_on_tiny_skias_edge() {
+    fn fill_path_writes_each_segment_relative_or_absolute_whichever_is_shorter() {
         let mut path = PathBuilder::new();
         path.move_to(0.5, 1.0);
         path.line_to(2.0, 1.0 / 3.0);
@@ -705,7 +863,7 @@ mod tests {
         svg.fill_path(&path.finish().unwrap(), [0, 128, 255]);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#0080ff"><path d="M0.5 1L2 0.333Q3 0 4 1C5 2 6 3 7 4Z"/></g>"##
+            r##"<g fill="#0080ff"><path d="m.5 1L2 .333Q3 0 4 1c1 1 2 2 3 3z"/></g>"##
         );
     }
 
@@ -719,7 +877,7 @@ mod tests {
         svg.fill_path(&path.finish().unwrap(), [0, 0, 0]);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#000000"><path d="M0.33333334 -1L2 1Z"/></g>"##
+            r##"<g fill="#000000"><path d="m.33333334-1L2 1z"/></g>"##
         );
     }
 
@@ -738,7 +896,7 @@ mod tests {
         svg.fill_even_odd(&triangle(), [1, 2, 3]);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#010203"><path d="M0 0L4 0L0 3.5Z" fill-rule="evenodd"/></g>"##
+            r##"<g fill="#010203"><path d="m0 0 4 0L0 3.5z" fill-rule="evenodd"/></g>"##
         );
     }
 
@@ -757,7 +915,22 @@ mod tests {
         );
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#010203"><path d="M0.33333334 0L4 0L0 3.5Z" transform="matrix(0 1 -1.5 0 5 0.33333334)"/></g>"##
+            r##"<g fill="#010203"><path d="m.33333334 0L4 0 0 3.5z" transform="matrix(0 1 -1.5 0 5 0.33333334)"/></g>"##
+        );
+    }
+
+    #[test]
+    fn an_identity_fill_transformed_writes_the_plain_snapped_path() {
+        let mut path = PathBuilder::new();
+        path.move_to(2.7612965, 0.0);
+        path.line_to(4.0, 0.0);
+        path.line_to(0.0, 3.5);
+        path.close();
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_transformed(&path.finish().unwrap(), [1, 2, 3], Transform::identity());
+        assert_eq!(
+            body(svg.finish()),
+            r##"<g fill="#010203"><path d="m2.76 0L4 0 0 3.5z"/></g>"##
         );
     }
 
@@ -767,7 +940,35 @@ mod tests {
         svg.stroke(&triangle(), [255, 0, 16], 1.5, Cap::Butt, Join::Miter);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#ff0010"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#ff0010" stroke-width="1.5" stroke-miterlimit="10"/></g>"##
+            r##"<style>.s0{fill:none;stroke:#ff0010;stroke-width:1.5;stroke-miterlimit:10}</style><g fill="#ff0010"><path d="m0 0 4 0L0 3.5z" class="s0"/></g>"##
+        );
+    }
+
+    #[test]
+    fn strokes_share_a_class_per_paint_and_ride_in_the_open_smooth_group() {
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_path(&triangle(), [1, 2, 3]);
+        svg.stroke(&triangle(), [255, 0, 16], 1.5, Cap::Round, Join::Round);
+        svg.stroke(&triangle(), [0, 0, 0], 1.5, Cap::Round, Join::Round);
+        svg.stroke(&triangle(), [255, 0, 16], 1.5, Cap::Round, Join::Round);
+        svg.fill_rect(0, 0, 1, 1, [1, 2, 3]);
+        svg.stroke(&triangle(), [0, 0, 0], 1.5, Cap::Round, Join::Round);
+        let round = "stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round";
+        let path = |class| format!(r#"<path d="m0 0 4 0L0 3.5z" class="s{class}"/>"#);
+        assert_eq!(
+            body(svg.finish()),
+            [
+                format!("<style>.s0{{fill:none;stroke:#ff0010;{round}}}.s1{{fill:none;stroke:#000000;{round}}}</style>"),
+                r##"<g fill="#010203"><path d="m0 0 4 0L0 3.5z"/>"##.to_owned(),
+                path(0),
+                path(1),
+                path(0),
+                r##"</g><g fill="#010203" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1"/></g>"##.to_owned(),
+                r##"<g fill="#000000">"##.to_owned(),
+                path(1),
+                "</g>".to_owned(),
+            ]
+            .concat()
         );
     }
 
@@ -777,7 +978,7 @@ mod tests {
         svg.stroke(&triangle(), [0, 0, 0], 0.25, Cap::Round, Join::Round);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#000000"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#000000" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/></g>"##
+            r##"<style>.s0{fill:none;stroke:#000000;stroke-width:0.25;stroke-linecap:round;stroke-linejoin:round}</style><g fill="#000000"><path d="m0 0 4 0L0 3.5z" class="s0"/></g>"##
         );
     }
 
@@ -794,7 +995,7 @@ mod tests {
             Cap::Butt,
             Join::Round,
         );
-        assert!(body(svg.finish()).contains(r#"d="M0.33333334 1L2 1""#));
+        assert!(body(svg.finish()).contains(r#"d="m.33333334 1L2 1""#));
     }
 
     #[test]
@@ -839,10 +1040,11 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             [
+                r##"<style>.s0{fill:none;stroke:#000000;stroke-width:1;stroke-opacity:0.8500;stroke-miterlimit:10}</style>"##,
                 r##"<g fill="#000000"><rect width="9" height="9" fill-opacity="0.8500"/></g>"##,
                 r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="1" y="2" width="3" height="4" fill-opacity="0.8500"/></g>"##,
-                r##"<g fill="#000000"><path d="M0 0L4 0L0 3.5Z" fill-opacity="0.8500"/>"##,
-                r##"<path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#000000" stroke-width="1" stroke-opacity="0.8500" stroke-miterlimit="10"/></g>"##,
+                r##"<g fill="#000000"><path d="m0 0 4 0L0 3.5z" fill-opacity="0.8500"/>"##,
+                r#"<path d="m0 0 4 0L0 3.5z" class="s0"/></g>"#,
                 r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1"/></g>"##,
             ]
             .concat()
@@ -858,7 +1060,8 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             [
-                r##"<g fill="#1c1c1c"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#1c1c1c" stroke-width="1" stroke-opacity="0.3900" stroke-miterlimit="10"/></g>"##,
+                r##"<style>.s0{fill:none;stroke:#1c1c1c;stroke-width:1;stroke-opacity:0.3900;stroke-miterlimit:10}</style>"##,
+                r##"<g fill="#1c1c1c"><path d="m0 0 4 0L0 3.5z" class="s0"/></g>"##,
                 r##"<g fill="#1c1c1c" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1" fill-opacity="0.3900"/></g>"##,
             ]
             .concat()
@@ -872,7 +1075,7 @@ mod tests {
         svg.stroke(&triangle(), [217, 212, 199], 0.594, Cap::Butt, Join::Miter);
         assert_eq!(
             body(svg.finish()),
-            r##"<g fill="#d9d5c6"><path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#d9d5c6" stroke-width="0.594" stroke-opacity="0.8078" stroke-miterlimit="10"/></g>"##
+            r##"<style>.s0{fill:none;stroke:#d9d5c6;stroke-width:0.594;stroke-opacity:0.8078;stroke-miterlimit:10}</style><g fill="#d9d5c6"><path d="m0 0 4 0L0 3.5z" class="s0"/></g>"##
         );
     }
 
@@ -918,6 +1121,8 @@ mod tests {
         assert_eq!(
             body(svg.finish()),
             [
+                r#"<style>.s0{fill:none;stroke:#010203;stroke-width:1;stroke-miterlimit:10}"#,
+                r#".s1{fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:10}</style>"#,
                 r##"<g fill="#010203" shape-rendering="crispEdges">"##,
                 blend,
                 r#"<rect x="0" y="0" width="1" height="1"/></g>"#,
@@ -925,15 +1130,15 @@ mod tests {
                 r#"<rect x="1" y="0" width="1" height="1"/></g></g>"#,
                 r##"<g fill="#010203">"##,
                 blend,
-                r##"<path d="M0 0L4 0L0 3.5Z" fill="none" stroke="#010203" stroke-width="1" stroke-miterlimit="10"/></g></g>"##,
+                r#"<path d="m0 0 4 0L0 3.5z" class="s0"/></g></g>"#,
                 r##"<g fill="#ffffff" shape-rendering="crispEdges">"##,
                 blend,
                 r##"<rect x="0" y="0" width="1" height="1" fill="#fefefe" fill-opacity="0.4980"/></g></g>"##,
                 r##"<g fill="#000000">"##,
                 blend,
-                r##"<path d="M0 1.5L4 1.5" fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10"/></g>"##,
+                r#"<path d="m0 1.5 4 0" class="s1"/></g>"#,
                 blend,
-                r##"<path d="M1.5 0L1.5 4" fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10"/></g></g>"##,
+                r#"<path d="m1.5 0 0 4" class="s1"/></g></g>"#,
                 r##"<g fill="#010203" shape-rendering="crispEdges"><rect x="2" y="0" width="1" height="1"/></g>"##,
             ]
             .concat()
@@ -954,9 +1159,9 @@ mod tests {
             [
                 r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1"/></g>"##,
                 r#"<filter id="frame" filterUnits="userSpaceOnUse" x="0" y="0" width="9" height="9" color-interpolation-filters="sRGB"><feOffset/></filter>"#,
-                r#"<clipPath id="c0"><path d="M0 0L4 0L0 3.5Z"/></clipPath>"#,
+                r#"<clipPath id="c0"><path d="m0 0 4 0L0 3.5z"/></clipPath>"#,
                 r##"<g fill="#000000" shape-rendering="crispEdges"><g clip-path="url(#c0)" filter="url(#frame)"><rect x="1" y="0" width="1" height="1"/></g></g>"##,
-                r##"<g fill="#000000"><g clip-path="url(#c0)" filter="url(#frame)"><path d="M0 0L4 0L0 3.5Z"/></g></g>"##,
+                r##"<g fill="#000000"><g clip-path="url(#c0)" filter="url(#frame)"><path d="m0 0 4 0L0 3.5z"/></g></g>"##,
                 r##"<g fill="#000000" shape-rendering="crispEdges"><rect x="2" y="0" width="1" height="1"/></g>"##,
             ]
             .concat()
@@ -977,21 +1182,17 @@ mod tests {
         svg.stroke(&cross, [0, 0, 0], 1.5, Cap::Butt, Join::Miter);
         svg.pop_clip();
         let clip = r#"<g clip-path="url(#c0)" filter="url(#frame)">"#;
-        let stroke = |d: &str, width: &str| {
-            format!(
-                r##"<path d="{d}" fill="none" stroke="#000000" stroke-width="{width}" stroke-miterlimit="10"/></g>"##
-            )
-        };
+        let stroke = |d: &str, class: u8| format!(r#"<path d="{d}" class="s{class}"/></g>"#);
         assert!(
             body(svg.finish()).ends_with(
                 &[
                     r##"<g fill="#000000">"##.to_owned(),
                     clip.to_owned(),
-                    stroke("M0 1.5L4 1.5", "1"),
+                    stroke("m0 1.5 4 0", 0),
                     clip.to_owned(),
-                    stroke("M1.5 0L1.5 4", "1"),
+                    stroke("m1.5 0 0 4", 0),
                     clip.to_owned(),
-                    stroke("M0 1.5L4 1.5M1.5 0L1.5 4", "1.5"),
+                    stroke("m0 1.5 4 0M1.5 0l0 4", 1),
                     "</g>".to_owned(),
                 ]
                 .concat()
@@ -1015,8 +1216,8 @@ mod tests {
             body(svg.finish()),
             [
                 r#"<filter id="frame" filterUnits="userSpaceOnUse" x="0" y="0" width="9" height="9" color-interpolation-filters="sRGB"><feOffset/></filter>"#,
-                r#"<clipPath id="c0"><path d="M0 0L4 0L0 3.5Z"/></clipPath>"#,
-                r#"<clipPath id="c1" clip-path="url(#c0)"><path d="M0 0L4 0L0 3.5Z" transform="matrix(0 1 -1.5 0 5 0.33333334)"/></clipPath>"#,
+                r#"<clipPath id="c0"><path d="m0 0 4 0L0 3.5z"/></clipPath>"#,
+                r#"<clipPath id="c1" clip-path="url(#c0)"><path d="m0 0 4 0L0 3.5z" transform="matrix(0 1 -1.5 0 5 0.33333334)"/></clipPath>"#,
                 r##"<g fill="#010203"><g clip-path="url(#c1)" filter="url(#frame)"><rect width="9" height="9"/></g>"##,
                 r#"<g clip-path="url(#c0)" filter="url(#frame)"><rect width="9" height="9"/></g></g>"#,
             ]
@@ -1093,11 +1294,125 @@ mod tests {
     }
 
     #[test]
-    fn a_coordinate_takes_the_fewest_digits_that_keep_its_256th_of_a_pixel() {
-        assert_eq!(super::coordinate(2.7612965), "2.76");
-        assert_eq!(super::coordinate(0.95035976), "0.95");
-        assert_eq!(super::coordinate(12.0), "12");
-        assert_eq!(super::coordinate(0.0039), "0");
-        assert_eq!(super::coordinate(0.004), "0.004");
+    fn a_fill_or_stroke_that_misses_the_frame_writes_nothing() {
+        let mut far = PathBuilder::new();
+        far.move_to(-4.0, 1.0);
+        far.line_to(-2.0, 1.0);
+        far.line_to(-2.0, 3.0);
+        far.close();
+        let far = far.finish().unwrap();
+        let mut svg = SvgWriter::new(9, 9);
+        svg.fill_path(&far, [0, 0, 0]);
+        svg.fill_transformed(&far, [0, 0, 0], Transform::from_translate(0.0, 20.0));
+        svg.stroke(&far, [0, 0, 0], 1.0, Cap::Round, Join::Round);
+        assert_eq!(body(svg.finish()), "");
+    }
+
+    #[test]
+    fn a_hairline_whose_anti_aliased_pixel_reaches_the_frame_is_kept() {
+        let mut line = PathBuilder::new();
+        line.move_to(1.0, -0.3);
+        line.line_to(5.0, -0.3);
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(
+            &line.finish().unwrap(),
+            [0, 0, 0],
+            0.25,
+            Cap::Round,
+            Join::Round,
+        );
+        assert!(body(svg.finish()).contains("<path"));
+    }
+
+    #[test]
+    fn a_stroke_whose_width_reaches_the_frame_is_kept() {
+        let mut near = PathBuilder::new();
+        near.move_to(-0.5, 1.0);
+        near.line_to(-0.5, 3.0);
+        let near = near.finish().unwrap();
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(&near, [0, 0, 0], 2.0, Cap::Butt, Join::Round);
+        svg.stroke(&near, [0, 0, 0], 1.0, Cap::Butt, Join::Miter);
+        assert!(body(svg.finish()).contains("<path"));
+    }
+
+    #[test]
+    fn a_stroke_around_the_frame_whose_every_segment_misses_it_writes_nothing() {
+        let mut corner = PathBuilder::new();
+        corner.move_to(-10.0, -10.0);
+        corner.line_to(20.0, -10.0);
+        corner.line_to(20.0, 20.0);
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(
+            &corner.finish().unwrap(),
+            [0, 0, 0],
+            1.0,
+            Cap::Round,
+            Join::Round,
+        );
+        assert_eq!(body(svg.finish()), "");
+    }
+
+    #[test]
+    fn a_stroke_drops_runs_past_the_frame_but_keeps_one_segment_beyond_each_seen_one() {
+        let mut path = PathBuilder::new();
+        path.move_to(1.0, 1.0);
+        for (x, y) in [
+            (5.0, 1.0),
+            (20.0, 1.0),
+            (30.0, 1.0),
+            (40.0, 1.0),
+            (30.0, 2.0),
+            (20.0, 2.0),
+            (5.0, 2.0),
+        ] {
+            path.line_to(x, y);
+        }
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(
+            &path.finish().unwrap(),
+            [0, 0, 0],
+            1.0,
+            Cap::Round,
+            Join::Round,
+        );
+        assert!(body(svg.finish()).contains(r#"d="m1 1 4 0 15 0 10 0m0 1L20 2 5 2""#));
+    }
+
+    #[test]
+    fn a_delta_takes_the_fewest_digits_whose_sum_keeps_its_256th_of_a_pixel() {
+        let text = |base, v| super::relative(base, v, super::on_edge).unwrap().0;
+        assert_eq!(text(0.0, 2.7612965), "2.76");
+        assert_eq!(text(0.0, 0.95035976), ".95");
+        assert_eq!(text(0.0, 0.0039), "0");
+        assert_eq!(text(10.0, 12.0), "2");
+        assert_eq!(text(12.5, 12.0), "-.5");
+    }
+
+    #[test]
+    fn an_exact_delta_sums_in_f64_back_to_its_f32_as_svgtypes_does() {
+        let (text, sum) = super::relative(1.0, 1.0 / 3.0, super::exact).unwrap();
+        assert_eq!((1.0 + text.parse::<f64>().unwrap()) as f32, 1.0 / 3.0);
+        assert_eq!(sum as f32, 1.0 / 3.0);
+    }
+
+    #[test]
+    fn a_point_past_f64_reach_of_the_pen_is_written_absolute() {
+        assert_eq!(
+            super::relative(-11.394995999999988, 1.5347724e-14, super::exact),
+            None
+        );
+        let mut path = PathBuilder::new();
+        path.move_to(-11.394996, 1.0);
+        path.line_to(1.5347724e-14, 1.0);
+        let mut svg = SvgWriter::new(9, 9);
+        svg.stroke(
+            &path.finish().unwrap(),
+            [0, 0, 0],
+            1.0,
+            Cap::Butt,
+            Join::Round,
+        );
+        assert!(body(svg.finish()).contains(r#"d="m-11.394996 1L.000000000000015347723 1""#));
     }
 }
