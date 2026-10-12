@@ -432,7 +432,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let culture = concat!(
-        r#"{"slug":"culture","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"culture","frames":36,"svg":false,"params":["#,
         r#"{"id":"count","kind":"range","min":1.0,"max":90.0,"step":1.0},"#,
         r#"{"id":"size","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"fuse","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -908,7 +908,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
     assert!(listing.contains("\nwhorl  36 frames\n"), "{listing}");
     assert!(listing.contains("\nsear  1 frame\n"), "{listing}");
-    assert!(listing.contains("\nculture  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nculture  36 frames\n"), "{listing}");
     assert!(listing.contains("\nmosh  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nbloom  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nweave  120 frames, svg\n"), "{listing}");

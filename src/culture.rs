@@ -1,3 +1,5 @@
+use std::f64::consts::TAU;
+
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{
@@ -9,11 +11,12 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "culture";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 3] = ["#f6d8b0", "#e4572e", "#17bebb"];
+const AMOUNT: f64 = 0.6;
 
 const COUNT: Param = Param {
     taste: (15, 70),
@@ -284,9 +287,10 @@ pub(crate) fn render(
     params: &CultureParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
@@ -296,7 +300,7 @@ struct Plate {
     height: usize,
 }
 
-fn plate(params: &CultureParams, tool_seed: u32, aspect: f64) -> Plate {
+fn plate(params: &CultureParams, tool_seed: u32, aspect: f64, drift: Option<f64>) -> Plate {
     let width = if aspect > 1.0 {
         round_half_up(560.0 / aspect).max(8.0)
     } else {
@@ -308,10 +312,15 @@ fn plate(params: &CultureParams, tool_seed: u32, aspect: f64) -> Plate {
     let base =
         (0.05 + params.size * 0.20) * (0.75 + params.fuse * 0.8) * (width * height).sqrt() * 0.87;
     for _ in 0..params.count.max(1) {
-        let cx = (-0.15 + rng.next() * 1.3) * width;
-        let cy = (-0.15 + rng.next() * 1.3) * height;
-        rng.next();
+        let mut cx = (-0.15 + rng.next() * 1.3) * width;
+        let mut cy = (-0.15 + rng.next() * 1.3) * height;
+        let wob = rng.next() * TAU;
         let r = base * (0.55 + rng.next() * 0.9);
+        if let Some(t) = drift {
+            let (ph, reach) = (TAU * t, AMOUNT * 0.05);
+            cx += (ph + wob).cos() * reach * width;
+            cy += (ph + wob * 1.7).sin() * reach * width;
+        }
         let x0 = (cx - r).floor().max(0.0);
         let x1 = (cx + r).ceil().min(width - 1.0);
         let y0 = (cy - r).floor().max(0.0);
@@ -355,7 +364,13 @@ fn rings(n: usize, cover: f64, spread: f64) -> Vec<f64> {
     th
 }
 
-fn paint(surface: &mut Surface, params: &CultureParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &CultureParams,
+    palette: &Palette,
+    tool_seed: u32,
+    drift: Option<f64>,
+) {
     let (w, h) = (surface.width(), surface.height());
     let (wf, hf) = (f64::from(w), f64::from(h));
     let seed = tool_seed as i32;
@@ -365,7 +380,7 @@ fn paint(surface: &mut Surface, params: &CultureParams, palette: &Palette, tool_
         field,
         width: fw,
         height: fh,
-    } = plate(params, tool_seed, hf / wf);
+    } = plate(params, tool_seed, hf / wf, drift);
     let th = rings(n, params.cover, params.spread);
     let soft = params.soft.max(0.001);
     let gq = params.grain * 1.05;

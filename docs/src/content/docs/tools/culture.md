@@ -22,7 +22,7 @@ tirage derive --seed 14 --tool culture | tirage render --size 540x960 -o culture
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-culture  1 frame
+culture  36 frames
   count       1..=90    step 1
   size        0..=1     step 0.01
   fuse        0..=1     step 0.01

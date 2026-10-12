@@ -103,6 +103,7 @@ mod tests {
         Tool::Rise,
         Tool::Prism,
         Tool::Filament,
+        Tool::Culture,
     ];
 
     #[test]

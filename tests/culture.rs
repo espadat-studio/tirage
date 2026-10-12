@@ -1,4 +1,4 @@
-use tirage::{CultureParams, CultureTexture, Frame, Params, Recipe, Tool, ToolPin, derive};
+use tirage::{CultureParams, CultureTexture, Frame, Params, Recipe, Tool, ToolPin, derive, render};
 
 const CULTURE: ToolPin = ToolPin::Tool(Tool::Culture);
 
@@ -65,13 +65,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn culture_is_a_still() {
-    assert_eq!(Tool::Culture.frames(), 1);
+fn culture_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Culture.frames(), Tool::Culture.fps()), (36, 12));
     let recipe = derive(7, CULTURE);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 36)),
+        "frame 36 is outside 0..36"
     );
+}
+
+#[test]
+fn drift_moves_the_colonies_off_the_still_at_frame_0_and_on_later() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, CULTURE);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() != frame(0).rgba(), "seed {seed}");
+        assert!(frame(0).rgba() != frame(18).rgba(), "seed {seed}");
+    }
 }
 
 #[test]
