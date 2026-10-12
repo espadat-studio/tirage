@@ -766,7 +766,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"break","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let optic = concat!(
-        r#"{"slug":"optic","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"optic","frames":72,"svg":true,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Diamond","Circle","Peak","Square"]},"#,
         r#"{"id":"count","kind":"range","min":6.0,"max":28.0,"step":1.0},"#,
         r#"{"id":"weight","kind":"range","min":0.3,"max":0.7,"step":0.01},"#,
@@ -894,7 +894,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nprism  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nparcel  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\ntokens  36 frames, svg\n"), "{listing}");
-    assert!(listing.contains("\noptic  1 frame, svg\n"), "{listing}");
+    assert!(listing.contains("\noptic  72 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nvee  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nsampler  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\ntotem  24 frames, svg\n"), "{listing}");

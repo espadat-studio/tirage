@@ -10,7 +10,7 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "optic";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 72;
 pub(crate) const FPS: u32 = 12;
 const INKS: usize = 2;
 pub(crate) const MAX_INKS: Option<usize> = Some(INKS);
@@ -230,9 +230,9 @@ pub(crate) fn render(
     params: &OpticParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    paint(surface, params, palette, tool_seed, t);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -297,13 +297,20 @@ fn outline(figure: Figure, cx: f64, cy: f64, s: f64) -> Path2D {
     path
 }
 
-fn paint(surface: &mut Surface, p: &OpticParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    p: &OpticParams,
+    palette: &Palette,
+    tool_seed: u32,
+    t: Option<u32>,
+) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let (cx, cy) = (w / 2.0, h / 2.0);
     let md = w.min(h);
     let period = md / f64::from(p.count);
     let bar = period * p.weight;
     let reach = w.hypot(h) / 2.0 + period * (LAP + 2.0);
+    let off = t.map_or(0.0, |t| f64::from(t) / f64::from(FRAMES)) * LAP * period;
     let (base, ink) = (palette.ink(0), palette.ink(1));
     let bars = |surface: &mut Surface, turn: f64, phase: f64| {
         let first = ((-reach - phase - bar) / period).ceil() as i64;
@@ -325,15 +332,16 @@ fn paint(surface: &mut Surface, p: &OpticParams, palette: &Palette, tool_seed: u
     };
     let (figure, moves) = plan(p, tool_seed);
     surface.fill(base);
-    bars(surface, 0.0, 0.0);
+    bars(surface, 0.0, off);
     for (i, (turn, phase)) in moves.into_iter().enumerate() {
         let s = p.size_f * md / 2.0 * SIZES[i];
+        let dir = if i % 2 == 1 { 1.0 } else { -1.0 };
         surface.with_clip(
             &outline(figure, cx, cy, s),
             Transform::IDENTITY,
             |surface| {
                 surface.fill(base);
-                bars(surface, turn, phase * period);
+                bars(surface, turn, phase * period + dir * off);
             },
         );
     }
