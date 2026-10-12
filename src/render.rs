@@ -111,6 +111,11 @@ mod tests {
         Tool::Parcel,
         Tool::Chaff,
         Tool::Strand,
+        Tool::Vein,
+        Tool::Aura,
+        Tool::Benday,
+        Tool::Stitch,
+        Tool::Mist,
     ];
 
     #[test]

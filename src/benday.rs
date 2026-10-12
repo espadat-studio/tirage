@@ -1,4 +1,4 @@
-use std::f64::consts::PI;
+use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
@@ -9,8 +9,8 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "benday";
-pub(crate) const FRAMES: u32 = 1;
-pub(crate) const FPS: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
+pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 8] = [
@@ -294,19 +294,27 @@ pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> BendayParams {
 const PAPER: [f64; 3] = [244.0, 241.0, 232.0];
 const DOT_MIN: f64 = 0.13;
 const DOT_MAX: f64 = 0.7;
+const AMOUNT: f64 = 0.6;
 
 pub(crate) fn render(
     surface: &mut Surface,
     params: &BendayParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
-fn paint(surface: &mut Surface, params: &BendayParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &BendayParams,
+    palette: &Palette,
+    tool_seed: u32,
+    drift: Option<f64>,
+) {
     let inks: Vec<[f64; 3]> = palette
         .inks()
         .iter()
@@ -335,6 +343,10 @@ fn paint(surface: &mut Surface, params: &BendayParams, palette: &Palette, tool_s
     let (ca, sa) = (aa.cos(), aa.sin());
     let gamma = 1.0 / (0.45 + params.bite * 1.4);
     let core = params.ring * 0.8;
+    let (ox, oy) = drift.map_or((0.0, 0.0), |t| {
+        let (ph, reach) = (TAU * t, AMOUNT * 0.5);
+        (ph.cos() * reach, ph.sin() * reach)
+    });
 
     surface.edit_rgba(|rgba, width, _| {
         for (y, row) in rgba.chunks_exact_mut(width as usize * 4).enumerate() {
@@ -345,12 +357,12 @@ fn paint(surface: &mut Surface, params: &BendayParams, palette: &Palette, tool_s
                 let u0 = (x - w * 0.5) / sc;
                 let ru = (u0 * cd + v0 * sd) / stretch;
                 let rv = -u0 * sd + v0 * cd;
-                let q1 = value_noise(ru * 1.5 + 3.1, rv * 1.5 + 7.7, seed(1));
-                let q2 = value_noise(ru * 1.5 + 9.2, rv * 1.5 + 1.3, seed(2));
+                let q1 = value_noise(ru * 1.5 + 3.1 + ox, rv * 1.5 + 7.7 + oy, seed(1));
+                let q2 = value_noise(ru * 1.5 + 9.2 - oy, rv * 1.5 + 1.3 + ox, seed(2));
                 let wu = ru + params.turb * (q1 - 0.5) * 3.0;
                 let wv = rv + params.turb * (q2 - 0.5) * 3.0;
-                let m = value_noise(wu * 2.0, wv * 2.0, seed(3)) * 0.65
-                    + value_noise(wu * 4.7, wv * 4.7, seed(4)) * 0.35;
+                let m = value_noise(wu * 2.0 + ox, wv * 2.0 + oy, seed(3)) * 0.65
+                    + value_noise(wu * 4.7 + ox * 2.0, wv * 4.7 + oy * 2.0, seed(4)) * 0.35;
                 let val = (m - 0.5) * 1.9 + 0.5;
                 let (b, mut c) = if val < black {
                     (0.0, inks[0])

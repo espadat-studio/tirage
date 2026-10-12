@@ -15,7 +15,7 @@ Site control ids, slider ranges and site defaults:
 | `churn`  | 0..1                      | 0.01 | 1       | how hard a second field warps the first  |
 | `punch`  | 0..1                      | 0.01 | 1       | how sharply the strongest ink takes over |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. aura is a Still Tool: one frame, motion stays off and is not a Parameter. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. Default Palette: `#ff8a5b #ffc15e #f4a7d6 #8e7cff`.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the flow offset is 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default. Default Palette: `#ff8a5b #ffc15e #f4a7d6 #8e7cff`.
 
 The site has 4 ink swatches, and every swatch takes part. A Palette of more than 4 inks is refused, since the site's "My colors" would keep only the first 4. A shorter Palette wraps by position. The site fills those slots with derived tints instead, so a Palette under 4 inks does not replay on the site.
 
@@ -78,6 +78,21 @@ Inks mix in squared space, so blends stay bright instead of muddy:
 - Each ink channel `c` (0..255) is squared.
 - A pixel's channel is the weighted mean of the squared inks, `Σ w·c² / Σ w`, summed in ink order, then square-rooted.
 - It is stored as a byte, clamped and rounded half to even. Alpha is opaque.
+
+## Motion
+
+The site has two motion modes: Flow and Pulse. Flow is the default and the only one ported: amount 0.8, 72 frames at 12 fps.
+
+- Frame `f` sits at `T = f / frames`, and the walk radius is `r = 0.5 amount = 0.4` noise units.
+- The warped point walks round a circle in noise space: `(zx, zy) = (cos 2πT, sin 2πT) r` is added to `(wx, wy)` after the warp, before the ink fields read it. The warp noise itself does not move.
+- Every ink's field reads the shifted point, so all the colour blots slide together across the fixed warp. In Mesh and Sweep the shifted point also moves each ink's centre and gradient line relative to the picture.
+- Nothing else moves. The random draws, the style, the ink offsets and the buffer size hold.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the offset has period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` the point sits `r` along `x` from its Still place, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 36: half a lap, the point `2r` from where it is at frame 0, as far as the Loop takes it.
+- A Loop frame uses the same 700 px budget as the Still: the PNG export draws the scrubbed frame at 700. The smaller budget the preview uses while playing is ignored.
+- Pulse zooms the field in and out. It is not ported and is not reachable from a Recipe.
 
 ## Fidelity notes
 

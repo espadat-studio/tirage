@@ -11,13 +11,14 @@ use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "vein";
-pub(crate) const FRAMES: u32 = 1;
+pub(crate) const FRAMES: u32 = 36;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
 const DEFAULT_PALETTE: [&str; 8] = [
     "#0e1a2b", "#2e63b8", "#7fa8e0", "#e9dcc3", "#f2892b", "#e0362f", "#2fa39a", "#8b5a2b",
 ];
+const AMOUNT: f64 = 0.6;
 
 const SCALE: Param = Param {
     taste: (25, 75),
@@ -417,13 +418,20 @@ pub(crate) fn render(
     params: &VeinParams,
     palette: &Palette,
     tool_seed: u32,
-    _t: Option<u32>,
+    t: Option<u32>,
 ) {
-    paint(surface, params, palette, tool_seed);
+    let drift = t.map(|t| f64::from(t) / f64::from(FRAMES));
+    paint(surface, params, palette, tool_seed, drift);
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
-fn paint(surface: &mut Surface, params: &VeinParams, palette: &Palette, tool_seed: u32) {
+fn paint(
+    surface: &mut Surface,
+    params: &VeinParams,
+    palette: &Palette,
+    tool_seed: u32,
+    drift: Option<f64>,
+) {
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let unit = (width * height).sqrt();
     let inks = palette.len();
@@ -437,12 +445,17 @@ fn paint(surface: &mut Surface, params: &VeinParams, palette: &Palette, tool_see
     let centre_y = (0.3 + stream.next() * 0.4) * height / unit;
     let frequency = 0.6 + params.scale * 1.6;
     let curve = params.curve;
+    let (ox, oy) = drift.map_or((0.0, 0.0), |t| {
+        let (ph, reach) = (TAU * t, AMOUNT * 0.25);
+        (ph.cos() * reach, ph.sin() * reach)
+    });
 
     let field = |u: f64, v: f64| {
+        let (su, sv) = (u * 1.3, v * 1.3);
         let wu =
-            u + curve * 0.55 * (value_noise(u * 1.3 + 3.0, v * 1.3 + 1.0, warp_seed) - 0.5) * 2.0;
+            u + curve * 0.55 * (value_noise(su + ox + 3.0, sv + oy + 1.0, warp_seed) - 0.5) * 2.0;
         let wv =
-            v + curve * 0.55 * (value_noise(u * 1.3 + 8.0, v * 1.3 + 5.0, warp_seed) - 0.5) * 2.0;
+            v + curve * 0.55 * (value_noise(su + oy + 8.0, sv + ox + 5.0, warp_seed) - 0.5) * 2.0;
         let detail = |k: f64, x: f64, y: f64| {
             value_noise(wu * k * frequency + x, wv * k * frequency + y, detail_seed)
         };

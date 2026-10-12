@@ -1,11 +1,11 @@
 ---
 title: "mist"
-description: "A neon spray over a soft pastel ground. It renders a Still."
+description: "A neon spray over a soft pastel ground. It renders a Loop of 72 frames at 12 fps, the curtain and the ground drifting round circles."
 ---
 
 A neon spray over a soft pastel ground. Three ground inks blot into each other, then a curtain of tall, ragged streaks in the first ink bleeds over them. The field is painted on a small buffer with a fine grain and scaled up smooth.
 
-mist renders a Still: one frame. Its site page is [playgrnd.tools/mist](https://www.playgrnd.tools/mist/).
+mist renders a Loop: 72 frames at 12 fps, in which the neon curtain sways once round a circle while the ground blots drift round a smaller one beneath it. The grain holds still. Both layers are already shifted at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/mist](https://www.playgrnd.tools/mist/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 6 --tool mist | tirage render --size 540x960 -o mist.png
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-mist  1 frame
+mist  72 frames
   streaks     0.4..=2   step 0.05
   cover       0.2..=0.85 step 0.01
   soft        0.1..=1   step 0.01

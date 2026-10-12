@@ -1,4 +1,4 @@
-use tirage::{Frame, MistParams, Palette, Params, Recipe, Tool, ToolPin, derive};
+use tirage::{Frame, MistParams, Palette, Params, Recipe, Tool, ToolPin, derive, render};
 
 const MIST: ToolPin = ToolPin::Tool(Tool::Mist);
 
@@ -53,13 +53,24 @@ fn every_draw_is_inside_taste_bounds_and_on_the_slider_grid() {
 }
 
 #[test]
-fn mist_is_a_still() {
-    assert_eq!(Tool::Mist.frames(), 1);
+fn mist_loops_at_its_site_default_motion() {
+    assert_eq!((Tool::Mist.frames(), Tool::Mist.fps()), (72, 12));
     let recipe = derive(7, MIST);
     assert_eq!(
-        error(Frame::new(&recipe, 540, 960, 1)),
-        "frame 1 is outside 0..1"
+        error(Frame::new(&recipe, 540, 960, 72)),
+        "frame 72 is outside 0..72"
     );
+}
+
+#[test]
+fn bleed_moves_the_layers_off_the_still_at_frame_0_and_on_later() {
+    for seed in 1..=3 {
+        let recipe = derive(seed, MIST);
+        let still = render(&recipe, &Frame::still(270, 480).unwrap());
+        let frame = |t| render(&recipe, &Frame::new(&recipe, 270, 480, t).unwrap());
+        assert!(still.rgba() != frame(0).rgba(), "seed {seed}");
+        assert!(frame(0).rgba() != frame(36).rgba(), "seed {seed}");
+    }
 }
 
 #[test]

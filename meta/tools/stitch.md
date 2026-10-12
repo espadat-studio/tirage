@@ -22,7 +22,7 @@ Site control ids, slider ranges and site defaults:
 | `ground`   | 0..1   | 0.01 | 0.35    | share of the levels that take ink 0          |
 | `stray`    | 0..1   | 0.01 | 0.3     | how many cells take a random ink             |
 
-Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. stitch is a Still Tool: only frame 0 is rendered, and with motion off the drift offsets are 0, the slip factor is 1 and the flicker term is 0. Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
+Motion (`modes`, `amt`, `fps`, `frames`) is off by default and not part of a Still. With motion off the drift offsets are 0, the slip factor is 1 and the flicker term is 0. The Loop turns motion on at site defaults, and motion is not a Parameter. See [Motion](#motion). Grain and dither are the shared [chassis](chassis.md) post-passes, off by default.
 
 Default Palette, 6 inks: `#111111 #f6f23a #f01fd0 #62f19e #f5532b #ded7eb`. Inks go by position: ink 0 is the ground, ink 1 the accent, inks 2 and up the middle inks. The gutter is the darkest ink by luma. Any number of inks from 2 works. The site deals the sliders from the Tool seed, but not the Palette; we do not port that deal.
 
@@ -64,6 +64,22 @@ The frame is first filled with the gutter ink. Then each row `j` and cell `i`:
 5. When `noise(kb i / cols' + 11, kb (H / W) j / rows + 5, 7 s + 4)` is above the blob threshold, the ink is the accent.
 6. `h = hash(i, j, s + 9)`. When `h` is below the stray share, the ink is `floor(h / share n) mod n`.
 7. Fill the cell from `(round(i cw) + G, round(j ch) + G)` to `(round((i + 1) cw), round((j + 1) ch))`, without anti-aliasing, when both sides are positive.
+
+## Motion
+
+The site has three motion modes: Drift, Slip and Flicker. Drift is the default and the only one ported: amount 0.6, 36 frames at 12 fps. The site's `fps` is 12, so the port's FPS moves from 1 to 12.
+
+- Frame `f` sits at `T = f / frames`, `ph = 2π T`, and the walk radius is `r = 0.6 amount = 0.36` noise units, with `(dx, dy) = (cos ph, sin ph) r`.
+- The three noise reads walk round circles in their own space, each offset added after the read's scale and before its fixed offset:
+  - The base field reads at `(kx u + dx, ky v + dy)`.
+  - The stripe field reads at `(6 kx u + 2dx + 7, 1.5 ky v + dy + 3)`: twice the reach across, the same down.
+  - The blob mask reads at `(kb i / cols' + dx / 2 + 11, kb (H / W) j / rows + dy / 2 + 5)`: half the reach, so the blobs move slowest.
+- The grid holds: cells, gutters, band slips and the stray cells stay put. Only which ink each cell takes changes, so the inks flow through a fixed weave.
+- The walk runs one lap over the Loop, whatever the amount. The amount only sets the radius.
+- The Loop closes because the offsets have period 1 in `T`: frame `frames` is frame 0.
+- At `f = 0` every read sits shifted along its first axis from its Still place, so frame 0 is not the Still and gets a reference export of its own.
+- The mid frame is 18: half a lap, every read twice its reach from where it is at frame 0, as far as the Loop takes it.
+- Slip rocks the band offsets and Flicker re-deals the stray cells every frame. Neither is ported. They are not reachable from a Recipe.
 
 ## Fidelity notes
 

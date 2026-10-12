@@ -1,11 +1,11 @@
 ---
 title: "stitch"
-description: "A coarse pixel grid torn sideways like a glitched video frame. It renders a Still."
+description: "A coarse pixel grid torn sideways like a glitched video frame. It renders a Loop of 36 frames at 12 fps, the inks drifting round a circle through a fixed grid."
 ---
 
 A coarse grid of flat cells with dark gutters, over a noise field smeared into long vertical streaks. Whole rows of cells slip sideways in bands, the way a glitched video frame tears. An accent ink pools into blobs, and a few stray cells take a random ink.
 
-stitch renders a Still: one frame. Its site page is [playgrnd.tools/stitch](https://www.playgrnd.tools/stitch/).
+stitch renders a Loop: 36 frames at 12 fps, in which the streaked field and the accent blobs drift once round a small circle. The grid, its torn rows and the stray cells hold still, so only the ink of each cell changes. The field is already shifted at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/stitch](https://www.playgrnd.tools/stitch/).
 
 ## Still
 
@@ -22,7 +22,7 @@ tirage derive --seed 13 --tool stitch | tirage render --size 540x960 -o stitch.p
 As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
 
 ```
-stitch  1 frame
+stitch  36 frames
   cols        16..=96   step 1
   gutter      0..=1     step 0.01
   streak      0..=1     step 0.01

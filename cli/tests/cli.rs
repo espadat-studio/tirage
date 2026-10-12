@@ -281,7 +281,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"grain","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let vein = concat!(
-        r#"{"slug":"vein","frames":1,"svg":true,"params":["#,
+        r#"{"slug":"vein","frames":36,"svg":true,"params":["#,
         r#"{"id":"flows","kind":"choice","choices":["Marble","Swirl","Ripple"]},"#,
         r#"{"id":"scale","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"curve","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -293,7 +293,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"runs","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let aura = concat!(
-        r#"{"slug":"aura","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"aura","frames":72,"svg":false,"params":["#,
         r#"{"id":"styles","kind":"choice","choices":["Auto","Clouds","Mesh","Sweep"]},"#,
         r#"{"id":"scale","kind":"range","min":0.5,"max":2.0,"step":0.05},"#,
         r#"{"id":"churn","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -328,7 +328,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"rules","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let benday = concat!(
-        r#"{"slug":"benday","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"benday","frames":36,"svg":false,"params":["#,
         r#"{"id":"turb","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"streak","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"dir","kind":"range","min":-1.0,"max":1.0,"step":0.01},"#,
@@ -352,7 +352,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"block","kind":"range","min":0.0,"max":14.0,"step":1.0},"#,
     );
     let stitch = concat!(
-        r#"{"slug":"stitch","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"stitch","frames":36,"svg":false,"params":["#,
         r#"{"id":"cols","kind":"range","min":16.0,"max":96.0,"step":1.0},"#,
         r#"{"id":"gutter","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
         r#"{"id":"streak","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -388,7 +388,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"bright","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
     );
     let mist = concat!(
-        r#"{"slug":"mist","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"mist","frames":72,"svg":false,"params":["#,
         r#"{"id":"streaks","kind":"range","min":0.4,"max":2.0,"step":0.05},"#,
         r#"{"id":"cover","kind":"range","min":0.2,"max":0.85,"step":0.01},"#,
         r#"{"id":"soft","kind":"range","min":0.1,"max":1.0,"step":0.01},"#,
@@ -871,8 +871,8 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     let listing = text(&out.stdout);
     assert!(listing.starts_with("sonar  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\nhusk  36 frames\n"), "{listing}");
-    assert!(listing.contains("\nvein  1 frame, svg\n"), "{listing}");
-    assert!(listing.contains("\naura  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nvein  36 frames, svg\n"), "{listing}");
+    assert!(listing.contains("\naura  72 frames\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     assert!(listing.contains("\natlas  24 frames, svg\n"), "{listing}");
     assert!(listing.contains("\noddgrid  1 frame, svg\n"), "{listing}");
@@ -904,7 +904,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\nmotley  36 frames\n"), "{listing}");
     assert!(listing.contains("\nstipple  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nsprig  36 frames\n"), "{listing}");
-    assert!(listing.contains("\nmist  1 frame\n"), "{listing}");
+    assert!(listing.contains("\nmist  72 frames\n"), "{listing}");
     assert!(listing.contains("\ncoral  1 frame\n"), "{listing}");
     assert!(listing.contains("\nwhorl  36 frames\n"), "{listing}");
     assert!(listing.contains("\nsear  1 frame\n"), "{listing}");
@@ -1849,7 +1849,7 @@ mod encode {
                 .contains("→ tirage derive --seed 42 --tool sonar | tirage encode -o sonar-42.mp4"),
             "{screen}"
         );
-        for still in ["vein", "aura", "deal from Seed"] {
+        for still in ["terrain", "coral", "deal from Seed"] {
             assert!(!screen.contains(still), "{still} offered in\n{screen}");
         }
         std::fs::remove_dir_all(dir).unwrap();
@@ -1857,12 +1857,12 @@ mod encode {
 
     #[test]
     fn encode_refuses_a_still_with_a_hint_to_render_it() {
-        let vein = tirage(&["derive", "--seed", "42", "--tool", "vein"], b"").stdout;
-        let out = tirage(&["encode", "-o", "-"], &vein);
+        let terrain = tirage(&["derive", "--seed", "42", "--tool", "terrain"], b"").stdout;
+        let out = tirage(&["encode", "-o", "-"], &terrain);
         assert_eq!(out.status.code(), Some(1));
         assert_eq!(
             text(&out.stderr),
-            "error: vein draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
+            "error: terrain draws a Still, not a Loop\nhint: render it as a PNG with 'tirage render --size 1080x1920 -o out.png'\n"
         );
         assert!(out.stdout.is_empty());
     }
