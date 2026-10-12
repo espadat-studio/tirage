@@ -1,11 +1,11 @@
 ---
 title: "crowd"
-description: "A crowd of heads and shoulders in false colour, under patches of small arrows. It renders a Still."
+description: "A crowd of heads and shoulders in false colour, under patches of small arrows. It renders a Loop of 36 frames at 12 fps, each figure swaying round its own small circle."
 ---
 
 A crowd seen through a heat camera. Each figure, a head on a pair of shoulders, is a soft blob in false colour: ground where nobody stands, a halo with a dark rim round every figure, and a solid core. Small arrows gather in patches over the top, each patch leaning its own way.
 
-crowd renders a Still: one frame. Its site page is [playgrnd.tools/crowd](https://www.playgrnd.tools/crowd/).
+crowd renders a Loop: 36 frames at 12 fps, in which every figure walks once round a small circle about its place, each on its own beat, and its edge ripples as it passes through the noise. The arrows, the noise and the inks hold still. The figures are already off their places at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/crowd](https://www.playgrnd.tools/crowd/).
 
 ## Still
 
