@@ -124,6 +124,7 @@ impl Tool {
                 | Self::Warp
                 | Self::Zig
                 | Self::Relief
+                | Self::Oddgrid
         )
     }
 }

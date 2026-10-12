@@ -536,7 +536,7 @@ fn tools_json_has_a_stable_shape() {
         r#"{"id":"gaps","kind":"range","min":0.0,"max":0.5,"step":0.01},"#,
     );
     let oddgrid = concat!(
-        r#"{"slug":"oddgrid","frames":1,"svg":false,"params":["#,
+        r#"{"slug":"oddgrid","frames":1,"svg":true,"params":["#,
         r#"{"id":"cols","kind":"range","min":12.0,"max":110.0,"step":1.0},"#,
         r#"{"id":"scale","kind":"range","min":2.0,"max":60.0,"step":0.5},"#,
         r#"{"id":"density","kind":"range","min":0.0,"max":1.0,"step":0.01},"#,
@@ -875,7 +875,7 @@ fn tools_lists_slugs_frames_and_ranges_for_humans() {
     assert!(listing.contains("\naura  1 frame\n"), "{listing}");
     assert!(listing.contains("\nfrond  36 frames\n"), "{listing}");
     assert!(listing.contains("\natlas  24 frames\n"), "{listing}");
-    assert!(listing.contains("\noddgrid  1 frame\n"), "{listing}");
+    assert!(listing.contains("\noddgrid  1 frame, svg\n"), "{listing}");
     assert!(listing.contains("\nfete  100 frames\n"), "{listing}");
     assert!(listing.contains("\nfold  1 frame\n"), "{listing}");
     assert!(listing.contains("\nquilt  1 frame\n"), "{listing}");
