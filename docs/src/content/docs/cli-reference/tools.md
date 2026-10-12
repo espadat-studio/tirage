@@ -53,7 +53,7 @@ Lists every Tool with its frame count, whether it renders SVG, and its Parameter
 | `fold`     | 36     | Loop   |
 | `quilt`    | 60     | Loop   |
 | `static`   | 60     | Loop   |
-| `splice`   | 1      | Still  |
+| `splice`   | 36     | Loop   |
 | `dahlia`   | 36     | Loop   |
 | `hiss`     | 1      | Still  |
 | `crowd`    | 1      | Still  |

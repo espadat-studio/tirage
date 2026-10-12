@@ -1,11 +1,11 @@
 ---
 title: "splice"
-description: "A screen-printed collage of one picture cut into slices. It renders a Still."
+description: "A screen-printed collage of one picture cut into slices. It renders a Loop of 36 frames at 12 fps, the picture gliding under fixed cuts."
 ---
 
 A screen-printed collage. One field of soft hills is cut into tones, with a dark line where two tones meet. The sheet is then cut into slices, and each slice prints the same field shifted along, through its own screen and its own turn of the inks. A few long arcs are drawn over the top.
 
-splice renders a Still: one frame. Its site page is [playgrnd.tools/splice](https://www.playgrnd.tools/splice/).
+splice renders a Loop: 36 frames at 12 fps, in which the picture glides once round a small circle under the slices. The cuts, screens and arcs stay put, so the tones flow through the dots and lines. The picture is already off its place at frame 0, so frame 0 differs from the Still. Its site page is [playgrnd.tools/splice](https://www.playgrnd.tools/splice/).
 
 ## Still
 
