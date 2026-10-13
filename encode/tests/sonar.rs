@@ -12,7 +12,7 @@ fn read(mp4: &[u8]) -> Mp4Reader<Cursor<&[u8]>> {
 
 #[test]
 fn sonar_loop_is_h264_at_720x1280_with_the_tools_frames_and_fps() {
-    let mp4 = encode(&derive(1, ToolPin::Tool(Tool::Sonar))).unwrap();
+    let mp4 = encode(&derive(1, ToolPin::Tool(Tool::Sonar)), WIDTH, HEIGHT).unwrap();
     let reader = read(&mp4);
     let tracks: Vec<_> = reader.tracks().values().collect();
     assert_eq!(tracks.len(), 1);
@@ -32,7 +32,7 @@ fn every_fixed_sonar_seed_stays_under_the_cap() {
     std::thread::scope(|scope| {
         for seed in SEEDS {
             scope.spawn(move || {
-                let bytes = encode(&derive(seed, ToolPin::Tool(Tool::Sonar)))
+                let bytes = encode(&derive(seed, ToolPin::Tool(Tool::Sonar)), WIDTH, HEIGHT)
                     .unwrap()
                     .len();
                 assert!(bytes < MAX_BYTES, "seed {seed}: {bytes} bytes");
@@ -43,7 +43,7 @@ fn every_fixed_sonar_seed_stays_under_the_cap() {
 
 #[test]
 fn settings_name_the_encoder_and_frame_size() {
-    let settings = settings();
+    let settings = settings(WIDTH, HEIGHT);
     assert!(settings.contains("openh264"), "{settings}");
     assert!(settings.contains("720x1280"), "{settings}");
 }
@@ -56,5 +56,5 @@ fn openh264_version_matches_the_lockfile() {
         lock.contains(&entry),
         "Cargo.lock has no openh264 {OPENH264}"
     );
-    assert!(settings().contains(OPENH264));
+    assert!(settings(WIDTH, HEIGHT).contains(OPENH264));
 }

@@ -1766,10 +1766,11 @@ mod encode {
     use super::*;
 
     fn sonar_mp4() -> Vec<u8> {
-        tirage_encode::encode(&tirage::derive(
-            42,
-            tirage::ToolPin::Tool(tirage::Tool::Sonar),
-        ))
+        tirage_encode::encode(
+            &tirage::derive(42, tirage::ToolPin::Tool(tirage::Tool::Sonar)),
+            tirage_encode::WIDTH,
+            tirage_encode::HEIGHT,
+        )
         .unwrap()
     }
 
@@ -1803,6 +1804,30 @@ mod encode {
         assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
         assert_eq!(out.stdout, sonar_mp4());
         std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn encode_size_writes_the_mp4_the_library_encodes_at_that_size() {
+        let out = tirage(&["encode", "--size", "360x640", "-o", "-"], &recipe());
+        assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+        let recipe = tirage::derive(42, tirage::ToolPin::Tool(tirage::Tool::Sonar));
+        assert_eq!(
+            out.stdout,
+            tirage_encode::encode(&recipe, 360, 640).unwrap()
+        );
+    }
+
+    #[test]
+    fn encode_refuses_an_odd_or_out_of_range_size() {
+        for size in ["361x640", "360x641", "14x640", "360x2050"] {
+            let out = tirage(&["encode", "--size", size, "-o", "-"], &recipe());
+            assert_eq!(out.status.code(), Some(2), "{size}");
+            assert!(
+                text(&out.stderr).contains("each edge must be even and in 16..=2048, like 360x640"),
+                "{size}: {}",
+                text(&out.stderr)
+            );
+        }
     }
 
     #[test]
@@ -1907,7 +1932,10 @@ mod encode {
         );
         assert_eq!(files_in(&dir), std::slice::from_ref(&name));
         let rolled = std::fs::read(dir.join(&name)).unwrap();
-        assert_eq!(rolled, tirage_encode::encode(&recipe).unwrap());
+        assert_eq!(
+            rolled,
+            tirage_encode::encode(&recipe, tirage_encode::WIDTH, tirage_encode::HEIGHT).unwrap()
+        );
         let again = scratch("roll-loop-again");
         reproduce(&out.stderr, &again);
         assert_eq!(std::fs::read(again.join(&name)).unwrap(), rolled);

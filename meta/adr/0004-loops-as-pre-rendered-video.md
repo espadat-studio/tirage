@@ -12,9 +12,9 @@ A Loop reaches the Reel page as a server-rendered H.264 MP4, not as WASM drawing
 
 ## Consequences
 
-- A Loop is 720x1280 at the Tool's own frame count and fps. The Still keeps full resolution for the poster and the Share card.
+- A Loop is 720x1280 by default, at the Tool's own frame count and fps. Another even size, each edge in 16..=2048, scales the byte budget by pixel area, so the docs carry 360x640 Loops at about a quarter of the bytes. The cap scales up with area but never below 1.5 MB: rate control overshoots small Loops by up to 2x, and a small file under 1.5 MB is fine on any page. The Still keeps full resolution for the poster and the Share card.
 - Every Tool that moves on the site has a Loop in the core, whether or not recordreel loops it.
-- The 1.5 MB cap is recordreel's. Its tests in `tirage-encode` stay on the Tools recordreel loops, on fixed Seeds per Tool. A recordreel backdrop over the cap ships Still-only there until it is tuned. Measured with x264 crf28: kiosk 0.71 MB, sonar 1.15 MB, frond 1.34 MB.
+- The 1.5 MB cap at 720x1280 is recordreel's. Its tests in `tirage-encode` stay on the Tools recordreel loops, on fixed Seeds per Tool. A recordreel backdrop over the cap ships Still-only there until it is tuned. Measured with x264 crf28: kiosk 0.71 MB, sonar 1.15 MB, frond 1.34 MB.
 - A Tool whose frame 0 differs from its Still gets a rendered frame-0 poster if recordreel ever loops it.
 - The fidelity check covers Loop frames as well as the Still.
 - The cache key carries the encoder settings as well as the Seed and Recipe version.

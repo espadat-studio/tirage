@@ -159,6 +159,15 @@ enum Command {
         )]
         input: Option<PathBuf>,
         #[arg(
+            long,
+            value_name = "W>x<H",
+            value_parser = parse_even_size,
+            default_value = "720x1280",
+            help = "Frame size in pixels",
+            long_help = "Frame size in pixels as <W>x<H>, each edge even and in 16..=2048. The byte budget scales with pixel area, so 360x640 aims at a quarter of the bytes. The 1.5 MB cap scales up with it but never down"
+        )]
+        size: (u32, u32),
+        #[arg(
             short,
             value_name = "FILE",
             help = "MP4 to write, '-' for stdout, prompted on a terminal",
@@ -493,7 +502,11 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             write_output(&output, &bytes)
         }
         #[cfg(feature = "encode")]
-        Command::Encode { input, output } => {
+        Command::Encode {
+            input,
+            size,
+            output,
+        } => {
             let prompt = Prompt::new("encode", no_input, stderr_colour());
             let stdio = Path::new("-");
             if output.as_deref() == Some(stdio) && io::stdout().is_terminal() {
@@ -529,7 +542,7 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             if output == stdio && io::stdout().is_terminal() {
                 return Err(refuse_terminal("encode", "an MP4"));
             }
-            write_output(&output, &encode_loop(&recipe)?)
+            write_output(&output, &encode_loop_at(&recipe, size)?)
         }
         Command::Roll => {
             let seed = roll_seed();
@@ -718,7 +731,12 @@ fn write_output(output: &Path, bytes: &[u8]) -> Result<(), Failure> {
 
 #[cfg(feature = "encode")]
 fn encode_loop(recipe: &Recipe) -> Result<Vec<u8>, Failure> {
-    tirage_encode::encode(recipe)
+    encode_loop_at(recipe, (tirage_encode::WIDTH, tirage_encode::HEIGHT))
+}
+
+#[cfg(feature = "encode")]
+fn encode_loop_at(recipe: &Recipe, (width, height): (u32, u32)) -> Result<Vec<u8>, Failure> {
+    tirage_encode::encode(recipe, width, height)
         .map_err(|e| Failure::Runtime(e.to_string(), hint::for_encode_error(&e)))
 }
 
@@ -788,6 +806,14 @@ fn checked_size(size: &str) -> Result<(u32, u32), String> {
     } else {
         Err(format!("each edge must be in 1..={MAX_EDGE}"))
     }
+}
+
+#[cfg(feature = "encode")]
+fn parse_even_size(size: &str) -> Result<(u32, u32), String> {
+    let (width, height) = parse_size(size)?;
+    tirage_encode::check_size(width, height)
+        .map(|()| (width, height))
+        .map_err(|e| e.to_string())
 }
 
 fn parse_palette(inks: &str) -> Result<Palette, tirage::Error> {
