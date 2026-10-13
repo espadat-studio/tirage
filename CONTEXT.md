@@ -8,6 +8,10 @@ Original generative artwork and animations that reproduce the look of the playgr
 One playgrnd.tools generator we reproduce, named by its site slug (aura, riso, mist).
 _Avoid_: Effect, filter, generator
 
+**Chassis**:
+The shared shell every Tool wears around its own drawing: grain, dither and the frame. Building blocks a Tool draws with, such as noise or random numbers, are not part of it.
+_Avoid_: Shell, kit, common
+
 **Edition**:
 The set of Tools a tirage version ships. A Seed is one print of it.
 _Avoid_: Catalogue, set, shortlist
