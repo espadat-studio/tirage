@@ -54,7 +54,7 @@ fn a_loop_over_the_cap_is_an_error() {
     p.set_rules(1.0).unwrap();
     let error = encode(&recipe, WIDTH, HEIGHT).unwrap_err();
     assert!(
-        matches!(error, Error::OverCap { bytes } if bytes >= MAX_BYTES),
+        matches!(error, Error::OverCap { bytes, cap } if bytes >= MAX_BYTES && cap == MAX_BYTES),
         "{error}"
     );
     assert!(

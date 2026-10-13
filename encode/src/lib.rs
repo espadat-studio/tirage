@@ -8,7 +8,7 @@ use openh264::encoder::{
     BitRate, Encoder, EncoderConfig, FrameRate, FrameType, QpRange, RateControlMode,
 };
 use openh264::formats::{RgbaSliceU8, YUVBuffer};
-use tirage::{Frame, Recipe, render};
+use tirage::{Frame, MAX_EDGE, Recipe, render};
 
 pub const WIDTH: u32 = 720;
 pub const HEIGHT: u32 = 1280;
@@ -23,10 +23,23 @@ const QP: (u8, u8) = (12, 51);
 const SPS: u8 = 7;
 const PPS: u8 = 8;
 
+pub fn cap(width: u32, height: u32) -> usize {
+    scale(MAX_BYTES as u64, width, height) as usize
+}
+
+fn budget(width: u32, height: u32) -> u64 {
+    scale(u64::from(BUDGET), width, height)
+}
+
+fn scale(bytes: u64, width: u32, height: u32) -> u64 {
+    bytes * u64::from(width) * u64::from(height) / (u64::from(WIDTH) * u64::from(HEIGHT))
+}
+
 pub fn settings(width: u32, height: u32) -> String {
     format!(
-        "tirage-encode {} openh264 {OPENH264} h264 {width}x{height} rc budget {BUDGET} bytes per Loop qp {}..={} no-skip",
+        "tirage-encode {} openh264 {OPENH264} h264 {width}x{height} rc budget {} bytes per Loop qp {}..={} no-skip",
         env!("CARGO_PKG_VERSION"),
+        budget(width, height),
         QP.0,
         QP.1
     )
@@ -36,7 +49,8 @@ pub fn settings(width: u32, height: u32) -> String {
 pub enum Error {
     H264(openh264::Error),
     Mp4(mp4::Error),
-    OverCap { bytes: usize },
+    OverCap { bytes: usize, cap: usize },
+    Size { width: u32, height: u32 },
 }
 
 impl fmt::Display for Error {
@@ -44,9 +58,13 @@ impl fmt::Display for Error {
         match self {
             Self::H264(error) => write!(f, "h264: {error}"),
             Self::Mp4(error) => write!(f, "mp4: {error}"),
-            Self::OverCap { bytes } => {
-                write!(f, "loop is {bytes} bytes, over the {MAX_BYTES} byte cap")
+            Self::OverCap { bytes, cap } => {
+                write!(f, "loop is {bytes} bytes, over the {cap} byte cap")
             }
+            Self::Size { width, height } => write!(
+                f,
+                "{width}x{height} cannot be encoded, each edge must be even and in 2..={MAX_EDGE}"
+            ),
         }
     }
 }
@@ -66,9 +84,17 @@ impl From<mp4::Error> for Error {
 }
 
 pub fn encode(recipe: &Recipe, width: u32, height: u32) -> Result<Vec<u8>, Error> {
+    let edges = 2..=MAX_EDGE;
+    if !(edges.contains(&width)
+        && edges.contains(&height)
+        && width.is_multiple_of(2)
+        && height.is_multiple_of(2))
+    {
+        return Err(Error::Size { width, height });
+    }
     let tool = recipe.tool();
     let fps = tool.fps();
-    let bitrate = u64::from(BUDGET) * 8 * u64::from(fps) / u64::from(tool.frames());
+    let bitrate = budget(width, height) * 8 * u64::from(fps) / u64::from(tool.frames());
     let config = EncoderConfig::new()
         .bitrate(BitRate::from_bps(bitrate as u32))
         .qp(QpRange::new(QP.0, QP.1))
@@ -82,7 +108,7 @@ pub fn encode(recipe: &Recipe, width: u32, height: u32) -> Result<Vec<u8>, Error
     let mut samples = Vec::new();
     for t in 0..tool.frames() {
         let frame =
-            Frame::new(recipe, width, height, t).expect("720x1280 inside the Loop is valid");
+            Frame::new(recipe, width, height, t).expect("a checked size inside the Loop is valid");
         let image = render(recipe, &frame);
         let rgba = RgbaSliceU8::new(image.rgba(), (width as usize, height as usize));
         let stream = encoder.encode(&YUVBuffer::from_rgb_source(rgba))?;
@@ -135,8 +161,12 @@ pub fn encode(recipe: &Recipe, width: u32, height: u32) -> Result<Vec<u8>, Error
     }
     writer.write_end()?;
     let mp4 = writer.into_writer().into_inner();
-    if mp4.len() >= MAX_BYTES {
-        return Err(Error::OverCap { bytes: mp4.len() });
+    let cap = cap(width, height);
+    if mp4.len() >= cap {
+        return Err(Error::OverCap {
+            bytes: mp4.len(),
+            cap,
+        });
     }
     Ok(mp4)
 }
