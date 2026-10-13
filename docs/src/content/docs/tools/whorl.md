@@ -17,6 +17,16 @@ Seed 9, rendered by:
 tirage derive --seed 9 --tool whorl | tirage render --size 540x960 -o whorl.png
 ```
 
+## Loop
+
+<video src="/tools/whorl.mp4" width="360" height="640" autoplay loop muted playsinline></video>
+
+The same Seed 9, encoded at 360x640 by:
+
+```sh
+tirage derive --seed 9 --tool whorl | tirage encode --size 360x640 -o whorl.mp4
+```
+
 ## Parameters
 
 From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:

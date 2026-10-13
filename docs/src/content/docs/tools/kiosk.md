@@ -19,6 +19,16 @@ tirage derive --seed 5 --tool kiosk | tirage render --size 540x960 -o kiosk.png
 
 SVG: yes. `-o kiosk.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
 
+## Loop
+
+<video src="/tools/kiosk.mp4" width="360" height="640" autoplay loop muted playsinline></video>
+
+The same Seed 5, encoded at 360x640 by:
+
+```sh
+tirage derive --seed 5 --tool kiosk | tirage encode --size 360x640 -o kiosk.mp4
+```
+
 ## Parameters
 
 From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:

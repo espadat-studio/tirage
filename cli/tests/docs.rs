@@ -73,7 +73,7 @@ fn each_still_re_renders_byte_for_byte_from_the_command_on_its_page() {
         let page = read_page(tool);
         let command = page
             .lines()
-            .find(|line| line.starts_with("tirage derive "))
+            .find(|line| line.starts_with("tirage derive ") && line.contains("| tirage render "))
             .unwrap_or_else(|| panic!("{}: no render command on the page", tool.slug()));
         let dir = scratch(tool);
         let status = Command::new("sh")
@@ -127,5 +127,33 @@ fn the_dither_and_grain_page_lists_the_shared_rows_every_tool_prints() {
             .map(|line| line.trim_start())
             .collect::<String>();
         assert_eq!(block, shared, "{}: the shared rows differ", tool.slug());
+    }
+}
+
+#[test]
+fn each_page_plays_its_loop_encoded_from_its_own_seed() {
+    for &tool in Tool::ALL {
+        let slug = tool.slug();
+        let page = read_page(tool);
+        let render = page
+            .lines()
+            .find(|line| line.starts_with("tirage derive ") && line.contains("| tirage render "))
+            .unwrap_or_else(|| panic!("{slug}: no render command on the page"));
+        let derive = render.split(" | ").next().unwrap();
+        let encode = format!("{derive} | tirage encode --size 360x640 -o {slug}.mp4");
+        assert!(
+            page.lines().any(|line| line == encode),
+            "{slug}: no '{encode}' line on the page"
+        );
+        let video = format!(
+            "<video src=\"/tools/{slug}.mp4\" width=\"360\" height=\"640\" autoplay loop muted playsinline></video>"
+        );
+        assert!(page.contains(&video), "{slug}: no '{video}' on the page");
+        let path = Path::new(ROOT).join(format!("../docs/public/tools/{slug}.mp4"));
+        assert!(
+            path.is_file(),
+            "{slug}: no committed Loop at {}",
+            path.display()
+        );
     }
 }

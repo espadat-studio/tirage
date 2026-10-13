@@ -19,6 +19,16 @@ tirage derive --seed 1 --tool rise | tirage render --size 540x960 -o rise.png
 
 SVG: yes. `-o rise.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
 
+## Loop
+
+<video src="/tools/rise.mp4" width="360" height="640" autoplay loop muted playsinline></video>
+
+The same Seed 1, encoded at 360x640 by:
+
+```sh
+tirage derive --seed 1 --tool rise | tirage encode --size 360x640 -o rise.mp4
+```
+
 ## Parameters
 
 From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:

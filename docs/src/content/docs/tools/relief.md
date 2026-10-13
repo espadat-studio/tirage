@@ -19,6 +19,16 @@ tirage derive --seed 2 --tool relief | tirage render --size 540x960 -o relief.pn
 
 SVG: yes. `-o relief.svg` writes this Still as an [SVG](/cli-reference/render/#svg).
 
+## Loop
+
+<video src="/tools/relief.mp4" width="360" height="640" autoplay loop muted playsinline></video>
+
+The same Seed 2, encoded at 360x640 by:
+
+```sh
+tirage derive --seed 2 --tool relief | tirage encode --size 360x640 -o relief.mp4
+```
+
 ## Parameters
 
 From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:

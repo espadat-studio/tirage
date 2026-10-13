@@ -17,6 +17,16 @@ Seed 4, rendered by:
 tirage derive --seed 4 --tool sprig | tirage render --size 540x960 -o sprig.png
 ```
 
+## Loop
+
+<video src="/tools/sprig.mp4" width="360" height="640" autoplay loop muted playsinline></video>
+
+The same Seed 4, encoded at 360x640 by:
+
+```sh
+tirage derive --seed 4 --tool sprig | tirage encode --size 360x640 -o sprig.mp4
+```
+
 ## Parameters
 
 From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:

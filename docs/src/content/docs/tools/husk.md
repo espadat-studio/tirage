@@ -17,6 +17,16 @@ Seed 2, rendered by:
 tirage derive --seed 2 --tool husk | tirage render --size 540x960 -o husk.png
 ```
 
+## Loop
+
+<video src="/tools/husk.mp4" width="360" height="640" autoplay loop muted playsinline></video>
+
+The same Seed 2, encoded at 360x640 by:
+
+```sh
+tirage derive --seed 2 --tool husk | tirage encode --size 360x640 -o husk.mp4
+```
+
 ## Parameters
 
 From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
