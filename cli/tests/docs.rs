@@ -48,9 +48,13 @@ fn code_block<'a>(page: &'a str, prefix: &str) -> Option<&'a str> {
         .find(|block| block.starts_with(prefix))
 }
 
-fn read_page(tool: Tool) -> String {
-    let path = Path::new(ROOT).join(format!("../docs/src/content/docs/tools/{}.md", tool.slug()));
+fn read_doc(page: &str) -> String {
+    let path = Path::new(ROOT).join(format!("../docs/src/content/docs/{page}.md"));
     fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
+}
+
+fn read_page(tool: Tool) -> String {
+    read_doc(&format!("tools/{}", tool.slug()))
 }
 
 fn scratch(tool: Tool) -> PathBuf {
@@ -114,8 +118,7 @@ fn each_page_lists_its_own_parameters_as_tirage_tools_prints_them() {
 
 #[test]
 fn the_dither_and_grain_page_lists_the_shared_rows_every_tool_prints() {
-    let path = Path::new(ROOT).join("../docs/src/content/docs/concepts/dither-and-grain.md");
-    let page = fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+    let page = read_doc("concepts/dither-and-grain");
     let block = code_block(&page, "ditherTog").expect("no shared Parameters block on the page");
     let tools = tools_listing();
     for &tool in Tool::ALL {
