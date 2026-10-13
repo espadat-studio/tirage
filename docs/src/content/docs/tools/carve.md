@@ -19,6 +19,16 @@ tirage derive --seed 2 --tool carve | tirage render --size 540x960 -o carve.png
 
 SVG: yes. `-o carve.svg` writes this Still as an [SVG](/cli-reference/render/#svg). It is partly raster: ramp panels are drawn pixel by pixel, so the SVG holds them as embedded PNG images.
 
+## Loop
+
+<video src="/tools/carve.mp4" width="360" height="640" autoplay loop muted playsinline></video>
+
+The same Seed 2, encoded at 360x640 by:
+
+```sh
+tirage derive --seed 2 --tool carve | tirage encode --size 360x640 -o carve.mp4
+```
+
 ## Parameters
 
 From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:

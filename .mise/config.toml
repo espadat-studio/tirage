@@ -81,3 +81,17 @@ description = "Export the smoke fixtures twice into a temp dir and check the byt
 depends = ["refs:setup"]
 dir = "refs"
 run = 'dir=$(mktemp -d) && cp smoke.json "$dir/manifest.json" && bun export.ts --manifest "$dir/manifest.json"'
+
+[tasks."docs:loops"]
+description = "Re-encode every Tool page's Loop from the encode command on that page"
+run = '''
+set -e
+cargo build --locked --release -p tirage-cli --features encode
+export PATH="$PWD/target/release:$PATH"
+mkdir -p docs/public/tools
+cd docs/public/tools
+for page in ../../src/content/docs/tools/*.md; do
+  line=$(grep '| tirage encode ' "$page") || { echo "$page: no encode command" >&2; exit 1; }
+  sh -ec "$line"
+done
+'''
