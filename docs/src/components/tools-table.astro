@@ -1,0 +1,109 @@
+---
+import type { ImageMetadata } from "astro";
+import { getCollection } from "astro:content";
+import { getImage, Image } from "astro:assets";
+
+const LOOP_WIDTH = 360;
+const LOOP_HEIGHT = 640;
+
+const stills = import.meta.glob<{ default: ImageMetadata }>("../assets/tools/*.png", {
+  eager: true,
+});
+
+const pages = await getCollection("docs", ({ id }) => id.startsWith("tools/") && id !== "tools");
+
+const rows = await Promise.all(
+  pages
+    .map(({ id, data }) => ({ slug: id.slice("tools/".length), description: data.description }))
+    .sort((a, b) => a.slug.localeCompare(b.slug))
+    .map(async ({ slug, description }) => {
+      const still = stills[`../assets/tools/${slug}.png`]?.default;
+      if (!still) throw new Error(`${slug}: no Still at src/assets/tools/${slug}.png`);
+      const [lead] = description?.split(" It renders a Loop") ?? [];
+      if (!lead || lead === description) throw new Error(`${slug}: description has no Loop sentence`);
+      const poster = await getImage({ src: still, width: LOOP_WIDTH, format: "webp" });
+      return { slug, lead, still, poster: poster.src };
+    }),
+);
+---
+
+<table class="tools not-content">
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Description</th>
+      <th>Still</th>
+      <th>Loop</th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      rows.map(({ slug, lead, still, poster }) => (
+        <tr>
+          <td>
+            <a href={`/tools/${slug}/`}>{slug}</a>
+          </td>
+          <td>{lead}</td>
+          <td>
+            <Image src={still} alt={`${slug} Still`} width={LOOP_WIDTH} loading="lazy" />
+          </td>
+          <td>
+            <video
+              src={`/tools/${slug}.mp4`}
+              poster={poster}
+              width={LOOP_WIDTH}
+              height={LOOP_HEIGHT}
+              preload="none"
+              loop
+              muted
+              playsinline
+              aria-label={`${slug} Loop`}
+            />
+          </td>
+        </tr>
+      ))
+    }
+  </tbody>
+</table>
+
+<script>
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const observer = new IntersectionObserver((entries) => {
+      for (const { target, isIntersecting } of entries) {
+        const video = target as HTMLVideoElement;
+        if (isIntersecting) video.play().catch((error: DOMException) => {
+          if (error.name !== "AbortError") throw error;
+        });
+        else video.pause();
+      }
+    });
+    for (const video of document.querySelectorAll<HTMLVideoElement>("table.tools video")) {
+      observer.observe(video);
+    }
+  }
+</script>
+
+<style>
+  .tools {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+  }
+  th,
+  td {
+    padding: 0.5rem 0.375rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    text-align: start;
+    vertical-align: top;
+  }
+  th:nth-child(3),
+  th:nth-child(4) {
+    width: 22%;
+  }
+  img,
+  video {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>
