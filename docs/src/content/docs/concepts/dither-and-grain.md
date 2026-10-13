@@ -3,7 +3,7 @@ title: "Dither and grain"
 description: "Two passes every Tool runs over its finished frame, with the same 11 Parameters on every Tool."
 ---
 
-Every Tool ends with the same two passes over the frame it drew. Grain runs first. It adds film noise, specks and a dark vignette. Dither runs second. It cuts each colour channel down to a few levels in a screen pattern. Each pass has a toggle, and a pass that is off or has an amount of 0 leaves the pixels alone.
+Every Tool ends with the same two passes over the frame it drew. Grain runs first. It adds film noise, specks and a dark vignette. Dither runs second. It cuts each colour channel down to a few levels, choosing between them with a Bayer or noise threshold pattern. Each pass has a toggle, and a pass that is off or has an amount of 0 leaves the pixels alone.
 
 ## Parameters
 
@@ -39,7 +39,7 @@ grnVignette 0..=1     step 0.05
 
 ## What a Seed does with them
 
-A Seed never draws these 11 values. Each Tool keeps them where its site page opens, so on most Tools a derived Recipe has both passes off. Four Tools open with grain on: coral, crowd, dahlia and vein. Their pages give the grain values. Dither starts off on every Tool.
+A Seed never draws these 11 values. Each Tool keeps the values its site page opens with, so on most Tools a derived Recipe has both passes off. Four Tools open with grain on: coral, crowd, dahlia and vein. Their pages give the grain values. Dither starts off on every Tool.
 
 To turn a pass on, edit its values in the Recipe JSON before `render`, as for any other [Pin](/concepts/pins/#pin-a-parameter-or-the-tool-seed). `render` checks each value against the range above.
 
