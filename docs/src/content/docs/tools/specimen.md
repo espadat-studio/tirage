@@ -21,7 +21,7 @@ SVG: yes. `-o specimen.svg` writes this Still as an [SVG](/cli-reference/render/
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 specimen  24 frames, svg
@@ -43,19 +43,8 @@ specimen  24 frames, svg
   density     0.1..=1   step 0.01
   lineW       0.4..=10  step 0.2
   inkMix      0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter above `ditherTog`, each across its full range. `cols` sets the grid's columns, and the rows follow the frame so every cell is square. `fill` is the chance a cell starts a block and `span` the chance a block grows past one cell. `gut` insets each block and `rules` sets how strongly the grid lines show. The eight weights from `wMarble` to `wSpike` set how often each motif turns up. `mScale` and `mBands` shape the marbling. `density` sets how many lines or shapes a motif draws, `lineW` how thick its lines are, and `inkMix` how often a block sits on the dark ink instead of a Palette colour. Grain and dither stay off.
+A Seed draws every Parameter listed, each across its full range. `cols` sets the grid's columns, and the rows follow the frame so every cell is square. `fill` is the chance a cell starts a block and `span` the chance a block grows past one cell. `gut` insets each block and `rules` sets how strongly the grid lines show. The eight weights from `wMarble` to `wSpike` set how often each motif turns up. `mScale` and `mBands` shape the marbling. `density` sets how many lines or shapes a motif draws, `lineW` how thick its lines are, and `inkMix` how often a block sits on the dark ink instead of a Palette colour.
 
 The Palette takes any number of inks from 2, and blocks pick from it by position, wrapping around. The page `#F5F1E8` and the dark ink `#1B1B1B` are fixed by the Tool and are not part of the Palette.

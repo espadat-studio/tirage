@@ -94,17 +94,19 @@ fn each_still_re_renders_byte_for_byte_from_the_command_on_its_page() {
 }
 
 #[test]
-fn each_page_lists_parameters_as_tirage_tools_prints_them() {
+fn each_page_lists_its_own_parameters_as_tirage_tools_prints_them() {
     let tools = tools_listing();
     for &tool in Tool::ALL {
         let page = read_page(tool);
         let block = code_block(&page, &format!("{}  ", tool.slug()))
             .unwrap_or_else(|| panic!("{}: no 'tirage tools' block on the page", tool.slug()));
-        let section = tools_section(&tools, tool).collect::<String>();
+        let own = tools_section(&tools, tool)
+            .filter(|line| !is_shared(line))
+            .collect::<String>();
         assert_eq!(
             block,
-            section,
-            "{}: the Parameters block differs from 'tirage tools'",
+            own,
+            "{}: the Parameters block differs from 'tirage tools' without the shared rows",
             tool.slug()
         );
     }

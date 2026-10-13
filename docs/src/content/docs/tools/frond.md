@@ -19,7 +19,7 @@ tirage derive --seed 5 --tool frond | tirage render --size 540x960 -o frond.png
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 frond  36 frames
@@ -35,17 +35,6 @@ frond  36 frames
   patch       0..=1     step 0.01
   circles     0..=1     step 0.01
   rules       0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `dirs`, `masses`, `size`, `round`, `growth`, `detail`, `coarse`, `breakup`, `noise`, `patch`, `circles` and `rules`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed. Dither and grain stay off.
+A Seed draws `dirs`, `masses`, `size`, `round`, `growth`, `detail`, `coarse`, `breakup`, `noise`, `patch`, `circles` and `rules`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed.

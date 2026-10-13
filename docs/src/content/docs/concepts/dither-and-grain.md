@@ -7,7 +7,7 @@ Every Tool ends with the same two passes over the frame it drew. Grain runs firs
 
 ## Parameters
 
-The same 11 rows close every Tool's block in [`tirage tools`](/cli-reference/tools/):
+The same 11 rows close every Tool's block in [`tirage tools`](/cli-reference/tools/). Tool pages leave them out:
 
 ```
 ditherTog   on/off

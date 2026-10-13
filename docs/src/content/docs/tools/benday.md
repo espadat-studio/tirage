@@ -19,7 +19,7 @@ tirage derive --seed 6 --tool benday | tirage render --size 540x960 -o benday.pn
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 benday  36 frames
@@ -34,19 +34,8 @@ benday  36 frames
   ring        0..=1     step 0.01
   angle       0..=1     step 0.01
   bite        0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws all 11 art Parameters. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed. Dither and the grain post-pass stay off.
+A Seed draws all 11 art Parameters. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed.
 
 The Palette is a ramp read cold to hot and takes any number of inks from 2. The first ink is also the dot ring.

@@ -19,7 +19,7 @@ tirage derive --seed 4 --tool sprig | tirage render --size 540x960 -o sprig.png
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 sprig  36 frames
@@ -32,19 +32,8 @@ sprig  36 frames
   rough       0..=1     step 0.01
   wobble      0..=1     step 0.01
   detail      0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `dirs` and all 8 art ranges. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `count` runs 20 to 100, `size` up to 0.6 and `weight` up to 0.8, because past them the ink floods the ground. Dither and the grain post-pass stay off. `dirs` picks the mix of motifs: Garden has them all, Blooms leaves out leaves and stems, and Leaves is mostly leaves.
+A Seed draws `dirs` and all 8 art ranges. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `count` runs 20 to 100, `size` up to 0.6 and `weight` up to 0.8, because past them the ink floods the ground. `dirs` picks the mix of motifs: Garden has them all, Blooms leaves out leaves and stems, and Leaves is mostly leaves.
 
 The Palette takes 2 inks: the first is the ground, the second the line. Inks after the second are not drawn.

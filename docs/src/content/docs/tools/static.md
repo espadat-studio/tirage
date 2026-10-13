@@ -21,26 +21,15 @@ SVG: yes. `-o static.svg` writes this Still as an [SVG](/cli-reference/render/#s
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 static  60 frames, svg
   regions     2..=5     step 1
   res         48..=160  step 4
   glitch      0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `regions`, `res` and `glitch`, each across its full range. `regions` is how many bands stack down the frame, `res` how many grid columns span it, and `glitch` how hard the glitch pass hits. Dither and grain stay off.
+A Seed draws `regions`, `res` and `glitch`, each across its full range. `regions` is how many bands stack down the frame, `res` how many grid columns span it, and `glitch` how hard the glitch pass hits.
 
 The Palette is two inks: the ink, then the ground. static takes at most 2. The site's swap button only reverses them, so swapping the Palette's order does the same.

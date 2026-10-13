@@ -21,7 +21,7 @@ SVG: yes. `-o modular.svg` writes this Still as an [SVG](/cli-reference/render/#
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 modular  24 frames, svg
@@ -38,19 +38,8 @@ modular  24 frames, svg
   dot         0.2..=1   step 0.01
   rules       0..=1     step 0.01
   ruleW       0.5..=4   step 0.5
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter above `ditherTog`, each across its full range. `gcols` is the number of grid columns, and the rows follow from the frame's shape. `unit` is how many small cells cross one module, and `merge` is the chance that a module spans two cells. The six weights, `wEmpty` to `wGrad`, decide how often each kind of module turns up. `blockFill` is the share of small cells that blocks and dots fill, and `dot` is the dot size. `rules` is how strongly the grid rules show, and `ruleW` is the width of every rule. Grain and dither stay off.
+A Seed draws every Parameter listed, each across its full range. `gcols` is the number of grid columns, and the rows follow from the frame's shape. `unit` is how many small cells cross one module, and `merge` is the chance that a module spans two cells. The six weights, `wEmpty` to `wGrad`, decide how often each kind of module turns up. `blockFill` is the share of small cells that blocks and dots fill, and `dot` is the dot size. `rules` is how strongly the grid rules show, and `ruleW` is the width of every rule.
 
 The Palette takes any number of inks from 2, read by position. Each module picks one ink, plus a second for its ramp or its backing panel. The cream ground and the near-black rules are fixed by modular and are not part of the Palette.

@@ -21,7 +21,7 @@ SVG: yes. `-o oddgrid.svg` writes this Still as an [SVG](/cli-reference/render/#
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 oddgrid  32 frames, svg
@@ -37,19 +37,8 @@ oddgrid  32 frames, svg
   motifAmt    0..=1     step 0.01
   markSize    0.15..=1  step 0.01
   balance     -1.2..=1.2 step 0.05
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `motifs` and all 11 art ranges. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `density` starts at 0.4, because below it the grid empties to bare ground, and `speck` stops at 0.45, past which the frame turns to noise. Dither and the grain post-pass stay off. The `grain` among the art ranges is the Tool's own: it breaks up region edges. The site page also offers a motif from an uploaded SVG and a few Looks that set several sliders at once. tirage leaves both out.
+A Seed draws `motifs` and all 11 art ranges. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `density` starts at 0.4, because below it the grid empties to bare ground, and `speck` stops at 0.45, past which the frame turns to noise. The `grain` among the art ranges is the Tool's own: it breaks up region edges. The site page also offers a motif from an uploaded SVG and a few Looks that set several sliders at once. tirage leaves both out.
 
 The Palette is the cell inks, any number from 2. `balance` leans the colour field toward the first or the last of them. The ground `#101820` and the motif ink `#f2ede4` are fixed, as on the site page by default.

@@ -19,7 +19,7 @@ tirage derive --seed 1 --tool cipher | tirage render --size 540x960 -o cipher.pn
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 cipher  36 frames
@@ -34,19 +34,8 @@ cipher  36 frames
   flecks      0..=0.3   step 0.01
   smears      0..=0.6   step 0.01
   dots        0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter above the dither ones. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `size` stays within 0.48..=1, because smaller glyphs fade into the ground. `fields` picks what the bands trace. `cells` is how many glyphs span the frame. The last band is always the ground, with a faint dot in each cell that `dots` sizes. Dither and grain stay off.
+A Seed draws every Parameter listed. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `size` stays within 0.48..=1, because smaller glyphs fade into the ground. `fields` picks what the bands trace. `cells` is how many glyphs span the frame. The last band is always the ground, with a faint dot in each cell that `dots` sizes.
 
 The Palette takes any number of inks from 2. The first ink is the ground, and every later ink can colour a band, a stray square or an edge mark.

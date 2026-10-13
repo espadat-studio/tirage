@@ -21,7 +21,7 @@ SVG: yes. `-o prism.svg` writes this Still as an [SVG](/cli-reference/render/#sv
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 prism  12 frames, svg
@@ -30,21 +30,8 @@ prism  12 frames, svg
   reach       0.3..=0.85 step 0.01
   fringe      0.5..=1.6 step 0.01
   dots        0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter above `ditherTog`, each across its full range. `cols` sets how many cells span the width. `streams` sets how many streams flow in, `reach` how far each one runs, and `fringe` how wide. `dots` is how strongly the dot grid shows; at 0 it is gone.
-
-Grain and dither stay off, as the site page opens them.
+A Seed draws every Parameter listed, each across its full range. `cols` sets how many cells span the width. `streams` sets how many streams flow in, `reach` how far each one runs, and `fringe` how wide. `dots` is how strongly the dot grid shows; at 0 it is gone.
 
 prism takes no Palette. Its field, dots and colour rings are fixed, so its Recipe has no `palette` and `--palette` fails on it.

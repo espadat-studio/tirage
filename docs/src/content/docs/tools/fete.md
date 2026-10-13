@@ -21,7 +21,7 @@ SVG: yes. `-o fete.svg` writes this Still as an [SVG](/cli-reference/render/#svg
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 fete  100 frames, svg
@@ -30,19 +30,8 @@ fete  100 frames, svg
   res         36..=120  step 4
   lw          0.4..=2.2 step 0.05
   dots        0..=80    step 2
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `motifs`, `scale`, `res`, `lw` and `dots`, each across its full range. `motifs` picks the doodle: rings, a spiral, a burst of rays, an atom, a zigzag wave or a looping scribble. Auto lets the Tool seed pick one. `res` is how many grid columns span the frame, and `scale` how many patches fit across it. Dither and grain stay off.
+A Seed draws `motifs`, `scale`, `res`, `lw` and `dots`, each across its full range. `motifs` picks the doodle: rings, a spiral, a burst of rays, an atom, a zigzag wave or a looping scribble. Auto lets the Tool seed pick one. `res` is how many grid columns span the frame, and `scale` how many patches fit across it.
 
 The Palette takes any number of inks from 2 and colours the patches. The line is always white and the dots near black; neither is part of the Palette.

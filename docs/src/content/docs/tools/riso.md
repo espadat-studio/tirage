@@ -21,7 +21,7 @@ SVG: yes. `-o riso.svg` writes this Still as an [SVG](/cli-reference/render/#svg
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 riso  16 frames, svg
@@ -30,21 +30,10 @@ riso  16 frames, svg
   scrib       0..=1     step 0.01
   dotp        0..=1     step 0.01
   grain       0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
 A Seed draws `bands`, `rough`, `scrib` and `dotp`, each across its full range. `bands` sets how many bands there are and `rough` how torn the edges look. `scrib` sets how many pen lines cross the sheet, up to 3, and `dotp` is the chance of the big dot.
 
-`grain` is riso's own layer of specks, not the shared grain pass. A Seed leaves it at 0.5, as the site page opens it. The shared grain and dither stay off.
+`grain` is riso's own layer of specks, not the shared grain pass. A Seed leaves it at 0.5, as the site page opens it.
 
 The Palette takes any number of inks from 2. Each band picks its ground from it, then a pattern ink that stands out from the ground in lightness. The pen ink and the specks are riso's own colours, not part of the Palette.

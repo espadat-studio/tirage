@@ -21,26 +21,15 @@ SVG: yes. `-o quilt.svg` writes this Still as an [SVG](/cli-reference/render/#sv
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 quilt  60 frames, svg
   styles      Auto, Bands, Tabs, Plaid, Dither, Steps, Zigzag, Diamond, Cross, Basket, Rings, Star, Waves, Gingham, Burst
   cells       28..=72   step 2
   chunk       0.7..=1.8 step 0.05
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `styles`, `cells` and `chunk`, each across its full range. `styles` picks the pattern, and Auto lets the Tool seed pick one. `cells` is how many grid columns span the frame, and `chunk` scales every motif. Dither and grain stay off.
+A Seed draws `styles`, `cells` and `chunk`, each across its full range. `styles` picks the pattern, and Auto lets the Tool seed pick one. `cells` is how many grid columns span the frame, and `chunk` scales every motif.
 
 The Palette is four inks by role, in order: base cloth, two weave colours and a pop accent. quilt takes at most 4.

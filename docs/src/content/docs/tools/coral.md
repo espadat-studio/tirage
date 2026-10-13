@@ -19,7 +19,7 @@ tirage derive --seed 8 --tool coral | tirage render --size 540x960 -o coral.png
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 coral  36 frames
@@ -34,17 +34,6 @@ coral  36 frames
   ribs        0..=1     step 0.01
   dots        0..=1     step 0.01
   shadow      0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter above `ditherTog` across its full range, the [Taste bounds](/concepts/taste-bounds/) shipped for coral. The grain post-pass is on, as the site page opens: Multiply, amount 0.45, specks 0.4, vignette 0.3. Dither stays off. coral reads its Palette by role: ground, branch, rib, lobe and dot. A shorter Palette derives the missing roles from the inks it has.
+A Seed draws every Parameter listed across its full range, the [Taste bounds](/concepts/taste-bounds/) shipped for coral. The grain post-pass is on, as the site page opens: Multiply, amount 0.45, specks 0.4, vignette 0.3. coral reads its Palette by role: ground, branch, rib, lobe and dot. A shorter Palette derives the missing roles from the inks it has.

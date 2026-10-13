@@ -19,7 +19,7 @@ tirage derive --seed 2 --tool husk | tirage render --size 540x960 -o husk.png
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 husk  36 frames
@@ -31,17 +31,6 @@ husk  36 frames
   eat         0..=1     step 0.01
   tex         0..=1     step 0.01
   grain       0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `count`, `size`, `vary`, `lump`, `eat` and `tex`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed. `bites` stays at Crumble, and `grain`, the Tool's own per-pixel noise, at 0.3. Dither and the grain post-pass stay off.
+A Seed draws `count`, `size`, `vary`, `lump`, `eat` and `tex`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed. `bites` stays at Crumble, and `grain`, the Tool's own per-pixel noise, at 0.3.

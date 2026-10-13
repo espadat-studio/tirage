@@ -19,7 +19,7 @@ tirage derive --seed 9 --tool motley | tirage render --size 540x960 -o motley.pn
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 motley  36 frames
@@ -32,19 +32,8 @@ motley  36 frames
   sparse      0..=1     step 0.01
   stitch      0..=1     step 0.01
   gaps        0..=0.5   step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws all 9 art Parameters. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `mark` starts at 0.75, `sparse` stops at 0.6 and `gaps` at 0.3, because past them the dark ground and thinned patches turn the frame to mush. Dither and the grain post-pass stay off. On the site page a new variation number also moves the sliders. tirage leaves that to the Seed.
+A Seed draws all 9 art Parameters. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `mark` starts at 0.75, `sparse` stops at 0.6 and `gaps` at 0.3, because past them the dark ground and thinned patches turn the frame to mush. On the site page a new variation number also moves the sliders. tirage leaves that to the Seed.
 
 The Palette takes any number of inks from 2. The first is the ground between the glyphs, and every patch takes its ink from the rest. With 2 inks every patch is drawn in the second, so ring centres and stitched edges blend into their patch.
