@@ -8,7 +8,7 @@ tirage encode [OPTIONS] [FILE]
 tirage e [OPTIONS] [FILE]
 ```
 
-Reads a Recipe, renders every frame of its Loop at 720x1280 and writes them as one H.264 MP4 at the Tool's own frame rate. sonar gives 24 frames at 10 fps, kiosk 24 at 6 fps, frond 36 at 12 fps. The bytes are what the `tirage-encode` library returns for the same Recipe.
+Reads a Recipe, renders every frame of its Loop at 720x1280, or at `--size`, and writes them as one H.264 MP4 at the Tool's own frame rate. sonar gives 24 frames at 10 fps, kiosk 24 at 6 fps, frond 36 at 12 fps. The bytes are what the `tirage-encode` library returns for the same Recipe.
 
 encode is in the binary only when it was built with the `encode` feature. See [Installation](/getting-started/installation/#the-encode-feature).
 
@@ -18,9 +18,10 @@ encode is in the binary only when it was built with the `encode` feature. See [I
 
 ## Options
 
-| Option      | Value                           | Without it                                                                                                                                                                                                    |
-| ----------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-o <FILE>` | MP4 to write, or `-` for stdout | Prompted on a terminal, with `<tool>-<seed>.mp4` as default when encode derived the Recipe itself and `out.mp4` otherwise. The prompt asks before overwriting. An explicit path is overwritten without asking |
+| Option           | Value                                                | Without it                                                                                                                                                                                                    |
+| ---------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--size <W>x<H>` | Frame size in pixels, each edge even and in 2..=8192 | 720x1280. The byte budget and the cap scale with pixel area, so 360x640 aims at 300 KB under a 375 KB cap                                                                                                     |
+| `-o <FILE>`      | MP4 to write, or `-` for stdout                      | Prompted on a terminal, with `<tool>-<seed>.mp4` as default when encode derived the Recipe itself and `out.mp4` otherwise. The prompt asks before overwriting. An explicit path is overwritten without asking |
 
 `-h`, `--help`, `--no-color` and `--no-input` work here as on every command. See [tirage](/cli-reference/tirage/).
 
@@ -42,7 +43,7 @@ With prompts off and nothing to read, encode fails: exit 2 when stdin is a termi
 
 `-o FILE` writes the MP4 and leaves stdout empty. `-o -` streams the MP4 to stdout for the next command in a pipe. encode refuses to write MP4 bytes to a terminal and exits 2 instead.
 
-A Loop has to stay under 1.5 MB. One that does not exits 1, and the message names its size and the cap. Nothing is written in that case.
+A Loop has to stay under its cap: 1.5 MB at 720x1280, scaled by pixel area at another size. One that does not exits 1, and the message names its size and the cap. Nothing is written in that case.
 
 openh264 prints one warning on stderr while it encodes, that it cannot hold the bitrate without skipping frames. A Loop keeps every frame, so the warning is expected.
 
@@ -52,11 +53,12 @@ openh264 prints one warning on stderr while it encodes, that it cannot hold the 
 | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `0`  | The MP4 was written                                                                                                                                                                                       |
 | `1`  | The Recipe could not be read or is not valid: bad JSON, another derivation major, a value out of range, an unknown Parameter. Also a Still Tool, a Loop over the cap, or an MP4 that could not be written |
-| `2`  | A missing output path with prompts off, no Recipe on a terminal with prompts off, a bad flag value, or an MP4 aimed at the terminal                                                                       |
+| `2`  | An odd or out-of-range `--size`, a missing output path with prompts off, no Recipe on a terminal with prompts off, a bad flag value, or an MP4 aimed at the terminal                                      |
 
 ## Examples
 
 ```sh
 tirage derive --seed 42 --tool sonar | tirage encode -o out.mp4
 tirage encode recipe.json -o - > loop.mp4
+tirage derive --seed 42 --tool sonar | tirage encode --size 360x640 -o small.mp4
 ```

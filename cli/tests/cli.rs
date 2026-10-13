@@ -1807,6 +1807,30 @@ mod encode {
     }
 
     #[test]
+    fn encode_size_writes_the_mp4_the_library_encodes_at_that_size() {
+        let out = tirage(&["encode", "--size", "360x640", "-o", "-"], &recipe());
+        assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+        let recipe = tirage::derive(42, tirage::ToolPin::Tool(tirage::Tool::Sonar));
+        assert_eq!(
+            out.stdout,
+            tirage_encode::encode(&recipe, 360, 640).unwrap()
+        );
+    }
+
+    #[test]
+    fn encode_refuses_an_odd_or_out_of_range_size() {
+        for size in ["361x640", "360x641", "0x640", "360x8194"] {
+            let out = tirage(&["encode", "--size", size, "-o", "-"], &recipe());
+            assert_eq!(out.status.code(), Some(2), "{size}");
+            assert!(
+                text(&out.stderr).contains("each edge must be even and in 2..=8192"),
+                "{size}: {}",
+                text(&out.stderr)
+            );
+        }
+    }
+
+    #[test]
     fn encode_refuses_mp4_bytes_on_a_terminal() {
         let out = on_tty("tirage derive --seed 42 --tool sonar | tirage encode -o -");
         assert_eq!(out.status.code(), Some(2));
