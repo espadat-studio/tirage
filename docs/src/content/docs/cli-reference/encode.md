@@ -18,10 +18,10 @@ encode is in the binary only when it was built with the `encode` feature. See [I
 
 ## Options
 
-| Option           | Value                                                | Without it                                                                                                                                                                                                    |
-| ---------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--size <W>x<H>` | Frame size in pixels, each edge even and in 2..=8192 | 720x1280. The byte budget and the cap scale with pixel area, so 360x640 aims at 300 KB under a 375 KB cap                                                                                                     |
-| `-o <FILE>`      | MP4 to write, or `-` for stdout                      | Prompted on a terminal, with `<tool>-<seed>.mp4` as default when encode derived the Recipe itself and `out.mp4` otherwise. The prompt asks before overwriting. An explicit path is overwritten without asking |
+| Option           | Value                                                 | Without it                                                                                                                                                                                                    |
+| ---------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--size <W>x<H>` | Frame size in pixels, each edge even and in 16..=2048 | 720x1280. The byte budget scales with pixel area, so 360x640 aims at 300 KB                                                                                                                                   |
+| `-o <FILE>`      | MP4 to write, or `-` for stdout                       | Prompted on a terminal, with `<tool>-<seed>.mp4` as default when encode derived the Recipe itself and `out.mp4` otherwise. The prompt asks before overwriting. An explicit path is overwritten without asking |
 
 `-h`, `--help`, `--no-color` and `--no-input` work here as on every command. See [tirage](/cli-reference/tirage/).
 
@@ -43,7 +43,7 @@ With prompts off and nothing to read, encode fails: exit 2 when stdin is a termi
 
 `-o FILE` writes the MP4 and leaves stdout empty. `-o -` streams the MP4 to stdout for the next command in a pipe. encode refuses to write MP4 bytes to a terminal and exits 2 instead.
 
-A Loop has to stay under its cap: 1.5 MB at 720x1280, scaled by pixel area at another size. One that does not exits 1, and the message names its size and the cap. Nothing is written in that case.
+A Loop has to stay under its cap: 1.5 MB, or more at a size larger than 720x1280, in proportion to its pixel area. The budget is only a target, and a noisy Loop can come out at twice it. A Loop over its cap exits 1, and the message names its size and the cap. Nothing is written in that case.
 
 openh264 prints one warning on stderr while it encodes, that it cannot hold the bitrate without skipping frames. A Loop keeps every frame, so the warning is expected.
 

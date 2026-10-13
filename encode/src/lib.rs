@@ -8,10 +8,13 @@ use openh264::encoder::{
     BitRate, Encoder, EncoderConfig, FrameRate, FrameType, QpRange, RateControlMode,
 };
 use openh264::formats::{RgbaSliceU8, YUVBuffer};
-use tirage::{Frame, MAX_EDGE, Recipe, render};
+use tirage::{Frame, Recipe, render};
 
 pub const WIDTH: u32 = 720;
 pub const HEIGHT: u32 = 1280;
+
+pub const MIN_EDGE: u32 = 16;
+pub const MAX_EDGE: u32 = 2048;
 
 pub const OPENH264: &str = "0.9.8";
 
@@ -24,14 +27,26 @@ const SPS: u8 = 7;
 const PPS: u8 = 8;
 
 pub fn cap(width: u32, height: u32) -> usize {
-    scale(MAX_BYTES as u64, width, height) as usize
+    MAX_BYTES.max(scale_by_area(MAX_BYTES as u64, width, height) as usize)
+}
+
+pub fn check_size(width: u32, height: u32) -> Result<(), Error> {
+    let edges = MIN_EDGE..=MAX_EDGE;
+    if [width, height]
+        .iter()
+        .all(|edge| edges.contains(edge) && edge.is_multiple_of(2))
+    {
+        Ok(())
+    } else {
+        Err(Error::Size { width, height })
+    }
 }
 
 fn budget(width: u32, height: u32) -> u64 {
-    scale(u64::from(BUDGET), width, height)
+    scale_by_area(u64::from(BUDGET), width, height)
 }
 
-fn scale(bytes: u64, width: u32, height: u32) -> u64 {
+fn scale_by_area(bytes: u64, width: u32, height: u32) -> u64 {
     bytes * u64::from(width) * u64::from(height) / (u64::from(WIDTH) * u64::from(HEIGHT))
 }
 
@@ -63,7 +78,7 @@ impl fmt::Display for Error {
             }
             Self::Size { width, height } => write!(
                 f,
-                "{width}x{height} cannot be encoded, each edge must be even and in 2..={MAX_EDGE}"
+                "{width}x{height} cannot be encoded, each edge must be even and in {MIN_EDGE}..={MAX_EDGE}, like 360x640"
             ),
         }
     }
@@ -84,14 +99,7 @@ impl From<mp4::Error> for Error {
 }
 
 pub fn encode(recipe: &Recipe, width: u32, height: u32) -> Result<Vec<u8>, Error> {
-    let edges = 2..=MAX_EDGE;
-    if !(edges.contains(&width)
-        && edges.contains(&height)
-        && width.is_multiple_of(2)
-        && height.is_multiple_of(2))
-    {
-        return Err(Error::Size { width, height });
-    }
+    check_size(width, height)?;
     let tool = recipe.tool();
     let fps = tool.fps();
     let bitrate = budget(width, height) * 8 * u64::from(fps) / u64::from(tool.frames());

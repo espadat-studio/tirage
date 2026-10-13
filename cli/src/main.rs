@@ -164,7 +164,7 @@ enum Command {
             value_parser = parse_even_size,
             default_value = "720x1280",
             help = "Frame size in pixels",
-            long_help = "Frame size in pixels as <W>x<H>, each edge even and in 2..=8192. The byte budget and the cap scale with pixel area, so 360x640 aims at a quarter of the bytes"
+            long_help = "Frame size in pixels as <W>x<H>, each edge even and in 16..=2048. The byte budget scales with pixel area, so 360x640 aims at a quarter of the bytes. The 1.5 MB cap scales up with it but never down"
         )]
         size: (u32, u32),
         #[arg(
@@ -811,15 +811,9 @@ fn checked_size(size: &str) -> Result<(u32, u32), String> {
 #[cfg(feature = "encode")]
 fn parse_even_size(size: &str) -> Result<(u32, u32), String> {
     let (width, height) = parse_size(size)?;
-    let edges = 2..=MAX_EDGE;
-    if [width, height]
-        .iter()
-        .all(|edge| edges.contains(edge) && edge.is_multiple_of(2))
-    {
-        Ok((width, height))
-    } else {
-        Err(format!("each edge must be even and in 2..={MAX_EDGE}"))
-    }
+    tirage_encode::check_size(width, height)
+        .map(|()| (width, height))
+        .map_err(|e| e.to_string())
 }
 
 fn parse_palette(inks: &str) -> Result<Palette, tirage::Error> {

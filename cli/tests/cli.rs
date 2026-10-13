@@ -1819,11 +1819,11 @@ mod encode {
 
     #[test]
     fn encode_refuses_an_odd_or_out_of_range_size() {
-        for size in ["361x640", "360x641", "0x640", "360x8194"] {
+        for size in ["361x640", "360x641", "14x640", "360x2050"] {
             let out = tirage(&["encode", "--size", size, "-o", "-"], &recipe());
             assert_eq!(out.status.code(), Some(2), "{size}");
             assert!(
-                text(&out.stderr).contains("each edge must be even and in 2..=8192"),
+                text(&out.stderr).contains("each edge must be even and in 16..=2048, like 360x640"),
                 "{size}: {}",
                 text(&out.stderr)
             );
