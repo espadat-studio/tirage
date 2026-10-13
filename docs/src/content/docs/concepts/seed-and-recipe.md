@@ -52,7 +52,7 @@ A _Seed_ is one unsigned 64-bit integer. It derives a whole Recipe, and the same
 
 Each field is drawn on its own. A draw hashes the Seed together with the name of what it is for: sonar's `level` comes from the Seed, the word `sonar` and the word `level`, mapped into that Parameter's [Taste bounds](/concepts/taste-bounds/). No draw reads another draw. Adding a Parameter to a Tool, or listing its Parameters in another order, leaves every existing value where it was.
 
-Two things are not drawn. The Palette is the Tool's default unless you pin one. The grain and dither Parameters stay at the site's defaults, both off, unless you pin them.
+Two things are not drawn. The Palette is the Tool's default unless you pin one. The [dither and grain](/concepts/dither-and-grain/) Parameters stay at the site's defaults unless you pin them.
 
 The Tool seed is drawn the same way and is never 0, because the site reads a seed of 0 as 1.
 

@@ -6,6 +6,47 @@ use tirage::Tool;
 
 const BIN: &str = env!("CARGO_BIN_EXE_tirage");
 const ROOT: &str = env!("CARGO_MANIFEST_DIR");
+const SHARED: [&str; 11] = [
+    "ditherTog",
+    "dthKinds",
+    "dthSize",
+    "dthLevels",
+    "dthAmount",
+    "grainTog",
+    "grnBlends",
+    "grnAmount",
+    "grnSize",
+    "grnSpecks",
+    "grnVignette",
+];
+
+fn is_shared(line: &str) -> bool {
+    line.split_whitespace()
+        .next()
+        .is_some_and(|id| SHARED.contains(&id))
+}
+
+fn tools_listing() -> String {
+    String::from_utf8(Command::new(BIN).arg("tools").output().unwrap().stdout).unwrap()
+}
+
+fn tools_section(tools: &str, tool: Tool) -> impl Iterator<Item = &str> {
+    let header = format!("{}  ", tool.slug());
+    tools
+        .split_inclusive('\n')
+        .skip_while(move |line| !line.starts_with(&header))
+        .enumerate()
+        .take_while(|(i, line)| *i == 0 || line.starts_with("  "))
+        .map(|(_, line)| line)
+}
+
+fn code_block<'a>(page: &'a str, prefix: &str) -> Option<&'a str> {
+    page.split("```")
+        .skip(1)
+        .step_by(2)
+        .map(|block| block.trim_start_matches('\n'))
+        .find(|block| block.starts_with(prefix))
+}
 
 fn read_page(tool: Tool) -> String {
     let path = Path::new(ROOT).join(format!("../docs/src/content/docs/tools/{}.md", tool.slug()));
@@ -54,27 +95,32 @@ fn each_still_re_renders_byte_for_byte_from_the_command_on_its_page() {
 
 #[test]
 fn each_page_lists_parameters_as_tirage_tools_prints_them() {
-    let tools = String::from_utf8(Command::new(BIN).arg("tools").output().unwrap().stdout).unwrap();
+    let tools = tools_listing();
     for &tool in Tool::ALL {
         let page = read_page(tool);
-        let header = format!("{}  ", tool.slug());
-        let block = page
-            .split("```")
-            .skip(1)
-            .step_by(2)
-            .map(|block| block.trim_start_matches('\n'))
-            .find(|block| block.starts_with(&header))
+        let block = code_block(&page, &format!("{}  ", tool.slug()))
             .unwrap_or_else(|| panic!("{}: no 'tirage tools' block on the page", tool.slug()));
-        let section = tools
-            .split_inclusive('\n')
-            .skip_while(|line| !line.starts_with(&header))
-            .take_while(|line| line.starts_with(&header) || line.starts_with("  "))
-            .collect::<String>();
+        let section = tools_section(&tools, tool).collect::<String>();
         assert_eq!(
             block,
             section,
             "{}: the Parameters block differs from 'tirage tools'",
             tool.slug()
         );
+    }
+}
+
+#[test]
+fn the_dither_and_grain_page_lists_the_shared_rows_every_tool_prints() {
+    let path = Path::new(ROOT).join("../docs/src/content/docs/concepts/dither-and-grain.md");
+    let page = fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+    let block = code_block(&page, "ditherTog").expect("no shared Parameters block on the page");
+    let tools = tools_listing();
+    for &tool in Tool::ALL {
+        let shared = tools_section(&tools, tool)
+            .filter(|line| is_shared(line))
+            .map(|line| line.trim_start())
+            .collect::<String>();
+        assert_eq!(block, shared, "{}: the shared rows differ", tool.slug());
     }
 }
