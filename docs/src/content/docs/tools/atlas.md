@@ -21,7 +21,7 @@ SVG: yes. `-o atlas.svg` writes this Still as an [SVG](/cli-reference/render/#sv
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 atlas  24 frames, svg
@@ -33,19 +33,8 @@ atlas  24 frames, svg
   cols        24..=260  step 1
   density     0..=1     step 0.01
   weight      0..=1.5   step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws all 7 art ranges and the character set. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `bands` starts at 3, because 2 terraces leave one flat ground. Dither and the grain post-pass stay off. `weight` sets how much of the character set each terrace draws from, not how heavy the type is. tirage leaves out the site's Custom set.
+A Seed draws all 7 art ranges and the character set. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `bands` starts at 3, because 2 terraces leave one flat ground. `weight` sets how much of the character set each terrace draws from, not how heavy the type is. tirage leaves out the site's Custom set.
 
 The Palette takes any number of inks from 2. Terraces take their ground ink by position, wrapping when there are more terraces than inks. The type is the lightest ink, or the darkest one where the ground is closer to the lightest.

@@ -33,6 +33,7 @@ export default defineConfig({
             { slug: "concepts/pins" },
             { slug: "concepts/taste-bounds" },
             { slug: "concepts/still-and-loop" },
+            { slug: "concepts/dither-and-grain" },
             { slug: "concepts/reproducing-the-look" },
           ],
         },

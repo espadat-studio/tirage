@@ -19,7 +19,7 @@ tirage derive --seed 1 --tool dahlia | tirage render --size 540x960 -o dahlia.pn
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 dahlia  36 frames
@@ -33,21 +33,10 @@ dahlia  36 frames
   gap         0..=1     step 0.01
   bend        0..=1     step 0.01
   caps        0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter above `ditherTog`, each across its full range. `size` sets how far the burst reaches and `ragged` how unevenly its rays end. `cx` and `cy` place the centre. `width`, `dash` and `gap` shape the dashes, `bend` bows the rays, and `caps` is the chance that a dash ends in a bead.
+A Seed draws every Parameter listed, each across its full range. `size` sets how far the burst reaches and `ragged` how unevenly its rays end. `cx` and `cy` place the centre. `width`, `dash` and `gap` shape the dashes, `bend` bows the rays, and `caps` is the chance that a dash ends in a bead.
 
-Grain is on, as the site page opens it: multiply at 0.22, with specks at 0.5 and vignette at 0.15. Its `grnAmount` of 0.22 sits between the slider's steps. Dither stays off.
+Grain is on, as the site page opens it: multiply at 0.22, with specks at 0.5 and vignette at 0.15. Its `grnAmount` of 0.22 sits between the slider's steps.
 
 The Palette takes any number of inks from 2, read by role. The first ink is the paper and the last is the accent for the beads. The inks between colour the rays. With only 2 inks, the rays use the accent too.

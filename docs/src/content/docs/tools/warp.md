@@ -21,26 +21,15 @@ SVG: yes. `-o warp.svg` writes this Still as an [SVG](/cli-reference/render/#svg
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 warp  72 frames, svg
   styles      Checker, Slash
   scale       0.5..=2   step 0.05
   warp        0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `styles`, `scale` and `warp`, each across its full range. The site's Auto style is left out: it picks checks or bars from the Tool seed, so a Recipe names that style instead. Dither and grain stay off.
+A Seed draws `styles`, `scale` and `warp`, each across its full range. The site's Auto style is left out: it picks checks or bars from the Tool seed, so a Recipe names that style instead.
 
 The Palette has 5 inks by role: a Base, then Ink 1 to Ink 4. warp takes at most 5. Each Still paints the Base and one of the four inks, and the Tool seed picks which ink and which of the two is the ground.

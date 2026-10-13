@@ -101,7 +101,7 @@ sonar  24 frames, svg
   grnVignette 0..=1     step 0.05
 ```
 
-A range like `0..=1 step 0.01` means any value from 0 to 1 in steps of 0.01, both ends included. The last eleven Parameters, from `ditherTog` to `grnVignette`, are the dither and grain passes. Every Tool has them.
+A range like `0..=1 step 0.01` means any value from 0 to 1 in steps of 0.01, both ends included. The last 11 Parameters, from `ditherTog` to `grnVignette`, are the same on every Tool. [Dither and grain](/concepts/dither-and-grain/) explains them, and Tool pages leave them out.
 
 ## JSON output
 

@@ -21,7 +21,7 @@ SVG: yes. `-o vein.svg` writes this Still as an [SVG](/cli-reference/render/#svg
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 vein  36 frames, svg
@@ -34,17 +34,6 @@ vein  36 frames, svg
   stars       0..=1     step 0.01
   tints       0..=1     step 0.01
   runs        0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `flows`, `scale`, `curve`, `levels`, `tiger`, `edges`, `stars`, `tints` and `runs`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed. Grain stays on, as the site page opens: Overlay at 0.4, size 1, specks 0.4, vignette 0.25. Dither stays off.
+A Seed draws `flows`, `scale`, `curve`, `levels`, `tiger`, `edges`, `stars`, `tints` and `runs`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed. Grain stays on, as the site page opens: Overlay at 0.4, size 1, specks 0.4, vignette 0.25.

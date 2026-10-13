@@ -21,7 +21,7 @@ SVG: yes. `-o tokens.svg` writes this Still as an [SVG](/cli-reference/render/#s
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 tokens  36 frames, svg
@@ -45,21 +45,10 @@ tokens  36 frames, svg
   hollow      0..=1     step 0.01
   kin         0..=1     step 0.01
   break       0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter above `ditherTog`. It keeps `cols` to 4..48, `count` to 8..400, `sizeT` to 0.2..1 and `strokeW` to 0.5..8, because a wide board or tiny counters leave only specks, and a hollow counter with no outline disappears into the board. Every other Parameter is drawn across its full range.
+A Seed draws every Parameter listed. It keeps `cols` to 4..48, `count` to 8..400, `sizeT` to 0.2..1 and `strokeW` to 0.5..8, because a wide board or tiny counters leave only specks, and a hollow counter with no outline disappears into the board. Every other Parameter is drawn across its full range.
 
-`cols` sets the board columns, and `ruleEvery` and `grid` set how often a vertical rule falls and how strongly the grid shows. `count` is how many clusters to place. `wRun`, `wBlock`, `wPlus` and `wOne` weight the four cluster shapes, and `runLen` and `upright` set how long a run gets and how often it stands up. `clump` gathers clusters together and `align` lines them up on a few rows and columns. `sizeT`, `svar` and `hier` set the counter size, how much it varies, and how often a cluster comes out large. `square` is the share of square counters, `strokeW` the outline width and `hollow` the share of hollow counters. `kin` sets how far in hue an outline ink can be from its fill, and `break` is the chance a counter takes its own inks. Grain and dither stay off.
+`cols` sets the board columns, and `ruleEvery` and `grid` set how often a vertical rule falls and how strongly the grid shows. `count` is how many clusters to place. `wRun`, `wBlock`, `wPlus` and `wOne` weight the four cluster shapes, and `runLen` and `upright` set how long a run gets and how often it stands up. `clump` gathers clusters together and `align` lines them up on a few rows and columns. `sizeT`, `svar` and `hier` set the counter size, how much it varies, and how often a cluster comes out large. `square` is the share of square counters, `strokeW` the outline width and `hollow` the share of hollow counters. `kin` sets how far in hue an outline ink can be from its fill, and `break` is the chance a counter takes its own inks.
 
 The Palette takes any number of inks from 2, read by position. Fills and outlines both come from it. The board `#F4F1EA` and the rule ink `#D9D4C7` are fixed by the Tool.

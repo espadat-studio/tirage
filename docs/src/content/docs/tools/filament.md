@@ -19,7 +19,7 @@ tirage derive --seed 2 --tool filament | tirage render --size 540x960 -o filamen
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 filament  30 frames
@@ -43,21 +43,10 @@ filament  30 frames
   bead        0..=1     step 0.01
   bgap        2..=14    step 1
   msize       2..=26    step 0.5
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
 A Seed draws all twenty of filament's own Parameters. `zoom`, `turn`, `oct` and `curl` shape the flow field, and `tangle` lets strands leave it and cross each other. `bundles` sets how many ropes there are, `per` how many strands each one has, `tight` how close they start, and `clump` how much the ropes gather in one part of the frame. `len` and `step` set how far a strand walks. `wgt`, `wvar` and `hier` set the stroke weights, and `hair` is the share of strands drawn as hairlines. `mstyles` picks symbols, beads or both. `mark` sets how many symbols there are, `bead` how many strands carry beads, `bgap` the spacing of the beads, and `msize` the size of every mark.
 
-A Seed keeps `bundles` from 23 and `len` from 160. With a single bundle or a very short walk, the frame is almost empty. Every other Parameter can take its full range. The shared grain and dither stay off.
+A Seed keeps `bundles` from 23 and `len` from 160. With a single bundle or a very short walk, the frame is almost empty. Every other Parameter can take its full range.
 
 The Palette takes any number of inks from 2 and colours the strands and beads. The last ink draws the hairlines. The dark ground and the three symbol accents are fixed by filament itself.

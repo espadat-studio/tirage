@@ -19,7 +19,7 @@ tirage derive --seed 12 --tool sear | tirage render --size 540x960 -o sear.png
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 sear  36 frames
@@ -31,17 +31,6 @@ sear  36 frames
   tear        0..=1     step 0.01
   steps       2..=24    step 1
   grain       0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter above `grain`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `tear` stays within 0..=0.6. `grain`, the Tool's own grain, stays at 0.1. Dither and the grain post-pass stay off. The Palette is a ramp read coolest first, so the first ink is the lowest heat and the last the peaks.
+A Seed draws every Parameter above `grain`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `tear` stays within 0..=0.6. `grain`, the Tool's own grain, stays at 0.1. The Palette is a ramp read coolest first, so the first ink is the lowest heat and the last the peaks.

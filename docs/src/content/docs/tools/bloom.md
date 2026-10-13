@@ -21,7 +21,7 @@ SVG: yes. `-o bloom.svg` writes this Still as an [SVG](/cli-reference/render/#sv
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 bloom  24 frames, svg
@@ -31,17 +31,6 @@ bloom  24 frames, svg
   grain       0..=1     step 0.01
   steps       2..=14    step 1
   calm        0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `cols`, `rings`, `warp`, `steps` and `calm`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `rings` stays within 4..=14, `steps` within 2..=8 and `calm` within 0..=0.5. `grain`, bloom's own roughness on the band edges, stays at 0.3. Dither and the grain pass stay off. The Palette is a ramp from the deepest band to the palest, and every ink is used whatever `steps` is.
+A Seed draws `cols`, `rings`, `warp`, `steps` and `calm`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `rings` stays within 4..=14, `steps` within 2..=8 and `calm` within 0..=0.5. `grain`, bloom's own roughness on the band edges, stays at 0.3. The Palette is a ramp from the deepest band to the palest, and every ink is used whatever `steps` is.

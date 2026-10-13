@@ -19,7 +19,7 @@ tirage derive --seed 2 --tool splice | tirage render --size 540x960 -o splice.pn
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 splice  36 frames
@@ -35,19 +35,8 @@ splice  36 frames
   arcs        0..=24    step 1
   weight      0..=1     step 0.01
   bend        0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter above `ditherTog` except `grain`, each across its full range. `dirs` cuts the sheet into columns, rows or blocks, and `slices` is how many pieces there are. `mix` is the chance that a piece picks its own screen: dots, lines, noise or flat. `grain`, the Tool's own per-pixel noise, stays at 0.18. Dither and the grain post-pass stay off.
+A Seed draws every Parameter listed except `grain`, each across its full range. `dirs` cuts the sheet into columns, rows or blocks, and `slices` is how many pieces there are. `mix` is the chance that a piece picks its own screen: dots, lines, noise or flat. `grain`, the Tool's own per-pixel noise, stays at 0.18.
 
 The Palette takes any number of inks from 2. The first ink draws the lines between tones and also prints as a tone. The arcs are drawn in Palette inks at 85% opacity.

@@ -21,7 +21,7 @@ SVG: yes. `-o parcel.svg` writes this Still as an [SVG](/cli-reference/render/#s
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 parcel  72 frames, svg
@@ -30,19 +30,8 @@ parcel  72 frames, svg
   chunk       0.5..=2   step 0.05
   grids       0..=8     step 1
   blends      Multiply, Normal
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws `cells`, `cover`, `chunk` and `grids` across their full range. `cells` is how many cells span the frame, `cover` is the share of them the blocks take, and `chunk` decides how big the blobs grow. `grids` is how many hairline clusters there are, so Seed 1, which draws 0, has none. `blends` stays at Multiply. Switch it to Normal and the lines are drawn flat over the blocks. Dither and grain stay off.
+A Seed draws `cells`, `cover`, `chunk` and `grids` across their full range. `cells` is how many cells span the frame, `cover` is the share of them the blocks take, and `chunk` decides how big the blobs grow. `grids` is how many hairline clusters there are, so Seed 1, which draws 0, has none. `blends` stays at Multiply. Switch it to Normal and the lines are drawn flat over the blocks.
 
 The Palette has three inks, one per role: the ground, the blocks and the lines. parcel takes at most 3.

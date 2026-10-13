@@ -21,7 +21,7 @@ SVG: yes. `-o optic.svg` writes this Still as an [SVG](/cli-reference/render/#sv
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 optic  72 frames, svg
@@ -30,19 +30,8 @@ optic  72 frames, svg
   weight      0.3..=0.7 step 0.01
   sizeF       0.4..=1   step 0.01
   levels      1..=3     step 1
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter above `ditherTog`, each across its full range. `styles` is the figure shape. Auto lets the Tool seed pick the shape, and it also changes how the bars move inside each figure, so Auto gives a different Still from naming the same shape. `count` sets how many bars cross the short edge and `weight` how much of each step is bar. `sizeF` sets the size of the outer figure and `levels` how many figures nest inside one another. Dither and grain stay off.
+A Seed draws every Parameter listed, each across its full range. `styles` is the figure shape. Auto lets the Tool seed pick the shape, and it also changes how the bars move inside each figure, so Auto gives a different Still from naming the same shape. `count` sets how many bars cross the short edge and `weight` how much of each step is bar. `sizeF` sets the size of the outer figure and `levels` how many figures nest inside one another.
 
 The Palette has 2 inks by role: Base and Ink. optic takes at most 2. The Base is the ground and the Ink is every bar.

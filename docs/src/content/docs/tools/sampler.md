@@ -21,7 +21,7 @@ SVG: yes. `-o sampler.svg` writes this Still as an [SVG](/cli-reference/render/#
 
 ## Parameters
 
-As [`tirage tools`](/cli-reference/tools/) lists them, each with its range and step, or its choices:
+From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and grain](/concepts/dither-and-grain/) Parameters:
 
 ```
 sampler  24 frames, svg
@@ -31,20 +31,9 @@ sampler  24 frames, svg
   turn        0..=1     step 0.01
   density     0.1..=1   step 0.01
   weight      0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
 ```
 
-A Seed draws every Parameter but the shared grain and dither, which stay off. `grid` sets the number of columns, and the rows follow from the frame's shape. `bands` sets how many bands the rows aim for, and `mix` how many tile shapes one band may use. `turn` sets how freely a tile turns away from its neighbours, and `weight` tips each band toward its first ink.
+A Seed draws every Parameter listed. `grid` sets the number of columns, and the rows follow from the frame's shape. `bands` sets how many bands the rows aim for, and `mix` how many tile shapes one band may use. `turn` sets how freely a tile turns away from its neighbours, and `weight` tips each band toward its first ink.
 
 `density` is the share of cells that get a tile. A Seed draws it from 0.55 to 1: below that, most of the frame is bare ground with a few small marks scattered on it.
 
