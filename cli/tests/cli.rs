@@ -1766,10 +1766,11 @@ mod encode {
     use super::*;
 
     fn sonar_mp4() -> Vec<u8> {
-        tirage_encode::encode(&tirage::derive(
-            42,
-            tirage::ToolPin::Tool(tirage::Tool::Sonar),
-        ))
+        tirage_encode::encode(
+            &tirage::derive(42, tirage::ToolPin::Tool(tirage::Tool::Sonar)),
+            tirage_encode::WIDTH,
+            tirage_encode::HEIGHT,
+        )
         .unwrap()
     }
 
@@ -1907,7 +1908,10 @@ mod encode {
         );
         assert_eq!(files_in(&dir), std::slice::from_ref(&name));
         let rolled = std::fs::read(dir.join(&name)).unwrap();
-        assert_eq!(rolled, tirage_encode::encode(&recipe).unwrap());
+        assert_eq!(
+            rolled,
+            tirage_encode::encode(&recipe, tirage_encode::WIDTH, tirage_encode::HEIGHT).unwrap()
+        );
         let again = scratch("roll-loop-again");
         reproduce(&out.stderr, &again);
         assert_eq!(std::fs::read(again.join(&name)).unwrap(), rolled);

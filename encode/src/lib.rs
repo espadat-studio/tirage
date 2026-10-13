@@ -23,9 +23,9 @@ const QP: (u8, u8) = (12, 51);
 const SPS: u8 = 7;
 const PPS: u8 = 8;
 
-pub fn settings() -> String {
+pub fn settings(width: u32, height: u32) -> String {
     format!(
-        "tirage-encode {} openh264 {OPENH264} h264 {WIDTH}x{HEIGHT} rc budget {BUDGET} bytes per Loop qp {}..={} no-skip",
+        "tirage-encode {} openh264 {OPENH264} h264 {width}x{height} rc budget {BUDGET} bytes per Loop qp {}..={} no-skip",
         env!("CARGO_PKG_VERSION"),
         QP.0,
         QP.1
@@ -65,7 +65,7 @@ impl From<mp4::Error> for Error {
     }
 }
 
-pub fn encode(recipe: &Recipe) -> Result<Vec<u8>, Error> {
+pub fn encode(recipe: &Recipe, width: u32, height: u32) -> Result<Vec<u8>, Error> {
     let tool = recipe.tool();
     let fps = tool.fps();
     let bitrate = u64::from(BUDGET) * 8 * u64::from(fps) / u64::from(tool.frames());
@@ -82,9 +82,9 @@ pub fn encode(recipe: &Recipe) -> Result<Vec<u8>, Error> {
     let mut samples = Vec::new();
     for t in 0..tool.frames() {
         let frame =
-            Frame::new(recipe, WIDTH, HEIGHT, t).expect("720x1280 inside the Loop is valid");
+            Frame::new(recipe, width, height, t).expect("720x1280 inside the Loop is valid");
         let image = render(recipe, &frame);
-        let rgba = RgbaSliceU8::new(image.rgba(), (WIDTH as usize, HEIGHT as usize));
+        let rgba = RgbaSliceU8::new(image.rgba(), (width as usize, height as usize));
         let stream = encoder.encode(&YUVBuffer::from_rgb_source(rgba))?;
         let is_sync = matches!(stream.frame_type(), FrameType::IDR);
         let mut sample = Vec::new();
@@ -124,8 +124,8 @@ pub fn encode(recipe: &Recipe) -> Result<Vec<u8>, Error> {
     writer.add_track(&TrackConfig {
         timescale: fps,
         ..TrackConfig::from(MediaConfig::AvcConfig(AvcConfig {
-            width: WIDTH as u16,
-            height: HEIGHT as u16,
+            width: width as u16,
+            height: height as u16,
             seq_param_set: sps,
             pic_param_set: pps,
         }))

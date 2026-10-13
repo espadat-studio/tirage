@@ -718,7 +718,7 @@ fn write_output(output: &Path, bytes: &[u8]) -> Result<(), Failure> {
 
 #[cfg(feature = "encode")]
 fn encode_loop(recipe: &Recipe) -> Result<Vec<u8>, Failure> {
-    tirage_encode::encode(recipe)
+    tirage_encode::encode(recipe, tirage_encode::WIDTH, tirage_encode::HEIGHT)
         .map_err(|e| Failure::Runtime(e.to_string(), hint::for_encode_error(&e)))
 }
 

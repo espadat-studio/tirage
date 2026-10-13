@@ -84,4 +84,4 @@ tirage derive --seed 42 --tool sonar | tirage encode -o out.mp4
 
 openh264 prints one warning on stderr, that it cannot hold the bitrate without skipping frames. That is expected: a Loop keeps every frame. `out.mp4` is the Loop: H.264, 720x1280, 24 frames at 10 fps, 2.4 seconds, 1.15 MB. A Loop has to stay under 1.5 MB, and `encode` exits 1 for one that does not. Its first frame is the Still, so `out.png` can be the video's poster. If the video does not play (reduced motion, blocked autoplay), the viewer sees the Still instead.
 
-Like `render`, `encode` also takes a Recipe file, so `tirage encode recipe.json -o out.mp4` writes the same bytes. From Rust, `tirage_encode::encode(&recipe)` returns them.
+Like `render`, `encode` also takes a Recipe file, so `tirage encode recipe.json -o out.mp4` writes the same bytes. From Rust, `tirage_encode::encode(&recipe, 720, 1280)` returns them.

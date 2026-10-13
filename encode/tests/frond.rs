@@ -8,7 +8,7 @@ const SEEDS: [u64; 3] = [1, 2, 3];
 
 #[test]
 fn frond_loop_is_h264_at_720x1280_with_the_tools_frames_and_fps() {
-    let mp4 = encode(&derive(1, ToolPin::Tool(Tool::Frond))).unwrap();
+    let mp4 = encode(&derive(1, ToolPin::Tool(Tool::Frond)), WIDTH, HEIGHT).unwrap();
     let reader = Mp4Reader::read_header(Cursor::new(&mp4[..]), mp4.len() as u64).unwrap();
     let tracks: Vec<_> = reader.tracks().values().collect();
     assert_eq!(tracks.len(), 1);
@@ -27,7 +27,7 @@ fn every_fixed_frond_seed_stays_under_the_cap() {
     std::thread::scope(|scope| {
         for seed in SEEDS {
             scope.spawn(move || {
-                let bytes = encode(&derive(seed, ToolPin::Tool(Tool::Frond)))
+                let bytes = encode(&derive(seed, ToolPin::Tool(Tool::Frond)), WIDTH, HEIGHT)
                     .unwrap()
                     .len();
                 assert!(bytes < MAX_BYTES, "seed {seed}: {bytes} bytes");
@@ -52,7 +52,7 @@ fn a_loop_over_the_cap_is_an_error() {
     p.set_breakup(0.5).unwrap();
     p.set_circles(1.0).unwrap();
     p.set_rules(1.0).unwrap();
-    let error = encode(&recipe).unwrap_err();
+    let error = encode(&recipe, WIDTH, HEIGHT).unwrap_err();
     assert!(
         matches!(error, Error::OverCap { bytes } if bytes >= MAX_BYTES),
         "{error}"
