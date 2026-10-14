@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{
     self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, value_noise,
 };
+use crate::color::luma_709;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -322,10 +323,6 @@ pub(crate) fn render(
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
-fn luma([r, g, b]: [u8; 3]) -> f64 {
-    0.2126 * f64::from(r) + 0.7152 * f64::from(g) + 0.0722 * f64::from(b)
-}
-
 fn paint(
     surface: &mut Surface,
     params: &StitchParams,
@@ -377,7 +374,7 @@ fn paint(
         .collect();
     let accent = if n > 1 { 1 } else { 0 };
     let gutter_ink = (1..n).fold(0, |darkest, k| {
-        if luma(inks[k]) < luma(inks[darkest]) {
+        if luma_709(inks[k]) < luma_709(inks[darkest]) {
             k
         } else {
             darkest

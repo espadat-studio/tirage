@@ -3,6 +3,7 @@ use std::f64::consts::PI;
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::color::luma_601;
 use crate::param::Param;
 use crate::surface::{Path2D, Surface, Transform};
 use crate::taste::Taste;
@@ -327,15 +328,17 @@ fn pick<T: Copy>(items: &[T], draw: f64) -> T {
     items[(draw * items.len() as f64) as usize]
 }
 
-fn luma([r, g, b]: [u8; 3]) -> f64 {
-    f64::from(r) * 0.299 + f64::from(g) * 0.587 + f64::from(b) * 0.114
-}
-
 fn bands(p: &SamplerParams, rows: u32, inks: &[[u8; 3]], seed: u32) -> (Vec<Band>, [u8; 3]) {
     let ground = inks
         .iter()
         .copied()
-        .reduce(|dark, ink| if luma(ink) < luma(dark) { ink } else { dark })
+        .reduce(|dark, ink| {
+            if luma_601(ink) < luma_601(dark) {
+                ink
+            } else {
+                dark
+            }
+        })
         .expect("a Palette has an ink");
     let tile_inks: Vec<[u8; 3]> = inks.iter().copied().filter(|&c| c != ground).collect();
     let tile_inks = if tile_inks.is_empty() {

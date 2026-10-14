@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::color::luma_601;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -478,16 +479,12 @@ fn carve(whole: Rect, n: usize, u: i32, rng: &mut Xorshift) -> Vec<Rect> {
     list
 }
 
-fn luma([r, g, b]: [u8; 3]) -> f64 {
-    f64::from(r) * 0.299 + f64::from(g) * 0.587 + f64::from(b) * 0.114
-}
-
 fn paint(surface: &mut Surface, p: &TotemParams, palette: &Palette, tool_seed: u32, stream: u32) {
     let (w, h) = (surface.width() as i32, surface.height() as i32);
     let all = palette.inks();
     let mut di = 0;
     for (i, &ink) in all.iter().enumerate().skip(1) {
-        if luma(ink) < luma(all[di]) {
+        if luma_601(ink) < luma_601(all[di]) {
             di = i;
         }
     }

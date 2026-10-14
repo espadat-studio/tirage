@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, fbm, hash, round_half_up};
+use crate::color::luma_601;
 use crate::kiosk::CharacterSet;
 use crate::param::Param;
 use crate::surface::Surface;
@@ -261,10 +262,6 @@ struct Cell {
     ch: Option<char>,
 }
 
-fn lightness([r, g, b]: [u8; 3]) -> f64 {
-    f64::from(r) * 0.299 + f64::from(g) * 0.587 + f64::from(b) * 0.114
-}
-
 fn grid(params: &AtlasParams, palette: &Palette, seed: u32, aspect: f64) -> (u32, u32, Vec<Cell>) {
     let cols = params.cols.max(8);
     let rows = (round_half_up(f64::from(cols) * aspect * 0.6) as u32).max(6);
@@ -274,10 +271,10 @@ fn grid(params: &AtlasParams, palette: &Palette, seed: u32, aspect: f64) -> (u32
     let inks = palette.inks();
     let (mut hi, mut lo) = (inks[0], inks[0]);
     for &ink in inks {
-        if lightness(ink) > lightness(hi) {
+        if luma_601(ink) > luma_601(hi) {
             hi = ink;
         }
-        if lightness(ink) < lightness(lo) {
+        if luma_601(ink) < luma_601(lo) {
             lo = ink;
         }
     }
@@ -298,8 +295,8 @@ fn grid(params: &AtlasParams, palette: &Palette, seed: u32, aspect: f64) -> (u32
                 ((fbm(wx, wy, seed, 4) - 0.5) * (0.7 + params.mix * 1.6) + 0.5).clamp(0.0, 0.999);
             let band = (t * n).floor() as u32;
             let ground = palette.ink(band as usize);
-            let ink = if (lightness(ground) - lightness(hi)).abs()
-                > (lightness(ground) - lightness(lo)).abs()
+            let ink = if (luma_601(ground) - luma_601(hi)).abs()
+                > (luma_601(ground) - luma_601(lo)).abs()
             {
                 hi
             } else {
