@@ -4,10 +4,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::circle;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
-use crate::terrain::{fbm, hash};
+use crate::terrain::fbm;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "stipple";
@@ -558,7 +559,8 @@ fn dots(
         let v = (level - low) / span;
         let (keep, r) = if contour {
             let g = ((g - g_low) / g_span).clamp(0.0, 1.0);
-            let keep = hash(i, j, 0, 3, seed.wrapping_add(61)) < params.loose + params.edge * g;
+            let keep =
+                hash::xor_w(i, j, 0, 3, seed.wrapping_add(61)) < params.loose + params.edge * g;
             let r = cell * 0.5 * params.dot * (1.0 - params.vary * 0.5 + params.vary * 0.5 * g);
             (keep, r)
         } else {
@@ -571,15 +573,16 @@ fn dots(
             continue;
         }
         if params.jit > 0.0 {
-            cx += (hash(i, j, 0, 7, seed.wrapping_add(3)) - 0.5) * cw * params.jit;
-            cy += (hash(i, j, 0, 8, seed.wrapping_add(4)) - 0.5) * ch * params.jit;
+            cx += (hash::xor_w(i, j, 0, 7, seed.wrapping_add(3)) - 0.5) * cw * params.jit;
+            cy += (hash::xor_w(i, j, 0, 8, seed.wrapping_add(4)) - 0.5) * ch * params.jit;
         }
-        let ink =
-            if params.acc_rate > 0.0 && hash(i, j, 0, 9, seed.wrapping_add(17)) < params.acc_rate {
-                ACCENT
-            } else {
-                inks[(n - 1).min((v * n as f64).floor() as usize)]
-            };
+        let ink = if params.acc_rate > 0.0
+            && hash::xor_w(i, j, 0, 9, seed.wrapping_add(17)) < params.acc_rate
+        {
+            ACCENT
+        } else {
+            inks[(n - 1).min((v * n as f64).floor() as usize)]
+        };
         dots.push(Dot {
             x: cx,
             y: cy,

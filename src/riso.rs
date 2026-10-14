@@ -2,8 +2,9 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::{Xorshift, hash};
+use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
@@ -271,10 +272,10 @@ fn torn(
     tear: Option<f64>,
 ) -> Poly {
     let j = |q: i32, edge: i32| {
-        let j = (hash(k1, q, (edge + k2 * 7) as u32, sw) - 0.5) * rough;
+        let j = (hash::xor(k1, q, (edge + k2 * 7) as u32, sw) - 0.5) * rough;
         match tear {
             Some(t) => {
-                let phase = hash(k1, q, (edge + 50) as u32, sw);
+                let phase = hash::xor(k1, q, (edge + 50) as u32, sw);
                 j + rough * 0.45 * AMOUNT * (TAU * (t + phase)).sin()
             }
             None => j,
@@ -292,7 +293,7 @@ fn torn(
 fn shapes(band: &Band, id: i32, rough: f64, sw: u32, tear: Option<f64>) -> Vec<Poly> {
     let bh = band.y1 - band.y0;
     let g = VB * 0.016 * (0.4 + rough * 1.6);
-    let h = |x: i32, y: i32, z: i32| hash(x, y, z as u32, sw);
+    let h = |x: i32, y: i32, z: i32| hash::xor(x, y, z as u32, sw);
     let mut out = Vec::new();
     match band.kind {
         Kind::Blocks => {
@@ -378,7 +379,7 @@ fn scribble(rng: &mut Xorshift, i: i32, vh: f64, tool_seed: u32) -> Poly {
     let mut walk = Vec::with_capacity(70);
     for q in 0..70 {
         walk.push((x, y));
-        angle += (hash(i, q, 3, tool_seed) - 0.5) * 1.4;
+        angle += (hash::xor(i, q, 3, tool_seed) - 0.5) * 1.4;
         if !(0.0..=VB).contains(&x) {
             angle = PI - angle;
         }
@@ -508,7 +509,7 @@ fn paint(
         let pts: Poly = (0..36)
             .map(|q| {
                 let a = f64::from(q) / 36.0 * TAU;
-                let r = dot.radius * (1.0 + (hash(q, 1, 77, sw) - 0.5) * 0.05 * p.rough);
+                let r = dot.radius * (1.0 + (hash::xor(q, 1, 77, sw) - 0.5) * 0.05 * p.rough);
                 (dot.cx + a.cos() * r, dot.cy + a.sin() * r)
             })
             .collect();
@@ -522,9 +523,9 @@ fn paint(
 
     let side = (VB * 0.0016 * k).max(1.0);
     for i in 0..round_half_up(p.grain * 700.0) as i32 {
-        let x = hash(i, 1, 91, sw) * VB;
-        let y = hash(i, 2, 92, sw) * vh;
-        let (ink, alpha) = if hash(i, 3, 93, sw) < 0.55 {
+        let x = hash::xor(i, 1, 91, sw) * VB;
+        let y = hash::xor(i, 2, 92, sw) * vh;
+        let (ink, alpha) = if hash::xor(i, 3, 93, sw) < 0.55 {
             ([10, 10, 10], 0.5)
         } else {
             ([255, 255, 255], 0.4)

@@ -3,9 +3,10 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::{Xorshift, hash};
+use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
 use crate::ease::smooth;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -248,10 +249,10 @@ fn paint(
         let (xi, yi) = (x.floor() as i32, y.floor() as i32);
         let (fx, fy) = (x - f64::from(xi), y - f64::from(yi));
         let (u, v) = (smooth(fx), smooth(fy));
-        let a = hash(xi, yi, k, ns);
-        let b = hash(xi + 1, yi, k, ns);
-        let c = hash(xi, yi + 1, k, ns);
-        let d = hash(xi + 1, yi + 1, k, ns);
+        let a = hash::xor(xi, yi, k, ns);
+        let b = hash::xor(xi + 1, yi, k, ns);
+        let c = hash::xor(xi, yi + 1, k, ns);
+        let d = hash::xor(xi + 1, yi + 1, k, ns);
         a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v
     };
     let fbm = |x: f64, y: f64, k: u32| vn(x, y, k) * 0.62 + vn(x * 2.17, y * 2.17, k + 9) * 0.38;
@@ -297,14 +298,14 @@ fn line_runs(grids: u32, gw: i32, gh: i32, sw: u32) -> Vec<(i32, i32, i32, i32)>
     let mut across: BTreeMap<i32, BTreeSet<i32>> = BTreeMap::new();
     let mut down: BTreeMap<i32, BTreeSet<i32>> = BTreeMap::new();
     for i in 0..grids as i32 {
-        let h = |k: i32| hash(i, k, 0, sw);
+        let h = |k: i32| hash::xor(i, k, 0, sw);
         let cols = 2 + (h(1) * 6.0) as i32;
         let rows = 2 + (h(2) * 5.0) as i32;
         let cx = (h(3) * f64::from(0.max(gw - cols))).round() as i32;
         let cy = (h(4) * f64::from(0.max(gh - rows))).round() as i32;
         for b in 0..rows {
             for a in 0..cols {
-                if hash(a, b, (i * 17 + 7) as u32, sw) >= 0.78 {
+                if hash::xor(a, b, (i * 17 + 7) as u32, sw) >= 0.78 {
                     continue;
                 }
                 let (a, b) = (cx + a, cy + b);

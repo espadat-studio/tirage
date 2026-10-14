@@ -2,8 +2,9 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::{Xorshift, hash};
+use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -325,7 +326,7 @@ fn cell(
             }
         }
     }
-    let h = |x: i32, y: i32, z: u32| hash(x, y, z, key);
+    let h = |x: i32, y: i32, z: u32| hash::xor(x, y, z, key);
     let fine = h(gx, gy, 1);
     let mut jitter = (fine - 0.5) * 0.32 + (h(gx >> 1, gy >> 1, 15) - 0.5) * 0.42;
     if let Some(t) = drift {

@@ -2,8 +2,8 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::hash;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Path2D, Surface};
 use crate::taste::Taste;
@@ -255,8 +255,8 @@ fn paint(
     let tall = BOX * height / width;
     let k = width / BOX;
     let n = palette.len();
-    let ground = (hash(0, 7, 1, tool_seed) * n as f64) as usize;
-    let mut stripe = (hash(0, 7, 2, tool_seed) * n as f64) as usize;
+    let ground = (hash::xor(0, 7, 1, tool_seed) * n as f64) as usize;
+    let mut stripe = (hash::xor(0, 7, 2, tool_seed) * n as f64) as usize;
     if stripe == ground && n > 1 {
         stripe = (ground + 1) % n;
     }
