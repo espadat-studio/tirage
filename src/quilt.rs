@@ -2,10 +2,10 @@ use std::f64::consts::{FRAC_PI_2, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -321,7 +321,7 @@ fn run(entries: &[(u8, f64)]) -> Vec<u8> {
 }
 
 fn pattern(params: &QuiltParams, tool_seed: u32) -> Pattern {
-    let mut rng = Xorshift::new(tool_seed);
+    let mut rng = XorShiftArithmetic::from_seed(tool_seed);
     let ch = params.chunk;
     let style = match params.style {
         QuiltStyle::Auto => POOL[(rng.next() * POOL.len() as f64) as usize],

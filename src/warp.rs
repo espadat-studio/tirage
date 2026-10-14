@@ -2,10 +2,10 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Path2D, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -211,7 +211,7 @@ struct Spec {
 }
 
 fn spec(style: WarpStyle, tool_seed: u32) -> Spec {
-    let mut rng = Xorshift::new(tool_seed);
+    let mut rng = XorShiftArithmetic::from_seed(tool_seed);
     let mut draw = || rng.next();
     draw();
     let checker = style == WarpStyle::Checker;

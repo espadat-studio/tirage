@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::circle;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
 use crate::terrain::fbm;
@@ -339,7 +339,7 @@ fn edges(n: u32, a: i32, b: i32) -> Vec<i32> {
 
 fn layout(p: &ModularParams, columns: u32, rows: u32, inks: usize, tool_seed: u32) -> Vec<Module> {
     let start = (f64::from(tool_seed) * 2_654_435_761.0 + 17.0).rem_euclid(4_294_967_296.0);
-    let mut rng = Xorshift::from_state(start as u32);
+    let mut rng = XorShiftArithmetic::from_state(start as u32);
     let mut taken = vec![false; (columns * rows) as usize];
     let free = |taken: &[bool], x: u32, y: u32, w: u32, h: u32| {
         x + w <= columns

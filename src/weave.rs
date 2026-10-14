@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::Surface;
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -188,11 +188,11 @@ struct Band {
 }
 
 fn bands(params: &WeaveParams, inks: usize, view_height: f64, tool_seed: u32) -> Vec<Band> {
-    let mut rng = Xorshift::new(tool_seed);
+    let mut rng = XorShiftArithmetic::from_seed(tool_seed);
     let n = params.bands as usize;
     let weights: Vec<f64> = (0..n).map(|_| 0.55 + rng.next() * 1.3).collect();
     let sum: f64 = weights.iter().sum();
-    let pick = |rng: &mut Xorshift| (rng.next() * inks as f64) as usize;
+    let pick = |rng: &mut XorShiftArithmetic| (rng.next() * inks as f64) as usize;
     let mut top = 0.0;
     let mut out = Vec::with_capacity(n);
     for (i, weight) in weights.iter().enumerate() {

@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
 use crate::ease::smooth;
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -557,7 +557,7 @@ fn field(x: f64, y: f64, seed: u32) -> f64 {
 fn place(p: &TokensParams, board: &Board, palette: &Palette, tool_seed: u32) -> Vec<Cluster> {
     let Board { columns, rows, .. } = *board;
     let start = (f64::from(tool_seed) * 2_654_435_761.0 + 17.0) as u64 as u32;
-    let mut rng = Xorshift::from_state(start);
+    let mut rng = XorShiftArithmetic::from_state(start);
     let mut r = || rng.next();
     let n = palette.len();
     let hues: Vec<f64> = palette.inks().iter().map(hue).collect();

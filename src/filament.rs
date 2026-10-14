@@ -2,11 +2,11 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::{lerp, smooth};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -424,7 +424,7 @@ fn fbm(x: f64, y: f64, seed: u32, octaves: u32) -> f64 {
 
 fn trace(p: &FilamentParams, palette: &Palette, h: f64, s: u32) -> (Vec<Strand>, Vec<Mark>) {
     let start = (f64::from(s) * 2_654_435_761.0 + 13.0).rem_euclid(4_294_967_296.0) as u32;
-    let mut rng = Xorshift::from_state(start);
+    let mut rng = XorShiftArithmetic::from_state(start);
     let mut r = || rng.next();
     let angle_at = |x: f64, y: f64| {
         let (u, v) = (x / VB * p.zoom, y / h * p.zoom * (h / VB));
