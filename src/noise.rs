@@ -107,3 +107,22 @@ pub(crate) fn fbm_zw(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32, octaves:
         octaves,
     )
 }
+
+pub(crate) fn warped_fbm(
+    x: f64,
+    y: f64,
+    zw: Option<(f64, f64)>,
+    seed: u32,
+    warp: f64,
+    octaves: u32,
+) -> f64 {
+    let wx = fbm_zw(x + 5.2, y + 1.3, zw, seed.wrapping_add(11), 2);
+    let wy = fbm_zw(x + 9.1, y + 7.7, zw, seed.wrapping_add(29), 2);
+    fbm_zw(
+        x + warp * (wx - 0.5) * 2.0,
+        y + warp * (wy - 0.5) * 2.0,
+        zw,
+        seed,
+        octaves,
+    )
+}

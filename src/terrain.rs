@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
 use crate::ease::{circle, lerp};
 use crate::hash;
-use crate::noise::fbm_zw;
+use crate::noise::warped_fbm;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -279,15 +279,7 @@ fn paint(
         let v = (j * STEP) as f64 / h * params.scale * (h / w);
         for i in 0..fw {
             let u = (i * STEP) as f64 / w * params.scale;
-            let wx = fbm_zw(u + 5.2, v + 1.3, zw, tool_seed.wrapping_add(11), 2);
-            let wy = fbm_zw(u + 9.1, v + 7.7, zw, tool_seed.wrapping_add(29), 2);
-            let val = fbm_zw(
-                u + params.warp * (wx - 0.5) * 2.0,
-                v + params.warp * (wy - 0.5) * 2.0,
-                zw,
-                tool_seed,
-                params.oct,
-            );
+            let val = warped_fbm(u, v, zw, tool_seed, params.warp, params.oct);
             field[j * fw + i] = ((val - 0.5) * params.contrast + 0.5).clamp(0.0, 1.0) as f32;
         }
     }
