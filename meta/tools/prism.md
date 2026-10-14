@@ -36,7 +36,7 @@ prism takes no Palette. The page keeps a swatch row in its state but never paint
 
 ## Random numbers
 
-`s` is the Tool seed. One xorshift32 stream with the arithmetic right shift (aura's `Xorshift`), started at `s 2654435761 mod 2^32` computed in doubles, a zero start becoming 1.
+`s` is the Tool seed. One xorshift32 stream with the arithmetic right shift (`XorShiftArithmetic`, aura's), started at `s 2654435761 mod 2^32` computed in doubles, a zero start becoming 1.
 
 `h(x, y, z, k)` is the 4-argument integer hash (aura's `hash`) with key `k`.
 
