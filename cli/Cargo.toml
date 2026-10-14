@@ -2,8 +2,10 @@
 name = "tirage-cli"
 version = "0.0.0"
 edition = "2024"
+include = ["src/**"]
 license = "AGPL-3.0-or-later"
-publish = false
+repository = "https://github.com/espadat-studio/tirage"
+description = "Command line for tirage: derive a Recipe from a Seed, render it to PNG or SVG."
 
 [[bin]]
 name = "tirage"
@@ -18,8 +20,8 @@ clap_complete = "4"
 dialoguer = { version = "0.12", default-features = false, features = ["fuzzy-select"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tirage = { path = ".." }
-tirage-encode = { path = "../encode", optional = true }
+tirage = { path = "..", version = "1.0.0" }
+tirage-encode = { path = "../encode", version = "0.0.0", optional = true }
 
 [dev-dependencies]
 image = { version = "0.25", default-features = false, features = ["png"] }

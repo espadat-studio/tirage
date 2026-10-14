@@ -2,13 +2,15 @@
 name = "tirage-encode"
 version = "0.0.0"
 edition = "2024"
-publish = false
+include = ["src/**"]
+repository = "https://github.com/espadat-studio/tirage"
+description = "Encode a tirage Loop to an H.264 MP4."
 
 [dependencies]
 bytes = "1"
 mp4 = "0.14"
 openh264 = "0.9"
-tirage = { path = ".." }
+tirage = { path = "..", version = "1.0.0" }
 
 [lints]
 workspace = true
