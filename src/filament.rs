@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::aura::{Xorshift, hash};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
-use crate::ease::lerp;
+use crate::ease::{lerp, smooth};
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
@@ -395,8 +395,7 @@ struct Mark {
 
 fn noise(x: f64, y: f64, seed: u32) -> f64 {
     let (x0, y0) = (x.floor(), y.floor());
-    let fade = |t: f64| t * t * (3.0 - 2.0 * t);
-    let (u, v) = (fade(x - x0), fade(y - y0));
+    let (u, v) = (smooth(x - x0), smooth(y - y0));
     let (xi, yi) = (x0 as i32, y0 as i32);
     let corner = |dx: i32, dy: i32| hash(xi.wrapping_add(dx), yi.wrapping_add(dy), 0, seed);
     lerp(

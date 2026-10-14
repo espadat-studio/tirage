@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{
     self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store, value_noise,
 };
+use crate::ease::smooth;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -425,7 +426,6 @@ fn paint(
     let dot_field = slow(u_size * 0.16, 23.0, 9.0, sd(5));
     let off_i = round_half_up(sh_off);
     let off_j = round_half_up(sh_off * 0.7);
-    let smooth = |t: f64| t * t * (3.0 - 2.0 * t);
 
     let mut rgba = Vec::with_capacity((w * h) as usize * 4);
     for y in 0..h {

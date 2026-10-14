@@ -3,6 +3,7 @@ use std::f64::consts::{PI, TAU};
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, hash, store, value_noise};
+use crate::ease::smooth;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -381,7 +382,7 @@ fn marble(palette: &Palette, m: f64) -> [f64; 3] {
     let f = p - k;
     let first = (k as i64).rem_euclid(inks as i64) as usize;
     let (a, b) = (ink(palette, first), ink(palette, (first + 1) % inks));
-    let w = f * f * (3.0 - 2.0 * f);
+    let w = smooth(f);
     std::array::from_fn(|c| a[c] + (b[c] - a[c]) * w)
 }
 

@@ -3,6 +3,7 @@ use std::f64::consts::TAU;
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
+use crate::ease::smooth;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -249,8 +250,7 @@ impl Noise {
     fn value(&self, x: f64, y: f64, channel: u32) -> f64 {
         let (x0, y0) = (x.floor(), y.floor());
         let (fx, fy) = (x - x0, y - y0);
-        let u = fx * fx * (3.0 - 2.0 * fx);
-        let v = fy * fy * (3.0 - 2.0 * fy);
+        let (u, v) = (smooth(fx), smooth(fy));
         let (xi, yi) = (x0 as i32, y0 as i32);
         let corner = |dx: i32, dy: i32| hash(xi + dx, yi + dy, channel, self.0);
         let (a, b, c, d) = (corner(0, 0), corner(1, 0), corner(0, 1), corner(1, 1));

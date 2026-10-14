@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{
     self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store, value_noise,
 };
+use crate::ease::smooth;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -301,7 +302,7 @@ fn ramp(palette: &Palette, edge: f64) -> Vec<[f32; 3]> {
             }
             let ((ma, ca), (mb, cb)) = (stops[k], stops[k + 1]);
             let t = ((m - ma) / (mb - ma)).clamp(0.0, 1.0);
-            mix(ca, cb, t * t * (3.0 - 2.0 * t)).map(|c| c as f32)
+            mix(ca, cb, smooth(t)).map(|c| c as f32)
         })
         .collect()
 }

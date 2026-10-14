@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{
     self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store,
 };
+use crate::ease::smooth;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -429,7 +430,7 @@ fn paint(
             let u = u.clamp(0.0, (n - 1) as f64);
             let i0 = (u as usize).min(n - 2);
             let fr = ((u - i0 as f64 - (1.0 - soft)) / soft).clamp(0.0, 1.0);
-            let fr = fr * fr * (3.0 - 2.0 * fr);
+            let fr = smooth(fr);
             let (ia, ib) = (inks[i0], inks[i0 + 1]);
             let mut c: [f64; 3] = std::array::from_fn(|i| ia[i] + (ib[i] - ia[i]) * fr);
             if gl > 0.002 {
