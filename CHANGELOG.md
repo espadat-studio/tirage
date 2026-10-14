@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0](https://github.com/espadat-studio/tirage/compare/v1.0.0...v2.0.0) - 2026-10-14
+
+### Added
+
+- *(encode)* [**breaking**] encode a Loop at a chosen size ([#179](https://github.com/espadat-studio/tirage/pull/179))
+
+### Other
+
+- share grid and Bayer ([#201](https://github.com/espadat-studio/tirage/pull/201))
+- publish to crates.io with release-plz and OIDC ([#199](https://github.com/espadat-studio/tirage/pull/199))
+- share noise ([#200](https://github.com/espadat-studio/tirage/pull/200))
+- share rng ([#198](https://github.com/espadat-studio/tirage/pull/198))
+- share hash ([#197](https://github.com/espadat-studio/tirage/pull/197))
+- share ease and color, add the bytecheck task ([#196](https://github.com/espadat-studio/tirage/pull/196))
+- list the Tools overview as one table ([#189](https://github.com/espadat-studio/tirage/pull/189))
+- show each Tool's Loop on its page ([#186](https://github.com/espadat-studio/tirage/pull/186))
+- document the shared dither and grain passes once ([#185](https://github.com/espadat-studio/tirage/pull/185))
+- *(context)* define chassis as the shell every tool wears
+
 ## [1.0.0](https://github.com/espadat-studio/tirage/compare/v0.2.0...v1.0.0) - 2026-10-12
 
 ### Added
