@@ -27,3 +27,7 @@ pub(crate) fn xor_w(x: i32, y: i32, z: i32, w: i32, seed: u32) -> f64 {
 pub(crate) fn sub_seed(seed: u32, k: u32) -> u32 {
     seed.wrapping_mul(7).wrapping_add(k)
 }
+
+pub(crate) fn frame_seed(seed: u32, t: u32) -> u32 {
+    seed.wrapping_add(t.wrapping_mul(7919))
+}

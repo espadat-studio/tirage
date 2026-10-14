@@ -12,8 +12,6 @@ pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 8;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
-const SHUFFLE: u32 = 7919;
-
 const DEFAULT_PALETTE: [&str; 8] = [
     "#22223b", "#4a4e69", "#9a8c98", "#c9ada7", "#f2e9e4", "#ff7b54", "#ffb26b", "#ffd56f",
 ];
@@ -231,7 +229,7 @@ pub(crate) fn render(
     tool_seed: u32,
     t: Option<u32>,
 ) {
-    let cell_seed = tool_seed.wrapping_add(t.unwrap_or(0).wrapping_mul(SHUFFLE));
+    let cell_seed = hash::frame_seed(tool_seed, t.unwrap_or(0));
     paint(surface, params, palette, tool_seed, cell_seed);
     chassis::finish(surface, &params.grain, &params.dither);
 }

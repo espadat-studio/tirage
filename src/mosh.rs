@@ -13,8 +13,6 @@ pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 12;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
-const SHUFFLE: u32 = 7919;
-
 const DEFAULT_PALETTE: [&str; 8] = [
     "#000000", "#ffffff", "#ff3131", "#31ff6b", "#3164ff", "#31f0ff", "#ff31e0", "#ffee31",
 ];
@@ -233,13 +231,12 @@ pub(crate) fn render(
     tool_seed: u32,
     t: Option<u32>,
 ) {
-    let shuffle = t.unwrap_or(0).wrapping_mul(SHUFFLE);
     paint(
         surface,
         params,
         palette,
         tool_seed,
-        tool_seed.wrapping_add(shuffle),
+        hash::frame_seed(tool_seed, t.unwrap_or(0)),
     );
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }

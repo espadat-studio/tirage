@@ -12,7 +12,6 @@ pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 6;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
-const SHUFFLE: u32 = 7919;
 const CHURN: f64 = 0.3;
 
 const DEFAULT_PALETTE: [&str; 6] = [
@@ -255,7 +254,7 @@ fn paint(
         .map(|(i, j)| {
             let picked = hash::sum(i * 5 + 3, j * 7 + 1, tool_seed.wrapping_add(131)) < CHURN;
             let seed = if picked {
-                tool_seed.wrapping_add(frame.wrapping_mul(SHUFFLE))
+                hash::frame_seed(tool_seed, frame)
             } else {
                 tool_seed
             };

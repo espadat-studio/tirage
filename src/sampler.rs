@@ -15,8 +15,6 @@ pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 6;
 pub(crate) const MAX_INKS: Option<usize> = None;
 
-const SHUFFLE: u32 = 7919;
-
 const DEFAULT_PALETTE: [&str; 7] = [
     "#101010", "#d6ff3c", "#6f6a1c", "#ff7a1f", "#f4786e", "#c9c4ca", "#a2218e",
 ];
@@ -226,8 +224,12 @@ pub(crate) fn render(
     tool_seed: u32,
     t: Option<u32>,
 ) {
-    let shuffle = t.unwrap_or(0).wrapping_mul(SHUFFLE);
-    paint(surface, params, palette, tool_seed.wrapping_add(shuffle));
+    paint(
+        surface,
+        params,
+        palette,
+        hash::frame_seed(tool_seed, t.unwrap_or(0)),
+    );
     chassis::finish(surface, &params.grain, &params.dither);
 }
 
@@ -348,8 +350,8 @@ fn bands(p: &SamplerParams, rows: u32, inks: &[[u8; 3]], seed: u32) -> (Vec<Band
         )
         .max(1.0) as u32;
         let h = grown.min(rows - (y - y0));
-        let nk = 1
-            + (hash::sum(i as i32, 17_i32, seed.wrapping_add(19)) * (1.0 + p.mix * 2.2)) as u32;
+        let nk =
+            1 + (hash::sum(i as i32, 17_i32, seed.wrapping_add(19)) * (1.0 + p.mix * 2.2)) as u32;
         let kinds = (0..nk)
             .map(|k| {
                 pick(
@@ -366,10 +368,7 @@ fn bands(p: &SamplerParams, rows: u32, inks: &[[u8; 3]], seed: u32) -> (Vec<Band
         let b = if others.is_empty() {
             ground
         } else {
-            pick(
-                &others,
-                hash::sum(i as i32, 41_i32, seed.wrapping_add(43)),
-            )
+            pick(&others, hash::sum(i as i32, 41_i32, seed.wrapping_add(43)))
         };
         out.push(Band {
             y0: y,

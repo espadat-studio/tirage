@@ -13,7 +13,6 @@ pub(crate) const SLUG: &str = "kiosk";
 pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 6;
 pub(crate) const MAX_INKS: Option<usize> = None;
-const SHUFFLE: u32 = 7919;
 
 const DEFAULT_PALETTE: [&str; 8] = [
     "#f3efe0", "#141414", "#d7263d", "#1b4079", "#f4b942", "#3c887e", "#f26430", "#8e44ad",
@@ -459,7 +458,7 @@ fn paint(surface: &mut Surface, params: &KioskParams, palette: &Palette, tool_se
     .map(round_half_up);
     surface.fill_box(panel[0], panel[1], panel[2], panel[3], roles.dark);
 
-    let text_seed = tool_seed.wrapping_add(t.wrapping_mul(SHUFFLE));
+    let text_seed = hash::frame_seed(tool_seed, t);
     let cols = params.grid;
     let cell_width = width / f64::from(cols);
     let rows = round_half_up(height / cell_width).max(2.0) as u32;

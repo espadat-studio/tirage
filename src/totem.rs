@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::color::luma_601;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -12,8 +13,6 @@ pub(crate) const SLUG: &str = "totem";
 pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 8;
 pub(crate) const MAX_INKS: Option<usize> = None;
-
-const SHUFFLE: u32 = 7919;
 
 const DEFAULT_PALETTE: [&str; 5] = ["#1b1b1b", "#ff6b35", "#f7b32b", "#2e86ab", "#f72585"];
 
@@ -301,7 +300,7 @@ pub(crate) fn render(
     tool_seed: u32,
     t: Option<u32>,
 ) {
-    let stream = tool_seed.wrapping_add(t.unwrap_or(0).wrapping_mul(SHUFFLE));
+    let stream = hash::frame_seed(tool_seed, t.unwrap_or(0));
     paint(surface, params, palette, tool_seed, stream);
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
