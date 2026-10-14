@@ -297,7 +297,7 @@ fn paint(
         .map(|c| c.map(f64::from))
         .collect();
 
-    let mut rng = XorShift::new(tool_seed.wrapping_mul(2_654_435_761));
+    let mut rng = XorShift::knuth(tool_seed);
     let centres: Vec<Centre> = (0..params.centres.max(1))
         .map(|i| {
             let negative = i > 0 && rng.next() < params.push;

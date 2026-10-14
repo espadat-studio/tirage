@@ -353,7 +353,7 @@ fn paint(
     });
 
     let steps = params.steps.max(2);
-    let mut rnd = XorShift::new(tool_seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
+    let mut rnd = XorShift::murmur(tool_seed);
     let mut mids: Vec<usize> = (2..n).collect();
     if mids.is_empty() {
         mids.push(if n > 1 { 1 } else { 0 });

@@ -391,7 +391,7 @@ fn paint(
     let dim = ground.map(|c| round_half_up(f64::from(c) + (255.0 - f64::from(c)) * 0.22) as u8);
 
     let bands = params.bands as usize;
-    let mut rng = XorShift::new(seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
+    let mut rng = XorShift::murmur(seed);
     let mut band_glyph = Vec::with_capacity(bands);
     let mut band_ink = Vec::with_capacity(bands);
     let (mut last_glyph, mut last_ink) = (usize::MAX, usize::MAX);

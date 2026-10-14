@@ -308,7 +308,7 @@ fn paint(
     let w0 = unit * (0.012 + p.width * 0.03);
     let dash = unit * (0.03 + p.dash * 0.07);
     let period = dash + dash * (0.15 + p.gap * 1.1);
-    let mut rng = XorShift::new(tool_seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
+    let mut rng = XorShift::murmur(tool_seed);
     let lean = (rng.next() - 0.5) * 0.5;
     let pulse = t.map_or(0.0, |t| {
         f64::from(t) / f64::from(FRAMES) * round_half_up(AMOUNT * 2.0).max(1.0)

@@ -443,7 +443,7 @@ fn shapes(kind: Kind, rng: &mut XorShift, wobble: f64, detail: f64) -> Vec<Shape
 }
 
 fn motifs(params: &SprigParams, seed: u32, fw: f64, fh: f64) -> Vec<Motif> {
-    let mut rng = XorShift::new(seed.wrapping_mul(2_654_435_761));
+    let mut rng = XorShift::knuth(seed);
     let kinds = params.dirs.kinds();
     let mut motifs: Vec<Motif> = Vec::new();
     for _ in 0..params.count.max(1) {

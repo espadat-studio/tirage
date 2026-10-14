@@ -386,7 +386,7 @@ fn splits(rng: &mut XorShift, m: u32) -> Vec<f64> {
 }
 
 fn cuts(params: &SpliceParams, tool_seed: u32) -> (Vec<Column>, Vec<Arc>) {
-    let mut rng = XorShift::new(tool_seed.wrapping_mul(2_654_435_761));
+    let mut rng = XorShift::knuth(tool_seed);
     let n = params.slices;
     let base = SCREENS[(rng.next() * 3.0) as usize];
     let mix = params.mix;

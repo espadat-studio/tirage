@@ -371,7 +371,7 @@ impl Walk<'_> {
 }
 
 fn layout(params: &PithParams, tool_seed: u32, w: f64, h: f64) -> (Vec<Cell>, f64) {
-    let mut rnd = XorShift::new(tool_seed.wrapping_add(3).wrapping_mul(2_654_435_761));
+    let mut rnd = XorShift::knuth(tool_seed.wrapping_add(3));
     let margin = w.min(h) * 0.085;
     let (iw, ih) = (w - 2.0 * margin, h - 2.0 * margin);
     let count = params.count.max(1);

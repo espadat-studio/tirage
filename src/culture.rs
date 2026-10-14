@@ -309,7 +309,7 @@ fn plate(params: &CultureParams, tool_seed: u32, aspect: f64, drift: Option<f64>
     };
     let height = round_half_up(width * aspect).max(8.0);
     let mut field = vec![0.0_f32; (width * height) as usize];
-    let mut rng = XorShift::new(tool_seed.wrapping_mul(2_654_435_761));
+    let mut rng = XorShift::knuth(tool_seed);
     let base =
         (0.05 + params.size * 0.20) * (0.75 + params.fuse * 0.8) * (width * height).sqrt() * 0.87;
     for _ in 0..params.count.max(1) {

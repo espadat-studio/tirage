@@ -382,7 +382,7 @@ struct Chain {
 }
 
 fn rods(p: &StrandParams, (fw, fh): (f64, f64), tool_seed: u32) -> Vec<Rod> {
-    let mut rnd = XorShift::new(tool_seed.wrapping_mul(2_654_435_761));
+    let mut rnd = XorShift::knuth(tool_seed);
     let wid = 0.02 + p.thick * 0.09;
     let seg = wid * (0.4 + p.rod * 2.2);
     let step = seg + wid + p.notch * wid * 0.95;

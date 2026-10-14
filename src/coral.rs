@@ -374,7 +374,7 @@ fn paint(
     let dot = if n > 4 { inks[4] } else { lift(lobe, 0.5) };
     let dark = ground.map(|c| c * 0.55);
 
-    let mut rng = XorShift::new(seed.wrapping_mul(-2_048_144_777) as u32 ^ 0x27d4_eb2f);
+    let mut rng = XorShift::murmur(tool_seed);
     let side = rng.next();
     let (rx, ry) = if side < 0.6 {
         let rx = wf * (0.2 + rng.next() * 0.6);

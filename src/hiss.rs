@@ -455,7 +455,7 @@ fn paint(
     let u = (w * h).sqrt();
     let inks = palette.len();
 
-    let mut rng = XorShift::new(seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
+    let mut rng = XorShift::murmur(seed);
     let (leaves, leaf) = leaves(params, w, h, &mut rng);
     let lenses = lenses(params.checkers, &leaves, leaf, w, &mut rng);
     let comb_a = ink(palette, (rng.next() * inks as f64) as usize);

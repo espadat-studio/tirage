@@ -322,7 +322,7 @@ fn figures(
     seed: u32,
     sway: Option<f64>,
 ) -> Vec<Figure> {
-    let mut rng = XorShift::new(seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
+    let mut rng = XorShift::murmur(seed);
     (0..params.crowd)
         .map(|k| {
             let big = rng.next();

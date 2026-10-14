@@ -344,7 +344,7 @@ impl Patch {
 }
 
 fn patches(params: &MotleyParams, inks: &[[u8; 3]], seed: u32, cols: u32, rows: u32) -> Vec<Patch> {
-    let mut rng = XorShift::new(seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
+    let mut rng = XorShift::murmur(seed);
     let m = inks.len();
     let (cols, rows) = (f64::from(cols), f64::from(rows));
     let mut patches: Vec<Patch> = (0..params.patches.max(1) + 8)

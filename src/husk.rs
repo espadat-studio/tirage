@@ -283,7 +283,7 @@ fn field(params: &HuskParams, tool_seed: u32, aspect: f64, t: Option<u32>) -> Fi
     let (width, height) = (width as usize, height as usize);
     let (fw, fh) = (width as f64, height as f64);
     let mut depth = vec![0.0_f32; width * height];
-    let mut rnd = XorShift::new(tool_seed.wrapping_mul(2_654_435_761));
+    let mut rnd = XorShift::knuth(tool_seed);
     let base = (0.045 + params.size * 0.115) * (fw * fh).sqrt();
     let lump = params.lump * 0.55;
     let (phase, drift) = match t {
