@@ -1,3 +1,15 @@
+use crate::chassis::round_half_up;
+
+pub(crate) fn size(base: f64, aspect: f64) -> (usize, usize) {
+    let width = if aspect > 1.0 {
+        round_half_up(base / aspect).max(8.0)
+    } else {
+        base
+    };
+    let height = round_half_up(width * aspect).max(8.0);
+    (width as usize, height as usize)
+}
+
 pub(crate) struct Grid {
     values: Vec<f32>,
     width: usize,

@@ -2,9 +2,9 @@ use std::f64::consts::PI;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store};
 use crate::ease::smooth;
-use crate::grid::Grid;
+use crate::grid::{self, Grid};
 use crate::hash;
 use crate::noise::{self, Fbm, value_sum};
 use crate::param::Param;
@@ -270,13 +270,7 @@ const SILHOUETTE: usize = 1;
 const FILL: usize = 2;
 
 fn field(params: &HuskParams, tool_seed: u32, aspect: f64, t: Option<u32>) -> Grid {
-    let width = if aspect > 1.0 {
-        round_half_up(560.0 / aspect).max(8.0)
-    } else {
-        560.0
-    };
-    let height = round_half_up(width * aspect).max(8.0);
-    let (width, height) = (width as usize, height as usize);
+    let (width, height) = grid::size(560.0, aspect);
     let (fw, fh) = (width as f64, height as f64);
     let mut depth = vec![0.0_f32; width * height];
     let mut rnd = XorShift::knuth(tool_seed);

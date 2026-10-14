@@ -2,9 +2,9 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store};
 use crate::ease::smooth;
-use crate::grid::Grid;
+use crate::grid::{self, Grid};
 use crate::hash;
 use crate::param::Param;
 use crate::rng::XorShift;
@@ -297,13 +297,9 @@ pub(crate) fn render(
 }
 
 fn plate(params: &CultureParams, tool_seed: u32, aspect: f64, drift: Option<f64>) -> Grid {
-    let width = if aspect > 1.0 {
-        round_half_up(560.0 / aspect).max(8.0)
-    } else {
-        560.0
-    };
-    let height = round_half_up(width * aspect).max(8.0);
-    let mut field = vec![0.0_f32; (width * height) as usize];
+    let (cols, rows) = grid::size(560.0, aspect);
+    let (width, height) = (cols as f64, rows as f64);
+    let mut field = vec![0.0_f32; cols * rows];
     let mut rng = XorShift::knuth(tool_seed);
     let base =
         (0.05 + params.size * 0.20) * (0.75 + params.fuse * 0.8) * (width * height).sqrt() * 0.87;
@@ -340,7 +336,7 @@ fn plate(params: &CultureParams, tool_seed: u32, aspect: f64, drift: Option<f64>
             }
         }
     }
-    Grid::new(field, width as usize, height as usize)
+    Grid::new(field, cols, rows)
 }
 
 fn rings(n: usize, cover: f64, spread: f64) -> Vec<f64> {
