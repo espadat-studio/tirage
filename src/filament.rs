@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::aura::{Xorshift, hash};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::ease::lerp;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
@@ -398,7 +399,6 @@ fn noise(x: f64, y: f64, seed: u32) -> f64 {
     let (u, v) = (fade(x - x0), fade(y - y0));
     let (xi, yi) = (x0 as i32, y0 as i32);
     let corner = |dx: i32, dy: i32| hash(xi.wrapping_add(dx), yi.wrapping_add(dy), 0, seed);
-    let lerp = |a: f64, b: f64, t: f64| a + (b - a) * t;
     lerp(
         lerp(corner(0, 0), corner(1, 0), u),
         lerp(corner(0, 1), corner(1, 1), u),

@@ -3,6 +3,7 @@ use std::f64::consts::TAU;
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
+use crate::ease::lerp;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -271,10 +272,6 @@ pub(crate) fn hash(x: i32, y: i32, z: i32, w: i32, seed: u32) -> f64 {
     n = (n ^ (n >> 13)).wrapping_mul(3_266_489_917);
     n ^= n >> 16;
     f64::from(n) / 4_294_967_296.0
-}
-
-fn lerp(a: f64, b: f64, t: f64) -> f64 {
-    a + (b - a) * t
 }
 
 fn noise(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32) -> f64 {

@@ -1,5 +1,6 @@
 mod chassis;
 mod derive;
+mod ease;
 mod error;
 mod image;
 mod palette;

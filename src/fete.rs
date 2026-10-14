@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::aura::{Xorshift, hash};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::ease::lerp;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Smoothing, Surface};
 use crate::taste::Taste;
@@ -251,10 +252,6 @@ pub(crate) fn render(
 const VIEW: f64 = 1000.0;
 
 type Point = (f64, f64);
-
-fn lerp(a: f64, b: f64, t: f64) -> f64 {
-    a + (b - a) * t
-}
 
 fn value_noise(x: f64, y: f64, seed: u32) -> f64 {
     let (x0, y0) = (x.floor(), y.floor());

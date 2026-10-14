@@ -3,6 +3,7 @@ use std::f64::consts::TAU;
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::ease::lerp;
 use crate::param::Param;
 use crate::surface::Cap;
 use crate::surface::Join;
@@ -372,10 +373,6 @@ enum Shape {
 struct Cell {
     ink: Option<usize>,
     marked: bool,
-}
-
-fn lerp(a: f64, b: f64, t: f64) -> f64 {
-    a + (b - a) * t
 }
 
 fn stretch(v: f64, k: f64) -> f64 {
