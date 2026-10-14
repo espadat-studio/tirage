@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::aura::{Xorshift, hash};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
+use crate::ease::smooth;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -542,7 +543,6 @@ fn hue_gap(a: f64, b: f64) -> f64 {
 
 fn field(x: f64, y: f64, seed: u32) -> f64 {
     let (xi, yi) = (x.floor(), y.floor());
-    let smooth = |t: f64| t * t * (3.0 - 2.0 * t);
     let (u, v) = (smooth(x - xi), smooth(y - yi));
     let (xi, yi) = (xi as i32, yi as i32);
     let a = hash(xi, yi, 0, seed);

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, store, value_noise};
+use crate::color::mix;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -366,7 +367,7 @@ fn paint(
             };
             let a = (0.5 + sd / g).clamp(0.0, 1.0);
             let ink = inks[(u.floor() as i64).rem_euclid(inks.len() as i64) as usize];
-            let [r, gg, b] = std::array::from_fn(|i| store(ground[i] + (ink[i] - ground[i]) * a));
+            let [r, gg, b] = mix(ground, ink, a).map(store);
             rgba.extend([r, gg, b, 255]);
         }
     }

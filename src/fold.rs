@@ -3,6 +3,7 @@ use std::f64::consts::{FRAC_PI_2, FRAC_PI_4, PI, TAU};
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store};
+use crate::color::{luma_709, mix};
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -390,14 +391,6 @@ struct Patch {
     phase: f64,
 }
 
-fn lum([r, g, b]: [u8; 3]) -> f64 {
-    0.2126 * f64::from(r) + 0.7152 * f64::from(g) + 0.0722 * f64::from(b)
-}
-
-fn mix(a: [u8; 3], b: [u8; 3], t: f64) -> [u8; 3] {
-    std::array::from_fn(|c| store(f64::from(a[c]) + (f64::from(b[c]) - f64::from(a[c])) * t))
-}
-
 fn patches(
     params: &FoldParams,
     inks: &[[u8; 3]],
@@ -502,7 +495,14 @@ fn shade(
         }
         Pattern::Burst => {
             let tone = (nx * nx + ny * ny).sqrt().clamp(0.0, 1.0);
-            return Some(mix(patch.a, patch.b, step(tone, params.levels)));
+            return Some(
+                mix(
+                    patch.a.map(f64::from),
+                    patch.b.map(f64::from),
+                    step(tone, params.levels),
+                )
+                .map(store),
+            );
         }
         Pattern::Chevron => even((nx.abs() + ny + 1.0) * f * 0.5),
         Pattern::Checks => even(((nx + 1.0) * f * 0.5).floor() + ((ny + 1.0) * f * 0.5).floor()),
@@ -536,10 +536,10 @@ fn paint(
     });
     let (mut dark, mut light) = (0, 0);
     for (k, &ink) in inks.iter().enumerate().skip(1) {
-        if lum(ink) < lum(inks[dark]) {
+        if luma_709(ink) < luma_709(inks[dark]) {
             dark = k;
         }
-        if lum(ink) > lum(inks[light]) {
+        if luma_709(ink) > luma_709(inks[light]) {
             light = k;
         }
     }
@@ -578,7 +578,12 @@ fn paint(
                 .unwrap_or_else(|| {
                     let d =
                         (point.0 * point.0 + point.1 * point.1).sqrt() / (aw * aw + ah * ah).sqrt();
-                    mix(burst_a, burst_b, step(d.min(0.999), params.levels))
+                    mix(
+                        burst_a.map(f64::from),
+                        burst_b.map(f64::from),
+                        step(d.min(0.999), params.levels),
+                    )
+                    .map(store)
                 });
             rgba.extend([ink[0], ink[1], ink[2], 255]);
         }

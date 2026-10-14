@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{
     self, Blend, Dither, DitherKind, Grain, hash, round_half_up, store, value_noise,
 };
+use crate::ease::smooth;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -428,7 +429,7 @@ fn paint(
                                 yf * noise_scale,
                                 tool_seed.wrapping_add(13),
                             );
-                            let n = n * n * (3.0 - 2.0 * n);
+                            let n = smooth(n);
                             depth > 0.02 + eat * (0.06 + 1.5 * n)
                         }
                     };

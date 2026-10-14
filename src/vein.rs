@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{
     self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, value_noise,
 };
+use crate::color::luma_709;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -289,10 +290,6 @@ fn tint(ink: [u8; 3], t: f64) -> [u8; 3] {
     })
 }
 
-fn luma([r, g, b]: [u8; 3]) -> f64 {
-    0.2126 * f64::from(r) + 0.7152 * f64::from(g) + 0.0722 * f64::from(b)
-}
-
 struct Grid {
     values: Vec<f32>,
     width: usize,
@@ -553,7 +550,7 @@ fn paint(
     }
 
     let light = (1..inks).fold(1, |light, k| {
-        if luma(palette.ink(k)) > luma(palette.ink(light)) {
+        if luma_709(palette.ink(k)) > luma_709(palette.ink(light)) {
             k
         } else {
             light

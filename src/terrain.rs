@@ -1,8 +1,7 @@
-use std::f64::consts::TAU;
-
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
+use crate::ease::{circle, lerp, smooth};
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -273,14 +272,9 @@ pub(crate) fn hash(x: i32, y: i32, z: i32, w: i32, seed: u32) -> f64 {
     f64::from(n) / 4_294_967_296.0
 }
 
-fn lerp(a: f64, b: f64, t: f64) -> f64 {
-    a + (b - a) * t
-}
-
 fn noise(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32) -> f64 {
     let (x0, y0) = (x.floor(), y.floor());
-    let fade = |t: f64| t * t * (3.0 - 2.0 * t);
-    let (u, v) = (fade(x - x0), fade(y - y0));
+    let (u, v) = (smooth(x - x0), smooth(y - y0));
     let (xi, yi) = (x0 as i32, y0 as i32);
     let face = |z: i32, w: i32| {
         let corner = |dx: i32, dy: i32| hash(xi + dx, yi + dy, z, w, seed);
@@ -294,7 +288,7 @@ fn noise(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32) -> f64 {
         return face(0, 0);
     };
     let (z0, w0) = (z.floor(), w.floor());
-    let (s, t) = (fade(z - z0), fade(w - w0));
+    let (s, t) = (smooth(z - z0), smooth(w - w0));
     let (zi, wi) = (z0 as i32, w0 as i32);
     lerp(
         lerp(face(zi, wi), face(zi, wi + 1), t),
@@ -327,7 +321,7 @@ fn paint(
     tool_seed: u32,
     drift: Option<f64>,
 ) {
-    let zw = drift.map(|t| ((TAU * t).cos() * AMOUNT, (TAU * t).sin() * AMOUNT));
+    let zw = drift.map(|t| circle(t, AMOUNT));
     let (width, height) = (surface.width() as usize, surface.height() as usize);
     let (w, h) = (width as f64, height as f64);
     let fw = width.div_ceil(STEP) + 2;

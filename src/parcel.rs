@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::aura::{Xorshift, hash};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
+use crate::ease::smooth;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -246,7 +247,7 @@ fn paint(
     let vn = |x: f64, y: f64, k: u32| {
         let (xi, yi) = (x.floor() as i32, y.floor() as i32);
         let (fx, fy) = (x - f64::from(xi), y - f64::from(yi));
-        let (u, v) = (fx * fx * (3.0 - 2.0 * fx), fy * fy * (3.0 - 2.0 * fy));
+        let (u, v) = (smooth(fx), smooth(fy));
         let a = hash(xi, yi, k, ns);
         let b = hash(xi + 1, yi, k, ns);
         let c = hash(xi, yi + 1, k, ns);

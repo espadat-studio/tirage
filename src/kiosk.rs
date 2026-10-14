@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up};
+use crate::color::luma_601;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -344,14 +345,12 @@ struct Roles {
 impl Roles {
     fn new(palette: &Palette) -> Self {
         let inks = palette.inks();
-        let lightness =
-            |[r, g, b]: [u8; 3]| f64::from(r) * 0.299 + f64::from(g) * 0.587 + f64::from(b) * 0.114;
         let (mut dark, mut paper) = (inks[0], inks[0]);
         for &ink in inks {
-            if lightness(ink) < lightness(dark) {
+            if luma_601(ink) < luma_601(dark) {
                 dark = ink;
             }
-            if lightness(ink) > lightness(paper) {
+            if luma_601(ink) > luma_601(paper) {
                 paper = ink;
             }
         }

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up};
+use crate::color::luma_601;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -251,10 +252,6 @@ enum Kind {
     Chevron,
 }
 
-fn luma([r, g, b]: [u8; 3]) -> f64 {
-    f64::from(r) * 0.299 + f64::from(g) * 0.587 + f64::from(b) * 0.114
-}
-
 struct Picker<'a> {
     inks: &'a [[u8; 3]],
     dark: [u8; 3],
@@ -468,10 +465,13 @@ fn paint(
     band_seed: u32,
 ) {
     let inks = palette.inks();
-    let dark = inks.iter().copied().fold(
-        inks[0],
-        |dark, ink| if luma(ink) < luma(dark) { ink } else { dark },
-    );
+    let dark = inks.iter().copied().fold(inks[0], |dark, ink| {
+        if luma_601(ink) < luma_601(dark) {
+            ink
+        } else {
+            dark
+        }
+    });
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let columns = params.cols.max(6);
     let count = params.bands.max(1);

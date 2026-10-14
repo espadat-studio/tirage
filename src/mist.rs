@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::aura::{Noise, Xorshift, hash};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
+use crate::ease::smooth;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -205,10 +206,10 @@ pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> MistParams {
     }
 }
 
-fn smoothstep(e0: f64, e1: f64, x: f64) -> f64 {
+fn smoothstep_edges(e0: f64, e1: f64, x: f64) -> f64 {
     let width = e1 - e0;
     let t = ((x - e0) / if width == 0.0 { 1e-6 } else { width }).clamp(0.0, 1.0);
-    t * t * (3.0 - 2.0 * t)
+    smooth(t)
 }
 
 pub(crate) fn render(
@@ -271,7 +272,7 @@ fn paint(
             let sx = nx * stf + 0.5 * (q - 0.5) + sox + ox;
             let sy = ny * 0.5 + soy + oy * 0.4;
             let st = noise.fbm(sx, sy, 77) * 0.72 + noise.fbm(sx * 2.4, sy * 2.1, 78) * 0.28;
-            let m = smoothstep(th - del, th + del, st);
+            let m = smoothstep_edges(th - del, th + del, st);
             let g = (hash(x as i32, y as i32, 7, noise.0) - 0.5) * gr;
             let [r, gg, b] = std::array::from_fn(|i| {
                 let c = mix[i] / total;

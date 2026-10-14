@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+#MISE description="Prove a refactor leaves every render byte-identical to <base-sha>: bytecheck <base-sha>"
+set -euo pipefail
+
+base=$(git rev-parse --verify "${1:?usage: mise run bytecheck <base-sha>}^{commit}")
+root=$(git rev-parse --show-toplevel)
+scratch="$root/target/bytecheck"
+mkdir -p "$scratch"
+
+if [ ! -x "$scratch/$base-target/release/tirage" ]; then
+  rm -rf "$scratch/$base"
+  mkdir -p "$scratch/$base"
+  git archive "$base" | tar -x -C "$scratch/$base"
+  rm -rf "$scratch/$base/.mise"
+  (cd "$scratch/$base" && CARGO_TARGET_DIR="$scratch/$base-target" cargo build --release --locked -p tirage-cli)
+fi
+cargo build --release --locked -p tirage-cli
+
+
+hash_render() {
+  local bin=$1 label=$2 recipe=$3 kind=$4
+  shift 4
+  local out
+  out=$(mktemp)
+  "$bin" render "$recipe" "$@" -o - >"$out"
+  if [ "$kind" = png ] && [ "$(head -c 4 "$out" | od -An -tx1)" != " 89 50 4e 47" ]; then
+    echo "$label: -o - did not emit PNG bytes" >&2
+    exit 1
+  fi
+  if [ "$kind" = svg ] && ! head -c 512 "$out" | grep -q "<svg"; then
+    echo "$label: -o - did not emit SVG" >&2
+    exit 1
+  fi
+  echo "$label $(sha256sum <"$out" | cut -d' ' -f1)"
+  rm -f "$out"
+}
+
+job() {
+  local bin=$1 tool=$2 frames=$3 svg=$4 seed=$5 size=$6
+  local recipe
+  recipe=$(mktemp)
+  "$bin" derive --seed "$seed" --tool "$tool" >"$recipe"
+  echo "$tool/$seed/recipe $(sha256sum <"$recipe" | cut -d' ' -f1)"
+  hash_render "$bin" "$tool/$seed/$size/still" "$recipe" png --size "$size"
+  if [ "$svg" = svg ]; then
+    hash_render "$bin" "$tool/$seed/$size/svg" "$recipe" svg --size "$size" --format svg
+  fi
+  for t in 0 $((frames / 2)) $((frames - 1)); do
+    hash_render "$bin" "$tool/$seed/$size/frame$t" "$recipe" png --size "$size" --frame "$t"
+  done
+  rm -f "$recipe"
+}
+
+export -f hash_render job
+
+sweep() {
+  local bin=$1
+  "$bin" tools | awk '/^[a-z]/ { print $1, $2, ($0 ~ /svg/ ? "svg" : "-") }' |
+    while read -r tool frames svg; do
+      for seed in 1 42 9001; do
+        for size in 540x960 333x222; do
+          echo "$bin $tool $frames $svg $seed $size"
+        done
+      done
+    done |
+    xargs -P "$(nproc)" -L 1 bash -c 'job "$@"' _ |
+    sort
+}
+
+sweep "$scratch/$base-target/release/tirage" >"$scratch/$base.sums"
+sweep "$root/target/release/tirage" >"$scratch/head.sums"
+
+[ -s "$scratch/$base.sums" ] || { echo "empty sweep" >&2; exit 1; }
+diff "$scratch/$base.sums" "$scratch/head.sums" >/dev/null || {
+  diff "$scratch/$base.sums" "$scratch/head.sums" | head -40 >&2
+  echo "bytecheck: renders differ from $base" >&2
+  exit 1
+}
+echo "bytecheck: $(wc -l <"$scratch/head.sums") renders byte-identical to $base"

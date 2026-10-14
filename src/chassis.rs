@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use crate::ease::smooth;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::{Error, Parameter};
@@ -16,7 +17,6 @@ pub(crate) fn hash(x: i32, y: i32, seed: u32) -> f64 {
 
 pub(crate) fn value_noise(x: f64, y: f64, seed: u32) -> f64 {
     let (x0, y0) = (x.floor(), y.floor());
-    let smooth = |t: f64| t * t * (3.0 - 2.0 * t);
     let (u, v) = (smooth(x - x0), smooth(y - y0));
     let (xi, yi) = (x0 as i32, y0 as i32);
     let corner = |dx: i32, dy: i32| hash(xi.wrapping_add(dx), yi.wrapping_add(dy), seed);

@@ -1,9 +1,8 @@
-use std::f64::consts::TAU;
-
 use serde::{Deserialize, Serialize};
 
 use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::ease::circle;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -439,7 +438,7 @@ fn paint(
     tool_seed: u32,
     flow: Option<f64>,
 ) {
-    let zw = flow.map(|t| ((TAU * t).cos() * AMOUNT, (TAU * t).sin() * AMOUNT));
+    let zw = flow.map(|t| circle(t, AMOUNT));
     let (width, height) = (surface.width() as i32, surface.height() as i32);
     let inks = palette.inks();
     let columns = p.gcols;
