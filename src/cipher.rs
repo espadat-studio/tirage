@@ -2,8 +2,9 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::{Cap, Join, Path2D, Surface};
@@ -344,7 +345,7 @@ struct Shape {
 fn field(params: &CipherParams, shape: &Shape, seed: u32, u: f64, v: f64) -> f64 {
     let (wave, tilt) = (params.wave, params.tilt);
     let det = 1.0 + params.detail * 3.0;
-    let noise = |x: f64, y: f64, k: u32| value_noise(x, y, hash::sub_seed(seed, k));
+    let noise = |x: f64, y: f64, k: u32| value_sum(x, y, hash::sub_seed(seed, k));
     let (ox, oy) = (shape.ox, shape.oy);
     match params.field {
         CipherField::Figure => {

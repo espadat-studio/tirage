@@ -2,10 +2,11 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::color::mix;
 use crate::ease::smooth;
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::{Cap, Join, Path2D, Surface};
@@ -426,7 +427,7 @@ fn mask(
                 if body < d {
                     d = body;
                 }
-                d += (value_noise(px * wf + 3.0, py * wf + 7.0, g.seed) - 0.5)
+                d += (value_sum(px * wf + 3.0, py * wf + 7.0, g.seed) - 0.5)
                     * params.wobble
                     * g.head
                     * 1.6;
@@ -461,15 +462,15 @@ fn arrows(params: &CrowdParams, width: f64, height: f64, unit: f64, seed: u32) -
         for i in 0..columns {
             let x = (f64::from(i) + 0.5) * spacing;
             let y = (f64::from(j) + 0.5) * spacing;
-            let patch = value_noise(x / unit * 3.2 + 1.0, y / unit * 3.2 + 5.0, sd1) * 0.7
-                + value_noise(x / unit * 9.0 + 4.0, y / unit * 9.0 + 2.0, sd2) * 0.3;
+            let patch = value_sum(x / unit * 3.2 + 1.0, y / unit * 3.2 + 5.0, sd1) * 0.7
+                + value_sum(x / unit * 9.0 + 4.0, y / unit * 9.0 + 2.0, sd2) * 0.3;
             if patch < 1.0 - density * 0.95 || hash::sum(i, j, sd3) < 0.3 {
                 continue;
             }
             let jx = (hash::sum(i, j, sd3.wrapping_add(1)) - 0.5) * spacing * 0.6;
             let jy = (hash::sum(i, j, sd3.wrapping_add(2)) - 0.5) * spacing * 0.6;
             let lean = PI * 0.75
-                + (value_noise(x / unit * 2.2 + 9.0, y / unit * 2.2 + 3.0, sd2) - 0.5) * PI * 1.6;
+                + (value_sum(x / unit * 2.2 + 9.0, y / unit * 2.2 + 3.0, sd2) - 0.5) * PI * 1.6;
             let a = lean + (hash::sum(i, j, sd3.wrapping_add(3)) - 0.5) * 0.9;
             let (ca, sa) = (a.cos(), a.sin());
             let (ax, ay) = (x + jx, y + jy);

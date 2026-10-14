@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::circle;
 use crate::hash;
+use crate::noise::fbm_zw;
 use crate::param::Param;
 use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
-use crate::terrain::fbm;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "specimen";
@@ -727,7 +727,7 @@ fn paint(
                         for i in 0..=nx {
                             let u = (i as f64 / nx as f64) * (1.0 + 2.0 * pad) - pad;
                             let v = (j as f64 / ny as f64) * (1.0 + 2.0 * pad) - pad;
-                            field.push(fbm(
+                            field.push(fbm_zw(
                                 u * p.m_scale * (bw / m) + b.v * 40.0,
                                 v * p.m_scale * (bh / m) + b.v2 * 40.0,
                                 zw,
@@ -777,7 +777,7 @@ fn paint(
                         let mut points = vec![(x, y)];
                         for _ in 0..steps {
                             let noise =
-                                fbm(x / m * 7.0 + f64::from(i) * 3.0, y / m * 7.0, zw, seed, 3);
+                                fbm_zw(x / m * 7.0 + f64::from(i) * 3.0, y / m * 7.0, zw, seed, 3);
                             let angle = (noise - 0.5) * 2.6 * TAU;
                             x += angle.cos() * step;
                             y += angle.sin() * step;

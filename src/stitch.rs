@@ -2,9 +2,10 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::color::luma_709;
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::{XorShift, shuffle};
 use crate::surface::Surface;
@@ -390,8 +391,8 @@ fn paint(
         for i in 0..cols {
             let u = (f64::from(i) + offset) / f64::from(cols);
             let v = f64::from(j) / f64::from(rows);
-            let base = value_noise(u * kx + ox, v * ky + oy, seed(2));
-            let stripe = value_noise(
+            let base = value_sum(u * kx + ox, v * ky + oy, seed(2));
+            let stripe = value_sum(
                 u * kx * 6.0 + ox * 2.0 + 7.0,
                 v * ky * 1.5 + oy + 3.0,
                 seed(3),
@@ -399,7 +400,7 @@ fn paint(
             let mixed = base * (1.0 - sw) + stripe * sw;
             let val = ((mixed - 0.5) * 2.2 + 0.5).clamp(0.0, 0.9999);
             let mut ink = levels[(val * f64::from(steps)) as usize];
-            let blob = value_noise(
+            let blob = value_sum(
                 f64::from(i) / f64::from(cols) * kb + ox * 0.5 + 11.0,
                 f64::from(j) / f64::from(rows) * kb * (h / w) + oy * 0.5 + 5.0,
                 seed(4),

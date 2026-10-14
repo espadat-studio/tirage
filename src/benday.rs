@@ -2,8 +2,9 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store};
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -358,12 +359,12 @@ fn paint(
                 let u0 = (x - w * 0.5) / sc;
                 let ru = (u0 * cd + v0 * sd) / stretch;
                 let rv = -u0 * sd + v0 * cd;
-                let q1 = value_noise(ru * 1.5 + 3.1 + ox, rv * 1.5 + 7.7 + oy, seed(1));
-                let q2 = value_noise(ru * 1.5 + 9.2 - oy, rv * 1.5 + 1.3 + ox, seed(2));
+                let q1 = value_sum(ru * 1.5 + 3.1 + ox, rv * 1.5 + 7.7 + oy, seed(1));
+                let q2 = value_sum(ru * 1.5 + 9.2 - oy, rv * 1.5 + 1.3 + ox, seed(2));
                 let wu = ru + params.turb * (q1 - 0.5) * 3.0;
                 let wv = rv + params.turb * (q2 - 0.5) * 3.0;
-                let m = value_noise(wu * 2.0 + ox, wv * 2.0 + oy, seed(3)) * 0.65
-                    + value_noise(wu * 4.7 + ox * 2.0, wv * 4.7 + oy * 2.0, seed(4)) * 0.35;
+                let m = value_sum(wu * 2.0 + ox, wv * 2.0 + oy, seed(3)) * 0.65
+                    + value_sum(wu * 4.7 + ox * 2.0, wv * 4.7 + oy * 2.0, seed(4)) * 0.35;
                 let val = (m - 0.5) * 1.9 + 0.5;
                 let (b, mut c) = if val < black {
                     (0.0, inks[0])

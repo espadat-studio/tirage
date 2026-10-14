@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
-use crate::ease::smooth;
-use crate::hash;
+use crate::noise::value_lerp;
 use crate::param::Param;
 use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Surface};
@@ -542,18 +541,6 @@ fn hue_gap(a: f64, b: f64) -> f64 {
     if d > 180.0 { 360.0 - d } else { d }
 }
 
-fn field(x: f64, y: f64, seed: u32) -> f64 {
-    let (xi, yi) = (x.floor(), y.floor());
-    let (u, v) = (smooth(x - xi), smooth(y - yi));
-    let (xi, yi) = (xi as i32, yi as i32);
-    let a = hash::xor(xi, yi, 0, seed);
-    let b = hash::xor(xi + 1, yi, 0, seed);
-    let c = hash::xor(xi, yi + 1, 0, seed);
-    let d = hash::xor(xi + 1, yi + 1, 0, seed);
-    let top = a + (b - a) * u;
-    top + ((c + (d - c) * u) - top) * v
-}
-
 fn place(p: &TokensParams, board: &Board, palette: &Palette, tool_seed: u32) -> Vec<Cluster> {
     let Board { columns, rows, .. } = *board;
     let start = (f64::from(tool_seed) * 2_654_435_761.0 + 17.0) as u64 as u32;
@@ -633,7 +620,7 @@ fn place(p: &TokensParams, board: &Board, palette: &Palette, tool_seed: u32) -> 
             }
         }
         if p.clump > 0.0 {
-            let fv = field(
+            let fv = value_lerp(
                 f64::from(ox) / f64::from(columns) * 2.6 + 0.5,
                 f64::from(oy) / f64::from(rows) * 2.6 + 0.5,
                 tool_seed.wrapping_add(301),

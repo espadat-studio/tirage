@@ -2,8 +2,9 @@ use std::f64::consts::PI;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::Surface;
@@ -512,8 +513,8 @@ fn paint(
                     .fold(1e9, |d: f64, b| d.min(b.distance(xf, yf)));
                 let i = y * width + x;
                 if d <= far {
-                    d += (value_noise(xf / ns, yf / ns, cell.seed) - 0.5) * amp * 2.0
-                        + (value_noise(xf / (ns * 0.28), yf / (ns * 0.28), cell.seed + 31) - 0.5)
+                    d += (value_sum(xf / ns, yf / ns, cell.seed) - 0.5) * amp * 2.0
+                        + (value_sum(xf / (ns * 0.28), yf / (ns * 0.28), cell.seed + 31) - 0.5)
                             * amp
                             * 0.8;
                 }
@@ -553,7 +554,7 @@ fn paint(
                 if d < 0.0 {
                     let t = -d
                         + (hash::sum(gx, gy, paint_seed) - 0.5) * dth
-                        + (value_noise(
+                        + (value_sum(
                             xf / (6.5 * gsc),
                             yf / (6.5 * gsc),
                             paint_seed.wrapping_add(17),
@@ -561,15 +562,14 @@ fn paint(
                             * dth
                             * 1.4;
                     let ev = band
-                        * (0.40
-                            + value_noise(xf / nb, yf / nb, paint_seed.wrapping_add(101)) * 1.35);
+                        * (0.40 + value_sum(xf / nb, yf / nb, paint_seed.wrapping_add(101)) * 1.35);
                     if vein[i] >= 0.0 && t >= 0.0 {
                         if t < ev {
                             c = edge;
                         } else if t < ev + rim_width {
                             c = rim;
                         } else {
-                            let k = (value_noise(
+                            let k = (value_sum(
                                 xf / (2.6 * gsc),
                                 yf / (2.6 * gsc),
                                 paint_seed.wrapping_add(53),

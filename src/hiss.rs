@@ -2,9 +2,10 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store};
 use crate::ease::smooth;
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::{Cap, Join, Path2D, Surface};
@@ -489,13 +490,13 @@ fn paint(
                 let xf = x as f64;
                 let qx = step(xf);
                 let (p0, p1) = ((xf / mc).floor() * mc / sc, my / sc);
-                let bn = value_noise(p0 * 0.8 + 40.0 + ox * 0.5, p1 * 0.8 + 7.0 + oy * 0.5, sd(4));
+                let bn = value_sum(p0 * 0.8 + 40.0 + ox * 0.5, p1 * 0.8 + 7.0 + oy * 0.5, sd(4));
                 let mut rgb = if (bn - 0.5) * 2.2 + 0.5 < black {
                     BLACK
                 } else {
-                    let q1 = value_noise(p0 * 2.0 + 1.7 + ox, p1 * 2.0 + 9.1 + oy, sd(1));
-                    let q2 = value_noise(p0 * 2.0 + 5.3 - oy, p1 * 2.0 + 2.2 + ox, sd(2));
-                    let m = value_noise(
+                    let q1 = value_sum(p0 * 2.0 + 1.7 + ox, p1 * 2.0 + 9.1 + oy, sd(1));
+                    let q2 = value_sum(p0 * 2.0 + 5.3 - oy, p1 * 2.0 + 2.2 + ox, sd(2));
+                    let m = value_sum(
                         p0 * 2.0 + warp * (q1 - 0.5) * 4.0 + ox,
                         p1 * 2.0 + warp * (q2 - 0.5) * 4.0 + oy,
                         sd(3),

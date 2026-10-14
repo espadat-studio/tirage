@@ -2,9 +2,10 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::ease::smooth;
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::{Smoothing, Surface};
@@ -410,16 +411,16 @@ fn paint(
     let lobes = Grid::new((w >> 1) as usize + 2, (h >> 1) as usize + 2, 2.0, |x, y| {
         let xr = (x * cs0 + y * sn0) / (lsz * 1.9);
         let yr = (-x * sn0 + y * cs0) / lsz;
-        0.58 * value_noise(xr, yr, sd(2))
-            + 0.3 * value_noise(xr * 2.3 + 3.1, yr * 2.3 + 1.7, sd(3))
-            + 0.12 * value_noise(xr * 6.1 + 9.0, yr * 6.1 + 4.0, sd(3))
+        0.58 * value_sum(xr, yr, sd(2))
+            + 0.3 * value_sum(xr * 2.3 + 3.1, yr * 2.3 + 1.7, sd(3))
+            + 0.12 * value_sum(xr * 6.1 + 9.0, yr * 6.1 + 4.0, sd(3))
     });
     let slow = |k: f64, ox: f64, oy: f64, s: u32| {
         Grid::new(
             w.div_ceil(8) as usize + 1,
             h.div_ceil(8) as usize + 1,
             8.0,
-            move |x, y| value_noise(x / k + ox, y / k + oy, s),
+            move |x, y| value_sum(x / k + ox, y / k + oy, s),
         )
     };
     let under_field = slow(lsz * 3.0, 11.0, 5.0, sd(4));
@@ -440,11 +441,11 @@ fn paint(
                 th += wob
                     * 0.55
                     * far
-                    * (value_noise(rr / (u_size * 0.38) + ox + 7.0, th * 1.4 + oy, sd(1)) - 0.5);
+                    * (value_sum(rr / (u_size * 0.38) + ox + 7.0, th * 1.4 + oy, sd(1)) - 0.5);
                 th += wob
                     * 0.22
                     * far
-                    * (value_noise(rr / (u_size * 0.16) + oy + 3.0, th * 4.2 + ox + 5.0, sd(1))
+                    * (value_sum(rr / (u_size * 0.16) + oy + 3.0, th * 4.2 + ox + 5.0, sd(1))
                         - 0.5);
             }
             let a = ((th - th_start) % TAU + TAU) % TAU;

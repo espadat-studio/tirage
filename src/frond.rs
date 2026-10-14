@@ -2,8 +2,9 @@ use std::f64::consts::{FRAC_PI_2, PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::{Cap, Join, Path2D, Surface};
@@ -451,13 +452,13 @@ fn leaf(
     let s = f64::from(seed);
     let at = |i: usize| i as f64 / n;
     let (spine, normals, _) = walk(base, angle, length, N, |i| {
-        curl / n + (value_noise(at(i) * 3.3 + s * 0.11, s * 0.07, seed as u32) - 0.5) * 0.5 * wobble
+        curl / n + (value_sum(at(i) * 3.3 + s * 0.11, s * 0.07, seed as u32) - 0.5) * 0.5 * wobble
     });
     let widths = |i: usize| {
         let t = at(i);
         width
             * (PI * t).sin().powf(0.62)
-            * (1.0 + (value_noise(t * 4.1 + s * 0.2, 3.7, seed as u32 + 5) - 0.5) * 0.5 * wobble)
+            * (1.0 + (value_sum(t * 4.1 + s * 0.2, 3.7, seed as u32 + 5) - 0.5) * 0.5 * wobble)
     };
     let mut outline = offset(&spine, &normals, widths, 1.0);
     outline.extend(offset(&spine, &normals, widths, -1.0).into_iter().rev());
@@ -473,7 +474,7 @@ struct Stem {
 fn stem(base: (f64, f64), angle: f64, length: f64, width: f64, wobble: f64, seed: i32) -> Stem {
     let s = f64::from(seed);
     let (spine, normals, tip) = walk(base, angle, length, 22, |i| {
-        (value_noise(i as f64 * 0.29 + s * 0.13, 2.9, seed as u32) - 0.5) * 0.30 * wobble
+        (value_sum(i as f64 * 0.29 + s * 0.13, 2.9, seed as u32) - 0.5) * 0.30 * wobble
     });
     Stem {
         left: offset(&spine, &normals, |_| width, 1.0),
@@ -488,7 +489,7 @@ fn ring((cx, cy): (f64, f64), rx: f64, ry: f64, rotation: f64, wobble: f64, seed
         .map(|i| {
             let th = f64::from(i) / 14.0 * TAU;
             let r = 1.0
-                + (value_noise(th.cos() * 2.1 + 3.1, th.sin() * 2.1 + 7.7, seed as u32) - 0.5)
+                + (value_sum(th.cos() * 2.1 + 3.1, th.sin() * 2.1 + 7.7, seed as u32) - 0.5)
                     * 0.9
                     * wobble;
             let (x, y) = (th.cos() * rx * r, th.sin() * ry * r);
@@ -549,8 +550,8 @@ fn noise_block(
     for j in 0..h.min(surface.height().saturating_sub(y)) {
         for i in 0..w.min(surface.width().saturating_sub(x)) {
             let (px, py) = (f64::from(x + i), f64::from(y + j));
-            let f = value_noise(px / scale, py / scale, seed as u32) * 0.62
-                + value_noise(px / fine, py / fine, seed as u32 + 91) * 0.38;
+            let f = value_sum(px / scale, py / scale, seed as u32) * 0.62
+                + value_sum(px / fine, py / fine, seed as u32 + 91) * 0.38;
             let v = (f - 0.5) * 2.3 + 0.42 - f64::from(j) / f64::from(h) * 0.34;
             let threshold = (f64::from(BAYER[((j & 3) * 4 + (i & 3)) as usize]) + 0.5) / 16.0;
             surface.set_pixel(x + i, y + j, if v < threshold { grit } else { paper });

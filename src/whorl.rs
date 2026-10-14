@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store};
 use crate::color::mix;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::{Smoothing, Surface};
@@ -325,15 +326,15 @@ fn paint(
                 wx += wamp * 0.30 * (y * wfrq * 6.0 + x * 1.7).sin();
                 wy += wamp * 0.30 * (x * wfrq * 5.1 + y * 1.3).sin();
             } else {
-                wx += wamp * (value_noise(x * wfrq, y * wfrq, noise_seed(11)) - 0.5);
-                wy += wamp * (value_noise(x * wfrq + 7.3, y * wfrq + 3.1, noise_seed(29)) - 0.5);
+                wx += wamp * (value_sum(x * wfrq, y * wfrq, noise_seed(11)) - 0.5);
+                wy += wamp * (value_sum(x * wfrq + 7.3, y * wfrq + 3.1, noise_seed(29)) - 0.5);
                 if params.kind == WhorlWarp::Turbulent {
                     wx += wamp
                         * 0.45
-                        * (value_noise(x * wfrq * 2.7 + 2.2, y * wfrq * 2.7, noise_seed(53)) - 0.5);
+                        * (value_sum(x * wfrq * 2.7 + 2.2, y * wfrq * 2.7, noise_seed(53)) - 0.5);
                     wy += wamp
                         * 0.45
-                        * (value_noise(x * wfrq * 2.7, y * wfrq * 2.7 + 5.5, noise_seed(71)) - 0.5);
+                        * (value_sum(x * wfrq * 2.7, y * wfrq * 2.7 + 5.5, noise_seed(71)) - 0.5);
                 }
             }
         }

@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::{Cap, Join, Path2D, Surface};
@@ -522,7 +523,7 @@ fn paint(
             let field: f64 = octaves
                 .iter()
                 .map(|&(size, weight, seed)| {
-                    weight * chassis::value_noise(sx / (fs * size), sy / (fs * size), seed)
+                    weight * value_sum(sx / (fs * size), sy / (fs * size), seed)
                 })
                 .sum();
             let g = field.clamp(0.0, 0.999_999) * f64::from(tones);

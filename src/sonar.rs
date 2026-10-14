@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, fbm, round_half_up};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::hash;
+use crate::noise::{Fbm, fbm, value_sum};
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -269,9 +270,25 @@ fn paint(surface: &mut Surface, params: &SonarParams, palette: &Palette, tool_se
             let u = (f64::from(col) + 0.5) / f64::from(cols);
             let v = (f64::from(row) + 0.5) / f64::from(rows);
             let (x, y) = (u * scale * aspect, v * scale);
-            let push_x = fbm(x * 0.6 + 11.3, y * 0.6 + 3.7, tool_seed.wrapping_add(7), 3) - 0.5;
-            let push_y = fbm(x * 0.6 + 5.1, y * 0.6 + 19.9, tool_seed.wrapping_add(13), 3) - 0.5;
+            let push_x = fbm(
+                Fbm::STANDARD,
+                value_sum,
+                x * 0.6 + 11.3,
+                y * 0.6 + 3.7,
+                tool_seed.wrapping_add(7),
+                3,
+            ) - 0.5;
+            let push_y = fbm(
+                Fbm::STANDARD,
+                value_sum,
+                x * 0.6 + 5.1,
+                y * 0.6 + 19.9,
+                tool_seed.wrapping_add(13),
+                3,
+            ) - 0.5;
             let field = fbm(
+                Fbm::STANDARD,
+                value_sum,
                 x + push_x * params.warp * 2.4,
                 y + push_y * params.warp * 2.4,
                 tool_seed,
