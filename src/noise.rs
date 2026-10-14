@@ -43,3 +43,13 @@ pub(crate) fn value_lerp_zw(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32) -
         s,
     )
 }
+
+pub(crate) fn value_poly(x: f64, y: f64, channel: u32, seed: u32) -> f64 {
+    let (x0, y0) = (x.floor(), y.floor());
+    let (u, v) = (smooth(x - x0), smooth(y - y0));
+    let (xi, yi) = (x0 as i32, y0 as i32);
+    let corner =
+        |dx: i32, dy: i32| hash::xor(xi.wrapping_add(dx), yi.wrapping_add(dy), channel, seed);
+    let (a, b, c, d) = (corner(0, 0), corner(1, 0), corner(0, 1), corner(1, 1));
+    a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v
+}

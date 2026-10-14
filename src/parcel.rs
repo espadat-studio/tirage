@@ -4,8 +4,8 @@ use std::f64::consts::TAU;
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
-use crate::ease::smooth;
 use crate::hash;
+use crate::noise::value_poly;
 use crate::param::Param;
 use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Surface};
@@ -245,16 +245,7 @@ fn paint(
     let (cw, ch) = (w / f64::from(gw), h / f64::from(gh));
 
     surface.fill(palette.ink(0));
-    let vn = |x: f64, y: f64, k: u32| {
-        let (xi, yi) = (x.floor() as i32, y.floor() as i32);
-        let (fx, fy) = (x - f64::from(xi), y - f64::from(yi));
-        let (u, v) = (smooth(fx), smooth(fy));
-        let a = hash::xor(xi, yi, k, ns);
-        let b = hash::xor(xi + 1, yi, k, ns);
-        let c = hash::xor(xi, yi + 1, k, ns);
-        let d = hash::xor(xi + 1, yi + 1, k, ns);
-        a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v
-    };
+    let vn = |x: f64, y: f64, k: u32| value_poly(x, y, k, ns);
     let fbm = |x: f64, y: f64, k: u32| vn(x, y, k) * 0.62 + vn(x * 2.17, y * 2.17, k + 9) * 0.38;
     let sc = 0.2 / p.chunk;
     let th = 0.5 + (0.5 - p.cover) * 0.55;
