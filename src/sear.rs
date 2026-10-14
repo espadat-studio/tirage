@@ -3,6 +3,7 @@ use std::f64::consts::TAU;
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::grid;
 use crate::hash;
 use crate::noise::{self, Fbm, value_sum};
 use crate::param::Param;
@@ -282,13 +283,7 @@ struct Heat {
 }
 
 fn heat(params: &SearParams, seed: i32, aspect: f64, drift: Option<f64>) -> Heat {
-    let width = if aspect > 1.0 {
-        round_half_up(640.0 / aspect).max(8.0)
-    } else {
-        640.0
-    };
-    let height = round_half_up(width * aspect).max(8.0);
-    let (width, height) = (width as usize, height as usize);
+    let (width, height) = grid::size(640.0, aspect);
     let octaves = params.detail.clamp(1, 5);
     let span = 0.7 + (1.0 - params.scale) * 7.5;
     let k = params.warp * 2.6;

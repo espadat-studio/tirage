@@ -2,8 +2,9 @@ use std::f64::consts::PI;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store};
 use crate::ease::smooth;
+use crate::grid::{self, Grid};
 use crate::hash;
 use crate::noise::{self, Fbm, value_sum};
 use crate::param::Param;
@@ -268,20 +269,8 @@ const GROUND: usize = 0;
 const SILHOUETTE: usize = 1;
 const FILL: usize = 2;
 
-struct Field {
-    depth: Vec<f32>,
-    width: usize,
-    height: usize,
-}
-
-fn field(params: &HuskParams, tool_seed: u32, aspect: f64, t: Option<u32>) -> Field {
-    let width = if aspect > 1.0 {
-        round_half_up(560.0 / aspect).max(8.0)
-    } else {
-        560.0
-    };
-    let height = round_half_up(width * aspect).max(8.0);
-    let (width, height) = (width as usize, height as usize);
+fn field(params: &HuskParams, tool_seed: u32, aspect: f64, t: Option<u32>) -> Grid {
+    let (width, height) = grid::size(560.0, aspect);
     let (fw, fh) = (width as f64, height as f64);
     let mut depth = vec![0.0_f32; width * height];
     let mut rnd = XorShift::knuth(tool_seed);
@@ -343,11 +332,7 @@ fn field(params: &HuskParams, tool_seed: u32, aspect: f64, t: Option<u32>) -> Fi
             }
         }
     }
-    Field {
-        depth,
-        width,
-        height,
-    }
+    Grid::new(depth, width, height)
 }
 
 pub(crate) fn render(
@@ -377,27 +362,16 @@ fn paint(
     } else {
         SILHOUETTE
     });
-    let kx = field.width as f64 / f64::from(width);
-    let ky = field.height as f64 / f64::from(height);
+    let kx = field.width() as f64 / f64::from(width);
+    let ky = field.height() as f64 / f64::from(height);
     let pitch = ((0.004 + params.tex * 0.03) * f64::from(width.min(height))).max(3.0);
     let noise_scale = 1.0 / (2.0 + params.tex * 18.0);
     let eat = params.eat;
     let grain = params.grain * 40.0;
-    let lerp_cells = |at: f64, last: usize| {
-        let low = (at as usize).min(last);
-        (low, (low + 1).min(last), at - low as f64)
-    };
-    let stored = |i: usize| f64::from(field.depth[i]);
-
     surface.edit_rgba(|rgba, _, _| {
         for (y, row) in rgba.chunks_exact_mut(width as usize * 4).enumerate() {
-            let (y0, y1, fy) = lerp_cells(y as f64 * ky, field.height - 1);
-            let (r0, r1) = (y0 * field.width, y1 * field.width);
             for (x, px) in row.as_chunks_mut::<4>().0.iter_mut().enumerate() {
-                let (x0, x1, fx) = lerp_cells(x as f64 * kx, field.width - 1);
-                let a = stored(r0 + x0) + (stored(r0 + x1) - stored(r0 + x0)) * fx;
-                let b = stored(r1 + x0) + (stored(r1 + x1) - stored(r1 + x0)) * fx;
-                let depth = a + (b - a) * fy;
+                let depth = field.bilinear(x as f64 * kx, y as f64 * ky);
                 let (xf, yf) = (x as f64, y as f64);
                 let ink = if depth <= 0.001 {
                     ground

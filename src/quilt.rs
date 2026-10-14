@@ -267,10 +267,6 @@ impl Scroll {
     }
 }
 
-const BAYER: [f64; 16] = [
-    0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0,
-];
-
 struct Pattern {
     style: QuiltStyle,
     rs: u32,
@@ -612,8 +608,8 @@ impl Pattern {
                                 * self.warp
                             + self.ph0)
                             .sin();
-                let cell = ((vy.floor() as usize) & 3) * 4 + ((ux.floor() as usize) & 3);
-                u8::from(s > (BAYER[cell] + 0.5) / 16.0)
+                let cell = chassis::bayer((ux.floor() as usize) & 3, (vy.floor() as usize) & 3, 4);
+                u8::from(s > (cell as f64 + 0.5) / 16.0)
             }
             QuiltStyle::Auto => unreachable!("Auto resolves to a style"),
             QuiltStyle::Steps => lookup(

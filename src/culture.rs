@@ -2,8 +2,9 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store};
 use crate::ease::smooth;
+use crate::grid::{self, Grid};
 use crate::hash;
 use crate::param::Param;
 use crate::rng::XorShift;
@@ -295,20 +296,10 @@ pub(crate) fn render(
     chassis::finish(surface, &params.chassis_grain, &params.dither);
 }
 
-struct Plate {
-    field: Vec<f32>,
-    width: usize,
-    height: usize,
-}
-
-fn plate(params: &CultureParams, tool_seed: u32, aspect: f64, drift: Option<f64>) -> Plate {
-    let width = if aspect > 1.0 {
-        round_half_up(560.0 / aspect).max(8.0)
-    } else {
-        560.0
-    };
-    let height = round_half_up(width * aspect).max(8.0);
-    let mut field = vec![0.0_f32; (width * height) as usize];
+fn plate(params: &CultureParams, tool_seed: u32, aspect: f64, drift: Option<f64>) -> Grid {
+    let (cols, rows) = grid::size(560.0, aspect);
+    let (width, height) = (cols as f64, rows as f64);
+    let mut field = vec![0.0_f32; cols * rows];
     let mut rng = XorShift::knuth(tool_seed);
     let base =
         (0.05 + params.size * 0.20) * (0.75 + params.fuse * 0.8) * (width * height).sqrt() * 0.87;
@@ -345,11 +336,7 @@ fn plate(params: &CultureParams, tool_seed: u32, aspect: f64, drift: Option<f64>
             }
         }
     }
-    Plate {
-        field,
-        width: width as usize,
-        height: height as usize,
-    }
+    Grid::new(field, cols, rows)
 }
 
 fn rings(n: usize, cover: f64, spread: f64) -> Vec<f64> {
@@ -377,37 +364,21 @@ fn paint(
     let seed = tool_seed as i32;
     let inks: Vec<[f64; 3]> = palette.inks().iter().map(|c| c.map(f64::from)).collect();
     let n = inks.len();
-    let Plate {
-        field,
-        width: fw,
-        height: fh,
-    } = plate(params, tool_seed, hf / wf, drift);
+    let field = plate(params, tool_seed, hf / wf, drift);
     let th = rings(n, params.cover, params.spread);
     let soft = params.soft.max(0.001);
     let gq = params.grain * 1.05;
     let gl = params.grain * 46.0;
     let dot = params.dot.max(1);
     let stipple = params.texture == CultureTexture::Stipple;
-    let (kx, ky) = (fw as f64 / wf, fh as f64 / hf);
+    let (kx, ky) = (field.width() as f64 / wf, field.height() as f64 / hf);
     let band_seed = seed.wrapping_add(29) as u32;
     let colour_seed = seed.wrapping_add(71) as u32;
-    let at = |k: usize| f64::from(field[k]);
 
     let mut rgba = Vec::with_capacity((w * h) as usize * 4);
     for y in 0..h {
-        let gy = f64::from(y) * ky;
-        let y0 = (gy as usize).min(fh - 1);
-        let fy = gy - y0 as f64;
-        let y1 = (y0 + 1).min(fh - 1);
-        let (r0, r1) = (y0 * fw, y1 * fw);
         for x in 0..w {
-            let gx = f64::from(x) * kx;
-            let x0 = (gx as usize).min(fw - 1);
-            let fx = gx - x0 as f64;
-            let x1 = (x0 + 1).min(fw - 1);
-            let a = at(r0 + x0) + (at(r0 + x1) - at(r0 + x0)) * fx;
-            let b = at(r1 + x0) + (at(r1 + x1) - at(r1 + x0)) * fx;
-            let v = a + (b - a) * fy;
+            let v = field.bilinear(f64::from(x) * kx, f64::from(y) * ky);
 
             let mut u = if v < th[1] {
                 if th[1] > 0.0 { v / th[1] } else { 0.0 }

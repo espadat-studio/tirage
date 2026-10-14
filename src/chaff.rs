@@ -3,6 +3,7 @@ use std::f64::consts::{PI, TAU};
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store};
+use crate::grid::Grid;
 use crate::hash;
 use crate::noise::value_sum;
 use crate::param::Param;
@@ -417,7 +418,7 @@ fn outline(path: &mut Path2D, b: &Blade, unit: f64, scale: f64, slim: f64, p: &C
     path.close();
 }
 
-fn mask(p: &ChaffParams, blades: &[Blade], width: u32, height: u32) -> Vec<u8> {
+fn mask(p: &ChaffParams, blades: &[Blade], width: u32, height: u32) -> Grid {
     let mut mask = Surface::new(width, height);
     let unit = f64::from(width * height).sqrt();
     let green = [0, 255, 0];
@@ -439,7 +440,13 @@ fn mask(p: &ChaffParams, blades: &[Blade], width: u32, height: u32) -> Vec<u8> {
         }
         mask.fill_transformed(&path, green, Transform::IDENTITY);
     }
-    mask.into_image().rgba().chunks(4).map(|px| px[1]).collect()
+    let values = mask
+        .into_image()
+        .rgba()
+        .chunks(4)
+        .map(|px| f32::from(px[1]))
+        .collect();
+    Grid::new(values, width as usize, height as usize)
 }
 
 fn paint(
@@ -468,20 +475,10 @@ fn paint(
     let big = fine * 7.5;
     let amp = p.mottle * 2.6;
     let gl = p.grain * 52.0;
-    let cell = |at: u32, edge: u32| {
-        let g = f64::from(at) * 0.5;
-        let lower = (g as u32).min(edge - 1);
-        (lower, (lower + 1).min(edge - 1), g - f64::from(lower))
-    };
     surface.edit_rgba(|rgba, _, _| {
         for y in 0..h {
-            let (y0, y1, fy) = cell(y, mh);
             for x in 0..w {
-                let (x0, x1, fx) = cell(x, mw);
-                let at = |cx: u32, cy: u32| f64::from(green[(cy * mw + cx) as usize]);
-                let top = at(x0, y0) + (at(x1, y0) - at(x0, y0)) * fx;
-                let bottom = at(x0, y1) + (at(x1, y1) - at(x0, y1)) * fx;
-                let g = (top + (bottom - top) * fy) / 255.0;
+                let g = green.bilinear(f64::from(x) * 0.5, f64::from(y) * 0.5) / 255.0;
                 let (fx, fy) = (f64::from(x), f64::from(y));
                 let n = ((value_sum(fx / fine, fy / fine, tool_seed.wrapping_add(41)) - 0.5)
                     * 0.66

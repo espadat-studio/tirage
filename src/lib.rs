@@ -3,6 +3,7 @@ mod color;
 mod derive;
 mod ease;
 mod error;
+mod grid;
 mod hash;
 mod image;
 mod noise;
