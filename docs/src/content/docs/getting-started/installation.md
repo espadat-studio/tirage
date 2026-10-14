@@ -20,7 +20,7 @@ tirage --version
 ```
 
 ```
-tirage 0.1.1 (derivation major 0)
+tirage 1.0.0 (derivation major 0)
 ```
 
 ## The encode feature
