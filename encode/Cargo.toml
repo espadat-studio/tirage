@@ -3,6 +3,8 @@ name = "tirage-encode"
 version = "0.0.0"
 edition = "2024"
 include = ["src/**"]
+license = "AGPL-3.0-or-later"
+license-file = "../LICENSE"
 repository = "https://github.com/espadat-studio/tirage"
 description = "Encode a tirage Loop to an H.264 MP4."
 
