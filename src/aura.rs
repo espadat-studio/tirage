@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::ease::smooth;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -233,17 +234,6 @@ impl Xorshift {
     }
 }
 
-pub(crate) fn hash(x: i32, y: i32, channel: u32, seed: u32) -> f64 {
-    let mut n = (x as u32).wrapping_mul(374_761_393)
-        ^ (y as u32).wrapping_mul(668_265_263)
-        ^ channel.wrapping_mul(1_440_662_683)
-        ^ seed.wrapping_mul(1_013_904_223);
-    n = (n ^ (n >> 15)).wrapping_mul(2_246_822_519);
-    n = (n ^ (n >> 13)).wrapping_mul(3_266_489_917);
-    n ^= n >> 16;
-    f64::from(n) / 4_294_967_296.0
-}
-
 pub(crate) struct Noise(pub(crate) u32);
 
 impl Noise {
@@ -252,7 +242,7 @@ impl Noise {
         let (fx, fy) = (x - x0, y - y0);
         let (u, v) = (smooth(fx), smooth(fy));
         let (xi, yi) = (x0 as i32, y0 as i32);
-        let corner = |dx: i32, dy: i32| hash(xi + dx, yi + dy, channel, self.0);
+        let corner = |dx: i32, dy: i32| hash::xor(xi + dx, yi + dy, channel, self.0);
         let (a, b, c, d) = (corner(0, 0), corner(1, 0), corner(0, 1), corner(1, 1));
         a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v
     }

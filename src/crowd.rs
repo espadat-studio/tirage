@@ -3,10 +3,11 @@ use std::f64::consts::{PI, TAU};
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store, value_noise,
+    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store, value_noise,
 };
 use crate::color::mix;
 use crate::ease::smooth;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -452,7 +453,7 @@ fn mask(
 fn arrows(params: &CrowdParams, width: f64, height: f64, unit: f64, seed: u32) -> (Path2D, f64) {
     let mut path = Path2D::default();
     let density = params.arrows;
-    let [sd1, sd2, sd3] = [1, 2, 3].map(|k| seed.wrapping_mul(7).wrapping_add(k));
+    let [sd1, sd2, sd3] = [1, 2, 3].map(|k| hash::sub_seed(seed, k));
     let spacing = unit * 0.019 * (0.7 + params.arrow_size * 0.9);
     let size = spacing * 0.55;
     let columns = (width / spacing).ceil() as i32 + 1;
@@ -463,14 +464,14 @@ fn arrows(params: &CrowdParams, width: f64, height: f64, unit: f64, seed: u32) -
             let y = (f64::from(j) + 0.5) * spacing;
             let patch = value_noise(x / unit * 3.2 + 1.0, y / unit * 3.2 + 5.0, sd1) * 0.7
                 + value_noise(x / unit * 9.0 + 4.0, y / unit * 9.0 + 2.0, sd2) * 0.3;
-            if patch < 1.0 - density * 0.95 || hash(i, j, sd3) < 0.3 {
+            if patch < 1.0 - density * 0.95 || hash::sum(i, j, sd3) < 0.3 {
                 continue;
             }
-            let jx = (hash(i, j, sd3.wrapping_add(1)) - 0.5) * spacing * 0.6;
-            let jy = (hash(i, j, sd3.wrapping_add(2)) - 0.5) * spacing * 0.6;
+            let jx = (hash::sum(i, j, sd3.wrapping_add(1)) - 0.5) * spacing * 0.6;
+            let jy = (hash::sum(i, j, sd3.wrapping_add(2)) - 0.5) * spacing * 0.6;
             let lean = PI * 0.75
                 + (value_noise(x / unit * 2.2 + 9.0, y / unit * 2.2 + 3.0, sd2) - 0.5) * PI * 1.6;
-            let a = lean + (hash(i, j, sd3.wrapping_add(3)) - 0.5) * 0.9;
+            let a = lean + (hash::sum(i, j, sd3.wrapping_add(3)) - 0.5) * 0.9;
             let (ca, sa) = (a.cos(), a.sin());
             let (ax, ay) = (x + jx, y + jy);
             let (tx, ty) = (ax + ca * size * 0.5, ay + sa * size * 0.5);

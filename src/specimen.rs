@@ -6,10 +6,11 @@ use serde::{Deserialize, Serialize};
 use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::circle;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
-use crate::terrain::{fbm, hash};
+use crate::terrain::fbm;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "specimen";
@@ -771,8 +772,8 @@ fn paint(
                         .wrapping_add(5);
                     let width = (p.line_w * 0.45 * k).max(0.3);
                     for i in 0..strands as i32 {
-                        let mut x = bx + hash(id, i, 0, 1, tool_seed) * bw;
-                        let mut y = by + hash(id, i, 0, 2, tool_seed) * bh;
+                        let mut x = bx + hash::xor_w(id, i, 0, 1, tool_seed) * bw;
+                        let mut y = by + hash::xor_w(id, i, 0, 2, tool_seed) * bh;
                         let mut points = vec![(x, y)];
                         for _ in 0..steps {
                             let noise =
@@ -793,9 +794,9 @@ fn paint(
                 }
                 Motif::Loop => {
                     for i in 0..count(2.0, 6.0) as i32 {
-                        let rr = m * (0.18 + 0.42 * hash(id, i, 3, 0, tool_seed));
+                        let rr = m * (0.18 + 0.42 * hash::xor_w(id, i, 3, 0, tool_seed));
                         let rot = b.rot + f64::from(i) * 0.7;
-                        let squash = 0.35 + 0.6 * hash(id, i, 4, 0, tool_seed);
+                        let squash = 0.35 + 0.6 * hash::xor_w(id, i, 4, 0, tool_seed);
                         let (cr, sr) = (rot.cos(), rot.sin());
                         let path = polyline(
                             (0..=64).map(|q| {
@@ -878,11 +879,11 @@ fn paint(
                     let wd = m * 0.045;
                     for i in 0..count(3.0, 14.0) as i32 {
                         let (ax, ay) = (
-                            bx + hash(id, i, 7, 0, tool_seed) * bw,
-                            by + hash(id, i, 8, 0, tool_seed) * bh,
+                            bx + hash::xor_w(id, i, 7, 0, tool_seed) * bw,
+                            by + hash::xor_w(id, i, 8, 0, tool_seed) * bh,
                         );
-                        let a = b.rot + hash(id, i, 9, 0, tool_seed) * TAU;
-                        let len = m * (0.3 + 0.6 * hash(id, i, 10, 0, tool_seed));
+                        let a = b.rot + hash::xor_w(id, i, 9, 0, tool_seed) * TAU;
+                        let len = m * (0.3 + 0.6 * hash::xor_w(id, i, 10, 0, tool_seed));
                         let (nx, ny) = (-a.sin() * wd / 2.0, a.cos() * wd / 2.0);
                         let mut path = polyline(
                             [

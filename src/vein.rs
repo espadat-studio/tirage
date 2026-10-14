@@ -3,9 +3,10 @@ use std::f64::consts::{PI, TAU};
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, value_noise,
+    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, value_noise,
 };
 use crate::color::luma_709;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -432,7 +433,7 @@ fn paint(
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let unit = (width * height).sqrt();
     let inks = palette.len();
-    let field_seed = |offset: u32| tool_seed.wrapping_mul(7).wrapping_add(offset);
+    let field_seed = |offset: u32| hash::sub_seed(tool_seed, offset);
     let (warp_seed, detail_seed, mask_seed) = (field_seed(1), field_seed(2), field_seed(3));
 
     let mut stream = XorShift::new(tool_seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
@@ -511,7 +512,7 @@ fn paint(
     let (mut ink, mut run_end) = (1 % inks, 0);
     surface.fill(palette.ink(0));
     for k in 0..levels {
-        let roll = |key: i32| hash(k as i32, key, tool_seed);
+        let roll = |key: i32| hash::sum(k as i32, key, tool_seed);
         let (fill, outline) = if k < dark {
             (
                 tint(palette.ink(0), if k % 2 == 1 { 0.12 } else { -0.2 }),
@@ -558,7 +559,7 @@ fn paint(
     });
     let ground = f64::from(dark) / f64::from(levels);
     for k in 0..round_half_up(params.stars * 600.0) as i32 {
-        let roll = |key: i32| hash(k, key, tool_seed);
+        let roll = |key: i32| hash::sum(k, key, tool_seed);
         let (x, y) = (roll(11) * width, roll(12) * height);
         if f64::from(grid.at_pixel(x, y)) >= ground {
             continue;

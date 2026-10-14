@@ -2,9 +2,8 @@ use std::f64::consts::PI;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store,
-};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
@@ -467,7 +466,7 @@ fn ramp(
             t += ((u * uy - v * ux) * 11.0 + sd + phase * PI * 2.0).sin() * 0.06;
             let t = t.clamp(0.0, 1.0);
             let noise = if p.grain > 0.002 {
-                (hash(i as i32, j as i32, panel.seed) - 0.5)
+                (hash::sum(i as i32, j as i32, panel.seed) - 0.5)
                     * p.grain
                     * 104.0
                     * (1.0 - (t - 0.5).abs() * 1.1)
@@ -521,7 +520,7 @@ fn grid(
         let radius = (side * 0.016).max(1.6);
         for (i, &gx) in xs.iter().enumerate() {
             for (j, &gy) in ys.iter().enumerate() {
-                if hash(i as i32, j as i32, panel.seed) > 0.82 {
+                if hash::sum(i as i32, j as i32, panel.seed) > 0.82 {
                     surface.fill_circle(gx, gy, radius, b);
                 }
             }

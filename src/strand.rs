@@ -2,7 +2,8 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, hash, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, store, value_noise};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Path2D, Surface};
 use crate::taste::Taste;
@@ -454,13 +455,13 @@ fn rod_outline(
     let sd = rod.sd;
     let s = sd as i32;
     let sdf = f64::from(sd);
-    let a = rod.a + (hash(s, 17, 3) - 0.5) * 0.42 * rough;
+    let a = rod.a + (hash::sum(s, 17, 3) - 0.5) * 0.42 * rough;
     let (ca, sa) = (a.cos(), a.sin());
     let (px, py) = (-sa, ca);
     let full = seg + wid;
     let half = (wid * 0.05).max(wid * 0.5 + grow);
-    let e0 = 0.06 + hash(s, 3, 7) * 0.34 * rough;
-    let e1 = 0.06 + hash(s, 9, 7) * 0.6 * rough;
+    let e0 = 0.06 + hash::sum(s, 3, 7) * 0.34 * rough;
+    let e1 = 0.06 + hash::sum(s, 9, 7) * 0.6 * rough;
     let (mut left, mut right) = (Vec::new(), Vec::new());
     for i in 0..=STATIONS {
         let u = i as f64 / STATIONS as f64;
@@ -580,11 +581,11 @@ fn paint(
                         }
                         StrandTexture::Drag => {
                             let (u, v) = ((u / along).floor() as i32, (v / across).floor() as i32);
-                            hash(u, v, seed.wrapping_add(17)) < miss
+                            hash::sum(u, v, seed.wrapping_add(17)) < miss
                         }
                         StrandTexture::Stipple => {
                             let (u, v) = ((xf / tc).floor() as i32, (yf / tc).floor() as i32);
-                            hash(u, v, seed.wrapping_add(13)) < miss
+                            hash::sum(u, v, seed.wrapping_add(13)) < miss
                         }
                     };
                     ink = !gap;
@@ -597,7 +598,7 @@ fn paint(
                     ground
                 };
                 let q = if speck > 0.002 {
-                    (hash(x as i32, y as i32, seed.wrapping_add(71)) - 0.5) * speck
+                    (hash::sum(x as i32, y as i32, seed.wrapping_add(71)) - 0.5) * speck
                 } else {
                     0.0
                 };

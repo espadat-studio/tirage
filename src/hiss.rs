@@ -2,8 +2,9 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, hash, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, store, value_noise};
 use crate::ease::smooth;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -458,7 +459,7 @@ fn paint(
     let lenses = lenses(params.checkers, &leaves, leaf, w, &mut rng);
     let comb_a = ink(palette, (rng.next() * inks as f64) as usize);
     let comb_b = ink(palette, (rng.next() * inks as f64) as usize);
-    let sd = |k: u32| seed.wrapping_mul(7).wrapping_add(k);
+    let sd = |k: u32| hash::sub_seed(seed, k);
     let (ox, oy) = frame.map_or((0.0, 0.0), |f| {
         let t = f64::from(f) / f64::from(FRAMES);
         let (ph, reach) = (TAU * t, AMOUNT * 0.15);
@@ -506,7 +507,7 @@ fn paint(
                     let si = (qx / sp).floor() as i32;
                     let sj = (qy / sp).floor() as i32;
                     let edge = |stripe: i32, row: i32, salt: u32| {
-                        1.0 - comb + (hash(stripe, row, seed.wrapping_add(salt)) - 0.5) * 0.14
+                        1.0 - comb + (hash::sum(stripe, row, seed.wrapping_add(salt)) - 0.5) * 0.14
                     };
                     if ax - ay > edge(si, 0, 5) {
                         rgb = if si & 1 == 0 { comb_a } else { BLACK };
@@ -524,8 +525,8 @@ fn paint(
                 });
                 if in_leaf {
                     let (gx, gy) = ((xf / gsc) as i32, (yf / gsc) as i32);
-                    rgb = [12.0 + hash(gx, gy, boil + 3).powf(1.6) * 220.0; 3];
-                    let fleck_at = hash(gx, gy, boil + 77);
+                    rgb = [12.0 + hash::sum(gx, gy, boil + 3).powf(1.6) * 220.0; 3];
+                    let fleck_at = hash::sum(gx, gy, boil + 77);
                     if fleck > 0.0 && fleck_at < fleck {
                         rgb = ink(palette, (fleck_at / fleck * inks as f64) as usize % inks);
                     }

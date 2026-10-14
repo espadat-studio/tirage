@@ -2,10 +2,9 @@ use std::f64::consts::PI;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, hash, round_half_up, store, value_noise,
-};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store, value_noise};
 use crate::ease::smooth;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -436,7 +435,7 @@ fn paint(
                     if keep { fill } else { silhouette }
                 };
                 let g = if grain > 0.002 {
-                    (hash(x as i32, y as i32, tool_seed.wrapping_add(71)) - 0.5) * grain
+                    (hash::sum(x as i32, y as i32, tool_seed.wrapping_add(71)) - 0.5) * grain
                 } else {
                     0.0
                 };

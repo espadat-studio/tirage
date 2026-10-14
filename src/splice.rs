@@ -2,9 +2,8 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store,
-};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -542,12 +541,12 @@ fn paint(
                         dx * dx + dy * dy < r * r
                     }
                     Screen::Lines => fy / cs - cy < cov,
-                    Screen::Noise => hash(cx as i32, cy as i32, seed(7)) < cov,
+                    Screen::Noise => hash::sum(cx as i32, cy as i32, seed(7)) < cov,
                 };
                 palette.ink((t as usize + usize::from(on) + pc.rot) % inks)
             };
             let q = if gl > 0.002 {
-                (hash(x as i32, y as i32, seed(71)) - 0.5) * gl
+                (hash::sum(x as i32, y as i32, seed(71)) - 0.5) * gl
             } else {
                 0.0
             };

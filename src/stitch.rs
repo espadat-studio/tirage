@@ -3,9 +3,10 @@ use std::f64::consts::TAU;
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, value_noise,
+    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, value_noise,
 };
 use crate::color::luma_709;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -332,7 +333,7 @@ fn paint(
 ) {
     let inks = palette.inks();
     let n = inks.len();
-    let seed = |k: u32| tool_seed.wrapping_mul(7).wrapping_add(k);
+    let seed = |k: u32| hash::sub_seed(tool_seed, k);
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let cols = params.cols.max(4);
     let cw = w / f64::from(cols);
@@ -384,7 +385,7 @@ fn paint(
     surface.fill(inks[gutter_ink]);
     for j in 0..rows {
         let band = (j / band_rows) as i32;
-        let offset = (hash(band, 3, seed(1)) - 0.5) * 2.0 * slip;
+        let offset = (hash::sum(band, 3, seed(1)) - 0.5) * 2.0 * slip;
         let y0 = round_half_up(f64::from(j) * ch) + gutter;
         let y1 = round_half_up(f64::from(j + 1) * ch);
         if y1 - y0 <= 0.0 {
@@ -410,7 +411,7 @@ fn paint(
             if blob > blob_cut {
                 ink = accent;
             }
-            let draw = hash(i as i32, j as i32, tool_seed.wrapping_add(9));
+            let draw = hash::sum(i as i32, j as i32, tool_seed.wrapping_add(9));
             if draw < stray {
                 ink = (draw / stray * n as f64) as usize % n;
             }

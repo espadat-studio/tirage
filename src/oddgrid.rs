@@ -2,13 +2,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::{circle, lerp};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Cap;
 use crate::surface::Join;
 use crate::surface::Path2D;
 use crate::surface::Surface;
 use crate::taste::Taste;
-use crate::terrain::{fbm, hash};
+use crate::terrain::fbm;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "oddgrid";
@@ -402,7 +403,7 @@ fn grid(
             let bx = lerp(xc, f64::from(rx) * bf + bf / 2.0, params.block);
             let by = lerp(yc, f64::from(ry) * bf + bf / 2.0, params.block);
             let smooth = fbm(bx / s, by / s, zw, seed, 2);
-            let tone = smooth * 0.5 + hash(rx, ry, 0, 13, at(404)) * 0.5;
+            let tone = smooth * 0.5 + hash::xor_w(rx, ry, 0, 13, at(404)) * 0.5;
             let base = stretch(lerp(smooth, tone, params.block), 2.0);
             let mask = stretch(
                 fbm(
@@ -421,12 +422,12 @@ fn grid(
                 at(7717),
                 2,
             );
-            let bias = (hash(rx, ry, 0, 11, at(808)) - 0.5) * params.variety * 0.6;
+            let bias = (hash::xor_w(rx, ry, 0, 11, at(808)) - 0.5) * params.variety * 0.6;
             let level = 0.5 + (params.density - 0.5) * 1.1 + bias;
             let local = params.grain
                 * lerp(
                     1.0,
-                    0.15 + hash(rx, ry, 0, 17, at(909)) * 2.1,
+                    0.15 + hash::xor_w(rx, ry, 0, 17, at(909)) * 2.1,
                     (params.variety * 0.8).clamp(0.0, 1.0),
                 );
             if mask + (det - 0.5) * local * 1.15 >= level {
@@ -437,12 +438,12 @@ fn grid(
                 continue;
             }
             let mut ink = (n - 1).min((base.powf(power) * n as f64).floor() as usize);
-            if params.speck > 0.0 && hash(x, y, 0, 3, at(21)) < params.speck {
-                ink = (hash(x, y, 0, 4, at(33)) * n as f64).floor() as usize % n;
+            if params.speck > 0.0 && hash::xor_w(x, y, 0, 3, at(21)) < params.speck {
+                ink = (hash::xor_w(x, y, 0, 4, at(33)) * n as f64).floor() as usize % n;
             }
             let marked = params.motifs != Motif::None
                 && params.motif_amt > 0.0
-                && hash(x, y, 0, 5, at(64)) < params.motif_amt;
+                && hash::xor_w(x, y, 0, 5, at(64)) < params.motif_amt;
             cells.push(Cell {
                 ink: Some(ink),
                 marked,
@@ -459,7 +460,7 @@ fn shape(motif: Motif, x: i32, y: i32, seed: u32) -> Shape {
         Motif::Square => Shape::Square,
         Motif::Wedge => Shape::Wedge,
         Motif::None | Motif::Mixed => {
-            let k = hash(x, y, 0, 9, seed.wrapping_add(404));
+            let k = hash::xor_w(x, y, 0, 9, seed.wrapping_add(404));
             if k < 0.4 {
                 Shape::Dot
             } else if k < 0.65 {

@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::aura::{Xorshift, hash};
+use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
 use crate::ease::smooth;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -545,10 +546,10 @@ fn field(x: f64, y: f64, seed: u32) -> f64 {
     let (xi, yi) = (x.floor(), y.floor());
     let (u, v) = (smooth(x - xi), smooth(y - yi));
     let (xi, yi) = (xi as i32, yi as i32);
-    let a = hash(xi, yi, 0, seed);
-    let b = hash(xi + 1, yi, 0, seed);
-    let c = hash(xi, yi + 1, 0, seed);
-    let d = hash(xi + 1, yi + 1, 0, seed);
+    let a = hash::xor(xi, yi, 0, seed);
+    let b = hash::xor(xi + 1, yi, 0, seed);
+    let c = hash::xor(xi, yi + 1, 0, seed);
+    let d = hash::xor(xi + 1, yi + 1, 0, seed);
     let top = a + (b - a) * u;
     top + ((c + (d - c) * u) - top) * v
 }

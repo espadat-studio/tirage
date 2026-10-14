@@ -2,8 +2,9 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::{Xorshift, hash};
+use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Path2D, Surface};
 use crate::taste::Taste;
@@ -316,7 +317,7 @@ fn paint(
         let place = |q: f64, r: f64| (q * cos - r * sin, q * sin + r * cos);
         let shift_seed = tool_seed ^ 0x2c1b_3c6d;
         for b in (-reach / band).floor() as i32..(reach / band).ceil() as i32 {
-            let shift = hash(b, 3, 7, shift_seed) * cs * 2.0;
+            let shift = hash::xor(b, 3, 7, shift_seed) * cs * 2.0;
             let (r0, r1) = (f64::from(b) * band, f64::from(b + 1) * band);
             for k in ((-reach - shift) / cs).floor() as i32..((reach - shift) / cs).ceil() as i32 {
                 let q0 = f64::from(k) * cs + shift;

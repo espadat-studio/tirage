@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, fbm, hash, round_half_up};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, fbm, round_half_up};
 use crate::color::luma_601;
+use crate::hash;
 use crate::kiosk::CharacterSet;
 use crate::param::Param;
 use crate::surface::Surface;
@@ -13,8 +14,6 @@ pub(crate) const SLUG: &str = "atlas";
 pub(crate) const FRAMES: u32 = 24;
 pub(crate) const FPS: u32 = 8;
 pub(crate) const MAX_INKS: Option<usize> = None;
-
-const SHUFFLE: u32 = 7919;
 
 const DEFAULT_PALETTE: [&str; 8] = [
     "#0d2b45", "#203c56", "#544e68", "#8d697a", "#d08159", "#ffaa5e", "#ffd4a3", "#ffecd6",
@@ -303,8 +302,8 @@ fn grid(params: &AtlasParams, palette: &Palette, seed: u32, aspect: f64) -> (u32
                 lo
             };
             let start = (f64::from(band) / n * len as f64).floor() as usize;
-            let jitter = hash(x * 7 + 1, y * 13 + 3, seed.wrapping_add(band * 97));
-            let on = hash(x * 3 + 5, y * 5 + 11, seed.wrapping_add(band * 57))
+            let jitter = hash::sum(x * 7 + 1, y * 13 + 3, seed.wrapping_add(band * 97));
+            let on = hash::sum(x * 3 + 5, y * 5 + 11, seed.wrapping_add(band * 57))
                 < params.density * (0.35 + 0.9 * (f64::from(band + 1) / n));
             let ch = on.then(|| glyphs[(start + (jitter * span).floor() as usize) % len]);
             cells.push(Cell { ground, ink, ch });
@@ -320,8 +319,12 @@ pub(crate) fn render(
     tool_seed: u32,
     t: Option<u32>,
 ) {
-    let shuffle = t.unwrap_or(0).wrapping_mul(SHUFFLE);
-    paint(surface, params, palette, tool_seed.wrapping_add(shuffle));
+    paint(
+        surface,
+        params,
+        palette,
+        hash::frame_seed(tool_seed, t.unwrap_or(0)),
+    );
     chassis::finish(surface, &params.grain, &params.dither);
 }
 

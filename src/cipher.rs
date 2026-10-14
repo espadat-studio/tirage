@@ -3,8 +3,9 @@ use std::f64::consts::TAU;
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, value_noise,
+    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, value_noise,
 };
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -344,7 +345,7 @@ struct Shape {
 fn field(params: &CipherParams, shape: &Shape, seed: u32, u: f64, v: f64) -> f64 {
     let (wave, tilt) = (params.wave, params.tilt);
     let det = 1.0 + params.detail * 3.0;
-    let noise = |x: f64, y: f64, k: u32| value_noise(x, y, seed.wrapping_mul(7).wrapping_add(k));
+    let noise = |x: f64, y: f64, k: u32| value_noise(x, y, hash::sub_seed(seed, k));
     let (ox, oy) = (shape.ox, shape.oy);
     match params.field {
         CipherField::Figure => {
@@ -439,7 +440,7 @@ fn paint(
     }
 
     surface.fill(ground);
-    let h = |x: usize, y: usize| hash(x as i32, y as i32, seed);
+    let h = |x: usize, y: usize| hash::sum(x as i32, y as i32, seed);
     let smears: Vec<Option<(usize, usize)>> = (0..rows)
         .map(|j| {
             (h(j, 1) < params.smears).then(|| {
@@ -479,8 +480,8 @@ fn paint(
                         .iter()
                         .position(|&k| k == ink)
                         .expect("a band's ink is a band ink");
-                    let step =
-                        (hash(i as i32, (j + 11) as i32, seed) * (marks.len() - 1) as f64) as usize;
+                    let step = (hash::sum(i as i32, (j + 11) as i32, seed)
+                        * (marks.len() - 1) as f64) as usize;
                     (ink, glyph) = (marks[(first + 1 + step) % marks.len()], Glyph::X);
                 }
             }

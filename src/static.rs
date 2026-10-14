@@ -2,8 +2,9 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::{Xorshift, hash};
+use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -297,7 +298,7 @@ fn modulo(value: f64, by: f64) -> f64 {
 
 impl Region {
     fn h(&self, x: f64, y: f64, channel: u32) -> f64 {
-        hash(x as i32, y as i32, channel, self.rs)
+        hash::xor(x as i32, y as i32, channel, self.rs)
     }
 
     fn on(&self, u: f64, v: f64, f: u32) -> bool {
@@ -326,7 +327,11 @@ impl Region {
             }
             Kind::Blocks => {
                 let (small, large) = (self.q * 2.0, self.q * 5.0);
-                let key = if hash(0, 0, f, self.rs) < 0.25 { f } else { 0 };
+                let key = if hash::xor(0, 0, f, self.rs) < 0.25 {
+                    f
+                } else {
+                    0
+                };
                 let a = self.h((u / small).floor(), (v / small).floor(), key) < 0.5;
                 let b = self.h((u / large).floor(), (v / large).floor(), 3) < 0.5;
                 a != b

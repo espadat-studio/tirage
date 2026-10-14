@@ -2,8 +2,9 @@ use std::f64::consts::{FRAC_PI_2, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::{Xorshift, hash};
+use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -436,7 +437,7 @@ fn half(value: f64) -> f64 {
 
 impl Pattern {
     fn h(&self, x: f64, y: f64, channel: u32) -> f64 {
-        hash(x as i32, y as i32, channel, self.rs)
+        hash::xor(x as i32, y as i32, channel, self.rs)
     }
 
     fn role(

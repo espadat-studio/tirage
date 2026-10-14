@@ -37,7 +37,7 @@ dahlia is a palette-family Tool. Its Palette is the swatch row, read by role, an
 
 `s` is the Tool seed. One xorshift32 stream with the logical right shift (the chassis stream), started at `(s * 2246822519 mod 2^32) xor 0x27d4eb2f`, a zero start becoming 1. It gives exactly one draw: the lean.
 
-Everything else comes from the chassis integer hash `h(x, y, s)` (`chassis::hash`), with `x` the ray index and `y` a role number.
+Everything else comes from the chassis integer hash `h(x, y, s)` (`hash::sum`), with `x` the ray index and `y` a role number.
 
 ## Geometry
 

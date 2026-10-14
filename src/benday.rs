@@ -3,6 +3,7 @@ use std::f64::consts::{PI, TAU};
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store, value_noise};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -328,7 +329,7 @@ fn paint(
         let (c0, c1) = (inks[k], inks[k + 1]);
         [0, 1, 2].map(|c| c0[c] + (c1[c] - c0[c]) * w)
     };
-    let seed = |k: u32| tool_seed.wrapping_mul(7).wrapping_add(k);
+    let seed = |k: u32| hash::sub_seed(tool_seed, k);
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let u = (w * h).sqrt();
     let sc = u * (0.25 + params.scale * 0.7);

@@ -2,9 +2,10 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::{Noise, Xorshift, hash};
+use crate::aura::{Noise, Xorshift};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::ease::smooth;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -273,7 +274,7 @@ fn paint(
             let sy = ny * 0.5 + soy + oy * 0.4;
             let st = noise.fbm(sx, sy, 77) * 0.72 + noise.fbm(sx * 2.4, sy * 2.1, 78) * 0.28;
             let m = smoothstep_edges(th - del, th + del, st);
-            let g = (hash(x as i32, y as i32, 7, noise.0) - 0.5) * gr;
+            let g = (hash::xor(x as i32, y as i32, 7, noise.0) - 0.5) * gr;
             let [r, gg, b] = std::array::from_fn(|i| {
                 let c = mix[i] / total;
                 store((c + (neon[i] - c) * m).sqrt() + g)

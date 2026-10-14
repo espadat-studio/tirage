@@ -3,8 +3,9 @@ use std::f64::consts::PI;
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store, value_noise,
+    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store, value_noise,
 };
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -552,7 +553,7 @@ fn paint(
                 let d = f64::from(depth[i]);
                 if d < 0.0 {
                     let t = -d
-                        + (hash(gx, gy, paint_seed) - 0.5) * dth
+                        + (hash::sum(gx, gy, paint_seed) - 0.5) * dth
                         + (value_noise(
                             xf / (6.5 * gsc),
                             yf / (6.5 * gsc),
@@ -581,7 +582,7 @@ fn paint(
                     }
                 }
                 if grain > 0.0 {
-                    let draw = hash(gx, gy, paint_seed.wrapping_add(7919));
+                    let draw = hash::sum(gx, gy, paint_seed.wrapping_add(7919));
                     if draw > 1.0 - grain * 0.016 {
                         for ch in 0..3 {
                             c[ch] = (c[ch] + fleck[ch]) * 0.5;
