@@ -328,8 +328,6 @@ pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> FrondParams {
 
 type Points = Vec<(f64, f64)>;
 
-const BAYER: [u8; 16] = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-
 struct Pen {
     ink: [u8; 3],
     mark: f64,
@@ -553,7 +551,8 @@ fn noise_block(
             let f = value_sum(px / scale, py / scale, seed as u32) * 0.62
                 + value_sum(px / fine, py / fine, seed as u32 + 91) * 0.38;
             let v = (f - 0.5) * 2.3 + 0.42 - f64::from(j) / f64::from(h) * 0.34;
-            let threshold = (f64::from(BAYER[((j & 3) * 4 + (i & 3)) as usize]) + 0.5) / 16.0;
+            let threshold =
+                (chassis::bayer((i & 3) as usize, (j & 3) as usize, 4) as f64 + 0.5) / 16.0;
             surface.set_pixel(x + i, y + j, if v < threshold { grit } else { paper });
         }
     }

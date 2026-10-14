@@ -416,7 +416,7 @@ impl Dither {
     }
 }
 
-fn bayer(x: usize, y: usize, side: usize) -> usize {
+pub(crate) fn bayer(x: usize, y: usize, side: usize) -> usize {
     if side == 1 {
         return 0;
     }
