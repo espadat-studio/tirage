@@ -3,8 +3,8 @@ use std::f64::consts::{PI, TAU};
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
-use crate::ease::{lerp, smooth};
-use crate::hash;
+use crate::ease::lerp;
+use crate::noise::value_lerp;
 use crate::param::Param;
 use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Smoothing, Surface};
@@ -254,23 +254,11 @@ const VIEW: f64 = 1000.0;
 
 type Point = (f64, f64);
 
-fn value_noise(x: f64, y: f64, seed: u32) -> f64 {
-    let (x0, y0) = (x.floor(), y.floor());
-    let (u, v) = (smooth(x - x0), smooth(y - y0));
-    let (xi, yi) = (x0 as i32, y0 as i32);
-    let corner = |dx: i32, dy: i32| hash::xor(xi + dx, yi + dy, 0, seed);
-    lerp(
-        lerp(corner(0, 0), corner(1, 0), u),
-        lerp(corner(0, 1), corner(1, 1), u),
-        v,
-    )
-}
-
 fn fbm(x: f64, y: f64, seed: u32) -> f64 {
     let (mut weight, mut frequency, mut sum, mut total) = (0.5, 1.0, 0.0, 0.0);
     for octave in 0..3 {
         sum += weight
-            * value_noise(
+            * value_lerp(
                 x * frequency,
                 y * frequency,
                 seed.wrapping_add(octave * 1319),

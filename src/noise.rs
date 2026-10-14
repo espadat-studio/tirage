@@ -1,4 +1,4 @@
-use crate::ease::smooth;
+use crate::ease::{lerp, smooth};
 use crate::hash;
 
 pub(crate) fn value_sum(x: f64, y: f64, seed: u32) -> f64 {
@@ -8,4 +8,38 @@ pub(crate) fn value_sum(x: f64, y: f64, seed: u32) -> f64 {
     let corner = |dx: i32, dy: i32| hash::sum(xi.wrapping_add(dx), yi.wrapping_add(dy), seed);
     (corner(0, 0) * (1.0 - u) + corner(1, 0) * u) * (1.0 - v)
         + (corner(0, 1) * (1.0 - u) + corner(1, 1) * u) * v
+}
+
+pub(crate) fn value_lerp(x: f64, y: f64, seed: u32) -> f64 {
+    value_lerp_zw(x, y, None, seed)
+}
+
+pub(crate) fn value_lerp_zw(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32) -> f64 {
+    let (x0, y0) = (x.floor(), y.floor());
+    let (u, v) = (smooth(x - x0), smooth(y - y0));
+    let (xi, yi) = (x0 as i32, y0 as i32);
+    let face = |z: i32, w: i32| {
+        let corner =
+            |dx: i32, dy: i32| hash::xor_w(xi.wrapping_add(dx), yi.wrapping_add(dy), z, w, seed);
+        lerp(
+            lerp(corner(0, 0), corner(1, 0), u),
+            lerp(corner(0, 1), corner(1, 1), u),
+            v,
+        )
+    };
+    let Some((z, w)) = zw else {
+        return face(0, 0);
+    };
+    let (z0, w0) = (z.floor(), w.floor());
+    let (s, t) = (smooth(z - z0), smooth(w - w0));
+    let (zi, wi) = (z0 as i32, w0 as i32);
+    lerp(
+        lerp(face(zi, wi), face(zi, wi.wrapping_add(1)), t),
+        lerp(
+            face(zi.wrapping_add(1), wi),
+            face(zi.wrapping_add(1), wi.wrapping_add(1)),
+            t,
+        ),
+        s,
+    )
 }

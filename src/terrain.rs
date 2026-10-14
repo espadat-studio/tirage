@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
-use crate::ease::{circle, lerp, smooth};
+use crate::ease::{circle, lerp};
 use crate::hash;
+use crate::noise::value_lerp_zw;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -261,36 +262,11 @@ pub(crate) fn render(
 
 const STEP: usize = 5;
 
-fn noise(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32) -> f64 {
-    let (x0, y0) = (x.floor(), y.floor());
-    let (u, v) = (smooth(x - x0), smooth(y - y0));
-    let (xi, yi) = (x0 as i32, y0 as i32);
-    let face = |z: i32, w: i32| {
-        let corner = |dx: i32, dy: i32| hash::xor_w(xi + dx, yi + dy, z, w, seed);
-        lerp(
-            lerp(corner(0, 0), corner(1, 0), u),
-            lerp(corner(0, 1), corner(1, 1), u),
-            v,
-        )
-    };
-    let Some((z, w)) = zw else {
-        return face(0, 0);
-    };
-    let (z0, w0) = (z.floor(), w.floor());
-    let (s, t) = (smooth(z - z0), smooth(w - w0));
-    let (zi, wi) = (z0 as i32, w0 as i32);
-    lerp(
-        lerp(face(zi, wi), face(zi, wi + 1), t),
-        lerp(face(zi + 1, wi), face(zi + 1, wi + 1), t),
-        s,
-    )
-}
-
 pub(crate) fn fbm(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32, octaves: u32) -> f64 {
     let (mut weight, mut frequency, mut sum, mut total) = (0.5, 1.0, 0.0, 0.0);
     for octave in 0..octaves {
         sum += weight
-            * noise(
+            * value_lerp_zw(
                 x * frequency,
                 y * frequency,
                 zw,
