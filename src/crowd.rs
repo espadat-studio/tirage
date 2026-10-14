@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{
     self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store, value_noise,
 };
+use crate::color::mix;
 use crate::ease::smooth;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
@@ -267,10 +268,6 @@ type Rgb = [f64; 3];
 
 const RAMP: usize = 1024;
 const CORE_AT: f64 = 0.62;
-
-fn mix(a: Rgb, b: Rgb, t: f64) -> Rgb {
-    [0, 1, 2].map(|i| a[i] + (b[i] - a[i]) * t)
-}
 
 fn ramp(palette: &Palette, edge: f64) -> Vec<[f32; 3]> {
     let inks: Vec<Rgb> = palette
