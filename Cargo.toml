@@ -2,8 +2,10 @@
 name = "tirage"
 version = "1.0.0"
 edition = "2024"
+include = ["src/**", "fonts/**", "/README.md", "/LICENSE"]
 license = "AGPL-3.0-or-later"
-publish = false
+repository = "https://github.com/espadat-studio/tirage"
+description = "Original generative artwork and animations, rendered from code. A seeded Recipe in, pixels out."
 
 [workspace]
 members = ["cli", "encode"]

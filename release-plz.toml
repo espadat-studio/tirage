@@ -1,5 +1,4 @@
 [workspace]
-git_only = true
 release_commits = "^(feat|fix|perf|refactor|build)(!|\\(|:)|^\\w+(\\([^)]*\\))?!:"
 git_release_draft = true
 
@@ -9,9 +8,10 @@ git_tag_name = "v{{ version }}"
 
 [[package]]
 name = "tirage-encode"
-release = false
+git_tag_name = "tirage-encode-v{{ version }}"
+git_release_enable = false
 
 [[package]]
 name = "tirage-cli"
-release = false
+git_release_enable = false
 git_tag_name = "tirage-cli-v{{ version }}"
