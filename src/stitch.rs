@@ -6,7 +6,7 @@ use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, valu
 use crate::color::luma_709;
 use crate::hash;
 use crate::param::Param;
-use crate::rng::XorShift;
+use crate::rng::{XorShift, shuffle};
 use crate::surface::Surface;
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -358,10 +358,7 @@ fn paint(
     if mids.is_empty() {
         mids.push(if n > 1 { 1 } else { 0 });
     }
-    for k in (1..mids.len()).rev() {
-        let j = (rnd.next() * (k + 1) as f64) as usize;
-        mids.swap(k, j);
-    }
+    shuffle(&mut mids, || rnd.next());
     let grounded = (steps - 1).min(round_half_up(f64::from(steps) * params.ground) as u32);
     let levels: Vec<usize> = (0..steps)
         .map(|s| {

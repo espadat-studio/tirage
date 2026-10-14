@@ -42,3 +42,10 @@ impl XorShiftArithmetic {
         f64::from(a) / 4_294_967_296.0
     }
 }
+
+pub(crate) fn shuffle<T>(items: &mut [T], mut draw: impl FnMut() -> f64) {
+    for i in (1..items.len()).rev() {
+        let j = (draw() * (i + 1) as f64) as usize;
+        items.swap(i, j);
+    }
+}

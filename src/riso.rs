@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::hash;
 use crate::param::Param;
-use crate::rng::XorShiftArithmetic;
+use crate::rng::{XorShiftArithmetic, shuffle};
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -439,10 +439,7 @@ fn paint(
         Kind::Blocks,
         Kind::Streaks,
     ];
-    for i in (1..kinds.len()).rev() {
-        let j = (rng.next() * (i + 1) as f64) as usize;
-        kinds.swap(i, j);
-    }
+    shuffle(&mut kinds, || rng.next());
     let mut bands = Vec::with_capacity(n);
     let mut y = 0.0;
     for (i, weight) in weights.iter().enumerate() {
