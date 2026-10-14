@@ -861,7 +861,7 @@ dependencies = [
 
 [[package]]
 name = "tirage"
-version = "1.0.0"
+version = "2.0.0"
 dependencies = [
  "image",
  "kurbo",
@@ -875,7 +875,7 @@ dependencies = [
 
 [[package]]
 name = "tirage-cli"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "clap",
  "clap_complete",
@@ -889,7 +889,7 @@ dependencies = [
 
 [[package]]
 name = "tirage-encode"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "bytes",
  "mp4",
