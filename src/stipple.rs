@@ -3,6 +3,7 @@ use std::f64::consts::TAU;
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::ease::circle;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -513,7 +514,7 @@ fn dots(
         params,
         seed,
         aspect,
-        zw: drift.map(|t| ((TAU * t).cos() * AMOUNT, (TAU * t).sin() * AMOUNT)),
+        zw: drift.map(|t| circle(t, AMOUNT)),
     };
     let hex = params.lattices == Lattice::Hex;
     let cols = params.res.max(2);

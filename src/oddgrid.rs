@@ -1,9 +1,7 @@
-use std::f64::consts::TAU;
-
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
-use crate::ease::lerp;
+use crate::ease::{circle, lerp};
 use crate::param::Param;
 use crate::surface::Cap;
 use crate::surface::Join;
@@ -387,7 +385,7 @@ fn grid(
     rows: u32,
     flow: Option<f64>,
 ) -> Vec<Cell> {
-    let zw = flow.map(|t| ((TAU * t).cos() * AMOUNT, (TAU * t).sin() * AMOUNT));
+    let zw = flow.map(|t| circle(t, AMOUNT));
     let scaled = |k: f64| zw.map(|(z, w)| (z * k, w * k));
     let (cover, detail) = (scaled(0.8), scaled(0.45));
     let b = params.bsize.max(2) as i32;

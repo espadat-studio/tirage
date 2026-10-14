@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::ease::circle;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
@@ -676,7 +677,7 @@ fn paint(
     tool_seed: u32,
     flow: Option<f64>,
 ) {
-    let zw = flow.map(|t| ((TAU * t).cos() * AMOUNT, (TAU * t).sin() * AMOUNT));
+    let zw = flow.map(|t| circle(t, AMOUNT));
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let k = w / 1000.0;
     let sheet = 1000.0 * h / w;

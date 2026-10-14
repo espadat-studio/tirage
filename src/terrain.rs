@@ -1,9 +1,7 @@
-use std::f64::consts::TAU;
-
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
-use crate::ease::{lerp, smooth};
+use crate::ease::{circle, lerp, smooth};
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -323,7 +321,7 @@ fn paint(
     tool_seed: u32,
     drift: Option<f64>,
 ) {
-    let zw = drift.map(|t| ((TAU * t).cos() * AMOUNT, (TAU * t).sin() * AMOUNT));
+    let zw = drift.map(|t| circle(t, AMOUNT));
     let (width, height) = (surface.width() as usize, surface.height() as usize);
     let (w, h) = (width as f64, height as f64);
     let fw = width.div_ceil(STEP) + 2;
