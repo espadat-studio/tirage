@@ -2,11 +2,10 @@ use std::f64::consts::PI;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store, value_noise,
-};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store, value_noise};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShift;
 use crate::surface::Surface;
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
