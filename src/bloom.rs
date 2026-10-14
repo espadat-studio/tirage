@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, fbm, round_half_up};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::noise::{Fbm, fbm, value_sum};
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -267,13 +268,29 @@ fn paint(
             let u = (f64::from(mi) + 0.5) / f64::from(cols);
             let v = (f64::from(mj) + 0.5) / f64::from(rows);
             let mut r = ((0.5 - u) * aspect).hypot(0.5 - v) / corner;
-            let slow = fbm(u * 3.2 + 3.1, v * 3.2 + 7.7, tool_seed.wrapping_add(11), 3) - 0.5;
-            let fast = fbm(u * 9.5 + 13.7, v * 9.5 + 2.3, tool_seed.wrapping_add(17), 2) - 0.5;
+            let slow = fbm(
+                Fbm::STANDARD,
+                value_sum,
+                u * 3.2 + 3.1,
+                v * 3.2 + 7.7,
+                tool_seed.wrapping_add(11),
+                3,
+            ) - 0.5;
+            let fast = fbm(
+                Fbm::STANDARD,
+                value_sum,
+                u * 9.5 + 13.7,
+                v * 9.5 + 2.3,
+                tool_seed.wrapping_add(17),
+                2,
+            ) - 0.5;
             r += (slow * 1.35 + fast * 0.5) * params.warp;
             let level = if r <= calm {
                 0.0
             } else {
                 let rough = (fbm(
+                    Fbm::STANDARD,
+                    value_sum,
                     u * 21.0 + 1.3,
                     v * 21.0 + 9.1,
                     tool_seed.wrapping_add(29),

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
 use crate::ease::{circle, lerp};
 use crate::hash;
-use crate::noise::value_lerp_zw;
+use crate::noise::fbm_zw;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -262,23 +262,6 @@ pub(crate) fn render(
 
 const STEP: usize = 5;
 
-pub(crate) fn fbm(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32, octaves: u32) -> f64 {
-    let (mut weight, mut frequency, mut sum, mut total) = (0.5, 1.0, 0.0, 0.0);
-    for octave in 0..octaves {
-        sum += weight
-            * value_lerp_zw(
-                x * frequency,
-                y * frequency,
-                zw,
-                seed.wrapping_add(octave * 1319),
-            );
-        total += weight;
-        weight *= 0.5;
-        frequency *= 2.0;
-    }
-    sum / total
-}
-
 fn paint(
     surface: &mut Surface,
     params: &TerrainParams,
@@ -296,9 +279,9 @@ fn paint(
         let v = (j * STEP) as f64 / h * params.scale * (h / w);
         for i in 0..fw {
             let u = (i * STEP) as f64 / w * params.scale;
-            let wx = fbm(u + 5.2, v + 1.3, zw, tool_seed.wrapping_add(11), 2);
-            let wy = fbm(u + 9.1, v + 7.7, zw, tool_seed.wrapping_add(29), 2);
-            let val = fbm(
+            let wx = fbm_zw(u + 5.2, v + 1.3, zw, tool_seed.wrapping_add(11), 2);
+            let wy = fbm_zw(u + 9.1, v + 7.7, zw, tool_seed.wrapping_add(29), 2);
+            let val = fbm_zw(
                 u + params.warp * (wx - 0.5) * 2.0,
                 v + params.warp * (wy - 0.5) * 2.0,
                 zw,

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::lerp;
-use crate::noise::value_lerp;
+use crate::noise::{self, Fbm, value_lerp};
 use crate::param::Param;
 use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Smoothing, Surface};
@@ -255,19 +255,7 @@ const VIEW: f64 = 1000.0;
 type Point = (f64, f64);
 
 fn fbm(x: f64, y: f64, seed: u32) -> f64 {
-    let (mut weight, mut frequency, mut sum, mut total) = (0.5, 1.0, 0.0, 0.0);
-    for octave in 0..3 {
-        sum += weight
-            * value_lerp(
-                x * frequency,
-                y * frequency,
-                seed.wrapping_add(octave * 1319),
-            );
-        total += weight;
-        weight *= 0.5;
-        frequency *= 2.0;
-    }
-    sum / total
+    noise::fbm(Fbm::LERP, value_lerp, x, y, seed, 3)
 }
 
 fn patches(params: &FeteParams, palette: &Palette, columns: u32, rows: u32, seed: u32) -> Vec<u8> {

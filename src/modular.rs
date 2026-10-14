@@ -2,11 +2,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::circle;
+use crate::noise::fbm_zw;
 use crate::param::Param;
 use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
-use crate::terrain::fbm;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "modular";
@@ -325,7 +325,7 @@ fn lit(
     let q = tool_seed
         .wrapping_add(key.wrapping_mul(131))
         .wrapping_add(9);
-    let v = fbm(f64::from(gx) * 0.55, f64::from(gy) * 0.55, zw, q, 2);
+    let v = fbm_zw(f64::from(gx) * 0.55, f64::from(gy) * 0.55, zw, q, 2);
     ((v - 0.5) * 1.9 + 0.5).clamp(0.0, 1.0) < block_fill
 }
 

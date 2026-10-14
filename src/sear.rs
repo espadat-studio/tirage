@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::hash;
-use crate::noise::value_sum;
+use crate::noise::{self, Fbm, value_sum};
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -265,15 +265,14 @@ pub(crate) fn render(
 
 const BINS: usize = 512;
 
+const FBM: Fbm = Fbm {
+    stride: 131,
+    lacunarity: 2.05,
+    gain: 0.58,
+};
+
 fn fbm(x: f64, y: f64, seed: i32, octaves: u32) -> f64 {
-    let (mut sum, mut a, mut f, mut total) = (0.0, 0.5, 1.0, 0.0);
-    for i in 0..octaves as i32 {
-        sum += a * value_sum(x * f, y * f, seed.wrapping_add(i * 131) as u32);
-        total += a;
-        f *= 2.05;
-        a *= 0.58;
-    }
-    sum / total
+    noise::fbm(FBM, value_sum, x, y, seed as u32, octaves)
 }
 
 struct Heat {

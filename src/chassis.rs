@@ -6,22 +6,6 @@ use crate::param::Param;
 use crate::surface::Surface;
 use crate::{Error, Parameter};
 
-pub(crate) fn fbm(x: f64, y: f64, seed: u32, octaves: u32) -> f64 {
-    let (mut sum, mut weight, mut total, mut frequency) = (0.0, 0.5, 0.0, 1.0);
-    for octave in 0..octaves {
-        sum += weight
-            * value_sum(
-                x * frequency,
-                y * frequency,
-                seed.wrapping_add(octave * 131),
-            );
-        total += weight;
-        frequency *= 2.0;
-        weight *= 0.5;
-    }
-    sum / total
-}
-
 pub(crate) fn round_half_up(value: f64) -> f64 {
     let floor = value.floor();
     if value - floor >= 0.5 {

@@ -5,10 +5,10 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::circle;
 use crate::hash;
+use crate::noise::fbm_zw;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
-use crate::terrain::fbm;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "stipple";
@@ -483,9 +483,9 @@ impl Field<'_> {
         let (u, v) = self.fold(nx, ny);
         let su = u * p.zoom;
         let sv = v * p.zoom * self.aspect;
-        let wx = fbm(su + 5.2, sv + 1.3, self.zw, self.seed.wrapping_add(11), 2);
-        let wy = fbm(su + 9.1, sv + 7.7, self.zw, self.seed.wrapping_add(29), 2);
-        let f = fbm(
+        let wx = fbm_zw(su + 5.2, sv + 1.3, self.zw, self.seed.wrapping_add(11), 2);
+        let wy = fbm_zw(su + 9.1, sv + 7.7, self.zw, self.seed.wrapping_add(29), 2);
+        let f = fbm_zw(
             su + p.warp * (wx - 0.5) * 2.0,
             sv + p.warp * (wy - 0.5) * 2.0,
             self.zw,

@@ -3,13 +3,13 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::{circle, lerp};
 use crate::hash;
+use crate::noise::fbm_zw;
 use crate::param::Param;
 use crate::surface::Cap;
 use crate::surface::Join;
 use crate::surface::Path2D;
 use crate::surface::Surface;
 use crate::taste::Taste;
-use crate::terrain::fbm;
 use crate::{Error, Palette, Parameter};
 
 pub(crate) const SLUG: &str = "oddgrid";
@@ -402,11 +402,11 @@ fn grid(
             let (xc, yc) = (f64::from(x) + 0.5, f64::from(y) + 0.5);
             let bx = lerp(xc, f64::from(rx) * bf + bf / 2.0, params.block);
             let by = lerp(yc, f64::from(ry) * bf + bf / 2.0, params.block);
-            let smooth = fbm(bx / s, by / s, zw, seed, 2);
+            let smooth = fbm_zw(bx / s, by / s, zw, seed, 2);
             let tone = smooth * 0.5 + hash::xor_w(rx, ry, 0, 13, at(404)) * 0.5;
             let base = stretch(lerp(smooth, tone, params.block), 2.0);
             let mask = stretch(
-                fbm(
+                fbm_zw(
                     xc / (s * 1.15) + 91.0,
                     yc / (s * 1.15) - 17.0,
                     cover,
@@ -415,7 +415,7 @@ fn grid(
                 ),
                 1.8,
             );
-            let det = fbm(
+            let det = fbm_zw(
                 xc / (s * 0.26) + 37.0,
                 yc / (s * 0.26) - 11.0,
                 detail,

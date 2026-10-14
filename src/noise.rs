@@ -53,3 +53,57 @@ pub(crate) fn value_poly(x: f64, y: f64, channel: u32, seed: u32) -> f64 {
     let (a, b, c, d) = (corner(0, 0), corner(1, 0), corner(0, 1), corner(1, 1));
     a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v
 }
+
+#[derive(Clone, Copy)]
+pub(crate) struct Fbm {
+    pub(crate) stride: u32,
+    pub(crate) lacunarity: f64,
+    pub(crate) gain: f64,
+}
+
+impl Fbm {
+    pub(crate) const STANDARD: Self = Self {
+        stride: 131,
+        lacunarity: 2.0,
+        gain: 0.5,
+    };
+    pub(crate) const LERP: Self = Self {
+        stride: 1319,
+        lacunarity: 2.0,
+        gain: 0.5,
+    };
+}
+
+pub(crate) fn fbm(
+    shape: Fbm,
+    noise: impl Fn(f64, f64, u32) -> f64,
+    x: f64,
+    y: f64,
+    seed: u32,
+    octaves: u32,
+) -> f64 {
+    let (mut sum, mut weight, mut total, mut frequency) = (0.0, 0.5, 0.0, 1.0);
+    for octave in 0..octaves {
+        sum += weight
+            * noise(
+                x * frequency,
+                y * frequency,
+                seed.wrapping_add(octave * shape.stride),
+            );
+        total += weight;
+        frequency *= shape.lacunarity;
+        weight *= shape.gain;
+    }
+    sum / total
+}
+
+pub(crate) fn fbm_zw(x: f64, y: f64, zw: Option<(f64, f64)>, seed: u32, octaves: u32) -> f64 {
+    fbm(
+        Fbm::LERP,
+        |x, y, seed| value_lerp_zw(x, y, zw, seed),
+        x,
+        y,
+        seed,
+        octaves,
+    )
+}

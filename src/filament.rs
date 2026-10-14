@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::hash;
-use crate::noise::value_lerp;
+use crate::noise::{self, Fbm, value_lerp};
 use crate::param::Param;
 use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
@@ -395,19 +395,7 @@ struct Mark {
 }
 
 fn fbm(x: f64, y: f64, seed: u32, octaves: u32) -> f64 {
-    let (mut sum, mut weight, mut total, mut frequency) = (0.0, 0.5, 0.0, 1.0);
-    for octave in 0..octaves {
-        sum += weight
-            * value_lerp(
-                x * frequency,
-                y * frequency,
-                seed.wrapping_add(octave * 1319),
-            );
-        total += weight;
-        weight *= 0.5;
-        frequency *= 2.0;
-    }
-    sum / total
+    noise::fbm(Fbm::LERP, value_lerp, x, y, seed, octaves)
 }
 
 fn trace(p: &FilamentParams, palette: &Palette, h: f64, s: u32) -> (Vec<Strand>, Vec<Mark>) {

@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, fbm, round_half_up};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::color::luma_601;
 use crate::hash;
 use crate::kiosk::CharacterSet;
+use crate::noise::{Fbm, fbm, value_sum};
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -285,13 +286,29 @@ fn grid(params: &AtlasParams, palette: &Palette, seed: u32, aspect: f64) -> (u32
             let u = f64::from(x) / f64::from(cols) * params.scale;
             let v = (f64::from(y) / f64::from(rows)) * params.scale * aspect;
             let wx = u + params.warp
-                * (fbm(u * 1.6 + 19.0, v * 1.6, seed.wrapping_add(41), 3) - 0.5)
+                * (fbm(
+                    Fbm::STANDARD,
+                    value_sum,
+                    u * 1.6 + 19.0,
+                    v * 1.6,
+                    seed.wrapping_add(41),
+                    3,
+                ) - 0.5)
                 * 2.2;
             let wy = v + params.warp
-                * (fbm(u * 1.6, v * 1.6 + 7.0, seed.wrapping_add(83), 3) - 0.5)
+                * (fbm(
+                    Fbm::STANDARD,
+                    value_sum,
+                    u * 1.6,
+                    v * 1.6 + 7.0,
+                    seed.wrapping_add(83),
+                    3,
+                ) - 0.5)
                 * 2.2;
-            let t =
-                ((fbm(wx, wy, seed, 4) - 0.5) * (0.7 + params.mix * 1.6) + 0.5).clamp(0.0, 0.999);
+            let t = ((fbm(Fbm::STANDARD, value_sum, wx, wy, seed, 4) - 0.5)
+                * (0.7 + params.mix * 1.6)
+                + 0.5)
+                .clamp(0.0, 0.999);
             let band = (t * n).floor() as u32;
             let ground = palette.ink(band as usize);
             let ink = if (luma_601(ground) - luma_601(hi)).abs()

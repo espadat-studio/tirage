@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::ease::smooth;
 use crate::hash;
-use crate::noise::value_sum;
+use crate::noise::{self, Fbm, value_sum};
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::Surface;
@@ -436,18 +436,12 @@ fn paint(
     });
 }
 
+const FBM: Fbm = Fbm {
+    stride: 131,
+    lacunarity: 2.07,
+    gain: 0.55,
+};
+
 fn fbm(x: f64, y: f64, seed: u32) -> f64 {
-    let (mut sum, mut weight, mut frequency, mut total) = (0.0, 0.5, 1.0, 0.0);
-    for octave in 0..3 {
-        sum += weight
-            * value_sum(
-                x * frequency,
-                y * frequency,
-                seed.wrapping_add(octave * 131),
-            );
-        total += weight;
-        frequency *= 2.07;
-        weight *= 0.55;
-    }
-    sum / total
+    noise::fbm(FBM, value_sum, x, y, seed, 3)
 }
