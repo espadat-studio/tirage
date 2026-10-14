@@ -1,25 +1,16 @@
 use serde::{Deserialize, Serialize};
 
 use crate::ease::smooth;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::{Error, Parameter};
-
-pub(crate) fn hash(x: i32, y: i32, seed: u32) -> f64 {
-    let mut n = (x as u32)
-        .wrapping_mul(374_761_393)
-        .wrapping_add((y as u32).wrapping_mul(668_265_263))
-        .wrapping_add(seed.wrapping_mul(1_274_126_177));
-    n = (n ^ (n >> 13)).wrapping_mul(1_274_126_177);
-    n ^= n >> 16;
-    f64::from(n) / 4_294_967_296.0
-}
 
 pub(crate) fn value_noise(x: f64, y: f64, seed: u32) -> f64 {
     let (x0, y0) = (x.floor(), y.floor());
     let (u, v) = (smooth(x - x0), smooth(y - y0));
     let (xi, yi) = (x0 as i32, y0 as i32);
-    let corner = |dx: i32, dy: i32| hash(xi.wrapping_add(dx), yi.wrapping_add(dy), seed);
+    let corner = |dx: i32, dy: i32| hash::sum(xi.wrapping_add(dx), yi.wrapping_add(dy), seed);
     (corner(0, 0) * (1.0 - u) + corner(1, 0) * u) * (1.0 - v)
         + (corner(0, 1) * (1.0 - u) + corner(1, 1) * u) * v
 }
@@ -292,7 +283,7 @@ impl Grain {
             for (x, pixel) in row.as_chunks_mut::<4>().0.iter_mut().enumerate() {
                 let x = x as f64;
                 let gx = (x / cell) as usize;
-                let draw = hash(gx as i32, gy, 3);
+                let draw = hash::sum(gx as i32, gy, 3);
                 let k = (draw - 0.5) * 120.0 * (0.5 + f64::from(clumps[gx]));
                 let ex = (x / w - 0.5).abs() * 2.0;
                 let e = if ex > ey { ex } else { ey };

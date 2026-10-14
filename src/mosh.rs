@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::color::luma_601;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -318,32 +319,34 @@ impl Sheet<'_> {
                 let picker = &self.picker;
                 Self::run_rows(self.surface, (n, cw), (top, bh, rows), |i, j| {
                     let (x, y) = (i as i32, j as i32);
-                    let long = hash(x, y, seed(101));
+                    let long = hash::sum(x, y, seed(101));
                     let length = if long < 0.10 {
                         5 + (long * 260.0) as u32
                     } else {
-                        1 + (hash(x, y, seed(17)) * 3.0) as u32
+                        1 + (hash::sum(x, y, seed(17)) * 3.0) as u32
                     };
-                    (length, picker.pick(hash(x, y, seed(19)), j))
+                    (length, picker.pick(hash::sum(x, y, seed(19)), j))
                 });
             }
             Kind::Mosaic => {
-                let step = round_half_up(4.0 + hash(b as i32, 5, seed(23)) * 5.0).max(2.0) as u32;
+                let step =
+                    round_half_up(4.0 + hash::sum(b as i32, 5, seed(23)) * 5.0).max(2.0) as u32;
                 let cols = n.div_ceil(step);
                 let rows = round_half_up(bh / (cw * f64::from(step))).max(1.0) as u32;
                 let rh = bh / f64::from(rows);
                 let count = if self.params.tears <= 0.0 {
                     0
                 } else {
-                    1 + (hash(b as i32, 9, seed(29)) * self.params.tears * 2.6) as i32
+                    1 + (hash::sum(b as i32, 9, seed(29)) * self.params.tears * 2.6) as i32
                 };
                 let tears: Vec<(f64, f64, bool)> = (0..count)
                     .map(|t| {
                         (
-                            hash(t, 11, seed(31)) * f64::from(rows),
-                            (hash(t, 13, seed(37)) * 2.0 - 1.0) * f64::from(rows) / f64::from(cols)
+                            hash::sum(t, 11, seed(31)) * f64::from(rows),
+                            (hash::sum(t, 13, seed(37)) * 2.0 - 1.0) * f64::from(rows)
+                                / f64::from(cols)
                                 * 1.8,
-                            hash(t, 15, seed(41)) < 0.5,
+                            hash::sum(t, 15, seed(41)) < 0.5,
                         )
                     })
                     .collect();
@@ -355,7 +358,7 @@ impl Sheet<'_> {
                                 let edge = offset + slope * f64::from(i);
                                 if up { row < edge } else { row > edge }
                             });
-                        let v = hash((i * step) as i32, j as i32, seed(43));
+                        let v = hash::sum((i * step) as i32, j as i32, seed(43));
                         let ink = if torn {
                             if v < 0.82 {
                                 self.picker.dark
@@ -385,12 +388,12 @@ impl Sheet<'_> {
                 let picker = &self.picker;
                 Self::run_rows(self.surface, (n, cw), (top, bh, rows), |i, j| {
                     let (x, y) = (i as i32, j as i32);
-                    let length = round_half_up(long * (0.25 + hash(x, y * 3, seed(47)) * 1.5))
+                    let length = round_half_up(long * (0.25 + hash::sum(x, y * 3, seed(47)) * 1.5))
                         .max(1.0) as u32;
-                    let ink = if hash(x, y, seed(59)) < bright {
+                    let ink = if hash::sum(x, y, seed(59)) < bright {
                         picker.bright()
                     } else {
-                        picker.pick(hash(x, y, seed(53)), j)
+                        picker.pick(hash::sum(x, y, seed(53)), j)
                     };
                     (length, ink)
                 });
@@ -400,9 +403,9 @@ impl Sheet<'_> {
                 let mut j = 0;
                 while yy < bottom {
                     let row = j as i32;
-                    let rh = round_half_up(cw * (0.4 + hash(0, row, seed(61)) * 3.2)).max(1.0);
+                    let rh = round_half_up(cw * (0.4 + hash::sum(0, row, seed(61)) * 3.2)).max(1.0);
                     let hh = rh.min(bottom - yy);
-                    let ink = self.picker.pick(hash(1, row, seed(67)), j);
+                    let ink = self.picker.pick(hash::sum(1, row, seed(67)), j);
                     put(
                         self.surface,
                         0.0,
@@ -411,9 +414,9 @@ impl Sheet<'_> {
                         hh.ceil() + 1.0,
                         ink,
                     );
-                    if hash(2, row, seed(71)) < self.params.bright * 0.8 {
-                        let width = w * (0.08 + hash(3, row, seed(73)) * 0.5);
-                        let x0 = w * hash(4, row, seed(79)) * (1.0 - 0.08);
+                    if hash::sum(2, row, seed(71)) < self.params.bright * 0.8 {
+                        let width = w * (0.08 + hash::sum(3, row, seed(73)) * 0.5);
+                        let x0 = w * hash::sum(4, row, seed(79)) * (1.0 - 0.08);
                         let bright = self.picker.bright();
                         put(
                             self.surface,
@@ -431,8 +434,9 @@ impl Sheet<'_> {
             Kind::Chevron => {
                 let rows = round_half_up(bh / cw).max(1.0) as u32;
                 let rh = bh / f64::from(rows);
-                let per = round_half_up(4.0 + hash(b as i32, 17, seed(83)) * 10.0).max(3.0) as u32;
-                let amp = round_half_up(2.0 + hash(b as i32, 19, seed(89)) * 6.0).max(1.0);
+                let per =
+                    round_half_up(4.0 + hash::sum(b as i32, 17, seed(83)) * 10.0).max(3.0) as u32;
+                let amp = round_half_up(2.0 + hash::sum(b as i32, 19, seed(89)) * 6.0).max(1.0);
                 for j in 0..rows {
                     let t = j % (per * 2);
                     let tri = if t < per { t } else { per * 2 - t };
@@ -441,7 +445,7 @@ impl Sheet<'_> {
                     for i in 0..n {
                         let ink = self
                             .picker
-                            .pick(hash(((i + shift) % per) as i32, 0, seed(97)), b);
+                            .pick(hash::sum(((i + shift) % per) as i32, 0, seed(97)), b);
                         put(
                             self.surface,
                             round_half_up(f64::from(i) * cw),
@@ -476,7 +480,7 @@ fn paint(
     let columns = params.cols.max(6);
     let count = params.bands.max(1);
     let weights: Vec<f64> = (0..count)
-        .map(|i| 0.4 + hash(i as i32, 3, tool_seed.wrapping_add(11)) * 1.6)
+        .map(|i| 0.4 + hash::sum(i as i32, 3, tool_seed.wrapping_add(11)) * 1.6)
         .collect();
     let total: f64 = weights.iter().sum();
     let mut deck = [
@@ -487,7 +491,7 @@ fn paint(
         Kind::Chevron,
     ];
     for i in (1..deck.len()).rev() {
-        let j = (hash(i as i32, 7, tool_seed.wrapping_add(13)) * (i + 1) as f64) as usize;
+        let j = (hash::sum(i as i32, 7, tool_seed.wrapping_add(13)) * (i + 1) as f64) as usize;
         deck.swap(i, j);
     }
     let mut sheet = Sheet {

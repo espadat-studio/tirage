@@ -2,7 +2,8 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, hash, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, store, value_noise};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Path2D, Surface, Transform};
 use crate::taste::Taste;
@@ -486,7 +487,7 @@ fn paint(
                     * amp;
                 let colour = if g + n > 0.5 { ink } else { ground };
                 let q = if gl > 0.002 {
-                    (hash(x as i32, y as i32, tool_seed.wrapping_add(71)) - 0.5) * gl
+                    (hash::sum(x as i32, y as i32, tool_seed.wrapping_add(71)) - 0.5) * gl
                 } else {
                     0.0
                 };

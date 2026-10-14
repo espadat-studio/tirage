@@ -3,9 +3,10 @@ use std::f64::consts::{PI, TAU};
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store, value_noise,
+    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store, value_noise,
 };
 use crate::ease::smooth;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -483,7 +484,7 @@ fn paint(
                             lvl -= 1;
                         }
                         if lvl > 0 {
-                            let hq = hash(round_half_up(id * 8192.0) as i32, 9, seed as u32);
+                            let hq = hash::sum(round_half_up(id * 8192.0) as i32, 9, seed as u32);
                             if hq < 0.28 {
                                 let rs = n0 * s / range * 2f64.powi(lvl - 1);
                                 let rend = rs * (1.5 + hq * 6.0);
@@ -536,7 +537,8 @@ fn paint(
                 on_lobe = false;
                 if params.ribs > 0.0 {
                     let rv = 0.5
-                        + 0.5 * (rr / rib_p * TAU + hash(bid, 3, seed as u32) * RIB_PHASE).sin();
+                        + 0.5
+                            * (rr / rib_p * TAU + hash::sum(bid, 3, seed as u32) * RIB_PHASE).sin();
                     if rv > 0.7 && arc < hw * 0.86 {
                         toward(&mut c, rib, params.ribs * ((rv - 0.7) * 8.0).min(1.0));
                     }

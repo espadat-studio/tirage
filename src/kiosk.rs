@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::color::luma_601;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -395,7 +396,7 @@ pub(crate) fn render(
 fn paint(surface: &mut Surface, params: &KioskParams, palette: &Palette, tool_seed: u32, t: u32) {
     let roles = Roles::new(palette);
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
-    let at = |x: i32, y: i32, salt: u32| hash(x, y, tool_seed.wrapping_add(salt));
+    let at = |x: i32, y: i32, salt: u32| hash::sum(x, y, tool_seed.wrapping_add(salt));
 
     surface.fill_box(0.0, 0.0, width, height, roles.band(0));
     let cx = width * (-0.22 + at(1, 1, 11) * 0.30);
@@ -466,7 +467,7 @@ fn paint(surface: &mut Surface, params: &KioskParams, palette: &Palette, tool_se
     let chars: Vec<char> = params.sets.chars().chars().collect();
     let mut text = Type::new(Face::Bold);
     let mut put = |surface: &mut Surface, i: i32, j: i32, x: f64, y: f64, size: f64, salt: u32| {
-        let draw = |s: u32| hash(i, j, text_seed.wrapping_add(salt + s));
+        let draw = |s: u32| hash::sum(i, j, text_seed.wrapping_add(salt + s));
         let ch = chars[(draw(3) * chars.len() as f64).floor() as usize];
         let ink = if draw(7) < 0.28 {
             roles.dark
@@ -478,7 +479,7 @@ fn paint(surface: &mut Surface, params: &KioskParams, palette: &Palette, tool_se
     let pass = |cutoff: f64, salt: u32| {
         (0..rows as i32)
             .flat_map(move |j| (0..cols as i32).map(move |i| (i, j)))
-            .filter(move |&(i, j)| hash(i, j, text_seed.wrapping_add(salt)) <= cutoff)
+            .filter(move |&(i, j)| hash::sum(i, j, text_seed.wrapping_add(salt)) <= cutoff)
     };
     for (i, j) in pass(params.density, 71) {
         let x = (f64::from(i) + 0.5) * cell_width;

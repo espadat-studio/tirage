@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -240,7 +241,7 @@ fn paint(surface: &mut Surface, p: &PaneParams, palette: &Palette, s: u32, cell_
     let weights = |n: u32, salt: u32| {
         let raw: Vec<f64> = (0..n)
             .map(|i| {
-                1.0 + (hash(i as i32, salt as i32, s.wrapping_add(salt)) * 2.0 - 1.0)
+                1.0 + (hash::sum(i as i32, salt as i32, s.wrapping_add(salt)) * 2.0 - 1.0)
                     * p.vary
                     * 0.85
             })
@@ -265,9 +266,10 @@ fn paint(surface: &mut Surface, p: &PaneParams, palette: &Palette, s: u32, cell_
     let rows = edges(&weights(p.rows.max(1), 3), h);
     for (j, band) in rows.windows(2).enumerate() {
         let j = j as u32;
-        let count =
-            round_half_up(f64::from(p.cells) * (0.55 + hash(j as i32, 5, s.wrapping_add(7)) * 0.9))
-                .max(1.0) as u32;
+        let count = round_half_up(
+            f64::from(p.cells) * (0.55 + hash::sum(j as i32, 5, s.wrapping_add(7)) * 0.9),
+        )
+        .max(1.0) as u32;
         let columns = edges(&weights(count, 11 + j * 7), w);
         for (i, span) in columns.windows(2).enumerate() {
             cell(
@@ -301,7 +303,7 @@ fn cell(
     if x1 <= x0 || y1 <= y0 {
         return;
     }
-    let h = |salt: u32| hash(i as i32, j as i32, s.wrapping_add(salt));
+    let h = |salt: u32| hash::sum(i as i32, j as i32, s.wrapping_add(salt));
     let (x, y) = (f64::from(x0), f64::from(y0));
     let (cw, ch) = (f64::from(x1 - x0), f64::from(y1 - y0));
     let diagonal = h(13) < p.diag;

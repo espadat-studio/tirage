@@ -3,8 +3,9 @@ use std::f64::consts::{FRAC_PI_2, PI, TAU};
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, value_noise,
+    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, value_noise,
 };
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -345,7 +346,7 @@ impl Pen {
             return;
         }
         let seed = seed + self.boil;
-        let roll = |k: i32, key: u32| hash(k, seed, key);
+        let roll = |k: i32, key: u32| hash::sum(k, seed, key);
         let (mut need, mut k) = (0.0, seed);
         for i in 0..if closed { n } else { n - 1 } {
             let ((ax, ay), (bx, by)) = (points[i], points[(i + 1) % n]);
@@ -359,7 +360,7 @@ impl Pen {
             while need <= length - pos {
                 pos += need;
                 k += 1;
-                if hash(k * 17, seed, seed as u32 + 7) >= self.skip {
+                if hash::sum(k * 17, seed, seed as u32 + 7) >= self.skip {
                     let jx = (roll(k, 3) - 0.5) * self.jitter;
                     let jy = (roll(k, 9) - 0.5) * self.jitter;
                     let size = self.mark * (0.55 + roll(k, 13));

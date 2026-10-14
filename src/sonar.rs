@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, fbm, hash, round_half_up};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, fbm, round_half_up};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -296,10 +297,10 @@ fn paint(surface: &mut Surface, params: &SonarParams, palette: &Palette, tool_se
                 dot(surface, cell_width * (0.3 + 0.68 * inland), LAND);
             } else if above > -band {
                 let near = 1.0 - above.abs() / band;
-                if hash(col_i, row_i, tool_seed.wrapping_add(53))
+                if hash::sum(col_i, row_i, tool_seed.wrapping_add(53))
                     < near * near * params.spark * 1.35
                 {
-                    let ink = if hash(col_i, row_i, tool_seed.wrapping_add(59)) < 0.5 {
+                    let ink = if hash::sum(col_i, row_i, tool_seed.wrapping_add(59)) < 0.5 {
                         SPECK_A
                     } else {
                         SPECK_B

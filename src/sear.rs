@@ -2,7 +2,8 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, value_noise};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -395,9 +396,9 @@ fn paint(
     for y in 0..h {
         let yf = f64::from(y);
         let band = (yf / band_h).floor();
-        let torn = hash(band as i32, 77, at(3)) < tear * 0.62;
+        let torn = hash::sum(band as i32, 77, at(3)) < tear * 0.62;
         let shift = if torn {
-            (hash(band as i32, 91, at(5)) - 0.5) * wf * 1.4 * tear
+            (hash::sum(band as i32, 91, at(5)) - 0.5) * wf * 1.4 * tear
         } else {
             0.0
         };
@@ -437,7 +438,7 @@ fn paint(
             run += 1;
             let mut q = current;
             if gain > 0.001 {
-                q += (hash(x as i32, y as i32, at(29)) - 0.5) * gain;
+                q += (hash::sum(x as i32, y as i32, at(29)) - 0.5) * gain;
             }
             let [r, g, b] = lut[((q * 255.0) as i32).clamp(0, 255) as usize];
             rgba.extend([r, g, b, 255]);

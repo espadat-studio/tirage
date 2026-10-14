@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, hash, round_half_up};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -252,13 +253,13 @@ fn paint(
     let cubes: Vec<Cube> = (0..repeat)
         .flat_map(|j| (0..repeat).map(move |i| (i as i32, j as i32)))
         .map(|(i, j)| {
-            let picked = hash(i * 5 + 3, j * 7 + 1, tool_seed.wrapping_add(131)) < CHURN;
+            let picked = hash::sum(i * 5 + 3, j * 7 + 1, tool_seed.wrapping_add(131)) < CHURN;
             let seed = if picked {
                 tool_seed.wrapping_add(frame.wrapping_mul(SHUFFLE))
             } else {
                 tool_seed
             };
-            let draw = |offset: u32| hash(i, j, seed.wrapping_add(offset));
+            let draw = |offset: u32| hash::sum(i, j, seed.wrapping_add(offset));
             let rot = (draw(11) * turns).floor() as usize % 3;
             let solid = draw(29) < params.solids;
             let ink = if !accents.is_empty() && draw(41) < params.accent {

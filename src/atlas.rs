@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, fbm, hash, round_half_up};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, fbm, round_half_up};
 use crate::color::luma_601;
+use crate::hash;
 use crate::kiosk::CharacterSet;
 use crate::param::Param;
 use crate::surface::Surface;
@@ -303,8 +304,8 @@ fn grid(params: &AtlasParams, palette: &Palette, seed: u32, aspect: f64) -> (u32
                 lo
             };
             let start = (f64::from(band) / n * len as f64).floor() as usize;
-            let jitter = hash(x * 7 + 1, y * 13 + 3, seed.wrapping_add(band * 97));
-            let on = hash(x * 3 + 5, y * 5 + 11, seed.wrapping_add(band * 57))
+            let jitter = hash::sum(x * 7 + 1, y * 13 + 3, seed.wrapping_add(band * 97));
+            let on = hash::sum(x * 3 + 5, y * 5 + 11, seed.wrapping_add(band * 57))
                 < params.density * (0.35 + 0.9 * (f64::from(band + 1) / n));
             let ch = on.then(|| glyphs[(start + (jitter * span).floor() as usize) % len]);
             cells.push(Cell { ground, ink, ch });

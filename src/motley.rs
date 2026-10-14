@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, value_noise,
+    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, value_noise,
 };
+use crate::hash;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::taste::Taste;
@@ -481,7 +482,7 @@ fn paint(surface: &mut Surface, params: &MotleyParams, palette: &Palette, seed: 
                         || !p.inside(i, j + 1, ragged));
                 if edge {
                     surface.fill_box(left, top, cs + 0.5, cs + 0.5, ground);
-                    let kind = if hash(i, j, p.salt) < 0.5 {
+                    let kind = if hash::sum(i, j, p.salt) < 0.5 {
                         Glyph::Dot
                     } else {
                         Glyph::Plus
@@ -493,7 +494,7 @@ fn paint(surface: &mut Surface, params: &MotleyParams, palette: &Palette, seed: 
                     Sparse::Checker if (i + j) & 1 == 1 => continue,
                     Sparse::Rows if j & 1 == 1 => continue,
                     Sparse::Checker | Sparse::Rows
-                        if hash(i, j, p.salt.wrapping_add(flicker)) < 0.12 =>
+                        if hash::sum(i, j, p.salt.wrapping_add(flicker)) < 0.12 =>
                     {
                         continue;
                     }

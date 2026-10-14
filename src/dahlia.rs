@@ -2,7 +2,8 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up};
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
@@ -311,7 +312,7 @@ fn paint(
     let pulse = t.map_or(0.0, |t| {
         f64::from(t) / f64::from(FRAMES) * round_half_up(AMOUNT * 2.0).max(1.0)
     });
-    let h = |i: u32, k: u32| hash(i as i32, k as i32, tool_seed);
+    let h = |i: u32, k: u32| hash::sum(i as i32, k as i32, tool_seed);
 
     for i in 0..n {
         let angle = (f64::from(i) + 0.5) / f64::from(n) * TAU

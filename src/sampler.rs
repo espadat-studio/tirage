@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::color::luma_601;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Path2D, Surface, Transform};
 use crate::taste::Taste;
@@ -314,16 +315,6 @@ struct Band {
     seed: u32,
 }
 
-fn hash(x: u32, y: u32, s: u32) -> f64 {
-    let mut n = x
-        .wrapping_mul(374_761_393)
-        .wrapping_add(y.wrapping_mul(668_265_263))
-        .wrapping_add(s.wrapping_mul(1_274_126_177));
-    n = (n ^ (n >> 13)).wrapping_mul(1_274_126_177);
-    n ^= n >> 16;
-    f64::from(n) / 4_294_967_296.0
-}
-
 fn pick<T: Copy>(items: &[T], draw: f64) -> T {
     items[(draw * items.len() as f64) as usize]
 }
@@ -347,25 +338,38 @@ fn bands(p: &SamplerParams, rows: u32, inks: &[[u8; 3]], seed: u32) -> (Vec<Band
         tile_inks
     };
     let want = f64::from(p.bands);
-    let y0 = (hash(0, 71, seed.wrapping_add(3)) * f64::from(rows)) as u32;
+    let y0 = (hash::sum(0_i32, 71_i32, seed.wrapping_add(3)) * f64::from(rows)) as u32;
     let mut out = Vec::new();
     let (mut y, mut i) = (y0, 0u32);
     while y - y0 < rows {
         let grown = round_half_up(
-            f64::from(rows) / want * (0.55 + hash(i, 11, seed.wrapping_add(13)) * 0.95),
+            f64::from(rows) / want
+                * (0.55 + hash::sum(i as i32, 11_i32, seed.wrapping_add(13)) * 0.95),
         )
         .max(1.0) as u32;
         let h = grown.min(rows - (y - y0));
-        let nk = 1 + (hash(i, 17, seed.wrapping_add(19)) * (1.0 + p.mix * 2.2)) as u32;
+        let nk = 1
+            + (hash::sum(i as i32, 17_i32, seed.wrapping_add(19)) * (1.0 + p.mix * 2.2)) as u32;
         let kinds = (0..nk)
-            .map(|k| pick(&TILES, hash(i * 7 + k, 23, seed.wrapping_add(29))))
+            .map(|k| {
+                pick(
+                    &TILES,
+                    hash::sum((i * 7 + k) as i32, 23_i32, seed.wrapping_add(29)),
+                )
+            })
             .collect();
-        let a = pick(&tile_inks, hash(i, 31, seed.wrapping_add(37)));
+        let a = pick(
+            &tile_inks,
+            hash::sum(i as i32, 31_i32, seed.wrapping_add(37)),
+        );
         let others: Vec<[u8; 3]> = tile_inks.iter().copied().filter(|&c| c != a).collect();
         let b = if others.is_empty() {
             ground
         } else {
-            pick(&others, hash(i, 41, seed.wrapping_add(43)))
+            pick(
+                &others,
+                hash::sum(i as i32, 41_i32, seed.wrapping_add(43)),
+            )
         };
         out.push(Band {
             y0: y,
@@ -394,20 +398,21 @@ fn paint(surface: &mut Surface, p: &SamplerParams, palette: &Palette, tool_seed:
         for ry in band.y0..band.y1 {
             let y = ry % rows;
             for x in 0..cols {
-                if hash(x * 3 + 1, ry * 5 + 7, s) > p.density {
+                if hash::sum((x * 3 + 1) as i32, (ry * 5 + 7) as i32, s) > p.density {
                     continue;
                 }
-                let kind = band.kinds[(hash(x, ry, s.wrapping_add(61)) * band.kinds.len() as f64)
-                    as usize
+                let kind = band.kinds[(hash::sum(x as i32, ry as i32, s.wrapping_add(61))
+                    * band.kinds.len() as f64) as usize
                     % band.kinds.len()];
-                let rq = hash(x * 11, ry * 13, s.wrapping_add(67));
+                let rq = hash::sum((x * 11) as i32, (ry * 13) as i32, s.wrapping_add(67));
                 let quarter = (rq * 4.0 * (0.25 + p.turn * 0.75)) as u32 & 3;
-                let ink =
-                    if hash(x * 17, ry * 19, s.wrapping_add(73)) < 0.5 + 0.3 * (p.weight - 0.5) {
-                        band.a
-                    } else {
-                        band.b
-                    };
+                let ink = if hash::sum((x * 17) as i32, (ry * 19) as i32, s.wrapping_add(73))
+                    < 0.5 + 0.3 * (p.weight - 0.5)
+                {
+                    band.a
+                } else {
+                    band.b
+                };
                 let transform = Transform::IDENTITY
                     .translate(f64::from(x) * cw, f64::from(y) * ch)
                     .scale(cw, ch)

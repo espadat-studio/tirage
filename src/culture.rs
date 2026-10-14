@@ -2,10 +2,9 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, hash, round_half_up, store,
-};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store};
 use crate::ease::smooth;
+use crate::hash;
 use crate::param::Param;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
@@ -425,7 +424,7 @@ fn paint(
                 (x as i32, y as i32)
             };
             if gq > 0.002 {
-                u += (hash(nx, ny, band_seed) - 0.5) * gq;
+                u += (hash::sum(nx, ny, band_seed) - 0.5) * gq;
             }
             let u = u.clamp(0.0, (n - 1) as f64);
             let i0 = (u as usize).min(n - 2);
@@ -434,7 +433,7 @@ fn paint(
             let (ia, ib) = (inks[i0], inks[i0 + 1]);
             let mut c: [f64; 3] = std::array::from_fn(|i| ia[i] + (ib[i] - ia[i]) * fr);
             if gl > 0.002 {
-                let g = (hash(nx, ny, colour_seed) - 0.5) * gl;
+                let g = (hash::sum(nx, ny, colour_seed) - 0.5) * gl;
                 for v in &mut c {
                     *v += g;
                 }
