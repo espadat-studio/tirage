@@ -5,6 +5,7 @@ mod ease;
 mod error;
 mod hash;
 mod image;
+mod noise;
 mod palette;
 mod param;
 mod recipe;

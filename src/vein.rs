@@ -2,9 +2,10 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::color::luma_709;
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::{Cap, Join, Path2D, Surface};
@@ -450,11 +451,11 @@ fn paint(
     let field = |u: f64, v: f64| {
         let (su, sv) = (u * 1.3, v * 1.3);
         let wu =
-            u + curve * 0.55 * (value_noise(su + ox + 3.0, sv + oy + 1.0, warp_seed) - 0.5) * 2.0;
+            u + curve * 0.55 * (value_sum(su + ox + 3.0, sv + oy + 1.0, warp_seed) - 0.5) * 2.0;
         let wv =
-            v + curve * 0.55 * (value_noise(su + oy + 8.0, sv + ox + 5.0, warp_seed) - 0.5) * 2.0;
+            v + curve * 0.55 * (value_sum(su + oy + 8.0, sv + ox + 5.0, warp_seed) - 0.5) * 2.0;
         let detail = |k: f64, x: f64, y: f64| {
-            value_noise(wu * k * frequency + x, wv * k * frequency + y, detail_seed)
+            value_sum(wu * k * frequency + x, wv * k * frequency + y, detail_seed)
         };
         let n = 0.6 * detail(2.4, 7.0, 2.0)
             + 0.3 * detail(5.0, 3.0, 9.0)
@@ -481,7 +482,7 @@ fn paint(
             }
         };
         if params.tiger > 0.0 {
-            let mask = value_noise(u * 1.5 + 9.0, v * 1.5 + 4.0, mask_seed);
+            let mask = value_sum(u * 1.5 + 9.0, v * 1.5 + 4.0, mask_seed);
             let k = ((mask - 0.45) / 0.25).clamp(0.0, 1.0);
             value += params.tiger * k * 0.09 * (value * TAU * 5.0).sin();
         }

@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::Surface;
@@ -334,7 +335,7 @@ impl Patch {
             return dx.abs() <= self.w * 0.5 && dy.abs() <= self.h * 0.5;
         }
         let d = (dx * dx + dy * dy).sqrt() / self.r;
-        let wobble = value_noise(
+        let wobble = value_sum(
             f64::from(i) / (self.r * 0.55) + 7.0,
             f64::from(j) / (self.r * 0.55) + 3.0,
             self.salt,

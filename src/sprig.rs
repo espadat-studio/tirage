@@ -2,7 +2,8 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::{Path2D, Surface};
@@ -347,7 +348,7 @@ fn ring(n: u32, rx: f64, ry: f64, pointy: f64, wobble: f64, salt: u32) -> Vec<(f
         .map(|i| {
             let theta = f64::from(i) / f64::from(n) * TAU;
             let (s, c) = theta.sin_cos();
-            let r = 1.0 + (value_noise(c * 1.9 + 3.1, s * 1.9 + 7.7, salt) - 0.5) * 0.5 * wobble;
+            let r = 1.0 + (value_sum(c * 1.9 + 3.1, s * 1.9 + 7.7, salt) - 0.5) * 0.5 * wobble;
             let y = if pointy > 0.0 {
                 (if s < 0.0 { -1.0 } else { 1.0 }) * s.abs().powf(1.0 + pointy * 0.9)
             } else {
@@ -383,7 +384,7 @@ fn shapes(kind: Kind, rng: &mut XorShift, wobble: f64, detail: f64) -> Vec<Shape
                 let vein = (0..=10)
                     .map(|i| {
                         let t = -0.72 + 1.44 * f64::from(i) / 10.0;
-                        let y = (value_noise(t * 2.2 + f64::from(sd) * 0.3, 1.7, sd + 3) - 0.5)
+                        let y = (value_sum(t * 2.2 + f64::from(sd) * 0.3, 1.7, sd + 3) - 0.5)
                             * ry
                             * 0.5
                             * wobble;
@@ -428,7 +429,7 @@ fn shapes(kind: Kind, rng: &mut XorShift, wobble: f64, detail: f64) -> Vec<Shape
             let stem = (0..15)
                 .map(|i| {
                     let point = (x, y);
-                    heading += (value_noise(f64::from(i) * 0.31 + f64::from(sd) * 0.2, 4.4, sd)
+                    heading += (value_sum(f64::from(i) * 0.31 + f64::from(sd) * 0.2, 4.4, sd)
                         - 0.5)
                         * 0.9
                         * wobble;
@@ -600,7 +601,7 @@ fn ink(
         let mut h = width
             * 0.5
             * (1.0
-                + (value_noise(
+                + (value_sum(
                     theta.cos() * 2.6 + q * 0.11,
                     theta.sin() * 2.6 + q * 0.07,
                     salt,

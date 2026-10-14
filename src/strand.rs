@@ -2,8 +2,9 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store};
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::{Path2D, Surface};
@@ -467,10 +468,9 @@ fn rod_outline(
     for i in 0..=STATIONS {
         let u = i as f64 / STATIONS as f64;
         let cap = (u / e0).min((1.0 - u) / e1).clamp(0.0, 1.0).powf(0.45);
-        let wl = 1.0 + (value_noise(u * 6.1 + sdf * 0.11, sdf * 0.07, sd) - 0.5) * rough * 1.3;
-        let wr =
-            1.0 + (value_noise(u * 5.3 + sdf * 0.17, sdf * 0.05, sd + 911) - 0.5) * rough * 1.3;
-        let off = (value_noise(u * 2.2 + sdf * 0.09, 7.3, sd + 41) - 0.5) * wid * 0.55 * rough;
+        let wl = 1.0 + (value_sum(u * 6.1 + sdf * 0.11, sdf * 0.07, sd) - 0.5) * rough * 1.3;
+        let wr = 1.0 + (value_sum(u * 5.3 + sdf * 0.17, sdf * 0.05, sd + 911) - 0.5) * rough * 1.3;
+        let off = (value_sum(u * 2.2 + sdf * 0.09, 7.3, sd + 41) - 0.5) * wid * 0.55 * rough;
         let t = u * full - wid * 0.5;
         let (bx, by) = (x + ca * t + px * off, y + sa * t + py * off);
         let (hl, hr) = (half * cap * wl, half * cap * wr);
@@ -568,7 +568,7 @@ fn paint(
                     (a + (b - a) * fy) / 255.0
                 };
                 let (xf, yf) = (x as f64, y as f64);
-                let n = (value_noise(xf / cell, yf / cell, seed.wrapping_add(29)) - 0.5) * spread;
+                let n = (value_sum(xf / cell, yf / cell, seed.wrapping_add(29)) - 0.5) * spread;
                 let mut ink = sample(1) > 0.5 + n;
                 if ink && textured {
                     let miss = p.tex * (0.12 + 0.88 * (1.0 - sample(2)));

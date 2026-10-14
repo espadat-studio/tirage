@@ -2,9 +2,10 @@ use std::f64::consts::PI;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::ease::smooth;
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::Surface;
@@ -439,7 +440,7 @@ fn fbm(x: f64, y: f64, seed: u32) -> f64 {
     let (mut sum, mut weight, mut frequency, mut total) = (0.0, 0.5, 1.0, 0.0);
     for octave in 0..3 {
         sum += weight
-            * value_noise(
+            * value_sum(
                 x * frequency,
                 y * frequency,
                 seed.wrapping_add(octave * 131),

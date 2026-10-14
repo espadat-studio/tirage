@@ -1,25 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-use crate::ease::smooth;
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::surface::Surface;
 use crate::{Error, Parameter};
-
-pub(crate) fn value_noise(x: f64, y: f64, seed: u32) -> f64 {
-    let (x0, y0) = (x.floor(), y.floor());
-    let (u, v) = (smooth(x - x0), smooth(y - y0));
-    let (xi, yi) = (x0 as i32, y0 as i32);
-    let corner = |dx: i32, dy: i32| hash::sum(xi.wrapping_add(dx), yi.wrapping_add(dy), seed);
-    (corner(0, 0) * (1.0 - u) + corner(1, 0) * u) * (1.0 - v)
-        + (corner(0, 1) * (1.0 - u) + corner(1, 1) * u) * v
-}
 
 pub(crate) fn fbm(x: f64, y: f64, seed: u32, octaves: u32) -> f64 {
     let (mut sum, mut weight, mut total, mut frequency) = (0.0, 0.5, 0.0, 1.0);
     for octave in 0..octaves {
         sum += weight
-            * value_noise(
+            * value_sum(
                 x * frequency,
                 y * frequency,
                 seed.wrapping_add(octave * 131),
@@ -259,8 +250,7 @@ impl Grain {
             let gy = (y / cell) as i32;
             if clump_row != Some(gy) {
                 for (gx, clump) in clumps.iter_mut().enumerate() {
-                    *clump =
-                        value_noise(gx as f64 * cell / clump_scale, y / clump_scale, 41) as f32;
+                    *clump = value_sum(gx as f64 * cell / clump_scale, y / clump_scale, 41) as f32;
                 }
                 clump_row = Some(gy);
             }

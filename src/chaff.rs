@@ -2,8 +2,9 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store};
 use crate::hash;
+use crate::noise::value_sum;
 use crate::param::Param;
 use crate::rng::XorShift;
 use crate::surface::{Path2D, Surface, Transform};
@@ -400,7 +401,7 @@ fn outline(path: &mut Path2D, b: &Blade, unit: f64, scale: f64, slim: f64, p: &C
             let t = i as f64 / STEPS as f64;
             let h = a0 + th * t;
             let (nx, ny) = (-h.sin(), h.cos());
-            let wob = 1.0 + (value_noise(t * 2.9 + sd * 0.11, sd * 0.07, b.sd) - 0.5) * 0.34;
+            let wob = 1.0 + (value_sum(t * 2.9 + sd * 0.11, sd * 0.07, b.sd) - 0.5) * 0.34;
             let w = profile(t, p.shapes, p.taper) * wide * 0.5 * wob;
             let (x, y) = (bx + cx, by + cy);
             ((x + nx * w, y + ny * w), (x - nx * w, y - ny * w))
@@ -482,9 +483,9 @@ fn paint(
                 let bottom = at(x0, y1) + (at(x1, y1) - at(x0, y1)) * fx;
                 let g = (top + (bottom - top) * fy) / 255.0;
                 let (fx, fy) = (f64::from(x), f64::from(y));
-                let n = ((value_noise(fx / fine, fy / fine, tool_seed.wrapping_add(41)) - 0.5)
+                let n = ((value_sum(fx / fine, fy / fine, tool_seed.wrapping_add(41)) - 0.5)
                     * 0.66
-                    + (value_noise(fx / big, fy / big, tool_seed.wrapping_add(13)) - 0.5) * 0.34)
+                    + (value_sum(fx / big, fy / big, tool_seed.wrapping_add(13)) - 0.5) * 0.34)
                     * amp;
                 let colour = if g + n > 0.5 { ink } else { ground };
                 let q = if gl > 0.002 {
