@@ -10,20 +10,20 @@ Tools: `tirage tools` lists them. The first six, `sonar`, `husk`, `vein`, `aura`
 
 ## Library
 
-Not on crates.io. Depend on a [release](https://github.com/espadat-studio/tirage/releases) tag:
+On [crates.io](https://crates.io/crates/tirage):
 
-```toml
-tirage = { git = "https://github.com/espadat-studio/tirage", tag = "vX.Y.Z" }
+```sh
+cargo add tirage
 ```
 
-Your own `Cargo.lock` pins the tag's commit and tirage's dependencies. Build with `--locked` so they never move silently.
+Commit your `Cargo.lock` and build with `--locked` so tirage and its dependencies never move silently.
 
 A Seed gives the same Recipe within a major version. A Seed→Recipe change bumps the major, or the minor before 1.0 ([ADR 0003](./meta/adr/0003-seed-derivation-of-recipes.md)). Key Seed caches on it.
 
 ## CLI
 
 ```sh
-cargo install --locked --git https://github.com/espadat-studio/tirage --tag vX.Y.Z tirage-cli
+cargo install --locked tirage-cli
 tirage derive --seed 42 --tool sonar | tirage render --size 1080x1920 -o out.png
 ```
 
