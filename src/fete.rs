@@ -2,11 +2,11 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::{lerp, smooth};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Smoothing, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -310,7 +310,7 @@ fn curve(steps: u32, closed: bool, at: impl Fn(f64) -> Point) -> Vec<Point> {
 
 fn doodle(motif: FeteMotif, view_height: f64, tool_seed: u32) -> Vec<Vec<Point>> {
     let h = view_height;
-    let mut rng = Xorshift::from_state(tool_seed ^ 0x51ed_270b);
+    let mut rng = XorShiftArithmetic::from_state(tool_seed ^ 0x51ed_270b);
     let motif = match motif {
         FeteMotif::Auto => MOTIFS[1 + (rng.next() * 6.0) as usize],
         motif => motif,
@@ -438,7 +438,7 @@ fn dots(
     view_height: f64,
     tool_seed: u32,
 ) -> Vec<(Point, f64)> {
-    let mut rng = Xorshift::from_state(tool_seed ^ 0x2545_f491);
+    let mut rng = XorShiftArithmetic::from_state(tool_seed ^ 0x2545_f491);
     let total = total.max(1.0);
     let mut walked = 0.0;
     let vertices: Vec<(Point, f64)> = lines

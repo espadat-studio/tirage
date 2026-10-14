@@ -2,9 +2,10 @@ use std::f64::consts::{FRAC_PI_2, FRAC_PI_4, PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::color::{luma_709, mix};
 use crate::param::Param;
+use crate::rng::XorShift;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -399,7 +400,7 @@ fn patches(
     ah: f64,
     tool_seed: u32,
 ) -> Vec<Patch> {
-    let mut rng = XorShift::new(tool_seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
+    let mut rng = XorShift::murmur(tool_seed);
     let pool: &[Pattern] = match params.kind {
         FoldKind::Mixed => &MIXED,
         FoldKind::Zebra => &[Pattern::Zebra],

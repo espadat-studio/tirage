@@ -2,9 +2,10 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShift;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -385,7 +386,7 @@ fn splits(rng: &mut XorShift, m: u32) -> Vec<f64> {
 }
 
 fn cuts(params: &SpliceParams, tool_seed: u32) -> (Vec<Column>, Vec<Arc>) {
-    let mut rng = XorShift::new(tool_seed.wrapping_mul(2_654_435_761));
+    let mut rng = XorShift::knuth(tool_seed);
     let n = params.slices;
     let base = SCREENS[(rng.next() * 3.0) as usize];
     let mix = params.mix;

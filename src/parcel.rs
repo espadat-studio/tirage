@@ -3,11 +3,11 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain};
 use crate::ease::smooth;
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -231,7 +231,7 @@ fn paint(
     creep: Option<f64>,
 ) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
-    let mut rng = Xorshift::new(tool_seed);
+    let mut rng = XorShiftArithmetic::from_seed(tool_seed);
     let (ox, oy) = (rng.next() * 43.0, rng.next() * 37.0);
     let sw = (rng.next() * 1e9) as u32;
     let steps = (AMOUNT * 6.0).round().max(2.0);

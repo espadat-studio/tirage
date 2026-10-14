@@ -2,12 +2,11 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, value_noise,
-};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, value_noise};
 use crate::color::luma_709;
 use crate::hash;
 use crate::param::Param;
+use crate::rng::{XorShift, shuffle};
 use crate::surface::Surface;
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -354,15 +353,12 @@ fn paint(
     });
 
     let steps = params.steps.max(2);
-    let mut rnd = XorShift::new(tool_seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
+    let mut rnd = XorShift::murmur(tool_seed);
     let mut mids: Vec<usize> = (2..n).collect();
     if mids.is_empty() {
         mids.push(if n > 1 { 1 } else { 0 });
     }
-    for k in (1..mids.len()).rev() {
-        let j = (rnd.next() * (k + 1) as f64) as usize;
-        mids.swap(k, j);
-    }
+    shuffle(&mut mids, || rnd.next());
     let grounded = (steps - 1).min(round_half_up(f64::from(steps) * params.ground) as u32);
     let levels: Vec<usize> = (0..steps)
         .map(|s| {

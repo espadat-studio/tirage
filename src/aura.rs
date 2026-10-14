@@ -6,6 +6,7 @@ use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, stor
 use crate::ease::smooth;
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -212,28 +213,6 @@ pub(crate) fn deal(draw: impl Fn(&str) -> u64, taste: &Taste) -> AuraParams {
     }
 }
 
-pub(crate) struct Xorshift(u32);
-
-impl Xorshift {
-    pub(crate) fn new(tool_seed: u32) -> Self {
-        let start = (f64::from(tool_seed) * 2_654_435_761.0).rem_euclid(4_294_967_296.0) as u32;
-        Self(start.max(1))
-    }
-
-    pub(crate) fn from_state(state: u32) -> Self {
-        Self(state.max(1))
-    }
-
-    pub(crate) fn next(&mut self) -> f64 {
-        let mut a = self.0;
-        a ^= a << 13;
-        a ^= ((a as i32) >> 17) as u32;
-        a ^= a << 5;
-        self.0 = a;
-        f64::from(a) / 4_294_967_296.0
-    }
-}
-
 pub(crate) struct Noise(pub(crate) u32);
 
 impl Noise {
@@ -287,7 +266,7 @@ fn paint(
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let bw = round_half_up(width).clamp(90.0, BUDGET);
     let bh = round_half_up(bw * height / width).max(90.0);
-    let mut rng = Xorshift::new(tool_seed);
+    let mut rng = XorShiftArithmetic::from_seed(tool_seed);
     let style = match params.style {
         AuraStyle::Auto => AUTO_POOL[(rng.next() * AUTO_POOL.len() as f64) as usize],
         style => style,

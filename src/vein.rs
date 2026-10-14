@@ -2,12 +2,11 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, value_noise,
-};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, value_noise};
 use crate::color::luma_709;
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShift;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -436,7 +435,7 @@ fn paint(
     let field_seed = |offset: u32| hash::sub_seed(tool_seed, offset);
     let (warp_seed, detail_seed, mask_seed) = (field_seed(1), field_seed(2), field_seed(3));
 
-    let mut stream = XorShift::new(tool_seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
+    let mut stream = XorShift::murmur(tool_seed);
     let angle = stream.next() * TAU;
     let (cos_a, sin_a) = (angle.cos(), angle.sin());
     let centre_x = (0.3 + stream.next() * 0.4) * width / unit;

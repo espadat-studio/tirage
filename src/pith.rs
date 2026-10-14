@@ -2,11 +2,10 @@ use std::f64::consts::PI;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store, value_noise,
-};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store, value_noise};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShift;
 use crate::surface::Surface;
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -372,7 +371,7 @@ impl Walk<'_> {
 }
 
 fn layout(params: &PithParams, tool_seed: u32, w: f64, h: f64) -> (Vec<Cell>, f64) {
-    let mut rnd = XorShift::new(tool_seed.wrapping_add(3).wrapping_mul(2_654_435_761));
+    let mut rnd = XorShift::knuth(tool_seed.wrapping_add(3));
     let margin = w.min(h) * 0.085;
     let (iw, ih) = (w - 2.0 * margin, h - 2.0 * margin);
     let count = params.count.max(1);

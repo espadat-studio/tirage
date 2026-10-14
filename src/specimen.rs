@@ -3,11 +3,11 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::ease::circle;
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::terrain::fbm;
@@ -497,7 +497,7 @@ fn blocks(
     tool_seed: u32,
 ) -> Vec<Block> {
     let start = (f64::from(tool_seed) * 2_654_435_761.0 + 7.0).rem_euclid(4_294_967_296.0) as u32;
-    let mut rng = Xorshift::from_state(start);
+    let mut rng = XorShiftArithmetic::from_state(start);
     let weights = [
         (Motif::Marble, p.w_marble),
         (Motif::Tendril, p.w_tendril),

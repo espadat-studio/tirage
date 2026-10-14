@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -279,7 +279,7 @@ fn paint(surface: &mut Surface, p: &VeeParams, palette: &Palette, tool_seed: u32
     let per = w.min(h) * 0.055 * p.width;
     let a = f64::from(p.angle).to_radians();
     let ink = |i: usize| palette.ink(1 + i % 3);
-    let mut rng = Xorshift::new(tool_seed);
+    let mut rng = XorShiftArithmetic::from_seed(tool_seed);
     let laps = round_half_up(AMOUNT * 2.0).max(1.0);
     let shift = t.map_or(0.0, |t| per * laps * (f64::from(t) / f64::from(FRAMES)));
 

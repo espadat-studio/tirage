@@ -2,9 +2,10 @@ use std::f64::consts::PI;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShift;
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -262,7 +263,7 @@ struct Panel {
 }
 
 fn layout(p: &CarveParams, n: usize, aspect: f64, tool_seed: u32) -> Vec<Panel> {
-    let mut rnd = XorShift::new(tool_seed.wrapping_mul(2_654_435_761));
+    let mut rnd = XorShift::knuth(tool_seed);
     let mut rects: Vec<(f64, f64, f64, f64)> = vec![(0.0, 0.0, 1.0, 1.0)];
     for _ in 0..p.cuts.max(1) {
         let mut order: Vec<usize> = (0..rects.len()).collect();

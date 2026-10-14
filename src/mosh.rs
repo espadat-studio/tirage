@@ -458,6 +458,13 @@ impl Sheet<'_> {
     }
 }
 
+fn shuffle_by_hash<T>(items: &mut [T], seed: u32) {
+    for i in (1..items.len()).rev() {
+        let j = (hash::sum(i as i32, 7, seed) * (i + 1) as f64) as usize;
+        items.swap(i, j);
+    }
+}
+
 fn paint(
     surface: &mut Surface,
     params: &MoshParams,
@@ -487,10 +494,7 @@ fn paint(
         Kind::Scan,
         Kind::Chevron,
     ];
-    for i in (1..deck.len()).rev() {
-        let j = (hash::sum(i as i32, 7, tool_seed.wrapping_add(13)) * (i + 1) as f64) as usize;
-        deck.swap(i, j);
-    }
+    shuffle_by_hash(&mut deck, tool_seed.wrapping_add(13));
     let mut sheet = Sheet {
         surface,
         params,

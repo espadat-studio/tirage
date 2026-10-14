@@ -2,10 +2,11 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store, value_noise};
 use crate::ease::smooth;
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShift;
 use crate::surface::{Cap, Join, Path2D, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -454,7 +455,7 @@ fn paint(
     let u = (w * h).sqrt();
     let inks = palette.len();
 
-    let mut rng = XorShift::new(seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);
+    let mut rng = XorShift::murmur(seed);
     let (leaves, leaf) = leaves(params, w, h, &mut rng);
     let lenses = lenses(params.checkers, &leaves, leaf, w, &mut rng);
     let comb_a = ink(palette, (rng.next() * inks as f64) as usize);

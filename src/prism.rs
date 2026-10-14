@@ -2,10 +2,10 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::{XorShiftArithmetic, shuffle};
 use crate::surface::Surface;
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -238,7 +238,7 @@ struct Stream {
     width: f64,
 }
 
-fn streams(p: &PrismParams, w: f64, h: f64, rng: &mut Xorshift) -> Vec<Stream> {
+fn streams(p: &PrismParams, w: f64, h: f64, rng: &mut XorShiftArithmetic) -> Vec<Stream> {
     let md = w.min(h);
     let dg = w.hypot(h);
     let mut anchors = [
@@ -251,10 +251,7 @@ fn streams(p: &PrismParams, w: f64, h: f64, rng: &mut Xorshift) -> Vec<Stream> {
         (0.0, h / 2.0),
         (w, h / 2.0),
     ];
-    for i in (1..anchors.len()).rev() {
-        let j = (rng.next() * (i + 1) as f64) as usize;
-        anchors.swap(i, j);
-    }
+    shuffle(&mut anchors, || rng.next());
     (0..p.streams as usize)
         .map(|i| {
             let (ax, ay) = anchors[i % anchors.len()];
@@ -353,7 +350,7 @@ fn cell(
 
 fn paint(surface: &mut Surface, p: &PrismParams, tool_seed: u32, drift: Option<f64>) {
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
-    let mut rng = Xorshift::new(tool_seed);
+    let mut rng = XorShiftArithmetic::from_seed(tool_seed);
     let streams = streams(p, w, h, &mut rng);
     let key = (rng.next() * 1e9) as u32;
 

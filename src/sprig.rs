@@ -2,8 +2,9 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, value_noise};
 use crate::param::Param;
+use crate::rng::XorShift;
 use crate::surface::{Path2D, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -442,7 +443,7 @@ fn shapes(kind: Kind, rng: &mut XorShift, wobble: f64, detail: f64) -> Vec<Shape
 }
 
 fn motifs(params: &SprigParams, seed: u32, fw: f64, fh: f64) -> Vec<Motif> {
-    let mut rng = XorShift::new(seed.wrapping_mul(2_654_435_761));
+    let mut rng = XorShift::knuth(seed);
     let kinds = params.dirs.kinds();
     let mut motifs: Vec<Motif> = Vec::new();
     for _ in 0..params.count.max(1) {

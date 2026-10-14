@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::color::luma_601;
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::Surface;
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -350,11 +350,11 @@ struct Rect {
     h: i32,
 }
 
-fn index(rng: &mut Xorshift, len: usize) -> usize {
+fn index(rng: &mut XorShiftArithmetic, len: usize) -> usize {
     (rng.next() * len as f64) as usize
 }
 
-fn marked(kind: Motif, i: i32, j: i32, cols: i32, rows: i32, rng: &mut Xorshift) -> bool {
+fn marked(kind: Motif, i: i32, j: i32, cols: i32, rows: i32, rng: &mut XorShiftArithmetic) -> bool {
     match kind {
         Motif::Solid => true,
         Motif::Check => (i + j) % 2 == 0,
@@ -370,7 +370,13 @@ fn marked(kind: Motif, i: i32, j: i32, cols: i32, rows: i32, rng: &mut Xorshift)
     }
 }
 
-fn deal_print(rng: &mut Xorshift, bag: &[Motif], inks: &[[u8; 3]], dark: [u8; 3], u: i32) -> Print {
+fn deal_print(
+    rng: &mut XorShiftArithmetic,
+    bag: &[Motif],
+    inks: &[[u8; 3]],
+    dark: [u8; 3],
+    u: i32,
+) -> Print {
     let mut kind = bag[index(rng, bag.len())];
     if kind == Motif::Solid && rng.next() < 0.55 {
         kind = bag[index(rng, bag.len())];
@@ -393,7 +399,7 @@ fn deal_print(rng: &mut Xorshift, bag: &[Motif], inks: &[[u8; 3]], dark: [u8; 3]
 
 fn print(
     surface: &mut Surface,
-    rng: &mut Xorshift,
+    rng: &mut XorShiftArithmetic,
     print: Print,
     at: Rect,
     mirror_axis: Option<i32>,
@@ -422,7 +428,7 @@ fn print(
     }
 }
 
-fn carve(whole: Rect, n: usize, u: i32, rng: &mut Xorshift) -> Vec<Rect> {
+fn carve(whole: Rect, n: usize, u: i32, rng: &mut XorShiftArithmetic) -> Vec<Rect> {
     let mut list = vec![whole];
     let mut guard = 0;
     while list.len() < n && guard < 400 {
@@ -503,7 +509,7 @@ fn paint(surface: &mut Surface, p: &TotemParams, palette: &Palette, tool_seed: u
     } else {
         dark
     };
-    let mut rng = Xorshift::from_state(stream);
+    let mut rng = XorShiftArithmetic::from_state(stream);
 
     let short = w.min(h);
     let u = (round_half_up(f64::from(short) / f64::from(p.grain)) as i32).max(2);

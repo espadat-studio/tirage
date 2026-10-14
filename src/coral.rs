@@ -2,12 +2,11 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{
-    self, Blend, Dither, DitherKind, Grain, XorShift, round_half_up, store, value_noise,
-};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store, value_noise};
 use crate::ease::smooth;
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShift;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -375,7 +374,7 @@ fn paint(
     let dot = if n > 4 { inks[4] } else { lift(lobe, 0.5) };
     let dark = ground.map(|c| c * 0.55);
 
-    let mut rng = XorShift::new(seed.wrapping_mul(-2_048_144_777) as u32 ^ 0x27d4_eb2f);
+    let mut rng = XorShift::murmur(tool_seed);
     let side = rng.next();
     let (rx, ry) = if side < 0.6 {
         let rx = wf * (0.2 + rng.next() * 0.6);

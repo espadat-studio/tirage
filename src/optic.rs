@@ -2,9 +2,9 @@ use std::f64::consts::{FRAC_PI_2, FRAC_PI_4};
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -245,7 +245,7 @@ enum Figure {
 }
 
 fn plan(p: &OpticParams, tool_seed: u32) -> (Figure, Vec<(f64, f64)>) {
-    let mut rng = Xorshift::new(tool_seed);
+    let mut rng = XorShiftArithmetic::from_seed(tool_seed);
     let figure = match p.styles {
         OpticStyle::Auto => [
             Figure::Diamond,

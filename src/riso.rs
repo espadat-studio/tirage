@@ -2,10 +2,10 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::{XorShiftArithmetic, shuffle};
 use crate::surface::{Cap, Join, Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -372,7 +372,7 @@ fn shapes(band: &Band, id: i32, rough: f64, sw: u32, tear: Option<f64>) -> Vec<P
     out
 }
 
-fn scribble(rng: &mut Xorshift, i: i32, vh: f64, tool_seed: u32) -> Poly {
+fn scribble(rng: &mut XorShiftArithmetic, i: i32, vh: f64, tool_seed: u32) -> Poly {
     let (mut x, mut y) = (rng.next() * VB * 0.3, rng.next() * vh * 0.5);
     let mut angle = rng.next() * TAU;
     let step = VB * 0.02 + rng.next() * VB * 0.02;
@@ -427,7 +427,7 @@ fn paint(
     let nc = inks.len();
     let vh = VB * h / w;
     let k = w / VB;
-    let mut rng = Xorshift::new(tool_seed);
+    let mut rng = XorShiftArithmetic::from_seed(tool_seed);
 
     let n = p.bands as usize;
     let weights: Vec<f64> = (0..n).map(|_| 0.6 + rng.next() * 1.2).collect();
@@ -439,10 +439,7 @@ fn paint(
         Kind::Blocks,
         Kind::Streaks,
     ];
-    for i in (1..kinds.len()).rev() {
-        let j = (rng.next() * (i + 1) as f64) as usize;
-        kinds.swap(i, j);
-    }
+    shuffle(&mut kinds, || rng.next());
     let mut bands = Vec::with_capacity(n);
     let mut y = 0.0;
     for (i, weight) in weights.iter().enumerate() {

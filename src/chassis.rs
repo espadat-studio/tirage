@@ -31,21 +31,6 @@ pub(crate) fn fbm(x: f64, y: f64, seed: u32, octaves: u32) -> f64 {
     sum / total
 }
 
-pub(crate) struct XorShift(u32);
-
-impl XorShift {
-    pub(crate) fn new(seed: u32) -> Self {
-        Self(seed.max(1))
-    }
-
-    pub(crate) fn next(&mut self) -> f64 {
-        self.0 ^= self.0 << 13;
-        self.0 ^= self.0 >> 17;
-        self.0 ^= self.0 << 5;
-        f64::from(self.0) / 4_294_967_296.0
-    }
-}
-
 pub(crate) fn round_half_up(value: f64) -> f64 {
     let floor = value.floor();
     if value - floor >= 0.5 {

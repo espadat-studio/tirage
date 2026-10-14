@@ -2,11 +2,12 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::{Noise, Xorshift};
+use crate::aura::Noise;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up, store};
 use crate::ease::smooth;
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -237,7 +238,7 @@ fn paint(
     let bh = round_half_up(bw * height / width).max(90.0);
     let square = |slot: usize| palette.ink(slot).map(|c| f64::from(c) * f64::from(c));
     let neon = square(0);
-    let mut rng = Xorshift::new(tool_seed);
+    let mut rng = XorShiftArithmetic::from_seed(tool_seed);
     let ground: Vec<([f64; 3], (f64, f64))> = (1..INKS)
         .map(|slot| (square(slot), (rng.next() * 37.0, rng.next() * 43.0)))
         .collect();

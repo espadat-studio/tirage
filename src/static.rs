@@ -2,10 +2,10 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use crate::aura::Xorshift;
 use crate::chassis::{self, Blend, Dither, DitherKind, Grain, round_half_up};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShiftArithmetic;
 use crate::surface::{Smoothing, Surface};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
@@ -229,7 +229,7 @@ struct Region {
 }
 
 fn region(
-    rng: &mut Xorshift,
+    rng: &mut XorShiftArithmetic,
     (x0, x1, y0, y1): (f64, f64, f64, f64),
     (gw, gh): (f64, f64),
 ) -> Region {
@@ -344,7 +344,7 @@ impl Region {
 fn bits(params: &StaticParams, gw: usize, gh: usize, tool_seed: u32, t: Option<u32>) -> Vec<bool> {
     let f = t.unwrap_or(0);
     let grid = (gw as f64, gh as f64);
-    let mut rng = Xorshift::new(tool_seed);
+    let mut rng = XorShiftArithmetic::from_seed(tool_seed);
     let weights: Vec<f64> = (0..params.regions)
         .map(|_| 0.5 + rng.next() * 1.2)
         .collect();
@@ -393,7 +393,7 @@ fn bits(params: &StaticParams, gw: usize, gh: usize, tool_seed: u32, t: Option<u
 }
 
 fn glitch(bits: &mut [bool], amount: f64, gw: usize, gh: usize, seed: u32) {
-    let mut rng = Xorshift::from_state(seed);
+    let mut rng = XorShiftArithmetic::from_state(seed);
     let (w, h) = (gw as f64, gh as f64);
     for _ in 0..round_half_up(h * 0.3 * amount) as u32 {
         let y = (rng.next() * h) as usize;

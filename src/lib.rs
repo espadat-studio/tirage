@@ -10,6 +10,7 @@ mod param;
 mod recipe;
 mod registry;
 mod render;
+mod rng;
 mod surface;
 mod svg;
 mod taste;

@@ -2,9 +2,10 @@ use std::f64::consts::{PI, TAU};
 
 use serde::{Deserialize, Serialize};
 
-use crate::chassis::{self, Blend, Dither, DitherKind, Grain, XorShift, store, value_noise};
+use crate::chassis::{self, Blend, Dither, DitherKind, Grain, store, value_noise};
 use crate::hash;
 use crate::param::Param;
+use crate::rng::XorShift;
 use crate::surface::{Path2D, Surface, Transform};
 use crate::taste::Taste;
 use crate::{Error, Palette, Parameter};
