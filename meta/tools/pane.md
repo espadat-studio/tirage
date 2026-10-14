@@ -25,7 +25,7 @@ pane is a palette-family Tool. Its Palette is the swatch row, read by position, 
 
 ## Random numbers
 
-`s` is the Tool seed. There is no stream. Every draw is the chassis integer hash `h(x, y, k)` (`chassis::hash`), with the seed slot `k` the Tool seed plus a salt, added mod 2^32:
+`s` is the Tool seed. There is no stream. Every draw is the chassis integer hash `h(x, y, k)` (`hash::sum`), with the seed slot `k` the Tool seed plus a salt, added mod 2^32:
 
 | draw                   | `x` | `y`        | `k`            |
 | ---------------------- | --- | ---------- | -------------- |

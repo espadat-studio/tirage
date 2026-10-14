@@ -34,7 +34,7 @@ parcel is fixed-role: its Palette is exactly 3 inks, read by role, and `MAX_INKS
 
 - One xorshift32 stream, the one aura uses (`aura::Xorshift`): started at `s × 2654435761` worked in floating point and taken mod 2^32, a zero start becoming 1, with an arithmetic right shift by 17. It gives three draws in this order: `ox = 43 r`, `oy = 37 r`, then `SW = floor(1e9 r)`.
 - A noise seed `NS = s xor 0x51ed270b`.
-- The 4-argument integer hash `h(x, y, z, seed)` that aura uses (`aura::hash`).
+- The 4-argument integer hash `h(x, y, z, seed)` that aura uses (`hash::xor`).
 
 ## Noise
 
