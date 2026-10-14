@@ -333,7 +333,7 @@ fn paint(
 ) {
     let inks = palette.inks();
     let n = inks.len();
-    let seed = |k: u32| tool_seed.wrapping_mul(7).wrapping_add(k);
+    let seed = |k: u32| hash::sub_seed(tool_seed, k);
     let (w, h) = (f64::from(surface.width()), f64::from(surface.height()));
     let cols = params.cols.max(4);
     let cw = w / f64::from(cols);

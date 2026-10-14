@@ -345,7 +345,7 @@ struct Shape {
 fn field(params: &CipherParams, shape: &Shape, seed: u32, u: f64, v: f64) -> f64 {
     let (wave, tilt) = (params.wave, params.tilt);
     let det = 1.0 + params.detail * 3.0;
-    let noise = |x: f64, y: f64, k: u32| value_noise(x, y, seed.wrapping_mul(7).wrapping_add(k));
+    let noise = |x: f64, y: f64, k: u32| value_noise(x, y, hash::sub_seed(seed, k));
     let (ox, oy) = (shape.ox, shape.oy);
     match params.field {
         CipherField::Figure => {

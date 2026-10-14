@@ -364,7 +364,7 @@ fn paint(
     let (wf, hf) = (f64::from(w), f64::from(h));
     let u_size = (wf * hf).sqrt();
     let seed = tool_seed as i32;
-    let sd = |i: i32| seed.wrapping_mul(7).wrapping_add(i) as u32;
+    let sd = |k: u32| hash::sub_seed(tool_seed, k);
 
     let inks: Vec<Rgb> = palette.inks().iter().map(|c| c.map(f64::from)).collect();
     let n = inks.len();

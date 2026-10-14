@@ -433,7 +433,7 @@ fn paint(
     let (width, height) = (f64::from(surface.width()), f64::from(surface.height()));
     let unit = (width * height).sqrt();
     let inks = palette.len();
-    let field_seed = |offset: u32| tool_seed.wrapping_mul(7).wrapping_add(offset);
+    let field_seed = |offset: u32| hash::sub_seed(tool_seed, offset);
     let (warp_seed, detail_seed, mask_seed) = (field_seed(1), field_seed(2), field_seed(3));
 
     let mut stream = XorShift::new(tool_seed.wrapping_mul(2_246_822_519) ^ 0x27d4_eb2f);

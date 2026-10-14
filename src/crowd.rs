@@ -453,7 +453,7 @@ fn mask(
 fn arrows(params: &CrowdParams, width: f64, height: f64, unit: f64, seed: u32) -> (Path2D, f64) {
     let mut path = Path2D::default();
     let density = params.arrows;
-    let [sd1, sd2, sd3] = [1, 2, 3].map(|k| seed.wrapping_mul(7).wrapping_add(k));
+    let [sd1, sd2, sd3] = [1, 2, 3].map(|k| hash::sub_seed(seed, k));
     let spacing = unit * 0.019 * (0.7 + params.arrow_size * 0.9);
     let size = spacing * 0.55;
     let columns = (width / spacing).ceil() as i32 + 1;

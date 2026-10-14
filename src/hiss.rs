@@ -459,7 +459,7 @@ fn paint(
     let lenses = lenses(params.checkers, &leaves, leaf, w, &mut rng);
     let comb_a = ink(palette, (rng.next() * inks as f64) as usize);
     let comb_b = ink(palette, (rng.next() * inks as f64) as usize);
-    let sd = |k: u32| seed.wrapping_mul(7).wrapping_add(k);
+    let sd = |k: u32| hash::sub_seed(seed, k);
     let (ox, oy) = frame.map_or((0.0, 0.0), |f| {
         let t = f64::from(f) / f64::from(FRAMES);
         let (ph, reach) = (TAU * t, AMOUNT * 0.15);
