@@ -88,24 +88,24 @@ sonar  24 frames, svg
   depth       0..=1     step 0.01
   fringe      0..=1     step 0.01
   spark       0..=1     step 0.01
-  ditherTog   on/off
-  dthKinds    Bayer 8, Bayer 4, Noise
-  dthSize     1..=10    step 1
-  dthLevels   2..=8     step 1
-  dthAmount   0..=1     step 0.05
-  grainTog    on/off
-  grnBlends   Add, Overlay, Soft light, Multiply, Screen
-  grnAmount   0..=1     step 0.05
-  grnSize     0.5..=4   step 0.1
-  grnSpecks   0..=1     step 0.05
-  grnVignette 0..=1     step 0.05
+  ditherTog   on/off [no Taste]
+  dthKinds    Bayer 8, Bayer 4, Noise [no Taste]
+  dthSize     1..=10    step 1 [no Taste]
+  dthLevels   2..=8     step 1 [no Taste]
+  dthAmount   0..=1     step 0.05 [no Taste]
+  grainTog    on/off [no Taste]
+  grnBlends   Add, Overlay, Soft light, Multiply, Screen [no Taste]
+  grnAmount   0..=1     step 0.05 [no Taste]
+  grnSize     0.5..=4   step 0.1 [no Taste]
+  grnSpecks   0..=1     step 0.05 [no Taste]
+  grnVignette 0..=1     step 0.05 [no Taste]
 ```
 
-A range like `0..=1 step 0.01` means any value from 0 to 1 in steps of 0.01, both ends included. The last 11 Parameters, from `ditherTog` to `grnVignette`, are the same on every Tool. [Dither and grain](/concepts/dither-and-grain/) explains them, and Tool pages leave them out.
+A range like `0..=1 step 0.01` means any value from 0 to 1 in steps of 0.01, both ends included. `[no Taste]` ends a row that a [Taste](/concepts/taste-bounds/) file cannot bound. Toggles, choices and a Tool's own `grain` are all unboundable. The last 11 Parameters, from `ditherTog` to `grnVignette`, are the same on every Tool. [Dither and grain](/concepts/dither-and-grain/) explains them, and Tool pages leave them out.
 
 ## JSON output
 
-`--json` prints one array with one object per Tool, in the same order as the text. Each object has `slug`, `frames`, `svg` and `params`. `svg` is `true` when render can write the Tool as an SVG. Each Parameter has an `id` and a `kind`: `range` carries `min`, `max` and `step`, `choice` carries `choices`, and `toggle` carries nothing more. The real output is one line and lists every Parameter. Trimmed and pretty printed:
+`--json` prints one array with one object per Tool, in the same order as the text. Each object has `slug`, `frames`, `svg` and `params`. `svg` is `true` when render can write the Tool as an SVG. Each Parameter has an `id` and a `kind`: `range` carries `min`, `max` and `step`, `choice` carries `choices`, and `toggle` carries nothing more. `taste` is `false` for a Parameter that a Taste file cannot bound. The real output is one line and lists every Parameter. Trimmed and pretty printed:
 
 ```json
 [
@@ -114,12 +114,20 @@ A range like `0..=1 step 0.01` means any value from 0 to 1 in steps of 0.01, bot
     "frames": 24,
     "svg": true,
     "params": [
-      { "id": "level", "kind": "range", "min": 0.0, "max": 1.0, "step": 0.01 },
-      { "id": "ditherTog", "kind": "toggle" },
+      {
+        "id": "level",
+        "kind": "range",
+        "min": 0.0,
+        "max": 1.0,
+        "step": 0.01,
+        "taste": true
+      },
+      { "id": "ditherTog", "kind": "toggle", "taste": false },
       {
         "id": "dthKinds",
         "kind": "choice",
-        "choices": ["Bayer 8", "Bayer 4", "Noise"]
+        "choices": ["Bayer 8", "Bayer 4", "Noise"],
+        "taste": false
       }
     ]
   }

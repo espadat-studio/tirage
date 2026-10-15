@@ -44,8 +44,8 @@ strand  36 frames
   offset      0..=1     step 0.01
   edge        0..=1     step 0.01
   tex         0..=1     step 0.01
-  texKinds    Stipple, Drag, Screen
-  grain       0..=1     step 0.01
+  texKinds    Stipple, Drag, Screen [no Taste]
+  grain       0..=1     step 0.01 [no Taste]
 ```
 
 A Seed draws every Parameter above `grain`. `count` sets how many chains there are and `len` how many rods each one lays. `wander` is how far a chain turns at each rod and `branch` how often it splits. `thick` sets the rod width, `rod` its length and `notch` the gap between rods. `rough` tears the edges and makes each rod lopsided. `offset` is how far the plate slid and `edge` how much fatter than the fill it is. `tex` is how much of the fill fails to print, and `texKinds` the shape of the gaps: loose specks, streaks dragged one way, or a dot screen. `grain` is strand's own noise along the edges and over every pixel, not the shared grain pass. It stays at 0.42.

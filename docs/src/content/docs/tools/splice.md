@@ -33,7 +33,7 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 splice  36 frames
-  dirs        Columns, Rows, Blocks
+  dirs        Columns, Rows, Blocks [no Taste]
   slices      1..=40    step 1
   shift       0..=1     step 0.01
   scale       0..=1     step 0.01
@@ -41,7 +41,7 @@ splice  36 frames
   key         0..=1     step 0.01
   screen      0..=1     step 0.01
   mix         0..=1     step 0.01
-  grain       0..=1     step 0.01
+  grain       0..=1     step 0.01 [no Taste]
   arcs        0..=24    step 1
   weight      0..=1     step 0.01
   bend        0..=1     step 0.01

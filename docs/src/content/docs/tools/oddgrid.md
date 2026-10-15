@@ -43,7 +43,7 @@ oddgrid  32 frames, svg
   block       0..=1     step 0.01
   bsize       2..=16    step 1
   speck       0..=0.6   step 0.01
-  motifs      None, Dot, Ring, Square, Wedge, Mixed
+  motifs      None, Dot, Ring, Square, Wedge, Mixed [no Taste]
   motifAmt    0..=1     step 0.01
   markSize    0.15..=1  step 0.01
   balance     -1.2..=1.2 step 0.05

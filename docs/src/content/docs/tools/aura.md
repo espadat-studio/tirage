@@ -33,7 +33,7 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 aura  72 frames
-  styles      Auto, Clouds, Mesh, Sweep
+  styles      Auto, Clouds, Mesh, Sweep [no Taste]
   scale       0.5..=2   step 0.05
   churn       0..=1     step 0.01
   punch       0..=1     step 0.01

@@ -48,7 +48,7 @@ filament  30 frames
   wvar        0..=1     step 0.01
   hier        0..=1     step 0.01
   hair        0..=1     step 0.01
-  mstyles     Symbols, Beads, Both
+  mstyles     Symbols, Beads, Both [no Taste]
   mark        0..=1     step 0.01
   bead        0..=1     step 0.01
   bgap        2..=14    step 1

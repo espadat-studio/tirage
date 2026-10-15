@@ -39,7 +39,7 @@ atlas  24 frames, svg
   warp        0..=1.6   step 0.01
   bands       2..=14    step 1
   mix         0..=1     step 0.01
-  sets        DOS, Stipple, Blocks, Code, Digits, Runes
+  sets        DOS, Stipple, Blocks, Code, Digits, Runes [no Taste]
   cols        24..=260  step 1
   density     0..=1     step 0.01
   weight      0..=1.5   step 0.01

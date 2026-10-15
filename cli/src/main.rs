@@ -241,7 +241,24 @@ struct ToolListing {
     slug: &'static str,
     frames: u32,
     svg: bool,
-    params: Vec<Parameter>,
+    params: Vec<ListedParameter>,
+}
+
+#[derive(Serialize)]
+struct ListedParameter {
+    #[serde(flatten)]
+    parameter: Parameter,
+    taste: bool,
+}
+
+fn listed_parameters(tool: Tool) -> Vec<ListedParameter> {
+    tool.parameters()
+        .into_iter()
+        .map(|parameter| ListedParameter {
+            taste: tool.takes_taste(parameter.id),
+            parameter,
+        })
+        .collect()
 }
 
 enum Failure {
@@ -585,7 +602,7 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
                         slug: tool.slug(),
                         frames: tool.frames(),
                         svg: tool.supports_svg(),
-                        params: tool.parameters(),
+                        params: listed_parameters(*tool),
                     })
                     .collect();
                 let json = serde_json::to_string(&listings).expect("a listing serializes");
@@ -600,7 +617,11 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
             let mut text = String::new();
             for tool in Tool::ALL {
                 text += &format!("{}\n", frames_label(*tool));
-                for p in tool.parameters() {
+                for ListedParameter {
+                    parameter: p,
+                    taste,
+                } in listed_parameters(*tool)
+                {
                     let values = match p.kind {
                         ParameterKind::Range { min, max, step } => {
                             format!("{:<9} step {step}", format!("{min}..={max}"))
@@ -608,7 +629,12 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
                         ParameterKind::Toggle => "on/off".to_owned(),
                         ParameterKind::Choice { choices } => choices.join(", "),
                     };
-                    text += &format!("  {:<width$} {values}\n", p.id);
+                    let marker = if taste {
+                        String::new()
+                    } else {
+                        format!(" {}", hint::NO_TASTE)
+                    };
+                    text += &format!("  {:<width$} {values}{marker}\n", p.id);
                 }
             }
             emit(text.as_bytes())

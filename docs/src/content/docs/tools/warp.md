@@ -35,7 +35,7 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 warp  72 frames, svg
-  styles      Checker, Slash
+  styles      Checker, Slash [no Taste]
   scale       0.5..=2   step 0.05
   warp        0..=1     step 0.01
 ```

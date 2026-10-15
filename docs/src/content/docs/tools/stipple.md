@@ -35,9 +35,9 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 stipple  30 frames, svg
-  modesDot    Lattice, Contour
-  lattices    Square, Hex
-  shapes      Circle, Square
+  modesDot    Lattice, Contour [no Taste]
+  lattices    Square, Hex [no Taste]
+  shapes      Circle, Square [no Taste]
   res         12..=200  step 1
   dot         0.05..=1.4 step 0.01
   vary        0..=1     step 0.01
@@ -49,7 +49,7 @@ stipple  30 frames, svg
   warp        0..=3     step 0.02
   oct         1..=7     step 1
   contrast    0.4..=4   step 0.05
-  syms        None, Mirror, Quad, Radial
+  syms        None, Mirror, Quad, Radial [no Taste]
   folds       2..=16    step 1
   accRate     0..=0.15  step 0.001
 ```

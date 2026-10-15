@@ -49,7 +49,7 @@ A Taste bounds file narrows the range a Seed may draw from. It is a JSON object 
 tirage derive --seed 42 --taste taste.json
 ```
 
-Parameters you leave out keep their shipped bounds. Only slider Parameters take bounds. Each bound must be a slider value, inside the Parameter's range and on its step, with min at or below max. `tirage tools` prints the range and step of every Parameter. A bound off its slider or an unknown Parameter id exits 2. A file that cannot be read exits 1.
+Parameters you leave out keep their shipped bounds. Only slider Parameters take bounds. Each bound must be a slider value, inside the Parameter's range and on its step, with min at or below max. `tirage tools` prints the range and step of every Parameter. A bound off its slider, an unknown Parameter id, or a Parameter `tirage tools` marks `[no Taste]` exits 2. A file that cannot be read exits 1.
 
 ## Palette
 

@@ -1,5 +1,7 @@
 use tirage::{Error, MAX_EDGE, Tool};
 
+pub const NO_TASTE: &str = "[no Taste]";
+
 pub fn for_error(error: &Error) -> Option<String> {
     let hint = match error {
         Error::Major(_) => {
@@ -10,7 +12,17 @@ pub fn for_error(error: &Error) -> Option<String> {
             None => "run 'tirage tools' to list Tools".to_owned(),
         },
         Error::UnknownParameter { tool, param } => {
-            match closest(param, tool.parameters().iter().map(|p| p.id)) {
+            if tool.has_parameter(param) {
+                return Some(format!(
+                    "Taste bounds only the Parameters 'tirage tools' does not mark {NO_TASTE}"
+                ));
+            }
+            let boundable = tool
+                .parameters()
+                .into_iter()
+                .map(|p| p.id)
+                .filter(|id| tool.takes_taste(id));
+            match closest(param, boundable) {
                 Some(id) => format!("did you mean '{id}'?"),
                 None => format!("run 'tirage tools' to list {}'s Parameters", tool.slug()),
             }

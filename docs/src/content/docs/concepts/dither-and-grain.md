@@ -10,17 +10,17 @@ Every Tool ends with the same two passes over the frame it drew. Grain runs firs
 The same 11 rows close every Tool's block in [`tirage tools`](/cli-reference/tools/). Tool pages leave them out:
 
 ```
-ditherTog   on/off
-dthKinds    Bayer 8, Bayer 4, Noise
-dthSize     1..=10    step 1
-dthLevels   2..=8     step 1
-dthAmount   0..=1     step 0.05
-grainTog    on/off
-grnBlends   Add, Overlay, Soft light, Multiply, Screen
-grnAmount   0..=1     step 0.05
-grnSize     0.5..=4   step 0.1
-grnSpecks   0..=1     step 0.05
-grnVignette 0..=1     step 0.05
+ditherTog   on/off [no Taste]
+dthKinds    Bayer 8, Bayer 4, Noise [no Taste]
+dthSize     1..=10    step 1 [no Taste]
+dthLevels   2..=8     step 1 [no Taste]
+dthAmount   0..=1     step 0.05 [no Taste]
+grainTog    on/off [no Taste]
+grnBlends   Add, Overlay, Soft light, Multiply, Screen [no Taste]
+grnAmount   0..=1     step 0.05 [no Taste]
+grnSize     0.5..=4   step 0.1 [no Taste]
+grnSpecks   0..=1     step 0.05 [no Taste]
+grnVignette 0..=1     step 0.05 [no Taste]
 ```
 
 | Parameter     | Does                                                               | Default   |

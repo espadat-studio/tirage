@@ -37,7 +37,7 @@ mist  72 frames
   cover       0.2..=0.85 step 0.01
   soft        0.1..=1   step 0.01
   blot        0.2..=1   step 0.01
-  grain       0..=1     step 0.01
+  grain       0..=1     step 0.01 [no Taste]
 ```
 
 A Seed draws `streaks`, `cover`, `soft` and `blot`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed. `grain`, the Tool's own per-pixel noise, stays at 0.4. mist takes at most 4 inks: the first is the neon, the other three the ground.

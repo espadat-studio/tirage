@@ -35,7 +35,7 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 fete  100 frames, svg
-  motifs      Auto, Rings, Spiral, Burst, Atom, Wave, Scribble
+  motifs      Auto, Rings, Spiral, Burst, Atom, Wave, Scribble [no Taste]
   scale       1.2..=6   step 0.1
   res         36..=120  step 4
   lw          0.4..=2.2 step 0.05

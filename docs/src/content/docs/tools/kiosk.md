@@ -38,7 +38,7 @@ kiosk  24 frames, svg
   split       0.15..=0.95 step 0.01
   rings       4..=40    step 1
   stripes     2..=24    step 1
-  sets        DOS, Stipple, Blocks, Code, Digits, Runes
+  sets        DOS, Stipple, Blocks, Code, Digits, Runes [no Taste]
   grid        4..=30    step 1
   bigSize     0.3..=1.6 step 0.01
   density     0..=1     step 0.01

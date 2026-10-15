@@ -39,7 +39,7 @@ parcel  72 frames, svg
   cover       0.2..=0.8 step 0.01
   chunk       0.5..=2   step 0.05
   grids       0..=8     step 1
-  blends      Multiply, Normal
+  blends      Multiply, Normal [no Taste]
 ```
 
 A Seed draws `cells`, `cover`, `chunk` and `grids` across their full range. `cells` is how many cells span the frame, `cover` is the share of them the blocks take, and `chunk` decides how big the blobs grow. `grids` is how many hairline clusters there are, so Seed 1, which draws 0, has none. `blends` stays at Multiply. Switch it to Normal and the lines are drawn flat over the blocks.
