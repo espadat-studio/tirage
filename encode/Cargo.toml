@@ -1,6 +1,6 @@
 [package]
 name = "tirage-encode"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2024"
 include = ["src/**"]
 license = "AGPL-3.0-or-later"
@@ -12,7 +12,7 @@ description = "Encode a tirage Loop to an H.264 MP4."
 bytes = "1"
 mp4 = "0.14"
 openh264 = "0.9"
-tirage = { path = "..", version = "2.0.0" }
+tirage = { path = "..", version = "2.0.1" }
 
 [lints]
 workspace = true
