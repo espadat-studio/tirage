@@ -116,7 +116,7 @@ impl fmt::Display for Error {
             ),
             Self::UnknownParameter { tool, param } => {
                 let known: Vec<_> = tool.params().iter().map(|p| p.id).collect();
-                if tool.parameters().iter().any(|p| p.id == param) {
+                if tool.has_parameter(param) {
                     return write!(
                         f,
                         "{}: {param} is a Parameter Taste cannot bound, expected one of {}",

@@ -629,7 +629,11 @@ fn run(command: Command, no_input: bool) -> Result<(), Failure> {
                         ParameterKind::Toggle => "on/off".to_owned(),
                         ParameterKind::Choice { choices } => choices.join(", "),
                     };
-                    let marker = if taste { "" } else { " [no Taste]" };
+                    let marker = if taste {
+                        String::new()
+                    } else {
+                        format!(" {}", hint::NO_TASTE)
+                    };
                     text += &format!("  {:<width$} {values}{marker}\n", p.id);
                 }
             }

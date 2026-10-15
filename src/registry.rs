@@ -37,6 +37,10 @@ macro_rules! tools {
                 }
             }
 
+            pub fn has_parameter(self, id: &str) -> bool {
+                self.parameters().iter().any(|parameter| parameter.id == id)
+            }
+
             pub fn takes_taste(self, id: &str) -> bool {
                 self.params().iter().any(|param| param.id == id)
             }

@@ -1,4 +1,4 @@
-use tirage::{Palette, Params, Recipe, Taste, Tool, ToolPin, derive};
+use tirage::{Palette, ParameterKind, Params, Recipe, Taste, Tool, ToolPin, derive};
 
 const SONAR: ToolPin = ToolPin::Tool(Tool::Sonar);
 
@@ -140,6 +140,26 @@ fn taste_names_a_parameter_it_cannot_bound() {
     }
     assert!(Tool::Terrain.takes_taste("scale"));
     assert!(!Tool::Terrain.takes_taste("nope"));
+}
+
+#[test]
+fn taste_accepts_exactly_the_parameters_that_take_taste() {
+    for &tool in Tool::ALL {
+        for parameter in tool.parameters() {
+            let ParameterKind::Range { min, max, .. } = parameter.kind else {
+                assert!(!tool.takes_taste(parameter.id), "{}", parameter.id);
+                continue;
+            };
+            let taste = Taste::new(tool, &[(parameter.id, [min, max])]);
+            assert_eq!(
+                taste.is_ok(),
+                tool.takes_taste(parameter.id),
+                "{} {}",
+                tool.slug(),
+                parameter.id
+            );
+        }
+    }
 }
 
 #[test]

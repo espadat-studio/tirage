@@ -967,33 +967,10 @@ fn tools_marks_the_parameters_taste_cannot_bound() {
 
     let listings = json(&tirage(&["tools", "--json"], b"").stdout);
     for listing in listings.as_array().unwrap() {
-        let slug = listing["slug"].as_str().unwrap();
+        let tool = tirage::Tool::from_slug(listing["slug"].as_str().unwrap()).unwrap();
         for param in listing["params"].as_array().unwrap() {
             let id = param["id"].as_str().unwrap();
-            let path = std::env::temp_dir().join(format!(
-                "tirage-taste-{}-{slug}-{id}.json",
-                std::process::id()
-            ));
-            let bounds = if param["kind"] == "range" {
-                format!(
-                    r#"{{"tool":"{slug}","{id}":[{},{}]}}"#,
-                    param["min"], param["max"]
-                )
-            } else {
-                format!(r#"{{"tool":"{slug}","{id}":[0,1]}}"#)
-            };
-            std::fs::write(&path, bounds).unwrap();
-            let out = tirage(
-                &["derive", "--seed", "1", "--taste", path.to_str().unwrap()],
-                b"",
-            );
-            std::fs::remove_file(&path).unwrap();
-            assert_eq!(
-                out.status.code() == Some(0),
-                param["taste"] == true,
-                "{slug} {id}: {}",
-                text(&out.stderr)
-            );
+            assert_eq!(param["taste"], tool.takes_taste(id), "{} {id}", tool.slug());
         }
     }
 }
