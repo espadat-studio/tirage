@@ -35,7 +35,7 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 optic  72 frames, svg
-  styles      Auto, Diamond, Circle, Peak, Square
+  styles      Auto, Diamond, Circle, Peak, Square [no Taste]
   count       6..=28    step 1
   weight      0.3..=0.7 step 0.01
   sizeF       0.4..=1   step 0.01

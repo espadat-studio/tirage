@@ -33,8 +33,8 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 fold  36 frames
-  folds       Four ways, Kaleidoscope, Across, Down, None
-  kinds       Mixed, Zebra, Staircases, Dot rows, Bursts, Chevrons, Checks
+  folds       Four ways, Kaleidoscope, Across, Down, None [no Taste]
+  kinds       Mixed, Zebra, Staircases, Dot rows, Bursts, Chevrons, Checks [no Taste]
   foldx       0.2..=0.8 step 0.01
   foldy       0.2..=0.8 step 0.01
   patches     1..=16    step 1

@@ -35,7 +35,7 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 zig  120 frames, svg
-  styles      Teeth, Chevron, Stairs, Ricrac, Waves, Scales
+  styles      Teeth, Chevron, Stairs, Ricrac, Waves, Scales [no Taste]
   width       0.5..=2   step 0.05
   depth       0.2..=1.4 step 0.02
   tooth       0.5..=2   step 0.05

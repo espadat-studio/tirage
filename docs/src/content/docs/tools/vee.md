@@ -35,7 +35,7 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 vee  72 frames, svg
-  styles      Auto, Chevron, Quad, Diagonal, Cross
+  styles      Auto, Chevron, Quad, Diagonal, Cross [no Taste]
   angle       15..=75   step 1
   width       0.4..=2.2 step 0.05
   weight      0.15..=0.85 step 0.01

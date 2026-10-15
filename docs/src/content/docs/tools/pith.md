@@ -39,10 +39,10 @@ pith  36 frames
   round       0..=1     step 0.01
   wobble      0..=1     step 0.01
   band        0..=1     step 0.01
-  dither      0..=1     step 0.01
+  dither      0..=1     step 0.01 [no Taste]
   veins       0..=1     step 0.01
   thick       0..=1     step 0.01
-  grain       0..=1     step 0.01
+  grain       0..=1     step 0.01 [no Taste]
 ```
 
 A Seed draws `count`, `size`, `zoom`, `round`, `wobble`, `band`, `veins` and `thick`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed. `dither`, the speckle across band edges, stays at 0.55, and `grain`, the Tool's own flecks, at 0.4.

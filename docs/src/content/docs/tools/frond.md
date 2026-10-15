@@ -33,7 +33,7 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 frond  36 frames
-  dirs        Potted, Bouquet, Fronds
+  dirs        Potted, Bouquet, Fronds [no Taste]
   masses      0..=6     step 1
   size        0..=1     step 0.01
   round       0..=1     step 0.01

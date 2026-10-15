@@ -37,13 +37,13 @@ chaff  36 frames
   size        0..=1     step 0.01
   vary        0..=1     step 0.01
   apart       0..=1     step 0.01
-  shapes      Crescent, Leaf, Bar
+  shapes      Crescent, Leaf, Bar [no Taste]
   curve       0..=1     step 0.01
   slim        0..=1     step 0.01
   taper       0..=1     step 0.01
   mottle      0..=1     step 0.01
   coarse      0..=1     step 0.01
-  grain       0..=1     step 0.01
+  grain       0..=1     step 0.01 [no Taste]
 ```
 
 A Seed draws every Parameter of chaff's own except `grain`. `count` is the number of blades and `size` their base length. `vary` spreads the lengths, so a few blades come out much longer than the rest. `apart` gives each blade a margin that cuts into the blades under it; at 0 the blades merge into one shape. `shapes` picks the outline: a crescent pointed at both ends, a leaf blunt at one end, or a bar with near-parallel sides. `curve` bends each blade, `slim` sets its width against its length, and `taper` sharpens its ends. `mottle` sets how far the edges break up and `coarse` how big the flecks are. `grain` is chaff's own speckle over every pixel, not the shared grain pass, and stays at 0.3.

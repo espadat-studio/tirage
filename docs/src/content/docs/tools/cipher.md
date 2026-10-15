@@ -35,7 +35,7 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 cipher  36 frames
   cells       20..=140  step 1
   bands       2..=7     step 1
-  fields      Figure, Relief, Slope
+  fields      Figure, Relief, Slope [no Taste]
   wave        0..=1     step 0.01
   tilt        -1..=1    step 0.01
   detail      0..=1     step 0.01

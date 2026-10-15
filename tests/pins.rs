@@ -121,6 +121,28 @@ fn taste_rejects_bounds_the_slider_cannot_show() {
 }
 
 #[test]
+fn taste_names_a_parameter_it_cannot_bound() {
+    for (tool, id) in [
+        (Tool::Terrain, "grain"),
+        (Tool::Aura, "styles"),
+        (Tool::Sonar, "grnSize"),
+    ] {
+        assert!(!tool.takes_taste(id), "{id}");
+        let message = error(Taste::new(tool, &[(id, [0.0, 1.0])]));
+        assert!(
+            message.starts_with(&format!(
+                "{}: {id} is a Parameter Taste cannot bound, expected one of ",
+                tool.slug()
+            )),
+            "{message}"
+        );
+        assert!(!message.contains("unknown"), "{message}");
+    }
+    assert!(Tool::Terrain.takes_taste("scale"));
+    assert!(!Tool::Terrain.takes_taste("nope"));
+}
+
+#[test]
 fn taste_json_overrides_named_parameters_only() {
     let taste = Taste::from_json(r#"{"tool":"sonar","level":[0.5,0.5],"grid":[40,40]}"#).unwrap();
     assert_eq!(

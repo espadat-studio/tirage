@@ -35,7 +35,7 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 vein  36 frames, svg
-  flows       Marble, Swirl, Ripple
+  flows       Marble, Swirl, Ripple [no Taste]
   scale       0..=1     step 0.01
   curve       0..=1     step 0.01
   levels      3..=14    step 1

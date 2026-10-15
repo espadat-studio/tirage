@@ -10,7 +10,14 @@ pub fn for_error(error: &Error) -> Option<String> {
             None => "run 'tirage tools' to list Tools".to_owned(),
         },
         Error::UnknownParameter { tool, param } => {
-            match closest(param, tool.parameters().iter().map(|p| p.id)) {
+            let ids = || tool.parameters().into_iter().map(|p| p.id);
+            if ids().any(|id| id == param) {
+                return Some(
+                    "Taste bounds only the Parameters 'tirage tools' does not mark [no Taste]"
+                        .to_owned(),
+                );
+            }
+            match closest(param, ids().filter(|id| tool.takes_taste(id))) {
                 Some(id) => format!("did you mean '{id}'?"),
                 None => format!("run 'tirage tools' to list {}'s Parameters", tool.slug()),
             }

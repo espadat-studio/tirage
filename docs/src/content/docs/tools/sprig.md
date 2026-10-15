@@ -33,7 +33,7 @@ From [`tirage tools`](/cli-reference/tools/), without the 11 shared [dither and 
 
 ```
 sprig  36 frames
-  dirs        Garden, Blooms, Leaves
+  dirs        Garden, Blooms, Leaves [no Taste]
   count       2..=120   step 1
   size        0..=1     step 0.01
   vary        0..=1     step 0.01

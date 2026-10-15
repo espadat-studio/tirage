@@ -40,7 +40,7 @@ carve  36 frames, svg
   gap         0..=1     step 0.01
   mix         0..=1     step 0.01
   pitch       0..=1     step 0.01
-  grain       0..=1     step 0.01
+  grain       0..=1     step 0.01 [no Taste]
   nodes       0..=1     step 0.01
 ```
 

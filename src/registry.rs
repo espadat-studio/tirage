@@ -37,6 +37,10 @@ macro_rules! tools {
                 }
             }
 
+            pub fn takes_taste(self, id: &str) -> bool {
+                self.params().iter().any(|param| param.id == id)
+            }
+
             pub(crate) fn params(self) -> &'static [$crate::param::Param] {
                 match self {
                     $(Self::$variant => $module::PARAMS,)*

@@ -39,7 +39,7 @@ riso  16 frames, svg
   rough       0.1..=1   step 0.01
   scrib       0..=1     step 0.01
   dotp        0..=1     step 0.01
-  grain       0..=1     step 0.01
+  grain       0..=1     step 0.01 [no Taste]
 ```
 
 A Seed draws `bands`, `rough`, `scrib` and `dotp`, each across its full range. `bands` sets how many bands there are and `rough` how torn the edges look. `scrib` sets how many pen lines cross the sheet, up to 3, and `dotp` is the chance of the big dot.

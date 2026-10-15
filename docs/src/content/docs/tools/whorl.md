@@ -38,7 +38,7 @@ whorl  36 frames
   push        0..=1     step 0.01
   stripes     2..=90    step 1
   weight      0..=1     step 0.01
-  dirs        Smooth, Turbulent, Ripple
+  dirs        Smooth, Turbulent, Ripple [no Taste]
   warp        0..=1     step 0.01
   detail      0..=1     step 0.01
 ```

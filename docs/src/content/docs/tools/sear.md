@@ -40,7 +40,7 @@ sear  36 frames
   drag        0..=1     step 0.01
   tear        0..=1     step 0.01
   steps       2..=24    step 1
-  grain       0..=1     step 0.01
+  grain       0..=1     step 0.01 [no Taste]
 ```
 
 A Seed draws every Parameter above `grain`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed: `tear` stays within 0..=0.6. `grain`, the Tool's own grain, stays at 0.1. The Palette is a ramp read coolest first, so the first ink is the lowest heat and the last the peaks.

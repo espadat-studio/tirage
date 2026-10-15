@@ -37,10 +37,10 @@ husk  36 frames
   size        0..=1     step 0.01
   vary        0..=1     step 0.01
   lump        0..=1     step 0.01
-  bites       Crumble, Dots
+  bites       Crumble, Dots [no Taste]
   eat         0..=1     step 0.01
   tex         0..=1     step 0.01
-  grain       0..=1     step 0.01
+  grain       0..=1     step 0.01 [no Taste]
 ```
 
 A Seed draws `count`, `size`, `vary`, `lump`, `eat` and `tex`. Each range comes from its [Taste bounds](/concepts/taste-bounds/), which sit within the range listed. `bites` stays at Crumble, and `grain`, the Tool's own per-pixel noise, at 0.3.

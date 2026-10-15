@@ -39,8 +39,8 @@ culture  36 frames
   cover       0..=1     step 0.01
   spread      0.05..=2  step 0.01
   soft        0.02..=1  step 0.01
-  textures    Fine, Stipple
-  grain       0..=1     step 0.01
+  textures    Fine, Stipple [no Taste]
+  grain       0..=1     step 0.01 [no Taste]
   dot         1..=10    step 1
 ```
 

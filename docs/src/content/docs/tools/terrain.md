@@ -38,7 +38,7 @@ terrain  30 frames
   oct         1..=7     step 1
   contrast    0.5..=4   step 0.05
   balance     -1.2..=1.2 step 0.05
-  grain       0..=1.2   step 0.01
+  grain       0..=1.2   step 0.01 [no Taste]
   block       0..=14    step 1
 ```
 

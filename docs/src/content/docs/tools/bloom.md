@@ -38,7 +38,7 @@ bloom  24 frames, svg
   cols        8..=96    step 1
   rings       1..=14    step 1
   warp        0..=1     step 0.01
-  grain       0..=1     step 0.01
+  grain       0..=1     step 0.01 [no Taste]
   steps       2..=14    step 1
   calm        0..=1     step 0.01
 ```
