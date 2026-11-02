@@ -2,18 +2,31 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    "group:all",
     "schedule:weekly",
     "helpers:pinGitHubActionDigests"
   ],
   "semanticCommits": "enabled",
   "packageRules": [
     {
-      "description": "The hk binary (.mise/config.toml, aqua backend) and its pkl schema (hk.pkl, the customManager below) are one version in two files. Grouped so a bump cannot land half-applied: hk 2.x cannot evaluate a 1.x schema.",
-      "matchDepNames": [
-        "jdx/hk"
+      "description": "Everything that never reaches the release: dev-dependencies, the docs site, GitHub Actions, mise tools and hk with its pkl schema (one version in two files, so one PR keeps them from landing half-applied). One weekly PR typed chore, which the release tool ignores, so merging it cuts no release.",
+      "matchPackageNames": [
+        "*"
       ],
-      "groupName": "hk"
+      "groupName": "tooling dependencies",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "deps"
+    },
+    {
+      "description": "Cargo dependencies are linked into the released binary, so a bump only reaches users through a release: build is in release_commits. Own weekly PR, so a tooling bump never rides along and a runtime bump never gets typed chore. Needed because :semanticPrefixFixDepsChoreOthers types lockfile-only updates as chore, and a patch-level security fix arrives lockfile-only.",
+      "matchManagers": [
+        "cargo"
+      ],
+      "matchDepTypes": [
+        "dependencies"
+      ],
+      "groupName": "runtime dependencies",
+      "semanticCommitType": "build",
+      "semanticCommitScope": "deps"
     }
   ],
   "customManagers": [
